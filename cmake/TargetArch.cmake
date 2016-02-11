@@ -1,32 +1,65 @@
 # Based on the Qt 5 processor detection code, so should be very accurate
-# https://qt.gitorious.org/qt/qtbase/blobs/master/src/corelib/global/qprocessordetection.h
-# Currently handles arm (v5, v6, v7), x86 (32/64), ia64, and ppc (32/64)
+# http://code.qt.io/cgit/qt/qtbase.git/tree/src/corelib/global/qprocessordetection.h
+# Currently handles arm (v5, v6, v7, v8), x86 (32/64), ia64, and ppc (32/64)
 
 # Regarding POWER/PowerPC, just as is noted in the Qt source,
 # "There are many more known variants/revisions that we do not handle/detect."
 
 set(archdetect_c_code "
-#if defined(__arm__) || defined(__TARGET_ARCH_ARM)
-  #if defined(__ARM_ARCH_7__) \\
-    || defined(__ARM_ARCH_7A__) \\
-    || defined(__ARM_ARCH_7R__) \\
-    || defined(__ARM_ARCH_7M__) \\
-    || (defined(__TARGET_ARCH_ARM) && __TARGET_ARCH_ARM-0 >= 7)
-    #error cmake_ARCH armv7
+#if defined(__arm__) || defined(__TARGET_ARCH_ARM) || defined(_M_ARM) \\
+    || defined(__aarch64__) || defined(__ARM64__)
+  #if defined(__aarch64__) || defined(__ARM64__)
+    #define cmake_ARM_64
+  #else
+    #define cmake_ARM_32
+  #endif
+  #if defined(__ARM_ARCH) && __ARM_ARCH > 1
+    #define cmake_ARM __ARM_ARCH
+  #elif defined(__TARGET_ARCH_ARM) && __TARGET_ARCH_ARM > 1
+    #define cmake_ARM __TARGET_ARCH_ARM
+  #elif defined(_M_ARM) && _M_ARM > 1
+    #define cmake_ARM _M_ARM
+  #elif defined(__ARM64_ARCH_8__) \\
+      || defined(__aarch64__) \\
+      || defined(__ARMv8__) \\
+      || defined(__ARMv8_A__)
+    #define cmake_ARM 8
+  #elif defined(__ARM_ARCH_7__) \\
+      || defined(__ARM_ARCH_7A__) \\
+      || defined(__ARM_ARCH_7R__) \\
+      || defined(__ARM_ARCH_7M__) \\
+      || defined(__ARM_ARCH_7S__) \\
+      || defined(_ARM_ARCH_7) \\
+      || defined(__CORE_CORTEXA__)
+    #define cmake_ARM 7
   #elif defined(__ARM_ARCH_6__) \\
-    || defined(__ARM_ARCH_6J__) \\
-    || defined(__ARM_ARCH_6T2__) \\
-    || defined(__ARM_ARCH_6Z__) \\
-    || defined(__ARM_ARCH_6K__) \\
-    || defined(__ARM_ARCH_6ZK__) \\
-    || defined(__ARM_ARCH_6M__) \\
-    || (defined(__TARGET_ARCH_ARM) && __TARGET_ARCH_ARM-0 >= 6)
-    #error cmake_ARCH armv6
+      || defined(__ARM_ARCH_6J__) \\
+      || defined(__ARM_ARCH_6T2__) \\
+      || defined(__ARM_ARCH_6Z__) \\
+      || defined(__ARM_ARCH_6K__) \\
+      || defined(__ARM_ARCH_6ZK__) \\
+      || defined(__ARM_ARCH_6M__)
+    #define cmake_ARM 6
   #elif defined(__ARM_ARCH_5TEJ__) \\
-    || (defined(__TARGET_ARCH_ARM) && __TARGET_ARCH_ARM-0 >= 5)
+      || defined(__ARM_ARCH_5TE__)
+    #define cmake_ARM 5
+  #else
+    #define cmake_ARM 0
+  #endif
+  #if cmake_ARM >= 8
+    #error cmake_ARCH armv8
+  #elif cmake_ARM >= 7
+    #error cmake_ARCH armv7
+  #elif cmake_ARM >= 6
+    #error cmake_ARCH armv6
+  #elif cmake_ARM >= 5
     #error cmake_ARCH armv5
   #else
-    #error cmake_ARCH arm
+    #if defined(cmake_ARM_64)
+      #error cmake_ARCH arm64
+    #else
+      #error cmake_ARCH arm
+    #endif
   #endif
 #elif defined(__i386) || defined(__i386__) || defined(_M_IX86)
   #error cmake_ARCH i386
