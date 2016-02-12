@@ -29,15 +29,31 @@ namespace uvc {
   } while (0)
 
 /*
+class device_error : public std::exception {
+ public:
+  explicit device_error(const std::string &what_arg) noexcept
+      : what_message_(std::move(what_arg)) {}
+  explicit device_error(const char *what_arg) noexcept
+      : what_message_(std::move(what_arg)) {}
+
+  const char *what() const noexcept {
+    return what_message_.c_str();
+  }
+ private:
+  std::string what_message_;
+};
+*/
+
 struct throw_error {
-  throw_error() {}
+  throw_error() = default;
 
   explicit throw_error(const std::string &s) {
     ss << s;
   }
 
-  ~throw_error() {
+  ~throw_error() noexcept(false) {
     throw std::runtime_error(ss.str());
+    // throw device_error(ss.str());
   }
 
   template<class T>
@@ -48,7 +64,6 @@ struct throw_error {
 
   std::ostringstream ss;
 };
-*/
 
 static int xioctl(int fh, int request, void *arg) {
   int r;
@@ -77,7 +92,6 @@ struct device {
   const std::shared_ptr<context> parent;
 
   std::string dev_name;  // Device name (typically of the form /dev/video*)
-  int busnum, devnum, parent_devnum;  // USB device bus number and device number
 
   std::string name;  // Device description name
   int vid, pid, mi;  // Vendor ID, product ID, and multiple interface index
@@ -98,72 +112,52 @@ struct device {
 
     struct stat st;
     if (stat(dev_name.c_str(), &st) < 0) {  // file status
-      LOG(FATAL) << "Cannot identify '" << dev_name << "': " << errno << ", "
-                 << strerror(errno);
+      throw_error() << "Cannot identify '" << dev_name << "': " << errno << ", "
+                    << strerror(errno);
     }
     if (!S_ISCHR(st.st_mode)) {  // character device?
-      LOG(FATAL) << dev_name << " is no device";
+      throw_error() << dev_name << " is no device";
     }
-
-    // Search directory and up to three parent directories to find busnum/devnum
-    std::ostringstream ss;
-    ss << "/sys/dev/char/" << major(st.st_rdev) << ":" << minor(st.st_rdev)
-       << "/device/";
-    auto path = ss.str();
-
-    bool good = false;
-    for (int i = 0; i <= 3; ++i) {
-      if (std::ifstream(path + "busnum") >> busnum) {
-        if (std::ifstream(path + "devnum") >> devnum) {
-          if (std::ifstream(path + "../devnum") >> parent_devnum) {
-            good = true;
-            break;
-          }
-        }
-      }
-      path += "../";
-    }
-    if (!good)
-      LOG(FATAL) << "Failed to read busnum/devnum";
 
     if (!(std::ifstream("/sys/class/video4linux/" + name + "/name") >>
           this->name))
-      LOG(FATAL) << "Failed to read name";
+      throw_error() << "Failed to read name";
 
     std::string modalias;
     if (!(std::ifstream(
               "/sys/class/video4linux/" + name + "/device/modalias") >>
           modalias))
-      LOG(FATAL) << "Failed to read modalias";
+      throw_error() << "Failed to read modalias";
     if (modalias.size() < 14 || modalias.substr(0, 5) != "usb:v" ||
         modalias[9] != 'p')
-      LOG(FATAL) << "Not a usb format modalias";
+      throw_error() << "Not a usb format modalias";
     if (!(std::istringstream(modalias.substr(5, 4)) >> std::hex >> vid))
-      LOG(FATAL) << "Failed to read vendor ID";
+      throw_error() << "Failed to read vendor ID";
     if (!(std::istringstream(modalias.substr(10, 4)) >> std::hex >> pid))
-      LOG(FATAL) << "Failed to read product ID";
+      throw_error() << "Failed to read product ID";
     if (!(std::ifstream(
               "/sys/class/video4linux/" + name + "/device/bInterfaceNumber") >>
           std::hex >> mi))
-      LOG(FATAL) << "Failed to read interface number";
+      throw_error() << "Failed to read interface number";
 
     fd = open(dev_name.c_str(), O_RDWR | O_NONBLOCK, 0);
     if (fd < 0) {
-      LOG(FATAL) << "Cannot open '" << dev_name << "': " << errno << ", "
-                 << strerror(errno);
+      throw_error() << "Cannot open '" << dev_name << "': " << errno << ", "
+                    << strerror(errno);
     }
 
     v4l2_capability cap = {};
     if (xioctl(fd, VIDIOC_QUERYCAP, &cap) < 0) {
       if (errno == EINVAL)
-        LOG(FATAL) << dev_name << " is no V4L2 device";
+        throw_error() << dev_name << " is no V4L2 device";
       else
-        LOG_ERROR(FATAL, "VIDIOC_QUERYCAP");
+        throw_error() << "VIDIOC_QUERYCAP error " << errno << ", "
+                      << strerror(errno);
     }
     if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE))
-      LOG(FATAL) << dev_name + " is no video capture device";
+      throw_error() << dev_name + " is no video capture device";
     if (!(cap.capabilities & V4L2_CAP_STREAMING))
-      LOG(FATAL) << dev_name + " does not support streaming I/O";
+      throw_error() << dev_name + " does not support streaming I/O";
 
     // Select video input, video standard and tune here.
     v4l2_cropcap cropcap = {};
@@ -437,7 +431,7 @@ std::vector<std::shared_ptr<device>> query_devices(
     try {
       devices.push_back(std::make_shared<device>(context, name));
     } catch (const std::exception &e) {
-      LOG(INFO) << "Not a USB video device: " << e.what();
+      VLOG(2) << "Not a USB video device: " << e.what();
     }
   }
   closedir(dir);
