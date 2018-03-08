@@ -21,3 +21,17 @@ opendoc: apidoc
 		html=./doc/output/$$lang/html/index.html; \
 		[ -f "$$html" ] && sh ./scripts/open.sh $$html; \
 	done
+
+host:
+	@$(call echo,Make $@)
+	@echo HOST_OS: $(HOST_OS)
+	@echo HOST_ARCH: $(HOST_ARCH)
+	@echo ECHO: $(ECHO)
+	@echo CC: $(CC)
+	@echo CXX: $(CXX)
+	@echo MAKE: $(MAKE)
+	@echo BUILD: $(BUILD)
+	@echo FIND: $(FIND)
+	@echo LDD: $(LDD)
+	@echo CMAKE: $(CMAKE)
+	@#$(FIND) . -name READ*

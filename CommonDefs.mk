@@ -52,7 +52,7 @@ else
   DUMMY := $(error "Can't detect host os")
 endif
 
-UNAME_M = $(shell uname -m)
+UNAME_M := $(shell uname -m)
 ifneq ($(findstring x86_64,$(UNAME_M)),)
   HOST_ARCH := x64
 else ifneq ($(findstring x86,$(UNAME_M)),)
@@ -73,7 +73,7 @@ endif
 
 HOST_NAME := $(HOST_OS)
 ifeq ($(HOST_OS),Linux)
-  UNAME_A = $(shell uname -a)
+  UNAME_A := $(shell uname -a)
   ifneq ($(findstring tegra,$(UNAME_A)),)
     HOST_NAME := Tegra
   else ifneq ($(findstring jetsonbot,$(UNAME_A)),)
@@ -147,7 +147,7 @@ endif
 
 ifeq ($(HOST_OS),Win)
 ifeq ($(HOST_ARCH),x64)
-  VS_VERSION = $(shell echo "$(shell which cl)" | sed -e "s/.*Visual\sStudio\s\([0-9]\+\).*/\1/g")
+  VS_VERSION := $(shell echo "$(shell which cl)" | sed "s/.*Visual\sStudio\s\([0-9]\+\).*/\1/g")
   ifeq (15,$(VS_VERSION))
     CMAKE += -G "Visual Studio 15 2017 Win64"
   else ifeq (14,$(VS_VERSION))
