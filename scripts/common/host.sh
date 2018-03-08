@@ -32,7 +32,7 @@ if _host_contains_ "$_UNAME_S" "Linux"; then
   HOST_OS="Linux"
 elif _host_contains_ "$_UNAME_S" "Darwin"; then
   HOST_OS="Mac"
-elif [ -n "$Windows_NT" ]; then
+elif _host_contains_ "$_UNAME_S" "MSYS\|MINGW"; then
   HOST_OS="Win"
 else
   echo >&2 "-- HOST: unknown os :("

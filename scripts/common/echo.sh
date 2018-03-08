@@ -9,7 +9,11 @@
 #   source "$(dirname "$0")/echo.sh"
 # fi
 
-ECHO="echo"
+if [ "$OS" = "Windows_NT" ]; then
+  ECHO="echo -e"
+else
+  ECHO="echo"
+fi
 
 # task colors
 COLOR_STRONG="1;35"  # Magenta
