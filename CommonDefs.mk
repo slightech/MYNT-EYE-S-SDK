@@ -31,13 +31,6 @@ else
   endif
 endif
 
-UNAME_S := $(shell uname -s)
-ifneq ($(UNAME_S),)
-ifneq ($(findstring MINGW,$(UNAME_S)),)
-  HOST_OS := MinGW
-endif
-endif
-
 else
 
 UNAME_S := $(shell uname -s)
@@ -46,7 +39,7 @@ ifneq ($(findstring Linux,$(UNAME_S)),)
 else ifneq ($(findstring Darwin,$(UNAME_S)),)
   HOST_OS := Mac
 else ifneq ($(findstring MINGW,$(UNAME_S)),)
-  HOST_OS := MinGW
+  HOST_OS := Win
 else ifneq ($(findstring MSYS,$(UNAME_S)),)
   # Need MSYS on Windows
   HOST_OS := Win
@@ -74,7 +67,16 @@ endif
 endif
 
 HOST_NAME := $(HOST_OS)
-ifeq ($(HOST_OS),Linux)
+ifeq ($(HOST_OS),Win)
+  UNAME_S := $(shell uname -s)
+  ifneq ($(UNAME_S),)
+    ifneq ($(findstring MINGW,$(UNAME_S)),)
+      HOST_NAME := MinGW
+    else ifneq ($(findstring MSYS,$(UNAME_S)),)
+      HOST_NAME := MSYS
+    endif
+  endif
+else ifeq ($(HOST_OS),Linux)
   UNAME_A := $(shell uname -a)
   ifneq ($(findstring tegra,$(UNAME_A)),)
     HOST_NAME := Tegra
@@ -97,16 +99,18 @@ SH := $(SHELL)
 ECHO := echo -e
 FIND := $(shell ./scripts/getfind.sh)
 
-ifeq ($(HOST_OS),MinGW)
-  CC := x86_64-w64-mingw32-gcc
-  CXX := x86_64-w64-mingw32-g++
-  MAKE := mingw32-make
-  BUILD := $(MAKE)
-else ifeq ($(HOST_OS),Win)
-  CC := cl
-  CXX := cl
-  MAKE := make
-  BUILD := msbuild.exe ALL_BUILD.vcxproj /property:Configuration=Release
+ifeq ($(HOST_OS),Win)
+  ifeq ($(HOST_NAME),MinGW)
+    CC := x86_64-w64-mingw32-gcc
+    CXX := x86_64-w64-mingw32-g++
+    MAKE := mingw32-make
+    BUILD := $(MAKE)
+  else
+    CC := cl
+    CXX := cl
+    MAKE := make
+    BUILD := msbuild.exe ALL_BUILD.vcxproj /property:Configuration=Release
+  endif
 else
   # mac & linux
   # Set realpath for linux because of compiler not found with wrong path when cmake again
@@ -131,8 +135,12 @@ endif
 ifneq ($(CXX),)
   CMAKE := $(CMAKE) -DCMAKE_CXX_COMPILER=$(CXX)
 endif
-ifneq ($(HOST_OS),Win)
-  ifneq ($(MAKE),)
+ifneq ($(MAKE),)
+  ifeq ($(HOST_OS),Win)
+    ifeq ($(HOST_NAME),MinGW)
+      CMAKE := $(CMAKE) -DCMAKE_MAKE_PROGRAM=$(MAKE)
+    endif
+  else
     CMAKE := $(CMAKE) -DCMAKE_MAKE_PROGRAM=$(MAKE)
   endif
 endif
@@ -142,12 +150,11 @@ CMAKE_OPTIONS :=
 #CMAKE_OPTIONS += -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
 CMAKE_OPTIONS_AFTER :=
 
-ifeq ($(HOST_OS),MinGW)
-  CMAKE += -G "MinGW Makefiles"
-endif
-
 ifeq ($(HOST_OS),Win)
-ifeq ($(HOST_ARCH),x64)
+
+ifeq ($(HOST_NAME),MinGW)
+  CMAKE += -G "MinGW Makefiles"
+else ifeq ($(HOST_ARCH),x64)
   VS_VERSION := $(shell echo "$(shell which cl)" | sed "s/.*Visual\sStudio\s\([0-9]\+\).*/\1/g")
   ifeq (15,$(VS_VERSION))
     CMAKE += -G "Visual Studio 15 2017 Win64"
@@ -167,6 +174,7 @@ ifeq ($(HOST_ARCH),x64)
     $(call mkinfo,"Connot specify Visual Studio Win64")
   endif
 endif
+
 endif
 
 # Shell

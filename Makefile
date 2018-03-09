@@ -77,6 +77,7 @@ host:
 	@$(call echo,Make $@)
 	@echo HOST_OS: $(HOST_OS)
 	@echo HOST_ARCH: $(HOST_ARCH)
+	@echo HOST_NAME: $(HOST_NAME)
 	@echo SH: $(SH)
 	@echo ECHO: $(ECHO)
 	@echo FIND: $(FIND)

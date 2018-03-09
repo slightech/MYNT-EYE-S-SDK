@@ -56,7 +56,26 @@ fi
 
 fi
 
+HOST_NAME="$HOST_OS"
+
+if [ "$HOST_OS" = "Win" ]; then
+  _UNAME_S=$(uname -s)
+  if [ -n "$_UNAME_S" ]; then
+    if _host_contains_ "$_UNAME_S" "MINGW"; then
+      HOST_NAME="MINGW"
+    elif _host_contains_ "$_UNAME_S" "MSYS"; then
+      HOST_NAME="MSYS"
+    fi
+  fi
+elif [ "$HOST_OS" = "Linux" ]; then
+  _UNAME_A=$(uname -a)
+  if _host_contains_ "$_UNAME_A" "tegra\|jetsonbot"; then
+    HOST_NAME="Tegra"
+  fi
+fi
+
 if [ -n "${_VERBOSE_}" ]; then
   echo "-- HOST_OS: $HOST_OS"
   echo "-- HOST_ARCH: $HOST_ARCH"
+  echo "-- HOST_NAME: $HOST_NAME"
 fi
