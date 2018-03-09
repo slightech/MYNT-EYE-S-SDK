@@ -82,8 +82,10 @@ else ifeq ($(HOST_OS),Linux)
     HOST_NAME := Tegra
   else ifneq ($(findstring jetsonbot,$(UNAME_A)),)
     HOST_NAME := Tegra
-  #else ifneq ($(findstring firefly,$(UNAME_A)),)
-  #  HOST_NAME := Firefly
+  else ifneq ($(findstring firefly,$(UNAME_A)),)
+   HOST_NAME := Firefly
+  else ifneq ($(findstring ubuntu,$(UNAME_A)),)
+   HOST_NAME := Ubuntu
   endif
 endif
 

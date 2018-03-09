@@ -71,6 +71,10 @@ elif [ "$HOST_OS" = "Linux" ]; then
   _UNAME_A=$(uname -a)
   if _host_contains_ "$_UNAME_A" "tegra\|jetsonbot"; then
     HOST_NAME="Tegra"
+  elif _host_contains_ "$_UNAME_A" "firefly"; then
+    HOST_NAME="Firefly"
+  elif _host_contains_ "$_UNAME_A" "ubuntu"; then
+    HOST_NAME="Ubuntu"
   fi
 fi
 
