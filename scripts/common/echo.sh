@@ -21,6 +21,7 @@ COLOR_INFO="1;34"    # Blue
 COLOR_DONE="1;32"    # Green
 COLOR_ERROR="1;31"   # Red
 # action colors
+COLOR_STRONG_NORMAL="35"
 COLOR_INFO_NORMAL="34"
 COLOR_DONE_NORMAL="32"
 COLOR_ERROR_NORMAL="31"
@@ -55,6 +56,10 @@ _echo_d() {
 
 _echo_e() {
   _echo_e_ "$1" "$COLOR_ERROR"
+}
+
+_echo_sn() {
+  _echo_ "$1" "$COLOR_STRONG_NORMAL"
 }
 
 _echo_in() {

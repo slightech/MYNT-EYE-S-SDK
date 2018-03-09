@@ -1,3 +1,5 @@
 .DS_Store
 
 /doc/output/
+
+/get-pip.py

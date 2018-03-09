@@ -18,6 +18,10 @@ _detect() {
   fi
 }
 
+_detect_cmd() {
+  [ -x "$(command -v $1)" ]
+}
+
 _detect_fn() {
   [ `type -t $1`"" == "function" ]
 }
