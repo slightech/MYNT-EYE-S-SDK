@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 [ -n "${_MKDIR_SH_}" ] && return || readonly _MKDIR_SH_=1
 [ -n "${_VERBOSE_}" ] && echo "-- INCLUDE: mkdir.sh"

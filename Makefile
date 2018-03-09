@@ -17,14 +17,14 @@ help:
 
 apidoc:
 	@$(call echo,Make $@)
-	@sh ./doc/build.sh
+	@$(SH) ./doc/build.sh
 
 opendoc: apidoc
 	@$(call echo,Make $@)
-	@$(shell sh ./doc/langs.sh 1); \
+	@$(shell $(SH) ./doc/langs.sh 1); \
 	for lang in "$${LANGS[@]}"; do \
 		html=./doc/output/$$lang/html/index.html; \
-		[ -f "$$html" ] && sh ./scripts/open.sh $$html; \
+		[ -f "$$html" ] && $(SH) ./scripts/open.sh $$html; \
 	done
 
 .PHONY: apidoc opendoc
@@ -33,7 +33,7 @@ opendoc: apidoc
 
 init:
 	@$(call echo,Make $@)
-	@sh ./scripts/init.sh
+	@$(SH) ./scripts/init.sh
 
 .PHONY: init
 
@@ -77,14 +77,14 @@ host:
 	@$(call echo,Make $@)
 	@echo HOST_OS: $(HOST_OS)
 	@echo HOST_ARCH: $(HOST_ARCH)
+	@echo SH: $(SH)
 	@echo ECHO: $(ECHO)
+	@echo FIND: $(FIND)
 	@echo CC: $(CC)
 	@echo CXX: $(CXX)
 	@echo MAKE: $(MAKE)
 	@echo BUILD: $(BUILD)
-	@echo FIND: $(FIND)
 	@echo LDD: $(LDD)
 	@echo CMAKE: $(CMAKE)
-	@#$(FIND) . -name READ*
 
 .PHONY: host

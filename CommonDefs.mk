@@ -1,6 +1,8 @@
 ifndef _COMMON_DEFS_MAKE_
 _COMMON_DEFS_MAKE_ := 1
 
+SHELL := /bin/bash
+
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 COMMA := ,
@@ -91,29 +93,28 @@ lower = $(shell echo $1 | tr '[:upper:]' '[:lower:]')
 
 # Command
 
+SH := $(SHELL)
+ECHO := echo -e
+FIND := $(shell ./scripts/getfind.sh)
+
 ifeq ($(HOST_OS),MinGW)
-  ECHO := echo -e
   CC := x86_64-w64-mingw32-gcc
   CXX := x86_64-w64-mingw32-g++
   MAKE := mingw32-make
   BUILD := $(MAKE)
 else ifeq ($(HOST_OS),Win)
-  ECHO := echo -e
   CC := cl
   CXX := cl
   MAKE := make
   BUILD := msbuild.exe ALL_BUILD.vcxproj /property:Configuration=Release
 else
   # mac & linux
-  ECHO := echo
   # Set realpath for linux because of compiler not found with wrong path when cmake again
   CC := /usr/bin/cc
   CXX := /usr/bin/c++
   MAKE := make
   BUILD := $(MAKE)
 endif
-
-FIND := $(shell ./scripts/getfind.sh)
 
 ifeq ($(HOST_OS),Mac)
   LDD := otool -L

@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 [ -n "${_DETECT_SH_}" ] && return || readonly _DETECT_SH_=1
 [ -n "${_VERBOSE_}" ] && echo "-- INCLUDE: detect.sh"
@@ -13,8 +13,12 @@ _detect() {
       exit 1
     fi
   else
-    [ -z "$verbose" ] || echo "-- DETECT: $cmd found"
-    eval "${cmd}_FOUND=1"
+    if [ -z "$verbose" ]; then
+      eval "${cmd}_FOUND=1" &> /dev/null
+    else
+      echo "-- DETECT: $cmd found"
+      eval "${cmd}_FOUND=1"
+    fi
   fi
 }
 

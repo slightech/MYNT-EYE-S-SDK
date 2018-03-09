@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 # _VERBOSE_=1
 # _TEST_=1
 

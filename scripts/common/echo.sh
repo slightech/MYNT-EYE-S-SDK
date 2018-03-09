@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 [ -n "${_ECHO_SH_}" ] && return || readonly _ECHO_SH_=1
 [ -n "${_VERBOSE_}" ] && echo "-- INCLUDE: echo.sh"
@@ -9,11 +9,7 @@
 #   source "$(dirname "$0")/echo.sh"
 # fi
 
-if [ "$OS" = "Windows_NT" ]; then
-  ECHO="echo -e"
-else
-  ECHO="echo"
-fi
+ECHO="echo -e"
 
 # task colors
 COLOR_STRONG="1;35"  # Magenta

@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 [ -n "${_HOST_SH_}" ] && return || readonly _HOST_SH_=1
 [ -n "${_VERBOSE_}" ] && echo "-- INCLUDE: host.sh"

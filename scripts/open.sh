@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 BASE_DIR=$(cd "$(dirname "$0")" && pwd)
 
