@@ -130,7 +130,9 @@ endif
 
 # CMake
 
-CMAKE := cmake -DCMAKE_BUILD_TYPE=Release
+CMAKE := cmake
+# CMAKE := $(CMAKE) -DCMAKE_BUILD_TYPE=Debug
+CMAKE := $(CMAKE) -DCMAKE_BUILD_TYPE=Release
 ifneq ($(CC),)
   CMAKE := $(CMAKE) -DCMAKE_C_COMPILER=$(CC)
 endif
@@ -148,8 +150,7 @@ ifneq ($(MAKE),)
 endif
 
 CMAKE_OPTIONS :=
-#CMAKE_OPTIONS += -DDEBUG=ON -DTIMECOST=ON
-#CMAKE_OPTIONS += -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+# CMAKE_OPTIONS += -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
 CMAKE_OPTIONS_AFTER :=
 
 ifeq ($(HOST_OS),Win)
@@ -191,7 +192,7 @@ define echo
 endef
 
 define rm
-	[ ! -e "$1" ] || (rm -rf "$1" && $(ECHO) "RM: $1")
+	[ ! -h "$1" ] && [ ! -e "$1" ] || (rm -rf "$1" && $(ECHO) "RM: $1")
 endef
 
 define rm_f

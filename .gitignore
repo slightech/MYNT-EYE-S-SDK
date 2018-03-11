@@ -1,5 +1,12 @@
 .DS_Store
 
+_build/
+_output/
+
 /doc/output/
 
 /get-pip.py
+
+/*INFO*
+/*WARNING*
+/*ERROR*

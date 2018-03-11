@@ -8,6 +8,7 @@ help:
 	@echo "  make apidoc          make api doc"
 	@echo "  make opendoc         open api doc (html)"
 	@echo "  make init            init project"
+	@echo "  make build           build project"
 	@echo "  make test            build test and run"
 	@echo "  make clean|cleanall  clean generated or useless things"
 
@@ -49,6 +50,14 @@ third_party: submodules
 
 .PHONY: submodules third_party
 
+# build
+
+build: third_party
+	@$(call echo,Make $@)
+	@$(call cmake_build,./_build)
+
+.PHONY: build
+
 # test
 
 test: submodules
@@ -62,14 +71,22 @@ test: submodules
 
 clean:
 	@$(call echo,Make $@)
-	@$(call rm,./tests/gtest/_build/)
-	@$(call rm,./third_party/glog/_build/)
+	@$(call rm,./_build/)
+	@$(call rm,./_output/)
+	@$(MAKE) cleanlog
 
 cleanall: clean
 	@$(call rm,./doc/output/)
+	@$(call rm,./tests/gtest/_build/)
+	@$(call rm,./third_party/glog/_build/)
 	@$(FIND) . -type f -name ".DS_Store" -print0 | xargs -0 rm -f
 
-.PHONY: clean cleanall
+cleanlog:
+	@$(call rm_f,*INFO*)
+	@$(call rm_f,*WARNING*)
+	@$(call rm_f,*ERROR*)
+
+.PHONY: clean cleanall cleanlog
 
 # others
 
@@ -89,3 +106,9 @@ host:
 	@echo CMAKE: $(CMAKE)
 
 .PHONY: host
+
+cpplint:
+	@$(call echo,Make $@)
+	@$(SH) ./scripts/$@.sh
+
+.PHONY: cpplint
