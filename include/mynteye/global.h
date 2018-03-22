@@ -66,6 +66,8 @@
   Class(const Class &) = delete; \
   Class &operator=(const Class &) = delete;
 
+#define UNUSED(x) (void)x;
+
 template <typename... T>
 void unused(T &&...) {}
 

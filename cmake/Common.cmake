@@ -1,5 +1,15 @@
 include(CMakeParseArguments)
 
+if(MSVC OR MSYS OR MINGW)
+  set(OS_WIN TRUE)
+elseif(APPLE)
+  set(OS_MAC TRUE)
+elseif(UNIX)
+  set(OS_LINUX TRUE)
+else()
+  message(FATAL_ERROR "Unsupported OS.")
+endif()
+
 # set_outdir(ARCHIVE_OUTPUT_DIRECTORY
 #            LIBRARY_OUTPUT_DIRECTORY
 #            RUNTIME_OUTPUT_DIRECTORY)

@@ -18,6 +18,16 @@ fi
 _detect curl
 _detect $PYTHON
 
+if [ "$HOST_OS" = "Mac" ]; then
+  _detect_install() {
+    brew ls --versions "$1" > /dev/null
+  }
+else
+  _detect_install() {
+    _detect_cmd "$1"
+  }
+fi
+
 _install_deps() {
   _cmd="$1"; shift; _deps_all=($@)
   _echo "Install cmd: $_cmd"
@@ -29,7 +39,7 @@ _install_deps() {
   fi
   _deps=()
   for _dep in "${_deps_all[@]}"; do
-    _detect_cmd $_dep || _deps+=($_dep)
+    _detect_install $_dep || _deps+=($_dep)
   done
   if [ ${#_deps[@]} -eq 0 ]; then
     _echo_i "All deps already exist"
@@ -62,6 +72,7 @@ elif [ "$HOST_OS" = "Mac" ]; then
   # link clang-format-diff (if not compatible with Python 3, fix it by yourself)
   [ -f "/usr/local/bin/clang-format-diff" ] || \
     ln -s /usr/local/share/clang/clang-format-diff.py /usr/local/bin/clang-format-diff
+  _install_deps "brew install" libuvc
 elif [ "$HOST_OS" = "Win" ]; then
   # detect pacman on MSYS
   _detect pacman

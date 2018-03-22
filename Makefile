@@ -10,6 +10,7 @@ help:
 	@echo "  make init            init project"
 	@echo "  make build           build project"
 	@echo "  make test            build test and run"
+	@echo "  make install         install project"
 	@echo "  make clean|cleanall  clean generated or useless things"
 
 .PHONY: help
@@ -30,14 +31,6 @@ opendoc: apidoc
 
 .PHONY: apidoc opendoc
 
-# init
-
-init:
-	@$(call echo,Make $@)
-	@$(SH) ./scripts/init.sh
-
-.PHONY: init
-
 # deps
 
 submodules:
@@ -49,6 +42,14 @@ third_party: submodules
 	@$(call cmake_build,./third_party/glog/_build)
 
 .PHONY: submodules third_party
+
+# init
+
+init: submodules
+	@$(call echo,Make $@)
+	@$(SH) ./scripts/init.sh
+
+.PHONY: init
 
 # build
 
@@ -67,12 +68,21 @@ test: submodules
 
 .PHONY: test
 
+# install
+
+install: build
+	@$(call echo,Make $@)
+	@cd ./_build; make install
+
+.PHONY: install
+
 # clean
 
 clean:
 	@$(call echo,Make $@)
 	@$(call rm,./_build/)
 	@$(call rm,./_output/)
+	@$(call rm,./_install/)
 	@$(MAKE) cleanlog
 
 cleanall: clean
@@ -107,7 +117,7 @@ host:
 
 .PHONY: host
 
-cpplint:
+cpplint: submodules
 	@$(call echo,Make $@)
 	@$(SH) ./scripts/$@.sh
 
