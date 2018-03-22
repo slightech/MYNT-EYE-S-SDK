@@ -1,4 +1,5 @@
 .DS_Store
+/.vscode/
 
 _build/
 _install/
@@ -11,3 +12,4 @@ _output/
 /*INFO*
 /*WARNING*
 /*ERROR*
+/*FATAL*

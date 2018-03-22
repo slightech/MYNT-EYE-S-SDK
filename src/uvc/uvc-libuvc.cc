@@ -18,11 +18,13 @@ static void check(const char *call, uvc_error_t status) {
 struct context {
   uvc_context_t *ctx;
 
-  context() : ctx() {
+  context() : ctx(nullptr) {
+    VLOG(2) << __func__;
     CALL_UVC(uvc_init, &ctx, nullptr);
   }
 
   ~context() {
+    VLOG(2) << __func__;
     if (ctx)
       uvc_exit(ctx);
   }
@@ -31,17 +33,14 @@ struct context {
 struct device {
   const std::shared_ptr<context> parent;
 
-  uvc_device_t *uvcdevice;
+  uvc_device_t *uvcdevice = nullptr;
   uvc_device_handle_t *handle = nullptr;
 
   int vid, pid;
 
-  // uvc_stream_ctrl_t ctrl;
-  // uint8_t unit;
-  // video_channel_callback callback = nullptr;
-
   device(std::shared_ptr<context> parent, uvc_device_t *uvcdevice)
       : parent(parent), uvcdevice(uvcdevice) {
+    VLOG(2) << __func__;
     open();
 
     uvc_device_descriptor_t *desc;
@@ -52,6 +51,7 @@ struct device {
   }
 
   ~device() {
+    VLOG(2) << __func__;
     if (handle)
       uvc_close(handle);
     if (uvcdevice)

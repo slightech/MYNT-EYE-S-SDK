@@ -11,6 +11,7 @@ help:
 	@echo "  make build           build project"
 	@echo "  make test            build test and run"
 	@echo "  make install         install project"
+	@echo "  make samples         build samples"
 	@echo "  make clean|cleanall  clean generated or useless things"
 
 .PHONY: help
@@ -76,6 +77,14 @@ install: build
 
 .PHONY: install
 
+# samples
+
+samples: install
+	@$(call echo,Make $@)
+	@$(call cmake_build,./samples/_build)
+
+.PHONY: samples
+
 # clean
 
 clean:
@@ -95,6 +104,7 @@ cleanlog:
 	@$(call rm_f,*INFO*)
 	@$(call rm_f,*WARNING*)
 	@$(call rm_f,*ERROR*)
+	@$(call rm_f,*FATAL*)
 
 .PHONY: clean cleanall cleanlog
 
