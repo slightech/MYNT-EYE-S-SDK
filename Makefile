@@ -92,6 +92,8 @@ clean:
 	@$(call rm,./_build/)
 	@$(call rm,./_output/)
 	@$(call rm,./_install/)
+	@$(call rm,./samples/_build/)
+	@$(call rm,./samples/_output/)
 	@$(MAKE) cleanlog
 
 cleanall: clean

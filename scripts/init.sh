@@ -18,7 +18,11 @@ fi
 _detect curl
 _detect $PYTHON
 
-if [ "$HOST_OS" = "Mac" ]; then
+if [ "$HOST_OS" = "Linux" ]; then
+  _detect_install() {
+    dpkg -s "$1" > /dev/null
+  }
+elif [ "$HOST_OS" = "Mac" ]; then
   _detect_install() {
     brew ls --versions "$1" > /dev/null
   }
@@ -58,6 +62,7 @@ if [ "$HOST_OS" = "Linux" ]; then
   _detect apt-get
   # apt-get install
   _install_deps "sudo apt-get install" build-essential cmake git clang-format
+  _install_deps "sudo apt-get install" libv4l-dev
   # sudo
   SUDO="sudo"
 elif [ "$HOST_OS" = "Mac" ]; then
