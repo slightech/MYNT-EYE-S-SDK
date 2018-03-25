@@ -31,6 +31,9 @@ message(STATUS "Found mynteye: ${mynteye_VERSION}")
 
 LIST(APPEND CMAKE_MODULE_PATH ${PRO_DIR}/cmake)
 
+find_package(OpenCV REQUIRED)
+message(STATUS "Found OpenCV: ${OpenCV_VERSION}")
+
 # targets
 
 include(${PRO_DIR}/cmake/Common.cmake)
@@ -49,7 +52,7 @@ include_directories(
 ## camera
 
 add_executable(camera camera.cc)
-target_link_libraries(camera mynteye)
+target_link_libraries(camera mynteye ${OpenCV_LIBS})
 
 if(OS_WIN)
   target_compile_definitions(camera
