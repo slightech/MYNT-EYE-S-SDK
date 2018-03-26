@@ -15,7 +15,20 @@ _detect "pdflatex" 1
 
 source "$BASE_DIR/langs.sh"
 DOXYFILE="api.doxyfile"
-OUTPUT="$BASE_DIR/output"
+OUTPUT="$BASE_DIR/_output"
+
+# \usepackage{CJKutf8}
+# \begin{document}
+# \begin{CJK}{UTF8}{gbsn}
+# ...
+# \end{CJK}
+# \end{document}
+_texcjk() {
+  tex="$1"; shift;
+  _echo_in "add cjk to $tex"
+  sed -i "" -e $'s/^\\\\begin{document}$/\\\\usepackage{CJKutf8}\\\n\\\\begin{document}\\\n\\\\begin{CJK}{UTF8}{gbsn}/g' $tex
+  sed -i "" -e $'s/^\\\\end{document}$/\\\\end{CJK}\\\n\\\\end{document}/g' $tex
+}
 
 for lang in "${LANGS[@]}"; do
   _echo_s "Build doc $lang"
@@ -27,7 +40,7 @@ for lang in "${LANGS[@]}"; do
     doxygen $DOXYFILE
     if [ $pdflatex_FOUND ] && [ -f "$OUTPUT/$lang/latex/Makefile" ]; then
       _echo_in "doxygen make latex"
-      cd "$OUTPUT/$lang/latex" && make
+      cd "$OUTPUT/$lang/latex" && _texcjk refman.tex && make
       [ -f "refman.pdf" ] && mv "refman.pdf" "../mynteye-apidoc.pdf"
     fi
     _echo_d "doxygen completed"

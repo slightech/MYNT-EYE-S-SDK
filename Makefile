@@ -26,7 +26,7 @@ opendoc: apidoc
 	@$(call echo,Make $@)
 	@$(shell $(SH) ./doc/langs.sh 1); \
 	for lang in "$${LANGS[@]}"; do \
-		html=./doc/output/$$lang/html/index.html; \
+		html=./doc/_output/$$lang/html/index.html; \
 		[ -f "$$html" ] && $(SH) ./scripts/open.sh $$html; \
 	done
 
@@ -97,7 +97,7 @@ clean:
 	@$(MAKE) cleanlog
 
 cleanall: clean
-	@$(call rm,./doc/output/)
+	@$(call rm,./doc/_output/)
 	@$(call rm,./tests/gtest/_build/)
 	@$(call rm,./third_party/glog/_build/)
 	@$(FIND) . -type f -name ".DS_Store" -print0 | xargs -0 rm -f

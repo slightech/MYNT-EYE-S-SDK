@@ -5,8 +5,6 @@ _build/
 _install/
 _output/
 
-/doc/output/
-
 /get-pip.py
 
 /*INFO*
