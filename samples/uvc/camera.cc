@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
 
   for (size_t i = 0; i < n; i++) {
     auto device = mynteye_devices[i];
-    auto name = uvc::get_name(*device);
+    auto name = uvc::get_video_name(*device);
     auto vid = uvc::get_vendor_id(*device);
     auto pid = uvc::get_product_id(*device);
     LOG(INFO) << "index: " << i << ", name: " << name << ", vid: " << vid

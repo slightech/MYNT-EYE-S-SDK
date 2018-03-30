@@ -426,16 +426,16 @@ std::vector<std::shared_ptr<device>> query_devices(
   return devices;
 }
 
-std::string get_name(const device &device) {
-  return device.dev_name;
-}
-
 int get_vendor_id(const device &device) {
   return device.vid;
 }
 
 int get_product_id(const device &device) {
   return device.pid;
+}
+
+std::string get_video_name(const device &device) {
+  return device.dev_name;
 }
 
 void get_control(
