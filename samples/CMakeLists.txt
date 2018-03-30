@@ -39,23 +39,7 @@ message(STATUS "Found OpenCV: ${OpenCV_VERSION}")
 include(${PRO_DIR}/cmake/Common.cmake)
 
 set(OUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_output")
-set_outdir(
-  "${OUT_DIR}/lib"
-  "${OUT_DIR}/lib"
-  "${OUT_DIR}/bin"
-)
 
-include_directories(
-  ${PRO_DIR}/src
-)
+# samples above uvc layer
 
-## camera
-
-add_executable(camera camera.cc)
-target_link_libraries(camera mynteye ${OpenCV_LIBS})
-
-if(OS_WIN)
-  target_compile_definitions(camera
-    PUBLIC GLOG_NO_ABBREVIATED_SEVERITIES
-  )
-endif()
+add_subdirectory(uvc)

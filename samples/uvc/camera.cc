@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
     auto name = uvc::get_name(*device);
     auto vid = uvc::get_vendor_id(*device);
     auto pid = uvc::get_product_id(*device);
-    LOG(INFO) << i << " | name: " << name << ", vid: " << vid
+    LOG(INFO) << "index: " << i << ", name: " << name << ", vid: " << vid
               << ", pid: " << pid;
   }
 
@@ -111,6 +111,8 @@ int main(int argc, char *argv[]) {
         if (frame_ready())
           cv.notify_one();
       });
+
+  LOG(INFO) << "Press ESC/Q on windows to terminate";
 
   cv::namedWindow("frame");
   uvc::start_streaming(*device, 0);
