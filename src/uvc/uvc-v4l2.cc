@@ -19,8 +19,6 @@
 #include <string>
 #include <thread>
 
-#include "types.h"  // NOLINT
-
 MYNTEYE_BEGIN_NAMESPACE
 
 namespace uvc {
@@ -231,8 +229,7 @@ struct device {
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     fmt.fmt.pix.width = width;
     fmt.fmt.pix.height = height;
-    // fmt.fmt.pix.pixelformat = format;
-    fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+    fmt.fmt.pix.pixelformat = format;
     fmt.fmt.pix.field = V4L2_FIELD_NONE;
     // fmt.fmt.pix.field       = V4L2_FIELD_INTERLACED;
     if (xioctl(fd, VIDIOC_S_FMT, &fmt) < 0)
@@ -451,10 +448,9 @@ void set_control(
 }
 
 void set_device_mode(
-    device &device, int width, int height, uint32_t fourcc, int fps,  // NOLINT
+    device &device, int width, int height, int fourcc, int fps,  // NOLINT
     video_channel_callback callback) {
-  device.set_format(
-      width, height, (const big_endian<int> &)fourcc, fps, callback);
+  device.set_format(width, height, fourcc, fps, callback);
 }
 
 void start_streaming(device &device, int /*num_transfer_bufs*/) {  // NOLINT

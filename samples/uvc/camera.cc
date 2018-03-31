@@ -10,6 +10,8 @@
 #include <mutex>
 
 #include "mynteye/mynteye.h"
+
+#include "internal/types.h"
 #include "uvc/uvc.h"
 
 struct glog_init {
@@ -66,13 +68,14 @@ int main(int argc, char *argv[]) {
   size_t n = mynteye_devices.size();
   LOG_IF(FATAL, n <= 0) << "No MYNT EYE devices :(";
 
+  LOG(INFO) << "MYNT EYE devices: ";
   for (size_t i = 0; i < n; i++) {
     auto device = mynteye_devices[i];
     auto name = uvc::get_video_name(*device);
     auto vid = uvc::get_vendor_id(*device);
     auto pid = uvc::get_product_id(*device);
-    LOG(INFO) << "index: " << i << ", name: " << name << ", vid: " << vid
-              << ", pid: " << pid;
+    LOG(INFO) << "  index: " << i << ", name: " << name << ", vid: 0x"
+              << std::hex << vid << ", pid: 0x" << std::hex << pid;
   }
 
   std::shared_ptr<uvc::device> device = nullptr;
@@ -101,7 +104,7 @@ int main(int argc, char *argv[]) {
   const auto frame_empty = [&frames]() { return frames.empty(); };
 
   uvc::set_device_mode(
-      *device, 752, 480, 0, 25,
+      *device, 752, 480, static_cast<int>(Format::YUYV), 25,
       [&mtx, &cv, &frames, &frame_ready](const void *data) {
         // reinterpret_cast<const std::uint8_t *>(data);
         std::unique_lock<std::mutex> lock(mtx);

@@ -47,7 +47,7 @@ void set_control(
 typedef std::function<void(const void *frame)> video_channel_callback;
 
 void set_device_mode(
-    device &device, int width, int height, uint32_t fourcc, int fps,  // NOLINT
+    device &device, int width, int height, int fourcc, int fps,  // NOLINT
     video_channel_callback callback);
 void start_streaming(device &device, int num_transfer_bufs);  // NOLINT
 void stop_streaming(device &device);                          // NOLINT
