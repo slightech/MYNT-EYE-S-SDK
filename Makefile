@@ -62,10 +62,13 @@ build: third_party
 
 # test
 
-test: submodules
+test: install
 	@$(call echo,Make $@)
 	@$(call echo,Make gtest,33)
-	@$(call cmake_build,./tests/gtest/_build)
+	@$(call cmake_build,./test/gtest/_build)
+	@$(call echo,Make test,33)
+	@$(call cmake_build,./test/_build)
+	@./test/_output/bin/mynteye_test
 
 .PHONY: test
 
@@ -94,11 +97,13 @@ clean:
 	@$(call rm,./_install/)
 	@$(call rm,./samples/_build/)
 	@$(call rm,./samples/_output/)
+	@$(call rm,./test/_build/)
+	@$(call rm,./test/_output/)
 	@$(MAKE) cleanlog
 
 cleanall: clean
 	@$(call rm,./doc/_output/)
-	@$(call rm,./tests/gtest/_build/)
+	@$(call rm,./test/gtest/_build/)
 	@$(call rm,./third_party/glog/_build/)
 	@$(FIND) . -type f -name ".DS_Store" -print0 | xargs -0 rm -f
 
