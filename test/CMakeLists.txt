@@ -63,12 +63,15 @@ set_outdir(
 
 include_directories(
   ${GTEST_DIR}/include
+  ${PRO_DIR}/src
 )
 
+file(GLOB TEST_INTERNAL_SRC "internal/*.cc")
 file(GLOB TEST_PUBLIC_SRC "public/*.cc")
 
 add_executable(${PROJECT_NAME}
   gtest_main.cc
+  ${TEST_INTERNAL_SRC}
   ${TEST_PUBLIC_SRC}
 )
 target_link_libraries(${PROJECT_NAME} ${GTEST_LIBS} mynteye)

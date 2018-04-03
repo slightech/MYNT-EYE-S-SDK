@@ -91,6 +91,7 @@ endif()
 
 set(MYNTEYE_SRCS
   ${UVC_SRC}
+  src/internal/types.cc
   src/public/types.cc
 )
 
