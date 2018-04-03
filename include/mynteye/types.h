@@ -156,6 +156,83 @@ MYNTEYE_ENUM_HELPERS(Option)
 
 #undef MYNTEYE_ENUM_HELPERS
 
+/** Video stream intrinsics */
+struct Intrinsics {
+  /** width of the image in pixels */
+  std::uint16_t width;
+  /** height of the image in pixels */
+  std::uint16_t height;
+  //@{
+  /** focal length expressed in pixels */
+  double fx;
+  double fy;
+  //@}
+  //@{
+  /** principal point that is usually at the image center */
+  double cx;
+  double cy;
+  //@}
+  /** distortion model of the image */
+  std::uint8_t model;
+  /** distortion coefficients: k1,k2,p1,p2,k3 */
+  double coeffs[5];
+};
+
+/** IMU sensor intrinsics: scale, drift and variances */
+struct ImuSensorIntrinsics {
+  /**
+   * Scale X     cross axis  cross axis
+   * cross axis  Scale Y     cross axis
+   * cross axis  cross axis  Scale Z
+   */
+  double scale[3][3];
+  /* Zero-drift: X, Y, Z */
+  double drift[3];
+
+  /** Noise density variances */
+  double noise[3];
+  /** Random walk variances */
+  double bias[3];
+};
+
+/** IMU intrinsics, including accelerometer and gyroscope */
+struct ImuIntrinsics {
+  ImuSensorIntrinsics accel;
+  ImuSensorIntrinsics gyro;
+};
+
+/**
+ * Cross-stream extrinsics, represent how the different devices are connected
+ */
+struct Extrinsics {
+  double rotation[3][3]; /**< rotation matrix */
+  double translation[3]; /**< translation vector */
+};
+
+/** Image data */
+struct ImgData {
+  /** Image frame id */
+  std::uint16_t frame_id;
+  /** Image timestamp in 0.01ms */
+  std::uint32_t timestamp;
+  /** Image exposure time in 0.01ms */
+  std::uint16_t exposure_time;
+};
+
+/** IMU data */
+struct ImuData {
+  /** Image frame id */
+  std::uint16_t frame_id;
+  /** IMU timestamp in 0.01ms */
+  std::uint32_t timestamp;
+  /** IMU accelerometer data for 3-axis: X, Y, Z. */
+  double accel[3];
+  /** IMU gyroscope data for 3-axis: X, Y, Z. */
+  double gyro[3];
+  /** IMU temperature */
+  double temperature;
+};
+
 MYNTEYE_END_NAMESPACE
 
 #endif  // MYNTEYE_TYPES_H_ NOLINT
