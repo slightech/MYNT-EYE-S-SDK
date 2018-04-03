@@ -122,6 +122,7 @@ class Type {
 };
 
 /**
+ * @ingroup datatypes
  * Device infomation.
  */
 struct DeviceInfo {

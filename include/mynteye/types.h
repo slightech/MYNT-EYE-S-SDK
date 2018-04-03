@@ -12,6 +12,11 @@
 MYNTEYE_BEGIN_NAMESPACE
 
 /**
+ * @defgroup enumerations Enumerations
+ * @brief Public enumeration types.
+ */
+
+/**
  * @ingroup enumerations
  * @brief Streams define different type of data.
  */
@@ -90,7 +95,7 @@ enum class Info : std::uint8_t {
 
 /**
  * @ingroup enumerations
- * Camera control options define general configuration controls.
+ * @brief Camera control options define general configuration controls.
  */
 enum class Option : std::uint8_t {
   /** Image gain, setting it if manual-exposure */
@@ -156,29 +161,38 @@ MYNTEYE_ENUM_HELPERS(Option)
 
 #undef MYNTEYE_ENUM_HELPERS
 
-/** Video stream intrinsics */
+/**
+ * @defgroup calibration Intrinsics & Extrinsics
+ * @brief Intrinsic and extrinsic properties.
+ */
+
+/**
+ * @ingroup calibration
+ * Video stream intrinsics.
+ */
 struct Intrinsics {
   /** width of the image in pixels */
   std::uint16_t width;
   /** height of the image in pixels */
   std::uint16_t height;
-  //@{
-  /** focal length expressed in pixels */
+  /** focal length of the image plane, as a multiple of pixel width */
   double fx;
+  /** focal length of the image plane, as a multiple of pixel height */
   double fy;
-  //@}
-  //@{
-  /** principal point that is usually at the image center */
+  /** horizontal coordinate of the principal point of the image */
   double cx;
+  /** vertical coordinate of the principal point of the image */
   double cy;
-  //@}
   /** distortion model of the image */
   std::uint8_t model;
   /** distortion coefficients: k1,k2,p1,p2,k3 */
   double coeffs[5];
 };
 
-/** IMU sensor intrinsics: scale, drift and variances */
+/**
+ * @ingroup calibration
+ * IMU sensor intrinsics: scale, drift and variances.
+ */
 struct ImuSensorIntrinsics {
   /**
    * Scale X     cross axis  cross axis
@@ -195,21 +209,33 @@ struct ImuSensorIntrinsics {
   double bias[3];
 };
 
-/** IMU intrinsics, including accelerometer and gyroscope */
+/**
+ * @ingroup calibration
+ * IMU intrinsics, including accelerometer and gyroscope.
+ */
 struct ImuIntrinsics {
   ImuSensorIntrinsics accel;
   ImuSensorIntrinsics gyro;
 };
 
 /**
- * Cross-stream extrinsics, represent how the different devices are connected
+ * @ingroup calibration
+ * Cross-stream extrinsics, represent how the different devices are connected.
  */
 struct Extrinsics {
   double rotation[3][3]; /**< rotation matrix */
   double translation[3]; /**< translation vector */
 };
 
-/** Image data */
+/**
+ * @defgroup datatypes Datatypes
+ * @brief Public data types.
+ */
+
+/**
+ * @ingroup datatypes
+ * Image data.
+ */
 struct ImgData {
   /** Image frame id */
   std::uint16_t frame_id;
@@ -219,7 +245,10 @@ struct ImgData {
   std::uint16_t exposure_time;
 };
 
-/** IMU data */
+/**
+ * @ingroup datatypes
+ * IMU data.
+ */
 struct ImuData {
   /** Image frame id */
   std::uint16_t frame_id;
