@@ -20,6 +20,7 @@ help:
 
 apidoc:
 	@$(call echo,Make $@)
+	@[ -e ./_install/include ] || $(MAKE) install
 	@$(SH) ./doc/build.sh
 
 opendoc: apidoc
