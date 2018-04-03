@@ -34,6 +34,8 @@ const char *to_string(const Capabilities &value) {
     CASE(DEPTH)
     CASE(POINTS)
     CASE(FISHEYE)
+    CASE(INFRARED)
+    CASE(INFRARED2)
     CASE(IMU)
     default:
       CHECK(is_valid(value));

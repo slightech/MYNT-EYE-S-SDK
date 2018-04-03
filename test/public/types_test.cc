@@ -22,6 +22,8 @@ TEST(Capabilities, VerifyToString) {
   EXPECT_STREQ("Capabilities::DEPTH", to_string(Capabilities::DEPTH));
   EXPECT_STREQ("Capabilities::POINTS", to_string(Capabilities::POINTS));
   EXPECT_STREQ("Capabilities::FISHEYE", to_string(Capabilities::FISHEYE));
+  EXPECT_STREQ("Capabilities::INFRARED", to_string(Capabilities::INFRARED));
+  EXPECT_STREQ("Capabilities::INFRARED2", to_string(Capabilities::INFRARED2));
   EXPECT_STREQ("Capabilities::IMU", to_string(Capabilities::IMU));
 }
 

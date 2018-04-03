@@ -52,6 +52,10 @@ enum class Capabilities : std::uint8_t {
   POINTS,
   /** Provices fisheye stream */
   FISHEYE,
+  /** Provices infrared stream */
+  INFRARED,
+  /** Provices second infrared stream */
+  INFRARED2,
   /** Provices IMU (accelerometer, gyroscope) data */
   IMU,
   /** Last guard */
