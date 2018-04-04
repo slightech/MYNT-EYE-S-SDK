@@ -4,6 +4,19 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
+const char *to_string(const Model &value) {
+#define CASE(X)  \
+  case Model::X: \
+    return "Model::" #X;
+  switch (value) {
+    CASE(STANDARD)
+    default:
+      CHECK(is_valid(value));
+      return "Model::UNKNOWN";
+  }
+#undef CASE
+}
+
 const char *to_string(const Stream &value) {
 #define CASE(X)   \
   case Stream::X: \

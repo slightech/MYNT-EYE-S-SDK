@@ -18,6 +18,17 @@ MYNTEYE_BEGIN_NAMESPACE
 
 /**
  * @ingroup enumerations
+ * @brief Device model.
+ */
+enum class Model : std::uint8_t {
+  /** Standard */
+  STANDARD,
+  /** Last guard */
+  LAST
+};
+
+/**
+ * @ingroup enumerations
  * @brief Streams define different type of data.
  */
 enum class Stream : std::uint8_t {
@@ -154,6 +165,7 @@ enum class Option : std::uint8_t {
       return os << static_cast<utype>(value);                            \
   }
 
+MYNTEYE_ENUM_HELPERS(Model)
 MYNTEYE_ENUM_HELPERS(Stream)
 MYNTEYE_ENUM_HELPERS(Capabilities)
 MYNTEYE_ENUM_HELPERS(Info)

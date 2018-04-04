@@ -91,11 +91,13 @@ endif()
 
 set(MYNTEYE_SRCS
   ${UVC_SRC}
+  src/internal/config.cc
   src/internal/strings.cc
   src/internal/types.cc
   src/public/types.cc
   src/device/context.cc
   src/device/device.cc
+  src/device/device_s.cc
 )
 
 set(MYNTEYE_LINKLIBS

@@ -4,6 +4,10 @@
 
 MYNTEYE_USE_NAMESPACE
 
+TEST(Model, VerifyToString) {
+  EXPECT_STREQ("Model::STANDARD", to_string(Model::STANDARD));
+}
+
 TEST(Stream, VerifyToString) {
   EXPECT_STREQ("Stream::LEFT", to_string(Stream::LEFT));
   EXPECT_STREQ("Stream::RIGHT", to_string(Stream::RIGHT));
