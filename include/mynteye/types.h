@@ -170,7 +170,7 @@ MYNTEYE_ENUM_HELPERS(Option)
  * @ingroup calibration
  * Video stream intrinsics.
  */
-struct Intrinsics {
+struct MYNTEYE_API Intrinsics {
   /** width of the image in pixels */
   std::uint16_t width;
   /** height of the image in pixels */
@@ -193,7 +193,7 @@ struct Intrinsics {
  * @ingroup calibration
  * IMU sensor intrinsics: scale, drift and variances.
  */
-struct ImuSensorIntrinsics {
+struct MYNTEYE_API ImuSensorIntrinsics {
   /**
    * Scale X     cross axis  cross axis
    * cross axis  Scale Y     cross axis
@@ -213,7 +213,7 @@ struct ImuSensorIntrinsics {
  * @ingroup calibration
  * IMU intrinsics, including accelerometer and gyroscope.
  */
-struct ImuIntrinsics {
+struct MYNTEYE_API ImuIntrinsics {
   ImuSensorIntrinsics accel;
   ImuSensorIntrinsics gyro;
 };
@@ -222,7 +222,7 @@ struct ImuIntrinsics {
  * @ingroup calibration
  * Cross-stream extrinsics, represent how the different devices are connected.
  */
-struct Extrinsics {
+struct MYNTEYE_API Extrinsics {
   double rotation[3][3]; /**< rotation matrix */
   double translation[3]; /**< translation vector */
 };
@@ -236,7 +236,7 @@ struct Extrinsics {
  * @ingroup datatypes
  * Image data.
  */
-struct ImgData {
+struct MYNTEYE_API ImgData {
   /** Image frame id */
   std::uint16_t frame_id;
   /** Image timestamp in 0.01ms */
@@ -249,7 +249,7 @@ struct ImgData {
  * @ingroup datatypes
  * IMU data.
  */
-struct ImuData {
+struct MYNTEYE_API ImuData {
   /** Image frame id */
   std::uint16_t frame_id;
   /** IMU timestamp in 0.01ms */
