@@ -93,6 +93,8 @@ set(MYNTEYE_SRCS
   ${UVC_SRC}
   src/internal/types.cc
   src/public/types.cc
+  src/device/context.cc
+  src/device/device.cc
 )
 
 set(MYNTEYE_LINKLIBS

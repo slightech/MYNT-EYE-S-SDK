@@ -1,5 +1,3 @@
-#include <glog/logging.h>
-
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -14,28 +12,7 @@
 #include "internal/types.h"
 #include "uvc/uvc.h"
 
-struct glog_init {
-  glog_init(int /*argc*/, char *argv[]) {
-    // FLAGS_logtostderr = true;
-    FLAGS_alsologtostderr = true;
-    FLAGS_colorlogtostderr = true;
-
-    FLAGS_log_dir = ".";
-    FLAGS_max_log_size = 1024;
-    FLAGS_stop_logging_if_full_disk = true;
-
-    // FLAGS_v = 2;
-
-    google::InitGoogleLogging(argv[0]);
-
-    VLOG(2) << __func__;
-  }
-
-  ~glog_init() {
-    VLOG(2) << __func__;
-    google::ShutdownGoogleLogging();
-  }
-};
+#include "glog_init.h"  // NOLINT
 
 struct frame {
   const void *data = nullptr;

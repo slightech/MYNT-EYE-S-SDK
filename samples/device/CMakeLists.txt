@@ -10,13 +10,13 @@ include_directories(
   ${PRO_DIR}/src
 )
 
-## camera_u
+## camera_d
 
-add_executable(camera_u camera.cc)
-target_link_libraries(camera_u mynteye ${OpenCV_LIBS})
+add_executable(camera_d camera.cc)
+target_link_libraries(camera_d mynteye ${OpenCV_LIBS})
 
 if(OS_WIN)
-  target_compile_definitions(camera_u
+  target_compile_definitions(camera_d
     PUBLIC GLOG_NO_ABBREVIATED_SEVERITIES
   )
 endif()

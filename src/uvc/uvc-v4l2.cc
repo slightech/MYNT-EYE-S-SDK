@@ -1,4 +1,4 @@
-#include "uvc.h"  // NOLINT
+#include "uvc/uvc.h"  // NOLINT
 
 #include <dirent.h>
 #include <errno.h>
@@ -79,6 +79,7 @@ struct device {
   std::string dev_name;  // Device name (typically of the form /dev/video*)
   int busnum, devnum, parent_devnum;  // USB device bus number and device number
 
+  std::string name;  // Device description name
   int vid, pid, mi;  // Vendor ID, product ID, and multiple interface index
   int fd = -1;       // File descriptor for this device
 
@@ -124,6 +125,10 @@ struct device {
     }
     if (!good)
       LOG(FATAL) << "Failed to read busnum/devnum";
+
+    if (!(std::ifstream("/sys/class/video4linux/" + name + "/name") >>
+          this->name))
+      LOG(FATAL) << "Failed to read name";
 
     std::string modalias;
     if (!(std::ifstream(
@@ -421,6 +426,10 @@ std::vector<std::shared_ptr<device>> query_devices(
   closedir(dir);
 
   return devices;
+}
+
+std::string get_name(const device &device) {
+  return device.name;
 }
 
 int get_vendor_id(const device &device) {

@@ -30,6 +30,7 @@ std::vector<std::shared_ptr<device>> query_devices(
     std::shared_ptr<context> context);
 
 // Static device properties
+std::string get_name(const device &device);
 int get_vendor_id(const device &device);
 int get_product_id(const device &device);
 

@@ -1,4 +1,4 @@
-#include "uvc.h"  // NOLINT
+#include "uvc/uvc.h"  // NOLINT
 
 #include <glog/logging.h>
 #include <libuvc/libuvc.h>
