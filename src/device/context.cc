@@ -15,10 +15,15 @@ Context::Context() : context_(uvc::create_context()) {
     auto vid = uvc::get_vendor_id(*device);
     auto pid = uvc::get_product_id(*device);
     // auto video_name = uvc::get_video_name(*device);
-    LOG(INFO) << "name: " << name << ", vid: 0x" << std::hex << vid
-              << ", pid: 0x" << std::hex << pid;
+    LOG(INFO) << "UVC device detected, name: " << name << ", vid: 0x"
+              << std::hex << vid << ", pid: 0x" << std::hex << pid;
     if (vid == MYNTEYE_VID) {
-      devices_.push_back(Device::Create(name, device));
+      auto d = Device::Create(name, device);
+      if (d) {
+        devices_.push_back(d);
+      } else {
+        LOG(ERROR) << "Device is not supported by MYNT EYE.";
+      }
     }
   }
 }
