@@ -2,11 +2,14 @@
 #define MYNTEYE_DEVICE_H_
 #pragma once
 
+#include <map>
 #include <memory>
 #include <string>
 
 #include "mynteye/mynteye.h"
 #include "mynteye/types.h"
+
+#include "internal/callbacks.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -20,11 +23,20 @@ struct DeviceInfo;
 
 class Device {
  public:
+  using stream_callback_t = device::StreamCallback;
+  using motion_callback_t = device::MotionCallback;
+
+  using stream_callbacks_t = std::map<Stream, stream_callback_t>;
+
   Device(const Model &model, std::shared_ptr<uvc::device> device);
   virtual ~Device();
 
   static std::shared_ptr<Device> Create(
       const std::string &name, std::shared_ptr<uvc::device> device);
+
+  Model GetModel() const {
+    return model_;
+  }
 
   bool Supports(const Stream &stream) const;
   bool Supports(const Capabilities &capability) const;
@@ -33,19 +45,46 @@ class Device {
   std::shared_ptr<DeviceInfo> GetInfo() const;
   std::string GetInfo(const Info &info) const;
 
-  Model model() const {
-    return model_;
-  }
+  ImgIntrinsics GetImgIntrinsics() const;
+  ImgExtrinsics GetImgExtrinsics() const;
+
+  ImuIntrinsics GetImuIntrinsics() const;
+  ImuExtrinsics GetImuExtrinsics() const;
+
+  void SetStreamCallback(const Stream &stream, stream_callback_t callback);
+  void SetMotionCallback(motion_callback_t callback);
 
  protected:
   std::shared_ptr<uvc::device> device() const {
     return device_;
   }
 
+  std::shared_ptr<DeviceInfo> device_info() const {
+    return device_info_;
+  }
+
  private:
   Model model_;
   std::shared_ptr<uvc::device> device_;
   std::shared_ptr<DeviceInfo> device_info_;
+
+  ImgIntrinsics img_intrinsics_;
+  ImgExtrinsics img_extrinsics_;
+  ImuIntrinsics imu_intrinsics_;
+  ImuExtrinsics imu_extrinsics_;
+
+  stream_callbacks_t stream_callbacks_;
+  motion_callback_t motion_callback_;
+
+  void ReadDeviceInfo();
+
+  void WriteImgIntrinsics(const ImgIntrinsics &intrinsics);
+  void WriteImgExtrinsics(const ImgExtrinsics &extrinsics);
+
+  void WriteImuIntrinsics(const ImuIntrinsics &intrinsics);
+  void WriteImuExtrinsics(const ImuExtrinsics &extrinsics);
+
+  // friend DeviceWriter;
 };
 
 MYNTEYE_END_NAMESPACE

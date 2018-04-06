@@ -13,6 +13,7 @@ MYNTEYE_BEGIN_NAMESPACE
 Device::Device(const Model &model, std::shared_ptr<uvc::device> device)
     : model_(model), device_(device) {
   VLOG(2) << __func__;
+  ReadDeviceInfo();
 }
 
 Device::~Device() {
@@ -77,6 +78,63 @@ std::string Device::GetInfo(const Info &info) const {
     } break;
     default: { LOG(FATAL) << "Unknown device info"; }
   }
+}
+
+ImgIntrinsics Device::GetImgIntrinsics() const {
+  return img_intrinsics_;
+}
+
+ImgExtrinsics Device::GetImgExtrinsics() const {
+  return img_extrinsics_;
+}
+
+ImuIntrinsics Device::GetImuIntrinsics() const {
+  return imu_intrinsics_;
+}
+
+ImuExtrinsics Device::GetImuExtrinsics() const {
+  return imu_extrinsics_;
+}
+
+void Device::SetStreamCallback(
+    const Stream &stream, stream_callback_t callback) {
+  if (!Supports(stream)) {
+    LOG(WARNING) << "Unsupported stream: " << to_string(stream);
+    return;
+  }
+  if (callback) {
+    stream_callbacks_[stream] = callback;
+  } else {
+    stream_callbacks_.erase(stream);
+  }
+}
+
+void Device::SetMotionCallback(motion_callback_t callback) {
+  motion_callback_ = callback;
+}
+
+void Device::ReadDeviceInfo() {
+  // TODO(JohnZhao): Read device info
+}
+
+void Device::WriteImgIntrinsics(const ImgIntrinsics &intrinsics) {
+  // TODO(JohnZhao): Write img intrinsics
+  UNUSED(intrinsics);
+}
+
+void Device::WriteImgExtrinsics(const ImgExtrinsics &extrinsics) {
+  // TODO(JohnZhao): Write img extrinsics
+  UNUSED(extrinsics);
+}
+
+void Device::WriteImuIntrinsics(const ImuIntrinsics &intrinsics) {
+  // TODO(JohnZhao): Write imu intrinsics
+  UNUSED(intrinsics);
+}
+
+void Device::WriteImuExtrinsics(const ImuExtrinsics &extrinsics) {
+  // TODO(JohnZhao): Write imu extrinsics
+  UNUSED(extrinsics);
 }
 
 MYNTEYE_END_NAMESPACE

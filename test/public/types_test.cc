@@ -61,3 +61,7 @@ TEST(Option, VerifyToString) {
       to_string(Option::ZERO_DRIFT_CALIBRATION));
   EXPECT_STREQ("Option::ERASE_CHIP", to_string(Option::ERASE_CHIP));
 }
+
+TEST(Format, VerifyToString) {
+  EXPECT_STREQ("Format::YUYV", to_string(Format::YUYV));
+}

@@ -101,7 +101,7 @@ enum class Info : std::uint8_t {
   /** Nominal baseline */
   NOMINAL_BASELINE,
   /** Last guard */
-  LAST,
+  LAST
 };
 
 /**
@@ -146,7 +146,7 @@ enum class Option : std::uint8_t {
   /** Erase chip */
   ERASE_CHIP,
   /** Last guard */
-  LAST,
+  LAST
 };
 
 #define MYNTEYE_ENUM_HELPERS(TYPE)                                       \
@@ -173,6 +173,43 @@ MYNTEYE_ENUM_HELPERS(Option)
 
 #undef MYNTEYE_ENUM_HELPERS
 
+#define MYNTEYE_FOURCC(a, b, c, d)                  \
+  ((std::uint32_t)(a) | ((std::uint32_t)(b) << 8) | \
+   ((std::uint32_t)(c) << 16) | ((std::uint32_t)(d) << 24))  // NOLINT
+
+/**
+ * @ingroup enumerations
+ * @brief Formats define how each stream can be encoded.
+ */
+enum class Format : std::uint32_t {
+  /** YUV 4:2:2, 16 bits per pixel */
+  YUYV = MYNTEYE_FOURCC('Y', 'U', 'Y', 'V'),
+  /** Last guard */
+  LAST
+};
+
+#undef MYNTEYE_FOURCC
+
+const char *to_string(const Format &value);
+
+inline std::ostream &operator<<(std::ostream &os, const Format &value) {
+  return os << to_string(value);
+}
+
+/**
+ * Stream request.
+ */
+struct MYNTEYE_API StreamRequest {
+  /** width in pixels */
+  std::uint16_t width;
+  /** height in pixels */
+  std::uint16_t height;
+  /** stream pixel format */
+  Format format;
+  /** frames per second */
+  std::uint16_t fps;
+};
+
 /**
  * @defgroup calibration Intrinsics & Extrinsics
  * @brief Intrinsic and extrinsic properties.
@@ -180,9 +217,9 @@ MYNTEYE_ENUM_HELPERS(Option)
 
 /**
  * @ingroup calibration
- * Video stream intrinsics.
+ * Image intrinsics.
  */
-struct MYNTEYE_API Intrinsics {
+struct MYNTEYE_API ImgIntrinsics {
   /** width of the image in pixels */
   std::uint16_t width;
   /** height of the image in pixels */
@@ -232,11 +269,27 @@ struct MYNTEYE_API ImuIntrinsics {
 
 /**
  * @ingroup calibration
- * Cross-stream extrinsics, represent how the different devices are connected.
+ * Extrinsics, represent how the different datas are connected.
  */
 struct MYNTEYE_API Extrinsics {
   double rotation[3][3]; /**< rotation matrix */
   double translation[3]; /**< translation vector */
+};
+
+/**
+ * @ingroup calibration
+ * Image extrinsics.
+ */
+struct MYNTEYE_API ImgExtrinsics {
+  Extrinsics left_to_right;
+};
+
+/**
+ * @ingroup calibration
+ * IMU extrinsics.
+ */
+struct MYNTEYE_API ImuExtrinsics {
+  Extrinsics left_to_imu;
 };
 
 /**

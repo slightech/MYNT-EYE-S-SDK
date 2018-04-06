@@ -8,8 +8,7 @@
 #include <mutex>
 
 #include "mynteye/mynteye.h"
-
-#include "internal/types.h"
+#include "mynteye/types.h"
 #include "uvc/uvc.h"
 
 #include "glog_init.h"  // NOLINT

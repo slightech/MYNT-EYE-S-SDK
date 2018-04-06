@@ -102,4 +102,16 @@ const char *to_string(const Option &value) {
 #undef CASE
 }
 
+const char *to_string(const Format &value) {
+#define CASE(X)   \
+  case Format::X: \
+    return "Format::" #X;
+  switch (value) {
+    CASE(YUYV)
+    default:
+      return "Format::UNKNOWN";
+  }
+#undef CASE
+}
+
 MYNTEYE_END_NAMESPACE
