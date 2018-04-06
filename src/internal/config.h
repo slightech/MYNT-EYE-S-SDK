@@ -4,6 +4,7 @@
 
 #include <map>
 #include <set>
+#include <vector>
 
 #include "mynteye/mynteye.h"
 #include "mynteye/types.h"
@@ -17,6 +18,10 @@ using OptionSupports = std::set<Option>;
 extern const std::map<Model, StreamSupports> stream_supports_map;
 extern const std::map<Model, CapabilitiesSupports> capabilities_supports_map;
 extern const std::map<Model, OptionSupports> option_supports_map;
+
+using StreamRequests = std::map<Capabilities, StreamRequest>;
+
+extern const std::map<Model, StreamRequests> stream_requests_map;
 
 MYNTEYE_END_NAMESPACE
 

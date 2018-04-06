@@ -63,6 +63,8 @@ class Device {
     return device_info_;
   }
 
+  StreamRequest GetStreamRequest(const Capabilities &capability) const;
+
  private:
   Model model_;
   std::shared_ptr<uvc::device> device_;

@@ -113,6 +113,14 @@ void Device::SetMotionCallback(motion_callback_t callback) {
   motion_callback_ = callback;
 }
 
+StreamRequest Device::GetStreamRequest(const Capabilities &capability) const {
+  if (!Supports(capability)) {
+    LOG(FATAL) << "Unsupported capability: " << to_string(capability);
+  }
+  auto &&requests = stream_requests_map.at(Model::STANDARD);
+  return requests.at(capability);
+}
+
 void Device::ReadDeviceInfo() {
   // TODO(JohnZhao): Read device info
 }

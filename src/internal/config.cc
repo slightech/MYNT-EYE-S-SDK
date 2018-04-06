@@ -15,4 +15,7 @@ const std::map<Model, OptionSupports> option_supports_map = {
       Option::MAX_EXPOSURE_TIME, Option::DESIRED_BRIGHTNESS, Option::IR_CONTROL,
       Option::HDR_MODE, Option::ZERO_DRIFT_CALIBRATION, Option::ERASE_CHIP}}};
 
+const std::map<Model, StreamRequests> stream_requests_map = {
+    {Model::STANDARD, {{Capabilities::STEREO, {752, 480, Format::YUYV, 25}}}}};
+
 MYNTEYE_END_NAMESPACE
