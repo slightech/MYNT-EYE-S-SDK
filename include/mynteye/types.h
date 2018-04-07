@@ -149,6 +149,21 @@ enum class Option : std::uint8_t {
   LAST
 };
 
+/**
+ * @ingroup enumerations
+ * @brief Source allows the user to choose which data to be captured.
+ */
+enum class Source : std::uint8_t {
+  /** Video streaming of stereo, color, depth, etc. */
+  VIDEO_STREAMING,
+  /** Motion tracking of IMU (accelerometer, gyroscope) */
+  MOTION_TRACKING,
+  /** Enable everything together */
+  ALL,
+  /** Last guard */
+  LAST
+};
+
 #define MYNTEYE_ENUM_HELPERS(TYPE)                                       \
   const char *to_string(const TYPE &value);                              \
   inline bool is_valid(const TYPE &value) {                              \
@@ -170,6 +185,7 @@ MYNTEYE_ENUM_HELPERS(Stream)
 MYNTEYE_ENUM_HELPERS(Capabilities)
 MYNTEYE_ENUM_HELPERS(Info)
 MYNTEYE_ENUM_HELPERS(Option)
+MYNTEYE_ENUM_HELPERS(Source)
 
 #undef MYNTEYE_ENUM_HELPERS
 

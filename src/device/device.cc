@@ -113,12 +113,53 @@ void Device::SetMotionCallback(motion_callback_t callback) {
   motion_callback_ = callback;
 }
 
+void Device::Start(const Source &source) {
+  if (source == Source::VIDEO_STREAMING) {
+    StartVideoStreaming();
+  } else if (source == Source::MOTION_TRACKING) {
+    StartMotionTracking();
+  } else if (source == Source::ALL) {
+    Start(Source::VIDEO_STREAMING);
+    Start(Source::MOTION_TRACKING);
+  } else {
+    LOG(FATAL) << "Unsupported source :(";
+  }
+}
+
+void Device::Stop(const Source &source) {
+  if (source == Source::VIDEO_STREAMING) {
+    StopVideoStreaming();
+  } else if (source == Source::MOTION_TRACKING) {
+    StopMotionTracking();
+  } else if (source == Source::ALL) {
+    Stop(Source::VIDEO_STREAMING);
+    Stop(Source::MOTION_TRACKING);
+  } else {
+    LOG(FATAL) << "Unsupported source :(";
+  }
+}
+
 StreamRequest Device::GetStreamRequest(const Capabilities &capability) const {
   if (!Supports(capability)) {
     LOG(FATAL) << "Unsupported capability: " << to_string(capability);
   }
   auto &&requests = stream_requests_map.at(Model::STANDARD);
   return requests.at(capability);
+}
+
+void Device::StartVideoStreaming() {}
+
+void Device::StopVideoStreaming() {}
+
+void Device::StartMotionTracking() {
+  if (!Supports(Capabilities::IMU)) {
+    LOG(FATAL) << "IMU is not supported by this device";
+  }
+  // TODO(JohnZhao)
+}
+
+void Device::StopMotionTracking() {
+  // TODO(JohnZhao)
 }
 
 void Device::ReadDeviceInfo() {

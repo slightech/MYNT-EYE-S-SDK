@@ -62,6 +62,12 @@ TEST(Option, VerifyToString) {
   EXPECT_STREQ("Option::ERASE_CHIP", to_string(Option::ERASE_CHIP));
 }
 
+TEST(Source, VerifyToString) {
+  EXPECT_STREQ("Source::VIDEO_STREAMING", to_string(Source::VIDEO_STREAMING));
+  EXPECT_STREQ("Source::MOTION_TRACKING", to_string(Source::MOTION_TRACKING));
+  EXPECT_STREQ("Source::ALL", to_string(Source::ALL));
+}
+
 TEST(Format, VerifyToString) {
   EXPECT_STREQ("Format::YUYV", to_string(Format::YUYV));
 }

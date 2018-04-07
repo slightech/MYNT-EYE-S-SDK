@@ -102,6 +102,20 @@ const char *to_string(const Option &value) {
 #undef CASE
 }
 
+const char *to_string(const Source &value) {
+#define CASE(X)   \
+  case Source::X: \
+    return "Source::" #X;
+  switch (value) {
+    CASE(VIDEO_STREAMING)
+    CASE(MOTION_TRACKING)
+    CASE(ALL)
+    default:
+      return "Source::UNKNOWN";
+  }
+#undef CASE
+}
+
 const char *to_string(const Format &value) {
 #define CASE(X)   \
   case Format::X: \

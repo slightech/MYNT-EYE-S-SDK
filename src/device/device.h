@@ -54,6 +54,9 @@ class Device {
   void SetStreamCallback(const Stream &stream, stream_callback_t callback);
   void SetMotionCallback(motion_callback_t callback);
 
+  virtual void Start(const Source &source);
+  virtual void Stop(const Source &source);
+
  protected:
   std::shared_ptr<uvc::device> device() const {
     return device_;
@@ -64,6 +67,12 @@ class Device {
   }
 
   StreamRequest GetStreamRequest(const Capabilities &capability) const;
+
+  virtual void StartVideoStreaming();
+  virtual void StopVideoStreaming();
+
+  virtual void StartMotionTracking();
+  virtual void StopMotionTracking();
 
  private:
   Model model_;
