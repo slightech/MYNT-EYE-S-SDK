@@ -92,6 +92,7 @@ endif()
 set(MYNTEYE_SRCS
   ${UVC_SRC}
   src/internal/config.cc
+  src/internal/streams.cc
   src/internal/strings.cc
   src/internal/types.cc
   src/public/types.cc

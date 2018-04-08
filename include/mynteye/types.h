@@ -212,6 +212,8 @@ inline std::ostream &operator<<(std::ostream &os, const Format &value) {
   return os << to_string(value);
 }
 
+std::size_t bytes_per_pixel(const Format &value);
+
 /**
  * Stream request.
  */
@@ -224,6 +226,14 @@ struct MYNTEYE_API StreamRequest {
   Format format;
   /** frames per second */
   std::uint16_t fps;
+
+  bool operator==(const StreamRequest &other) const {
+    return width == other.width && height == other.height &&
+           format == other.format && fps == other.fps;
+  }
+  bool operator!=(const StreamRequest &other) const {
+    return !(*this == other);
+  }
 };
 
 /**

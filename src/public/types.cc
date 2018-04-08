@@ -128,4 +128,13 @@ const char *to_string(const Format &value) {
 #undef CASE
 }
 
+std::size_t bytes_per_pixel(const Format &value) {
+  switch (value) {
+    case Format::YUYV:
+      return 2;
+    default:
+      LOG(FATAL) << "Unknown format";
+  }
+}
+
 MYNTEYE_END_NAMESPACE

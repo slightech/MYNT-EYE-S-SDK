@@ -19,9 +19,10 @@ extern const std::map<Model, StreamSupports> stream_supports_map;
 extern const std::map<Model, CapabilitiesSupports> capabilities_supports_map;
 extern const std::map<Model, OptionSupports> option_supports_map;
 
-using StreamRequests = std::map<Capabilities, StreamRequest>;
+using StreamRequests = std::vector<StreamRequest>;
 
-extern const std::map<Model, StreamRequests> stream_requests_map;
+extern const std::map<Model, std::map<Capabilities, StreamRequests>>
+    stream_requests_map;
 
 MYNTEYE_END_NAMESPACE
 

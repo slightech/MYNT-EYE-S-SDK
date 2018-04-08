@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "mynteye/mynteye.h"
 #include "mynteye/types.h"
@@ -20,6 +21,8 @@ struct device;
 }  // namespace uvc
 
 struct DeviceInfo;
+
+class Streams;
 
 class Device {
  public:
@@ -41,6 +44,11 @@ class Device {
   bool Supports(const Stream &stream) const;
   bool Supports(const Capabilities &capability) const;
   bool Supports(const Option &option) const;
+
+  const std::vector<StreamRequest> &GetStreamRequests(
+      const Capabilities &capability) const;
+  void ConfigStreamRequest(
+      const Capabilities &capability, const StreamRequest &request);
 
   std::shared_ptr<DeviceInfo> GetInfo() const;
   std::string GetInfo(const Info &info) const;
@@ -66,13 +74,16 @@ class Device {
     return device_info_;
   }
 
-  StreamRequest GetStreamRequest(const Capabilities &capability) const;
+  const StreamRequest &GetStreamRequest(const Capabilities &capability);
 
   virtual void StartVideoStreaming();
   virtual void StopVideoStreaming();
 
   virtual void StartMotionTracking();
   virtual void StopMotionTracking();
+
+  bool video_streaming_;
+  bool motion_tracking_;
 
  private:
   Model model_;
@@ -86,6 +97,10 @@ class Device {
 
   stream_callbacks_t stream_callbacks_;
   motion_callback_t motion_callback_;
+
+  std::shared_ptr<Streams> streams_;
+
+  std::map<Capabilities, StreamRequest> stream_config_requests_;
 
   void ReadDeviceInfo();
 

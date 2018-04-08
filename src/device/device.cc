@@ -2,8 +2,12 @@
 
 #include <glog/logging.h>
 
+#include <algorithm>
+#include <stdexcept>
+
 #include "device/device_s.h"
 #include "internal/config.h"
+#include "internal/streams.h"
 #include "internal/strings.h"
 #include "internal/types.h"
 #include "uvc/uvc.h"
@@ -11,7 +15,11 @@
 MYNTEYE_BEGIN_NAMESPACE
 
 Device::Device(const Model &model, std::shared_ptr<uvc::device> device)
-    : model_(model), device_(device) {
+    : video_streaming_(false),
+      motion_tracking_(false),
+      model_(model),
+      device_(device),
+      streams_(nullptr) {
   VLOG(2) << __func__;
   ReadDeviceInfo();
 }
@@ -31,18 +39,43 @@ std::shared_ptr<Device> Device::Create(
 }
 
 bool Device::Supports(const Stream &stream) const {
-  auto &&supports = stream_supports_map.at(Model::STANDARD);
+  auto &&supports = stream_supports_map.at(model_);
   return supports.find(stream) != supports.end();
 }
 
 bool Device::Supports(const Capabilities &capability) const {
-  auto &&supports = capabilities_supports_map.at(Model::STANDARD);
+  auto &&supports = capabilities_supports_map.at(model_);
   return supports.find(capability) != supports.end();
 }
 
 bool Device::Supports(const Option &option) const {
-  auto &&supports = option_supports_map.at(Model::STANDARD);
+  auto &&supports = option_supports_map.at(model_);
   return supports.find(option) != supports.end();
+}
+
+const std::vector<StreamRequest> &Device::GetStreamRequests(
+    const Capabilities &capability) const {
+  if (!Supports(capability)) {
+    LOG(FATAL) << "Unsupported capability: " << to_string(capability);
+  }
+  try {
+    auto &&cap_requests = stream_requests_map.at(model_);
+    return cap_requests.at(capability);
+  } catch (const std::out_of_range &e) {
+    LOG(FATAL) << "Stream request of " << capability << " of " << model_
+               << " not found";
+  }
+}
+
+void Device::ConfigStreamRequest(
+    const Capabilities &capability, const StreamRequest &request) {
+  auto &&requests = GetStreamRequests(capability);
+  if (std::find(requests.cbegin(), requests.cend(), request) ==
+      requests.cend()) {
+    LOG(FATAL) << "Config stream request of " << capability
+               << " is not accpected";
+  }
+  stream_config_requests_[capability] = request;
 }
 
 std::shared_ptr<DeviceInfo> Device::GetInfo() const {
@@ -139,26 +172,86 @@ void Device::Stop(const Source &source) {
   }
 }
 
-StreamRequest Device::GetStreamRequest(const Capabilities &capability) const {
-  if (!Supports(capability)) {
-    LOG(FATAL) << "Unsupported capability: " << to_string(capability);
+const StreamRequest &Device::GetStreamRequest(const Capabilities &capability) {
+  try {
+    return stream_config_requests_[capability];
+  } catch (const std::out_of_range &e) {
+    auto &&requests = GetStreamRequests(capability);
+    if (requests.size() == 1) {
+      VLOG(2) << "Get the only one stream request of " << capability;
+      return requests[0];
+    } else {
+      LOG(FATAL) << "Please config the stream request of " << capability;
+    }
   }
-  auto &&requests = stream_requests_map.at(Model::STANDARD);
-  return requests.at(capability);
 }
 
-void Device::StartVideoStreaming() {}
+void Device::StartVideoStreaming() {
+  if (video_streaming_) {
+    LOG(WARNING) << "Cannot start video streaming without first stopping it";
+    return;
+  }
 
-void Device::StopVideoStreaming() {}
+  streams_ = std::make_shared<Streams>();
+
+  // if stream capabilities are supported with subdevices of device_
+  /*
+  Capabilities stream_capabilities[] = {
+    Capabilities::STEREO,
+    Capabilities::COLOR,
+    Capabilities::DEPTH,
+    Capabilities::POINTS,
+    Capabilities::FISHEYE,
+    Capabilities::INFRARED,
+    Capabilities::INFRARED2
+  };
+  for (auto &&capability : stream_capabilities) {
+  }
+  */
+  if (Supports(Capabilities::STEREO)) {
+    // do stream request selection if more than one request of each stream
+    auto &&stream_request = GetStreamRequest(Capabilities::STEREO);
+    streams_->ConfigStream(Capabilities::STEREO, stream_request);
+    uvc::set_device_mode(
+        *device_, stream_request.width, stream_request.height,
+        static_cast<int>(stream_request.format), stream_request.fps,
+        [this](const void *data) {
+          streams_->PushStream(Capabilities::STEREO, data);
+          // ...
+        });
+  } else {
+    LOG(FATAL) << "Not any stream capabilities are supported by this device";
+  }
+
+  uvc::start_streaming(*device_, 0);
+  video_streaming_ = true;
+}
+
+void Device::StopVideoStreaming() {
+  if (!video_streaming_) {
+    LOG(WARNING) << "Cannot stop video streaming without first starting it";
+    return;
+  }
+  stop_streaming(*device_);
+  video_streaming_ = false;
+}
 
 void Device::StartMotionTracking() {
   if (!Supports(Capabilities::IMU)) {
-    LOG(FATAL) << "IMU is not supported by this device";
+    LOG(FATAL) << "IMU capability is not supported by this device";
+  }
+  if (motion_tracking_) {
+    LOG(WARNING) << "Cannot start motion tracking without first stopping it";
+    return;
   }
   // TODO(JohnZhao)
 }
 
 void Device::StopMotionTracking() {
+  if (!motion_tracking_) {
+    LOG(WARNING) << "Cannot stop motion tracking without first starting it";
+    return;
+  }
   // TODO(JohnZhao)
 }
 
