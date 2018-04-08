@@ -125,6 +125,32 @@ struct DeviceInfo {
   std::uint16_t nominal_baseline;
 };
 
+/**
+ * @ingroup datatypes
+ * Image packet.
+ */
+#pragma pack(push, 1)
+struct ImagePacket {
+  std::uint8_t header;
+  std::uint8_t size;
+  std::uint16_t frame_id;
+  std::uint32_t timestamp;
+  std::uint16_t exposure_time;
+  std::uint8_t checksum;
+
+  ImagePacket() = default;
+  explicit ImagePacket(std::uint8_t *data) {
+    header = *data;
+    size = *(data + 1);
+    frame_id = (*(data + 2) << 8) + *(data + 3);
+    timestamp = (*(data + 4) << 24) + (*(data + 5) << 16) + (*(data + 6) << 8) +
+                *(data + 7);
+    exposure_time = (*(data + 8) << 8) + *(data + 9);
+    checksum = *(data + 10);
+  }
+};
+#pragma pack(pop)
+
 #undef MYNTEYE_PROPERTY
 
 MYNTEYE_END_NAMESPACE

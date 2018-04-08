@@ -345,6 +345,21 @@ struct MYNTEYE_API ImgData {
     timestamp = 0;
     exposure_time = 0;
   }
+
+  ImgData() {
+    Reset();
+  }
+  ImgData(const ImgData &other) {
+    frame_id = other.frame_id;
+    timestamp = other.timestamp;
+    exposure_time = other.exposure_time;
+  }
+  ImgData &operator=(const ImgData &other) {
+    frame_id = other.frame_id;
+    timestamp = other.timestamp;
+    exposure_time = other.exposure_time;
+    return *this;
+  }
 };
 
 /**
@@ -369,6 +384,10 @@ struct MYNTEYE_API ImuData {
     std::fill(accel, accel + 3, 0);
     std::fill(gyro, gyro + 3, 0);
     temperature = 0;
+  }
+
+  ImuData() {
+    Reset();
   }
 };
 

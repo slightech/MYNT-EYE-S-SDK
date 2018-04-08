@@ -4,6 +4,7 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -111,6 +112,8 @@ class Device {
   std::shared_ptr<Streams> streams_;
 
   std::map<Capabilities, StreamRequest> stream_config_requests_;
+
+  std::mutex mtx_streams_;
 
   void ReadDeviceInfo();
 

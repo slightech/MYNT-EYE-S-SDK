@@ -47,14 +47,22 @@ int main(int argc, char *argv[]) {
       Stream::LEFT, [&left_count](const device::StreamData &data) {
         ++left_count;
         VLOG(2) << Stream::LEFT << ", count: " << left_count;
-        UNUSED(data)
+        if (data.img) {
+          VLOG(2) << "  frame_id: " << data.img->frame_id
+                  << ", timestamp: " << data.img->timestamp
+                  << ", exposure_time: " << data.img->exposure_time;
+        }
       });
   std::size_t right_count = 0;
   device->SetStreamCallback(
       Stream::RIGHT, [&right_count](const device::StreamData &data) {
         ++right_count;
         VLOG(2) << Stream::RIGHT << ", count: " << right_count;
-        UNUSED(data)
+        if (data.img) {
+          VLOG(2) << "  frame_id: " << data.img->frame_id
+                  << ", timestamp: " << data.img->timestamp
+                  << ", exposure_time: " << data.img->exposure_time;
+        }
       });
 
   device->Start(Source::ALL);

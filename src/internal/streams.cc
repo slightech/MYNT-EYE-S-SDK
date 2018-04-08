@@ -4,6 +4,9 @@
 
 #include <algorithm>
 #include <chrono>
+#include <iomanip>
+
+#include "internal/types.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -11,9 +14,60 @@ namespace {
 
 void unpack_stereo_img_data(
     const void *data, const StreamRequest &request, ImgData &img) {  // NOLINT
-  UNUSED(data)
-  UNUSED(request)
-  UNUSED(img)
+  CHECK_EQ(request.format, Format::YUYV);
+
+  auto data_new = reinterpret_cast<const std::uint8_t *>(data);
+  std::size_t data_n =
+      request.width * request.height * bytes_per_pixel(request.format);
+  auto data_end = data_new + data_n;
+
+  // LOG(INFO) << "ImagePacket (raw): header=0x" << std::hex <<
+  // static_cast<int>(*(data_end - 1))
+  //   << ", size=0x" << std::hex << static_cast<int>(*(data_end - 2))
+  //   << ", frame_id="<< std::dec << ((*(data_end - 3) << 8) + *(data_end - 4))
+  //   << ", timestamp="<< std::dec << ((*(data_end - 5) << 24) + (*(data_end -
+  //   6) << 16) + (*(data_end - 7) << 8) + *(data_end - 8))
+  //   << ", exposure_time="<< std::dec << ((*(data_end - 9) << 8) + *(data_end
+  //   - 10))
+  //   << ", checksum=0x" << std::hex << static_cast<int>(*(data_end - 11));
+
+  std::size_t packet_n = sizeof(ImagePacket);
+  // LOG(INFO) << "ImagePacket Size: " << packet_n;
+  std::vector<std::uint8_t> packet(packet_n);
+  std::reverse_copy(data_end - packet_n, data_end, packet.begin());
+
+  ImagePacket img_packet(packet.data());
+  // LOG(INFO) << "ImagePacket (new): header=0x" << std::hex <<
+  // static_cast<int>(img_packet.header)
+  //   << ", size=0x" << std::hex << static_cast<int>(img_packet.size)
+  //   << ", frame_id="<< std::dec << img_packet.frame_id
+  //   << ", timestamp="<< std::dec << img_packet.timestamp
+  //   << ", exposure_time="<< std::dec << img_packet.exposure_time
+  //   << ", checksum=0x" << std::hex << static_cast<int>(img_packet.checksum);
+
+  if (img_packet.header != 0x3B) {
+    LOG(WARNING) << "Image packet header must be 0x3B, but 0x" << std::hex
+                 << std::uppercase << std::setw(2) << std::setfill('0')
+                 << static_cast<int>(img_packet.header) << " now";
+    return;
+  }
+
+  std::uint8_t checksum = 0;
+  for (std::size_t i = 1, n = packet_n - 2; i <= n; i++) {
+    checksum = (checksum ^ packet[i]);
+  }
+  if (checksum != img_packet.checksum) {
+    LOG(WARNING) << "Image packet checksum should be 0x" << std::hex
+                 << std::uppercase << std::setw(2) << std::setfill('0')
+                 << static_cast<int>(img_packet.checksum) << ", but 0x"
+                 << std::setw(2) << std::setfill('0')
+                 << static_cast<int>(img_packet.checksum) << " now";
+    return;
+  }
+
+  img.frame_id = img_packet.frame_id;
+  img.timestamp = img_packet.timestamp;
+  img.exposure_time = img_packet.exposure_time;
 }
 
 void unpack_left_img_pixels(
@@ -85,7 +139,7 @@ void Streams::PushStream(const Capabilities &capability, const void *data) {
       auto &&right_data = stream_datas_map_[Stream::RIGHT].back();
       // unpack img data
       unpack_img_data_map_[Stream::LEFT](data, request, *left_data.img);
-      right_data.img = left_data.img;
+      *right_data.img = *left_data.img;
       // unpack frame
       unpack_img_pixels_map_[Stream::LEFT](data, request, *left_data.frame);
       unpack_img_pixels_map_[Stream::RIGHT](data, request, *right_data.frame);
@@ -106,12 +160,12 @@ void Streams::WaitForStreams() {
 }
 
 Streams::stream_datas_t Streams::GetStreamDatas(const Stream &stream) {
+  std::unique_lock<std::mutex> lock(mtx_);
   if (!HasStreamDatas(stream) || stream_datas_map_.at(stream).empty()) {
     LOG(WARNING) << "There are stream datas of " << stream
                  << ", do you first call WaitForStreams?";
     return {};
   }
-  std::unique_lock<std::mutex> lock(mtx_);
   stream_datas_t datas = stream_datas_map_.at(stream);
   stream_datas_map_[stream].clear();
   return datas;
@@ -155,7 +209,11 @@ void Streams::AllocStreamData(
     const Stream &stream, const StreamRequest &request, const Format &format) {
   static std::size_t stream_data_limits_max = 4;
   stream_data_t data;
-  data.img = std::shared_ptr<ImgData>(new ImgData{0, 0, 0});
+  if (stream == Stream::LEFT || stream == Stream::RIGHT) {
+    data.img = std::make_shared<ImgData>();
+  } else {
+    data.img = nullptr;
+  }
   data.frame =
       std::make_shared<frame_t>(request.width, request.height, format, nullptr);
   stream_datas_map_[stream].push_back(data);

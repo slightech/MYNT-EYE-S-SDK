@@ -193,12 +193,14 @@ void Device::WaitForStreams() {
 std::vector<device::StreamData> Device::GetStreamDatas(const Stream &stream) {
   CHECK(video_streaming_);
   CHECK_NOTNULL(streams_);
+  std::lock_guard<std::mutex> _(mtx_streams_);
   return streams_->GetStreamDatas(stream);
 }
 
 device::StreamData Device::GetLatestStreamData(const Stream &stream) {
   CHECK(video_streaming_);
   CHECK_NOTNULL(streams_);
+  std::lock_guard<std::mutex> _(mtx_streams_);
   return streams_->GetLatestStreamData(stream);
 }
 
@@ -247,6 +249,7 @@ void Device::StartVideoStreaming() {
         *device_, stream_request.width, stream_request.height,
         static_cast<int>(stream_request.format), stream_request.fps,
         [this](const void *data) {
+          std::lock_guard<std::mutex> _(mtx_streams_);
           streams_->PushStream(Capabilities::STEREO, data);
           if (HasStreamCallback(Stream::LEFT)) {
             auto &&stream_data = streams_->stream_datas(Stream::LEFT).back();
