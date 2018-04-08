@@ -69,5 +69,6 @@ TEST(Source, VerifyToString) {
 }
 
 TEST(Format, VerifyToString) {
+  EXPECT_STREQ("Format::GREY", to_string(Format::GREY));
   EXPECT_STREQ("Format::YUYV", to_string(Format::YUYV));
 }

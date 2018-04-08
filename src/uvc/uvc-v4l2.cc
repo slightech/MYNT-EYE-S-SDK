@@ -236,7 +236,7 @@ struct device {
     fmt.fmt.pix.height = height;
     fmt.fmt.pix.pixelformat = format;
     fmt.fmt.pix.field = V4L2_FIELD_NONE;
-    // fmt.fmt.pix.field       = V4L2_FIELD_INTERLACED;
+    // fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
     if (xioctl(fd, VIDIOC_S_FMT, &fmt) < 0)
       LOG_ERROR(FATAL, "VIDIOC_S_FMT");
 

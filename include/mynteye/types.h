@@ -4,6 +4,7 @@
 
 #include <cstdint>
 
+#include <algorithm>
 #include <iostream>
 #include <type_traits>
 
@@ -198,6 +199,8 @@ MYNTEYE_ENUM_HELPERS(Source)
  * @brief Formats define how each stream can be encoded.
  */
 enum class Format : std::uint32_t {
+  /** Greyscale, 8 bits per pixel */
+  GREY = MYNTEYE_FOURCC('G', 'R', 'E', 'Y'),
   /** YUV 4:2:2, 16 bits per pixel */
   YUYV = MYNTEYE_FOURCC('Y', 'U', 'Y', 'V'),
   /** Last guard */
@@ -224,7 +227,7 @@ struct MYNTEYE_API StreamRequest {
   std::uint16_t height;
   /** stream pixel format */
   Format format;
-  /** frames per second */
+  /** frames per second (unused) */
   std::uint16_t fps;
 
   bool operator==(const StreamRequest &other) const {
@@ -235,6 +238,8 @@ struct MYNTEYE_API StreamRequest {
     return !(*this == other);
   }
 };
+
+std::ostream &operator<<(std::ostream &os, const StreamRequest &request);
 
 /**
  * @defgroup calibration Intrinsics & Extrinsics
@@ -334,6 +339,12 @@ struct MYNTEYE_API ImgData {
   std::uint32_t timestamp;
   /** Image exposure time in 0.01ms */
   std::uint16_t exposure_time;
+
+  void Reset() {
+    frame_id = 0;
+    timestamp = 0;
+    exposure_time = 0;
+  }
 };
 
 /**
@@ -351,6 +362,14 @@ struct MYNTEYE_API ImuData {
   double gyro[3];
   /** IMU temperature */
   double temperature;
+
+  void Reset() {
+    frame_id = 0;
+    timestamp = 0;
+    std::fill(accel, accel + 3, 0);
+    std::fill(gyro, gyro + 3, 0);
+    temperature = 0;
+  }
 };
 
 MYNTEYE_END_NAMESPACE

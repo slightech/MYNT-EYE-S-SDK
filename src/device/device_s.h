@@ -3,6 +3,7 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 #include "device/device.h"
 
@@ -12,6 +13,8 @@ class StandardDevice : public Device {
  public:
   explicit StandardDevice(std::shared_ptr<uvc::device> device);
   virtual ~StandardDevice();
+
+  std::vector<Stream> GetKeyStreams() const override;
 };
 
 MYNTEYE_END_NAMESPACE

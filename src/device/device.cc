@@ -146,6 +146,18 @@ void Device::SetMotionCallback(motion_callback_t callback) {
   motion_callback_ = callback;
 }
 
+bool Device::HasStreamCallback(const Stream &stream) const {
+  try {
+    return stream_callbacks_.at(stream) != nullptr;
+  } catch (const std::out_of_range &e) {
+    return false;
+  }
+}
+
+bool Device::HasMotionCallback() const {
+  return motion_callback_ != nullptr;
+}
+
 void Device::Start(const Source &source) {
   if (source == Source::VIDEO_STREAMING) {
     StartVideoStreaming();
@@ -172,9 +184,27 @@ void Device::Stop(const Source &source) {
   }
 }
 
+void Device::WaitForStreams() {
+  CHECK(video_streaming_);
+  CHECK_NOTNULL(streams_);
+  streams_->WaitForStreams();
+}
+
+std::vector<device::StreamData> Device::GetStreamDatas(const Stream &stream) {
+  CHECK(video_streaming_);
+  CHECK_NOTNULL(streams_);
+  return streams_->GetStreamDatas(stream);
+}
+
+device::StreamData Device::GetLatestStreamData(const Stream &stream) {
+  CHECK(video_streaming_);
+  CHECK_NOTNULL(streams_);
+  return streams_->GetLatestStreamData(stream);
+}
+
 const StreamRequest &Device::GetStreamRequest(const Capabilities &capability) {
   try {
-    return stream_config_requests_[capability];
+    return stream_config_requests_.at(capability);
   } catch (const std::out_of_range &e) {
     auto &&requests = GetStreamRequests(capability);
     if (requests.size() == 1) {
@@ -192,7 +222,7 @@ void Device::StartVideoStreaming() {
     return;
   }
 
-  streams_ = std::make_shared<Streams>();
+  streams_ = std::make_shared<Streams>(GetKeyStreams());
 
   // if stream capabilities are supported with subdevices of device_
   /*
@@ -211,13 +241,21 @@ void Device::StartVideoStreaming() {
   if (Supports(Capabilities::STEREO)) {
     // do stream request selection if more than one request of each stream
     auto &&stream_request = GetStreamRequest(Capabilities::STEREO);
+
     streams_->ConfigStream(Capabilities::STEREO, stream_request);
     uvc::set_device_mode(
         *device_, stream_request.width, stream_request.height,
         static_cast<int>(stream_request.format), stream_request.fps,
         [this](const void *data) {
           streams_->PushStream(Capabilities::STEREO, data);
-          // ...
+          if (HasStreamCallback(Stream::LEFT)) {
+            auto &&stream_data = streams_->stream_datas(Stream::LEFT).back();
+            stream_callbacks_.at(Stream::LEFT)(stream_data);
+          }
+          if (HasStreamCallback(Stream::RIGHT)) {
+            auto &&stream_data = streams_->stream_datas(Stream::RIGHT).back();
+            stream_callbacks_.at(Stream::RIGHT)(stream_data);
+          }
         });
   } else {
     LOG(FATAL) << "Not any stream capabilities are supported by this device";
@@ -245,6 +283,7 @@ void Device::StartMotionTracking() {
     return;
   }
   // TODO(JohnZhao)
+  motion_tracking_ = true;
 }
 
 void Device::StopMotionTracking() {
@@ -253,10 +292,13 @@ void Device::StopMotionTracking() {
     return;
   }
   // TODO(JohnZhao)
+  motion_tracking_ = false;
 }
 
 void Device::ReadDeviceInfo() {
   // TODO(JohnZhao): Read device info
+  device_info_ = std::make_shared<DeviceInfo>();
+  device_info_->name = uvc::get_name(*device_);
 }
 
 void Device::WriteImgIntrinsics(const ImgIntrinsics &intrinsics) {

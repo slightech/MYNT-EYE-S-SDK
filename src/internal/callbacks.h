@@ -3,6 +3,8 @@
 #pragma once
 
 #include <cstdint>
+
+#include <algorithm>
 #include <functional>
 #include <memory>
 #include <vector>
@@ -25,8 +27,13 @@ class Frame {
       std::uint16_t width, std::uint16_t height, Format format,
       const void *data)
       : width_(width), height_(height), format_(format) {
-    const std::uint8_t *bytes = static_cast<const std::uint8_t *>(data);
-    data_ = data_t(bytes, bytes + (width * height) * bytes_per_pixel(format));
+    std::size_t bytes_n = (width * height) * bytes_per_pixel(format);
+    if (data) {
+      const std::uint8_t *bytes = static_cast<const std::uint8_t *>(data);
+      data_ = data_t(bytes, bytes + bytes_n);
+    } else {
+      data_.assign(bytes_n, 0);
+    }
   }
 
   std::uint16_t width() const {
@@ -41,8 +48,22 @@ class Frame {
     return format_;
   }
 
-  const data_t &data() const {
-    return data_;
+  std::uint8_t *data() {
+    return data_.data();
+  }
+
+  const std::uint8_t *data() const {
+    return data_.data();
+  }
+
+  std::size_t size() const {
+    return data_.size();
+  }
+
+  Frame clone() const {
+    Frame frame(width_, height_, format_, nullptr);
+    std::copy(data_.begin(), data_.end(), frame.data_.begin());
+    return frame;
   }
 
  private:
@@ -54,12 +75,12 @@ class Frame {
 };
 
 struct MYNTEYE_API StreamData {
-  ImgData img;
+  std::shared_ptr<ImgData> img;
   std::shared_ptr<Frame> frame;
 };
 
 struct MYNTEYE_API MotionData {
-  ImuData imu;
+  std::shared_ptr<ImuData> imu;
 };
 
 using StreamCallback = std::function<void(const StreamData &data)>;

@@ -62,8 +62,16 @@ class Device {
   void SetStreamCallback(const Stream &stream, stream_callback_t callback);
   void SetMotionCallback(motion_callback_t callback);
 
+  bool HasStreamCallback(const Stream &stream) const;
+  bool HasMotionCallback() const;
+
   virtual void Start(const Source &source);
   virtual void Stop(const Source &source);
+
+  void WaitForStreams();
+
+  std::vector<device::StreamData> GetStreamDatas(const Stream &stream);
+  device::StreamData GetLatestStreamData(const Stream &stream);
 
  protected:
   std::shared_ptr<uvc::device> device() const {
@@ -81,6 +89,8 @@ class Device {
 
   virtual void StartMotionTracking();
   virtual void StopMotionTracking();
+
+  virtual std::vector<Stream> GetKeyStreams() const = 0;
 
   bool video_streaming_;
   bool motion_tracking_;

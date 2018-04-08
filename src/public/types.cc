@@ -121,6 +121,7 @@ const char *to_string(const Format &value) {
   case Format::X: \
     return "Format::" #X;
   switch (value) {
+    CASE(GREY)
     CASE(YUYV)
     default:
       return "Format::UNKNOWN";
@@ -130,11 +131,18 @@ const char *to_string(const Format &value) {
 
 std::size_t bytes_per_pixel(const Format &value) {
   switch (value) {
+    case Format::GREY:
+      return 1;
     case Format::YUYV:
       return 2;
     default:
       LOG(FATAL) << "Unknown format";
   }
+}
+
+std::ostream &operator<<(std::ostream &os, const StreamRequest &request) {
+  return os << "width: " << request.width << ", height: " << request.height
+            << ", format: " << request.format << ", fps: " << request.fps;
 }
 
 MYNTEYE_END_NAMESPACE

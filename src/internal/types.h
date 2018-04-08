@@ -32,6 +32,7 @@ class Version {
   using size_t = std::size_t;
   using value_t = std::uint8_t;
 
+  Version() = default;
   Version(value_t major, value_t minor) : major_(major), minor_(minor) {}
   explicit Version(const std::string &name)
       : major_(parse_part(name, 0)), minor_(parse_part(name, 1)) {}
@@ -79,6 +80,7 @@ class HardwareVersion : public Version {
  public:
   using flag_t = std::bitset<8>;
 
+  HardwareVersion() = default;
   HardwareVersion(value_t major, value_t minor, value_t flag = 0)
       : Version(major, minor), flag_(flag) {}
   explicit HardwareVersion(const std::string &name, value_t flag = 0)
@@ -95,6 +97,7 @@ class Type {
   using size_t = std::size_t;
   using value_t = std::uint16_t;
 
+  Type() = default;
   Type(value_t vendor, value_t product) : vendor_(vendor), product_(product) {}
   explicit Type(const std::string &name)
       : vendor_(parse_part(name, 0, 2)), product_(parse_part(name, 2, 2)) {}

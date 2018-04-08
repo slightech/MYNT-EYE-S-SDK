@@ -13,4 +13,8 @@ StandardDevice::~StandardDevice() {
   VLOG(2) << __func__;
 }
 
+std::vector<Stream> StandardDevice::GetKeyStreams() const {
+  return {Stream::LEFT, Stream::RIGHT};
+}
+
 MYNTEYE_END_NAMESPACE

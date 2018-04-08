@@ -14,7 +14,7 @@ struct glog_init {
     FLAGS_max_log_size = 1024;
     FLAGS_stop_logging_if_full_disk = true;
 
-    FLAGS_v = 2;
+    // FLAGS_v = 2;
 
     google::InitGoogleLogging(argv[0]);
 
