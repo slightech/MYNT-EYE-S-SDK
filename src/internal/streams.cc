@@ -12,7 +12,7 @@ MYNTEYE_BEGIN_NAMESPACE
 
 namespace {
 
-void unpack_stereo_img_data(
+bool unpack_stereo_img_data(
     const void *data, const StreamRequest &request, ImgData &img) {  // NOLINT
   CHECK_EQ(request.format, Format::YUYV);
 
@@ -49,7 +49,7 @@ void unpack_stereo_img_data(
     LOG(WARNING) << "Image packet header must be 0x3B, but 0x" << std::hex
                  << std::uppercase << std::setw(2) << std::setfill('0')
                  << static_cast<int>(img_packet.header) << " now";
-    return;
+    return false;
   }
 
   std::uint8_t checksum = 0;
@@ -62,15 +62,16 @@ void unpack_stereo_img_data(
                  << static_cast<int>(img_packet.checksum) << ", but 0x"
                  << std::setw(2) << std::setfill('0')
                  << static_cast<int>(img_packet.checksum) << " now";
-    return;
+    return false;
   }
 
   img.frame_id = img_packet.frame_id;
   img.timestamp = img_packet.timestamp;
   img.exposure_time = img_packet.exposure_time;
+  return true;
 }
 
-void unpack_left_img_pixels(
+bool unpack_left_img_pixels(
     const void *data, const StreamRequest &request,
     Streams::frame_t &frame) {  // NOLINT
   CHECK_EQ(request.format, Format::YUYV);
@@ -80,9 +81,10 @@ void unpack_left_img_pixels(
   for (std::size_t i = 0; i < n; i++) {
     frame.data()[i] = *(data_new + (i * 2));
   }
+  return true;
 }
 
-void unpack_right_img_pixels(
+bool unpack_right_img_pixels(
     const void *data, const StreamRequest &request,
     Streams::frame_t &frame) {  // NOLINT
   CHECK_EQ(request.format, Format::YUYV);
@@ -92,6 +94,7 @@ void unpack_right_img_pixels(
   for (std::size_t i = 0; i < n; i++) {
     frame.data()[i] = *(data_new + (i * 2 + 1));
   }
+  return true;
 }
 
 }  // namespace
@@ -138,7 +141,11 @@ void Streams::PushStream(const Capabilities &capability, const void *data) {
       auto &&left_data = stream_datas_map_[Stream::LEFT].back();
       auto &&right_data = stream_datas_map_[Stream::RIGHT].back();
       // unpack img data
-      unpack_img_data_map_[Stream::LEFT](data, request, *left_data.img);
+      if (unpack_img_data_map_[Stream::LEFT](data, request, *left_data.img)) {
+        // TODO(JohnZhao)
+      } else {
+        LOG(WARNING) << "Image packet is unaccepted, frame dropped";
+      }
       *right_data.img = *left_data.img;
       // unpack frame
       unpack_img_pixels_map_[Stream::LEFT](data, request, *left_data.frame);

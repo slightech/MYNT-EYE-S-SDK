@@ -21,9 +21,9 @@ class Streams {
   using stream_data_t = device::StreamData;
   using stream_datas_t = std::vector<stream_data_t>;
 
-  using unpack_img_data_t = std::function<void(
+  using unpack_img_data_t = std::function<bool(
       const void *data, const StreamRequest &request, ImgData &img)>;  // NOLINT
-  using unpack_img_pixels_t = std::function<void(
+  using unpack_img_pixels_t = std::function<bool(
       const void *data, const StreamRequest &request,
       frame_t &frame)>;  // NOLINT
 
