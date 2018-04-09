@@ -97,6 +97,63 @@ int get_product_id(const device &device) {
   return device.pid;
 }
 
+std::string get_name(const device &device) {
+  // TODO(JohnZhao)
+  UNUSED(device)
+  return "";
+}
+
+std::string get_video_name(const device &device) {
+  // TODO(JohnZhao)
+  UNUSED(device)
+  return "";
+}
+
+void get_control(
+    const device &device, const extension_unit &xu, uint8_t ctrl, void *data,
+    int len) {
+  // TODO(JohnZhao)
+  UNUSED(device)
+  UNUSED(xu)
+  UNUSED(ctrl)
+  UNUSED(data)
+  UNUSED(len)
+}
+
+void set_control(
+    const device &device, const extension_unit &xu, uint8_t ctrl, void *data,
+    int len) {
+  // TODO(JohnZhao)
+  UNUSED(device)
+  UNUSED(xu)
+  UNUSED(ctrl)
+  UNUSED(data)
+  UNUSED(len)
+}
+
+void set_device_mode(
+    device &device, int width, int height, int fourcc, int fps,  // NOLINT
+    video_channel_callback callback) {
+  // TODO(JohnZhao)
+  UNUSED(device)
+  UNUSED(width)
+  UNUSED(height)
+  UNUSED(fourcc)
+  UNUSED(fps)
+  UNUSED(callback)
+}
+
+void start_streaming(device &device, int num_transfer_bufs) {  // NOLINT
+  // TODO(JohnZhao)
+  UNUSED(device)
+  UNUSED(num_transfer_bufs)
+}
+
+void stop_streaming(device &device) {  // NOLINT
+  // TODO(JohnZhao)
+  UNUSED(device)
+}
+
 }  // namespace uvc
 
 MYNTEYE_END_NAMESPACE
