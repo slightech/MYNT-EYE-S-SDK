@@ -109,26 +109,17 @@ std::string get_video_name(const device &device) {
   return "";
 }
 
-void get_control(
-    const device &device, const extension_unit &xu, uint8_t ctrl, void *data,
-    int len) {
+bool xu_control_query(
+    const device &device, const xu &xu, uint8_t selector, xu_query query,
+    uint16_t size, uint8_t *data) {
   // TODO(JohnZhao)
   UNUSED(device)
   UNUSED(xu)
-  UNUSED(ctrl)
+  UNUSED(selector)
+  UNUSED(query)
+  UNUSED(size)
   UNUSED(data)
-  UNUSED(len)
-}
-
-void set_control(
-    const device &device, const extension_unit &xu, uint8_t ctrl, void *data,
-    int len) {
-  // TODO(JohnZhao)
-  UNUSED(device)
-  UNUSED(xu)
-  UNUSED(ctrl)
-  UNUSED(data)
-  UNUSED(len)
+  return false;
 }
 
 void set_device_mode(

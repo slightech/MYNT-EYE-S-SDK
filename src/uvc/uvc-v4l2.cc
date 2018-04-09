@@ -192,26 +192,15 @@ struct device {
     }
   }
 
-  void get_control(
-      const extension_unit &xu, uint8_t control, void *data,
-      size_t size) const {
-    uvc_xu_control_query q = {static_cast<uint8_t>(xu.unit), control,
-                              UVC_GET_CUR, static_cast<uint16_t>(size),
-                              reinterpret_cast<uint8_t *>(data)};
+  bool xu_control_query(
+      const xu &xu, uint8_t selector, uint8_t query, uint16_t size,
+      uint8_t *data) const {
+    uvc_xu_control_query q = {xu.unit, selector, query, size, data};
     if (xioctl(fd, UVCIOC_CTRL_QUERY, &q) < 0) {
-      LOG_ERROR(FATAL, "UVCIOC_CTRL_QUERY:UVC_GET_CUR");
+      LOG_ERROR(WARNING, "UVCIOC_CTRL_QUERY failed");
+      return false;
     }
-  }
-
-  void set_control(
-      const extension_unit &xu, uint8_t control, void *data,
-      size_t size) const {
-    uvc_xu_control_query q = {static_cast<uint8_t>(xu.unit), control,
-                              UVC_SET_CUR, static_cast<uint16_t>(size),
-                              reinterpret_cast<uint8_t *>(data)};
-    if (xioctl(fd, UVCIOC_CTRL_QUERY, &q) < 0) {
-      LOG_ERROR(FATAL, "UVCIOC_CTRL_QUERY:UVC_SET_CUR");
-    }
+    return true;
   }
 
   void set_format(
@@ -444,16 +433,31 @@ std::string get_video_name(const device &device) {
   return device.dev_name;
 }
 
-void get_control(
-    const device &device, const extension_unit &xu, uint8_t ctrl, void *data,
-    int len) {
-  device.get_control(xu, ctrl, data, len);
-}
-
-void set_control(
-    const device &device, const extension_unit &xu, uint8_t ctrl, void *data,
-    int len) {
-  device.set_control(xu, ctrl, data, len);
+bool xu_control_query(
+    const device &device, const xu &xu, uint8_t selector, xu_query query,
+    uint16_t size, uint8_t *data) {
+  uint8_t code;
+  switch (query) {
+    case XU_SET_CUR:
+      code = UVC_SET_CUR;
+      break;
+    case XU_GET_CUR:
+      code = UVC_GET_CUR;
+      break;
+    case XU_GET_MIN:
+      code = UVC_GET_MIN;
+      break;
+    case XU_GET_MAX:
+      code = UVC_GET_MAX;
+      break;
+    case XU_GET_DEF:
+      code = UVC_GET_DEF;
+      break;
+    default:
+      LOG(ERROR) << "xu_control_query request code is unaccepted";
+      return false;
+  }
+  return device.xu_control_query(xu, selector, code, size, data);
 }
 
 void set_device_mode(
