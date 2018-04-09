@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "device/device_s.h"
+#include "internal/channels.h"
 #include "internal/config.h"
 #include "internal/streams.h"
 #include "internal/strings.h"
@@ -19,7 +20,8 @@ Device::Device(const Model &model, std::shared_ptr<uvc::device> device)
       motion_tracking_(false),
       model_(model),
       device_(device),
-      streams_(nullptr) {
+      streams_(nullptr),
+      channels_(std::make_shared<Channels>(device)) {
   VLOG(2) << __func__;
   ReadDeviceInfo();
 }

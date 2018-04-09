@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "mynteye/mynteye.h"
+#include "mynteye/types.h"
 
 #define MYNTEYE_VID 0x04B4
 #define MYNTEYE_PID 0x00F9
@@ -16,28 +17,24 @@ MYNTEYE_BEGIN_NAMESPACE
 
 namespace uvc {
 
-/*
-struct uvc_xu_control_query
+typedef enum pu_query {
+  PU_QUERY_SET,  // Set the value of a control
+  PU_QUERY_GET,  // Get the value of a control
+  PU_QUERY_LAST
+} pu_query;
 
-__u8    unit            Extension unit ID
-__u8    selector        Control selector
-__u8    query           Request code to send to the device
-__u16   size            Control data size (in bytes)
-__u8    *data           Control value
-*/
-
-// extension unit
+// Extension Unit
 struct xu {
-  uint8_t unit = 3;
+  uint8_t unit;
 };
 
 typedef enum xu_query {
-  XU_SET_CUR,  // Set current value of the control
-  XU_GET_CUR,  // Get current value of the control
-  XU_GET_MIN,  // Get min value of the control
-  XU_GET_MAX,  // Get max value of the control
-  XU_GET_DEF,  // Get default value of the control
-  XU_LAST
+  XU_QUERY_SET,  // Set current value of the control
+  XU_QUERY_GET,  // Get current value of the control
+  XU_QUERY_MIN,  // Get min value of the control
+  XU_QUERY_MAX,  // Get max value of the control
+  XU_QUERY_DEF,  // Get default value of the control
+  XU_QUERY_LAST
 } xu_query;
 
 struct context;  // Opaque type representing access to the underlying UVC
@@ -56,7 +53,17 @@ int get_product_id(const device &device);
 
 std::string get_video_name(const device &device);
 
-// Access XU controls
+// Access PU (Processing Unit) controls
+inline bool is_pu_control(Option option) {
+  return option >= Option::GAIN && option <= Option::CONTRAST;
+}
+bool pu_control_range(
+    const device &device, Option option, int32_t *min, int32_t *max,
+    int32_t *def);
+bool pu_control_query(
+    const device &device, Option option, pu_query query, int32_t *value);
+
+// Access XU (Extension Unit) controls
 bool xu_control_query(
     const device &device, const xu &xu, uint8_t selector, xu_query query,
     uint16_t size, uint8_t *data);

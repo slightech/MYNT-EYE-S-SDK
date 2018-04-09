@@ -23,6 +23,7 @@ struct device;
 
 struct DeviceInfo;
 
+class Channels;
 class Streams;
 
 class Device {
@@ -114,6 +115,8 @@ class Device {
   std::map<Capabilities, StreamRequest> stream_config_requests_;
 
   std::mutex mtx_streams_;
+
+  std::shared_ptr<Channels> channels_;
 
   void ReadDeviceInfo();
 

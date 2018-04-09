@@ -109,6 +109,28 @@ std::string get_video_name(const device &device) {
   return "";
 }
 
+bool pu_control_range(
+    const device &device, Option option, int32_t *min, int32_t *max,
+    int32_t *def) {
+  // TODO(JohnZhao)
+  UNUSED(device)
+  UNUSED(option)
+  UNUSED(min)
+  UNUSED(max)
+  UNUSED(def)
+  return false;
+}
+
+bool pu_control_query(
+    const device &device, Option option, pu_query query, int32_t *value) {
+  // TODO(JohnZhao)
+  UNUSED(device)
+  UNUSED(option)
+  UNUSED(query)
+  UNUSED(value)
+  return false;
+}
+
 bool xu_control_query(
     const device &device, const xu &xu, uint8_t selector, xu_query query,
     uint16_t size, uint8_t *data) {

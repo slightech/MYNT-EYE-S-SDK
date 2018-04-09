@@ -192,12 +192,41 @@ struct device {
     }
   }
 
+  bool pu_control_range(
+      uint32_t id, int32_t *min, int32_t *max, int32_t *def) const {
+    struct v4l2_queryctrl query = {};
+    query.id = id;
+    if (xioctl(fd, VIDIOC_QUERYCTRL, &query) < 0) {
+      LOG_ERROR(WARNING, "pu_control_range failed");
+      return false;
+    }
+    if (min)
+      *min = query.minimum;
+    if (max)
+      *max = query.maximum;
+    if (def)
+      *def = query.default_value;
+    return true;
+  }
+
+  bool pu_control_query(uint32_t id, int query, int32_t *value) const {
+    CHECK_NOTNULL(value);
+    struct v4l2_control control = {id, *value};
+    if (xioctl(fd, query, &control) < 0) {
+      LOG_ERROR(WARNING, "pu_control_query failed");
+      return false;
+    }
+    *value = control.value;
+    return true;
+  }
+
   bool xu_control_query(
       const xu &xu, uint8_t selector, uint8_t query, uint16_t size,
       uint8_t *data) const {
+    CHECK_NOTNULL(data);
     uvc_xu_control_query q = {xu.unit, selector, query, size, data};
     if (xioctl(fd, UVCIOC_CTRL_QUERY, &q) < 0) {
-      LOG_ERROR(WARNING, "UVCIOC_CTRL_QUERY failed");
+      LOG_ERROR(WARNING, "xu_control_query failed");
       return false;
     }
     return true;
@@ -433,24 +462,60 @@ std::string get_video_name(const device &device) {
   return device.dev_name;
 }
 
+static uint32_t get_cid(Option option) {
+  switch (option) {
+    case Option::GAIN:
+      return V4L2_CID_GAIN;
+    case Option::BRIGHTNESS:
+      return V4L2_CID_BRIGHTNESS;
+    case Option::CONTRAST:
+      return V4L2_CID_CONTRAST;
+    default:
+      LOG(FATAL) << "No v4l2 cid for " << option;
+  }
+}
+
+bool pu_control_range(
+    const device &device, Option option, int32_t *min, int32_t *max,
+    int32_t *def) {
+  return device.pu_control_range(get_cid(option), min, max, def);
+}
+
+bool pu_control_query(
+    const device &device, Option option, pu_query query, int32_t *value) {
+  int code;
+  switch (query) {
+    case PU_QUERY_SET:
+      code = VIDIOC_S_CTRL;
+      break;
+    case PU_QUERY_GET:
+      code = VIDIOC_G_CTRL;
+      break;
+    default:
+      LOG(ERROR) << "pu_control_query request code is unaccepted";
+      return false;
+  }
+  return device.pu_control_query(get_cid(option), code, value);
+}
+
 bool xu_control_query(
     const device &device, const xu &xu, uint8_t selector, xu_query query,
     uint16_t size, uint8_t *data) {
   uint8_t code;
   switch (query) {
-    case XU_SET_CUR:
+    case XU_QUERY_SET:
       code = UVC_SET_CUR;
       break;
-    case XU_GET_CUR:
+    case XU_QUERY_GET:
       code = UVC_GET_CUR;
       break;
-    case XU_GET_MIN:
+    case XU_QUERY_MIN:
       code = UVC_GET_MIN;
       break;
-    case XU_GET_MAX:
+    case XU_QUERY_MAX:
       code = UVC_GET_MAX;
       break;
-    case XU_GET_DEF:
+    case XU_QUERY_DEF:
       code = UVC_GET_DEF;
       break;
     default:
