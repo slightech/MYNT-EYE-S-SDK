@@ -40,10 +40,6 @@ include(${PRO_DIR}/cmake/Common.cmake)
 
 set(OUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_output")
 
-include_directories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-)
-
 # samples above device layer
 
 add_subdirectory(device)

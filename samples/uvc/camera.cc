@@ -7,11 +7,10 @@
 #include <iostream>
 #include <mutex>
 
+#include "mynteye/glog_init.h"
 #include "mynteye/mynteye.h"
 #include "mynteye/types.h"
 #include "uvc/uvc.h"
-
-#include "glog_init.h"  // NOLINT
 
 struct frame {
   const void *data = nullptr;

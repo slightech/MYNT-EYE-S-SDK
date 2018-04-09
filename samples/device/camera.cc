@@ -1,7 +1,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "glog_init.h"  // NOLINT
+#include "mynteye/glog_init.h"
 
 #include "device/context.h"
 #include "device/device.h"
