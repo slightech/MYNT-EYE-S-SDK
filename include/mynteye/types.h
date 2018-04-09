@@ -391,6 +391,16 @@ struct MYNTEYE_API ImuData {
   }
 };
 
+/**
+ * @ingroup datatypes
+ * Option info.
+ */
+struct MYNTEYE_API OptionInfo {
+  std::int32_t min;
+  std::int32_t max;
+  std::int32_t def;
+};
+
 MYNTEYE_END_NAMESPACE
 
 #endif  // MYNTEYE_TYPES_H_ NOLINT

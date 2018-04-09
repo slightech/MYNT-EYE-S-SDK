@@ -61,6 +61,11 @@ class Device {
   ImuIntrinsics GetImuIntrinsics() const;
   ImuExtrinsics GetImuExtrinsics() const;
 
+  OptionInfo GetOptionInfo(const Option &option) const;
+  std::int32_t GetOptionValue(const Option &option) const;
+  void SetOptionValue(const Option &option, std::int32_t value);
+  void LogOptionInfos() const;
+
   void SetStreamCallback(const Stream &stream, stream_callback_t callback);
   void SetMotionCallback(motion_callback_t callback);
 

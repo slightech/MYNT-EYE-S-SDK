@@ -37,16 +37,33 @@ class Channels {
   explicit Channels(std::shared_ptr<uvc::device> device);
   ~Channels();
 
+  void LogControlInfos() const;
+
+  control_info_t GetControlInfo(const Option &option) const;
+  std::int32_t GetControlValue(const Option &option) const;
+  void SetControlValue(const Option &option, std::int32_t value);
+
  private:
+  bool PuControlRange(
+      Option option, int32_t *min, int32_t *max, int32_t *def) const;
+  bool PuControlQuery(Option option, uvc::pu_query query, int32_t *value) const;
+
   bool XuControlQuery(
-      uint8_t selector, uvc::xu_query query, uint16_t size, uint8_t *data);
+      uint8_t selector, uvc::xu_query query, uint16_t size,
+      uint8_t *data) const;
   bool XuControlQuery(
       const uvc::xu &xu, uint8_t selector, uvc::xu_query query, uint16_t size,
-      uint8_t *data);
+      uint8_t *data) const;
+
+  bool XuCamCtrlQuery(uvc::xu_query query, uint16_t size, uint8_t *data) const;
+  std::int32_t XuCamCtrlGet(Option option) const;
+
+  control_info_t PuControlInfo(Option option) const;
+  control_info_t XuControlInfo(Option option) const;
 
   std::shared_ptr<uvc::device> device_;
 
-  std::map<Option, ControlInfo> control_infos_;
+  std::map<Option, control_info_t> control_infos_;
 };
 
 MYNTEYE_END_NAMESPACE

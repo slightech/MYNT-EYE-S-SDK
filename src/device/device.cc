@@ -131,6 +131,23 @@ ImuExtrinsics Device::GetImuExtrinsics() const {
   return imu_extrinsics_;
 }
 
+OptionInfo Device::GetOptionInfo(const Option &option) const {
+  auto &&info = channels_->GetControlInfo(option);
+  return {info.min, info.max, info.def};
+}
+
+std::int32_t Device::GetOptionValue(const Option &option) const {
+  return channels_->GetControlValue(option);
+}
+
+void Device::SetOptionValue(const Option &option, std::int32_t value) {
+  channels_->SetControlValue(option, value);
+}
+
+void Device::LogOptionInfos() const {
+  channels_->LogControlInfos();
+}
+
 void Device::SetStreamCallback(
     const Stream &stream, stream_callback_t callback) {
   if (!Supports(stream)) {

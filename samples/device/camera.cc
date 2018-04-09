@@ -42,6 +42,8 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  device->LogOptionInfos();
+
   std::size_t left_count = 0;
   device->SetStreamCallback(
       Stream::LEFT, [&left_count](const device::StreamData &data) {
