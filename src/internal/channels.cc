@@ -108,11 +108,11 @@ std::int32_t Channels::GetControlValue(const Option &option) const {
     case Option::BRIGHTNESS:
     case Option::CONTRAST:
       std::int32_t value;
-      if (!PuControlQuery(option, uvc::PU_QUERY_GET, &value)) {
+      if (PuControlQuery(option, uvc::PU_QUERY_GET, &value)) {
+        return value;
+      } else {
         LOG(WARNING) << option << " get value failed";
         return -1;
-      } else {
-        return value;
       }
     case Option::FRAME_RATE:
     case Option::IMU_FREQUENCY:
@@ -251,12 +251,12 @@ void Channels::XuCamCtrlSet(Option option, std::int32_t value) const {
   std::uint8_t data[3] = {static_cast<std::uint8_t>(id & 0xFF),
                           static_cast<std::uint8_t>((value >> 8) & 0xFF),
                           static_cast<std::uint8_t>(value & 0xFF)};
-  if (!XuCamCtrlQuery(uvc::XU_QUERY_SET, 3, data)) {
-    LOG(WARNING) << "XuCamCtrlSet value (" << value << ") of " << option
-                 << " failed";
-  } else {
+  if (XuCamCtrlQuery(uvc::XU_QUERY_SET, 3, data)) {
     VLOG(2) << "XuCamCtrlSet value (" << value << ") of " << option
             << " success";
+  } else {
+    LOG(WARNING) << "XuCamCtrlSet value (" << value << ") of " << option
+                 << " failed";
   }
 }
 
@@ -264,14 +264,39 @@ bool Channels::XuHalfDuplexSet(Option option, xu_cmd_t cmd) const {
   int id = XuHalfDuplexId(option);
   std::uint8_t data[3] = {// must be 3 now
                           static_cast<std::uint8_t>(id & 0xFF), cmd};
-  if (!XuControlQuery(CHANNEL_HALF_DUPLEX, uvc::XU_QUERY_SET, 3, data)) {
-    LOG(WARNING) << "XuHalfDuplexSet value (0x" << std::hex << std::uppercase
-                 << cmd << ") of " << option << " failed";
-    return false;
-  } else {
+  if (XuControlQuery(CHANNEL_HALF_DUPLEX, uvc::XU_QUERY_SET, 3, data)) {
     VLOG(2) << "XuHalfDuplexSet value (0x" << std::hex << std::uppercase << cmd
             << ") of " << option << " success";
     return true;
+  } else {
+    LOG(WARNING) << "XuHalfDuplexSet value (0x" << std::hex << std::uppercase
+                 << cmd << ") of " << option << " failed";
+    return false;
+  }
+}
+
+bool Channels::XuImuWrite(const ImuReqPacket &req) const {
+  auto &&data = req.to_data();
+  if (XuControlQuery(
+          CHANNEL_IMU_WRITE, uvc::XU_QUERY_SET, data.size(), data.data())) {
+    VLOG(2) << "XuImuWrite request success";
+    return true;
+  } else {
+    LOG(WARNING) << "XuImuWrite request failed";
+    return false;
+  }
+}
+
+bool Channels::XuImuRead(ImuResPacket *res) const {
+  static std::uint8_t data[2000]{};
+  // std::fill(data, data + 2000, 0);  // reset
+  if (XuControlQuery(CHANNEL_IMU_READ, uvc::XU_QUERY_GET, 2000, data)) {
+    VLOG(2) << "XuImuRead response success";
+    res->from_data(data);
+    return true;
+  } else {
+    LOG(WARNING) << "XuImuRead response failed";
+    return false;
   }
 }
 

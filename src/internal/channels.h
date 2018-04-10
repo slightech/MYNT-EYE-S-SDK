@@ -6,6 +6,8 @@
 #include <memory>
 
 #include "mynteye/mynteye.h"
+
+#include "internal/types.h"
 #include "uvc/uvc.h"
 
 MYNTEYE_BEGIN_NAMESPACE
@@ -69,6 +71,9 @@ class Channels {
   void XuCamCtrlSet(Option option, std::int32_t value) const;
 
   bool XuHalfDuplexSet(Option option, xu_cmd_t cmd) const;
+
+  bool XuImuWrite(const ImuReqPacket &req) const;
+  bool XuImuRead(ImuResPacket *res) const;
 
   control_info_t PuControlInfo(Option option) const;
   control_info_t XuControlInfo(Option option) const;

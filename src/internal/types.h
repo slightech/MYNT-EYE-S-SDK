@@ -4,6 +4,7 @@
 
 #include <cstdint>
 
+#include <array>
 #include <bitset>
 #include <string>
 #include <vector>
@@ -140,6 +141,10 @@ struct ImagePacket {
 
   ImagePacket() = default;
   explicit ImagePacket(std::uint8_t *data) {
+    from_data(data);
+  }
+
+  void from_data(std::uint8_t *data) {
     header = *data;
     size = *(data + 1);
     frame_id = (*(data + 2) << 8) + *(data + 3);
@@ -147,6 +152,119 @@ struct ImagePacket {
                 *(data + 7);
     exposure_time = (*(data + 8) << 8) + *(data + 9);
     checksum = *(data + 10);
+  }
+};
+#pragma pack(pop)
+
+/**
+ * @ingroup datatypes
+ * Imu request packet.
+ */
+#pragma pack(push, 1)
+struct ImuReqPacket {
+  std::uint8_t header;
+  std::uint32_t serial_number;
+
+  ImuReqPacket() = default;
+  explicit ImuReqPacket(std::uint32_t serial_number)
+      : ImuReqPacket(0x5A, serial_number) {}
+  ImuReqPacket(std::uint8_t header, std::uint32_t serial_number)
+      : header(header), serial_number(serial_number) {}
+
+  std::array<std::uint8_t, 5> to_data() const {
+    return {header, static_cast<std::uint8_t>((serial_number >> 24) & 0xFF),
+            static_cast<std::uint8_t>((serial_number >> 16) & 0xFF),
+            static_cast<std::uint8_t>((serial_number >> 8) & 0xFF),
+            static_cast<std::uint8_t>(serial_number & 0xFF)};
+  }
+};
+#pragma pack(pop)
+
+/**
+ * @ingroup datatypes
+ * Imu segment.
+ */
+#pragma pack(push, 1)
+struct ImuSegment {
+  std::int16_t offset;
+  std::uint16_t frame_id;
+  std::int8_t accel[3];
+  std::int8_t temperature;
+  std::int8_t gyro[3];
+
+  ImuSegment() = default;
+  explicit ImuSegment(std::uint8_t *data) {
+    from_data(data);
+  }
+
+  void from_data(std::uint8_t *data) {
+    offset = (*(data) << 8) + *(data + 1);
+    frame_id = (*(data + 2) << 8) + *(data + 3);
+    accel[0] = *(data + 4);
+    accel[1] = *(data + 5);
+    accel[2] = *(data + 6);
+    temperature = *(data + 7);
+    gyro[0] = *(data + 8);
+    gyro[1] = *(data + 9);
+    gyro[2] = *(data + 10);
+  }
+};
+#pragma pack(pop)
+
+/**
+ * @ingroup datatypes
+ * Imu packet.
+ */
+#pragma pack(push, 1)
+struct ImuPacket {
+  std::uint32_t serial_number;
+  std::uint32_t timestamp;
+  std::uint8_t count;
+  std::vector<ImuSegment> segments;
+
+  ImuPacket() = default;
+  explicit ImuPacket(std::uint8_t *data) {
+    from_data(data);
+  }
+
+  void from_data(std::uint8_t *data) {
+    serial_number = (*(data) << 24) + (*(data + 1) << 16) + (*(data + 2) << 8) +
+                    *(data + 3);
+    timestamp = (*(data + 4) << 24) + (*(data + 5) << 16) + (*(data + 6) << 8) +
+                *(data + 7);
+    count = *(data + 8);
+
+    std::size_t seg_n = sizeof(ImuSegment);
+    for (std::size_t i = 0; i < count; i++) {
+      segments.push_back(ImuSegment(data + 9 + (seg_n * i)));
+    }
+  }
+};
+#pragma pack(pop)
+
+/**
+ * @ingroup datatypes
+ * Imu response packet.
+ */
+#pragma pack(push, 1)
+struct ImuResPacket {
+  std::uint8_t header;
+  std::uint8_t state;
+  std::uint16_t size;
+  ImuPacket packet;
+  std::uint8_t checksum;
+
+  ImuResPacket() = default;
+  explicit ImuResPacket(std::uint8_t *data) {
+    from_data(data);
+  }
+
+  void from_data(std::uint8_t *data) {
+    header = *data;
+    state = *(data + 1);
+    size = (*(data + 2) << 8) + *(data + 3);
+    packet.from_data(data + 4);
+    checksum = *(data + 4 + size);
   }
 };
 #pragma pack(pop)
