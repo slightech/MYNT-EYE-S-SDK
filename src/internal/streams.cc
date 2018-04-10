@@ -59,9 +59,9 @@ bool unpack_stereo_img_data(
   if (checksum != img_packet.checksum) {
     LOG(WARNING) << "Image packet checksum should be 0x" << std::hex
                  << std::uppercase << std::setw(2) << std::setfill('0')
-                 << static_cast<int>(img_packet.checksum) << ", but 0x"
-                 << std::setw(2) << std::setfill('0')
-                 << static_cast<int>(img_packet.checksum) << " now";
+                 << static_cast<int>(checksum) << ", but 0x" << std::setw(2)
+                 << std::setfill('0') << static_cast<int>(img_packet.checksum)
+                 << " now";
     return false;
   }
 
