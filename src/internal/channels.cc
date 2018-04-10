@@ -375,9 +375,9 @@ bool Channels::XuImuRead(ImuResPacket *res) const {
     if (checksum != res->checksum) {
       LOG(WARNING) << "Imu response packet checksum should be 0x" << std::hex
                    << std::uppercase << std::setw(2) << std::setfill('0')
-                   << static_cast<int>(res->checksum) << ", but 0x"
-                   << std::setw(2) << std::setfill('0')
-                   << static_cast<int>(res->checksum) << " now";
+                   << static_cast<int>(checksum) << ", but 0x" << std::setw(2)
+                   << std::setfill('0') << static_cast<int>(res->checksum)
+                   << " now";
       return false;
     }
 
