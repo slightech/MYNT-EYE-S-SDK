@@ -172,10 +172,10 @@ struct ImuReqPacket {
       : header(header), serial_number(serial_number) {}
 
   std::array<std::uint8_t, 5> to_data() const {
-    return {header, static_cast<std::uint8_t>((serial_number >> 24) & 0xFF),
-            static_cast<std::uint8_t>((serial_number >> 16) & 0xFF),
-            static_cast<std::uint8_t>((serial_number >> 8) & 0xFF),
-            static_cast<std::uint8_t>(serial_number & 0xFF)};
+    return {{header, static_cast<std::uint8_t>((serial_number >> 24) & 0xFF),
+             static_cast<std::uint8_t>((serial_number >> 16) & 0xFF),
+             static_cast<std::uint8_t>((serial_number >> 8) & 0xFF),
+             static_cast<std::uint8_t>(serial_number & 0xFF)}};
   }
 };
 #pragma pack(pop)
