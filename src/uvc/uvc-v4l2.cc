@@ -347,7 +347,6 @@ struct device {
         LOG_ERROR(WARNING, "VIDIOC_REQBUFS");
     }
 
-    callback = nullptr;
     is_capturing = false;
   }
 
