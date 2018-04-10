@@ -34,16 +34,23 @@ class Channels {
     std::int32_t def;
   } control_info_t;
 
+  typedef enum XuCmd {
+    XU_CMD_ZDC = 0xE6,    // zero drift calibration
+    XU_CMD_ERASE = 0xDE,  // erase chip
+    XU_CMD_LAST
+  } xu_cmd_t;
+
   explicit Channels(std::shared_ptr<uvc::device> device);
   ~Channels();
 
   void LogControlInfos() const;
-
   void UpdateControlInfos();
-
   control_info_t GetControlInfo(const Option &option) const;
+
   std::int32_t GetControlValue(const Option &option) const;
   void SetControlValue(const Option &option, std::int32_t value);
+
+  bool RunControlAction(const Option &option) const;
 
  private:
   bool PuControlRange(
@@ -51,7 +58,7 @@ class Channels {
   bool PuControlQuery(Option option, uvc::pu_query query, int32_t *value) const;
 
   bool XuControlQuery(
-      uint8_t selector, uvc::xu_query query, uint16_t size,
+      channel_t channel, uvc::xu_query query, uint16_t size,
       uint8_t *data) const;
   bool XuControlQuery(
       const uvc::xu &xu, uint8_t selector, uvc::xu_query query, uint16_t size,
@@ -60,6 +67,8 @@ class Channels {
   bool XuCamCtrlQuery(uvc::xu_query query, uint16_t size, uint8_t *data) const;
   std::int32_t XuCamCtrlGet(Option option) const;
   void XuCamCtrlSet(Option option, std::int32_t value) const;
+
+  bool XuHalfDuplexSet(Option option, xu_cmd_t cmd) const;
 
   control_info_t PuControlInfo(Option option) const;
   control_info_t XuControlInfo(Option option) const;

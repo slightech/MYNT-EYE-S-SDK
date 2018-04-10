@@ -39,6 +39,19 @@ int XuCamCtrlId(Option option) {
   }
 }
 
+int XuHalfDuplexId(Option option) {
+  switch (option) {
+    case Option::ZERO_DRIFT_CALIBRATION:
+      return 0;
+      break;
+    case Option::ERASE_CHIP:
+      return 1;
+      break;
+    default:
+      LOG(FATAL) << "No half duplex id for " << option;
+  }
+}
+
 }  // namespace
 
 Channels::Channels(std::shared_ptr<uvc::device> device) : device_(device) {
@@ -161,6 +174,30 @@ void Channels::SetControlValue(const Option &option, std::int32_t value) {
   }
 }
 
+bool Channels::RunControlAction(const Option &option) const {
+  switch (option) {
+    case Option::ZERO_DRIFT_CALIBRATION:
+      return XuHalfDuplexSet(option, XU_CMD_ZDC);
+    case Option::ERASE_CHIP:
+      return XuHalfDuplexSet(option, XU_CMD_ERASE);
+    case Option::GAIN:
+    case Option::BRIGHTNESS:
+    case Option::CONTRAST:
+    case Option::FRAME_RATE:
+    case Option::IMU_FREQUENCY:
+    case Option::EXPOSURE_MODE:
+    case Option::MAX_GAIN:
+    case Option::MAX_EXPOSURE_TIME:
+    case Option::DESIRED_BRIGHTNESS:
+    case Option::IR_CONTROL:
+    case Option::HDR_MODE:
+      LOG(WARNING) << option << " run action useless";
+      return false;
+    default:
+      LOG(FATAL) << "Unsupported option " << option;
+  }
+}
+
 bool Channels::PuControlRange(
     Option option, int32_t *min, int32_t *max, int32_t *def) const {
   CHECK_NOTNULL(device_);
@@ -174,8 +211,9 @@ bool Channels::PuControlQuery(
 }
 
 bool Channels::XuControlQuery(
-    uint8_t selector, uvc::xu_query query, uint16_t size, uint8_t *data) const {
-  return XuControlQuery({3}, selector, query, size, data);
+    channel_t channel, uvc::xu_query query, uint16_t size,
+    uint8_t *data) const {
+  return XuControlQuery({3}, channel >> 8, query, size, data);
 }
 
 bool Channels::XuControlQuery(
@@ -187,7 +225,7 @@ bool Channels::XuControlQuery(
 
 bool Channels::XuCamCtrlQuery(
     uvc::xu_query query, uint16_t size, uint8_t *data) const {
-  return XuControlQuery(CHANNEL_CAM_CTRL >> 8, query, size, data);
+  return XuControlQuery(CHANNEL_CAM_CTRL, query, size, data);
 }
 
 std::int32_t Channels::XuCamCtrlGet(Option option) const {
@@ -195,7 +233,7 @@ std::int32_t Channels::XuCamCtrlGet(Option option) const {
 
   std::uint8_t data[3] = {static_cast<std::uint8_t>((id | 0x80) & 0xFF), 0, 0};
   if (!XuCamCtrlQuery(uvc::XU_QUERY_SET, 3, data)) {
-    LOG(WARNING) << "Get control value of " << option << " failed";
+    LOG(WARNING) << "XuCamCtrlGet value of " << option << " failed";
     return -1;
   }
 
@@ -203,7 +241,7 @@ std::int32_t Channels::XuCamCtrlGet(Option option) const {
   if (XuCamCtrlQuery(uvc::XU_QUERY_GET, 3, data)) {
     return (data[1] << 8) + (data[2]);
   } else {
-    LOG(WARNING) << "Get control value of " << option << " failed";
+    LOG(WARNING) << "XuCamCtrlGet value of " << option << " failed";
     return -1;
   }
 }
@@ -214,14 +252,33 @@ void Channels::XuCamCtrlSet(Option option, std::int32_t value) const {
                           static_cast<std::uint8_t>((value >> 8) & 0xFF),
                           static_cast<std::uint8_t>(value & 0xFF)};
   if (!XuCamCtrlQuery(uvc::XU_QUERY_SET, 3, data)) {
-    LOG(WARNING) << "Set control value of " << option << " failed";
+    LOG(WARNING) << "XuCamCtrlSet value (" << value << ") of " << option
+                 << " failed";
+  } else {
+    VLOG(2) << "XuCamCtrlSet value (" << value << ") of " << option
+            << " success";
+  }
+}
+
+bool Channels::XuHalfDuplexSet(Option option, xu_cmd_t cmd) const {
+  int id = XuHalfDuplexId(option);
+  std::uint8_t data[3] = {// must be 3 now
+                          static_cast<std::uint8_t>(id & 0xFF), cmd};
+  if (!XuControlQuery(CHANNEL_HALF_DUPLEX, uvc::XU_QUERY_SET, 3, data)) {
+    LOG(WARNING) << "XuHalfDuplexSet value (0x" << std::hex << std::uppercase
+                 << cmd << ") of " << option << " failed";
+    return false;
+  } else {
+    VLOG(2) << "XuHalfDuplexSet value (0x" << std::hex << std::uppercase << cmd
+            << ") of " << option << " success";
+    return true;
   }
 }
 
 Channels::control_info_t Channels::PuControlInfo(Option option) const {
   int32_t min = 0, max = 0, def = 0;
   if (!PuControlRange(option, &min, &max, &def)) {
-    LOG(WARNING) << "Get control range of " << option << " failed";
+    LOG(WARNING) << "Get PuControlInfo of " << option << " failed";
   }
   return {min, max, def};
 }
@@ -231,7 +288,7 @@ Channels::control_info_t Channels::XuControlInfo(Option option) const {
 
   std::uint8_t data[3] = {static_cast<std::uint8_t>((id | 0x80) & 0xFF), 0, 0};
   if (!XuCamCtrlQuery(uvc::XU_QUERY_SET, 3, data)) {
-    LOG(WARNING) << "Get control range of " << option << " failed";
+    LOG(WARNING) << "Get XuControlInfo of " << option << " failed";
     return {0, 0, 0};
   }
 
@@ -241,17 +298,17 @@ Channels::control_info_t Channels::XuControlInfo(Option option) const {
   if (XuCamCtrlQuery(uvc::XU_QUERY_MIN, 3, data)) {
     info.min = (data[1] << 8) + (data[2]);
   } else {
-    LOG(WARNING) << "Get control range min of " << option << " failed";
+    LOG(WARNING) << "Get XuControlInfo.min of " << option << " failed";
   }
   if (XuCamCtrlQuery(uvc::XU_QUERY_MAX, 3, data)) {
     info.max = (data[1] << 8) + (data[2]);
   } else {
-    LOG(WARNING) << "Get control range max of " << option << " failed";
+    LOG(WARNING) << "Get XuControlInfo.max of " << option << " failed";
   }
   if (XuCamCtrlQuery(uvc::XU_QUERY_DEF, 3, data)) {
     info.def = (data[1] << 8) + (data[2]);
   } else {
-    LOG(WARNING) << "Get control range def of " << option << " failed";
+    LOG(WARNING) << "Get XuControlInfo.def of " << option << " failed";
   }
 
   return info;

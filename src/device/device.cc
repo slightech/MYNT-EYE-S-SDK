@@ -131,6 +131,10 @@ ImuExtrinsics Device::GetImuExtrinsics() const {
   return imu_extrinsics_;
 }
 
+void Device::LogOptionInfos() const {
+  channels_->LogControlInfos();
+}
+
 OptionInfo Device::GetOptionInfo(const Option &option) const {
   if (!Supports(option)) {
     LOG(WARNING) << "Unsupported option: " << option;
@@ -156,8 +160,12 @@ void Device::SetOptionValue(const Option &option, std::int32_t value) {
   channels_->SetControlValue(option, value);
 }
 
-void Device::LogOptionInfos() const {
-  channels_->LogControlInfos();
+bool Device::RunOptionAction(const Option &option) const {
+  if (!Supports(option)) {
+    LOG(WARNING) << "Unsupported option: " << option;
+    return false;
+  }
+  return channels_->RunControlAction(option);
 }
 
 void Device::SetStreamCallback(
