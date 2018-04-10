@@ -324,7 +324,27 @@ void Device::StartMotionTracking() {
     LOG(WARNING) << "Cannot start motion tracking without first stopping it";
     return;
   }
-  // TODO(JohnZhao)
+  channels_->StartImuTracking([this](const ImuPacket &packet) {
+    if (!HasMotionCallback())
+      return;
+    for (auto &&seg : packet.segments) {
+      auto &&imu = std::make_shared<ImuData>();
+      imu->frame_id = seg.frame_id;
+      if (seg.offset < 0 &&
+          static_cast<uint32_t>(-seg.offset) > packet.timestamp) {
+        LOG(WARNING) << "Imu timestamp offset is incorrect";
+      }
+      imu->timestamp = packet.timestamp + seg.offset;
+      imu->accel[0] = seg.accel[0] * 8.f / 0x10000;
+      imu->accel[1] = seg.accel[1] * 8.f / 0x10000;
+      imu->accel[2] = seg.accel[2] * 8.f / 0x10000;
+      imu->gyro[0] = seg.gyro[0] * 1000.f / 0x10000;
+      imu->gyro[1] = seg.gyro[1] * 1000.f / 0x10000;
+      imu->gyro[2] = seg.gyro[2] * 1000.f / 0x10000;
+      imu->temperature = seg.temperature / 326.8f + 25;
+      motion_callback_({imu});
+    }
+  });
   motion_tracking_ = true;
 }
 
@@ -333,7 +353,7 @@ void Device::StopMotionTracking() {
     LOG(WARNING) << "Cannot stop motion tracking without first starting it";
     return;
   }
-  // TODO(JohnZhao)
+  channels_->StopImuTracking();
   motion_tracking_ = false;
 }
 

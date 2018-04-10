@@ -64,25 +64,39 @@ int main(int argc, char *argv[]) {
   std::size_t left_count = 0;
   device->SetStreamCallback(
       Stream::LEFT, [&left_count](const device::StreamData &data) {
+        CHECK_NOTNULL(data.img);
         ++left_count;
         VLOG(2) << Stream::LEFT << ", count: " << left_count;
-        if (data.img) {
-          VLOG(2) << "  frame_id: " << data.img->frame_id
-                  << ", timestamp: " << data.img->timestamp
-                  << ", exposure_time: " << data.img->exposure_time;
-        }
+        VLOG(2) << "  frame_id: " << data.img->frame_id
+                << ", timestamp: " << data.img->timestamp
+                << ", exposure_time: " << data.img->exposure_time;
       });
   std::size_t right_count = 0;
   device->SetStreamCallback(
       Stream::RIGHT, [&right_count](const device::StreamData &data) {
+        CHECK_NOTNULL(data.img);
         ++right_count;
         VLOG(2) << Stream::RIGHT << ", count: " << right_count;
-        if (data.img) {
-          VLOG(2) << "  frame_id: " << data.img->frame_id
-                  << ", timestamp: " << data.img->timestamp
-                  << ", exposure_time: " << data.img->exposure_time;
-        }
+        VLOG(2) << "  frame_id: " << data.img->frame_id
+                << ", timestamp: " << data.img->timestamp
+                << ", exposure_time: " << data.img->exposure_time;
       });
+
+  std::size_t imu_count = 0;
+  device->SetMotionCallback([&imu_count](const device::MotionData &data) {
+    CHECK_NOTNULL(data.imu);
+    ++imu_count;
+    LOG(INFO) << "Imu count: " << imu_count;
+    LOG(INFO) << "  frame_id: " << data.imu->frame_id
+              << ", timestamp: " << data.imu->timestamp
+              << ", accel_x: " << data.imu->accel[0]
+              << ", accel_y: " << data.imu->accel[1]
+              << ", accel_z: " << data.imu->accel[2]
+              << ", gyro_x: " << data.imu->gyro[0]
+              << ", gyro_y: " << data.imu->gyro[1]
+              << ", gyro_z: " << data.imu->gyro[2]
+              << ", temperature: " << data.imu->temperature;
+  });
 
   device->Start(Source::ALL);
 

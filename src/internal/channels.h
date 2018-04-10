@@ -4,6 +4,7 @@
 
 #include <map>
 #include <memory>
+#include <thread>
 
 #include "mynteye/mynteye.h"
 
@@ -42,6 +43,8 @@ class Channels {
     XU_CMD_LAST
   } xu_cmd_t;
 
+  using imu_callback_t = std::function<void(const ImuPacket &packet)>;
+
   explicit Channels(std::shared_ptr<uvc::device> device);
   ~Channels();
 
@@ -53,6 +56,10 @@ class Channels {
   void SetControlValue(const Option &option, std::int32_t value);
 
   bool RunControlAction(const Option &option) const;
+
+  void SetImuCallback(imu_callback_t callback);
+  void StartImuTracking(imu_callback_t callback = nullptr);
+  void StopImuTracking();
 
  private:
   bool PuControlRange(
@@ -81,6 +88,13 @@ class Channels {
   std::shared_ptr<uvc::device> device_;
 
   std::map<Option, control_info_t> control_infos_;
+
+  bool is_imu_tracking_;
+  std::thread imu_track_thread_;
+  volatile bool imu_track_stop_;
+
+  std::uint32_t imu_sn_;
+  imu_callback_t imu_callback_;
 };
 
 MYNTEYE_END_NAMESPACE

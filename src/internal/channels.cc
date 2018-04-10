@@ -2,6 +2,8 @@
 
 #include <glog/logging.h>
 
+#include <chrono>
+#include <iomanip>
 #include <stdexcept>
 
 MYNTEYE_BEGIN_NAMESPACE
@@ -54,13 +56,19 @@ int XuHalfDuplexId(Option option) {
 
 }  // namespace
 
-Channels::Channels(std::shared_ptr<uvc::device> device) : device_(device) {
+Channels::Channels(std::shared_ptr<uvc::device> device)
+    : device_(device),
+      is_imu_tracking_(false),
+      imu_track_stop_(false),
+      imu_sn_(0),
+      imu_callback_(nullptr) {
   VLOG(2) << __func__;
   UpdateControlInfos();
 }
 
 Channels::~Channels() {
   VLOG(2) << __func__;
+  StopImuTracking();
 }
 
 void Channels::LogControlInfos() const {
@@ -198,6 +206,59 @@ bool Channels::RunControlAction(const Option &option) const {
   }
 }
 
+void Channels::SetImuCallback(imu_callback_t callback) {
+  imu_callback_ = callback;
+}
+
+void Channels::StartImuTracking(imu_callback_t callback) {
+  if (is_imu_tracking_) {
+    LOG(WARNING) << "start imu tracking failed, is tracking already";
+    return;
+  }
+  if (callback) {
+    imu_callback_ = callback;
+  }
+  is_imu_tracking_ = true;
+  imu_track_thread_ = std::thread([this]() {
+    imu_sn_ = 0;
+    ImuReqPacket req_packet{imu_sn_};
+    ImuResPacket res_packet;
+    auto sleep_milli = [](std::intmax_t n) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(n));
+    };
+    while (!imu_track_stop_) {
+      req_packet.serial_number = imu_sn_;
+      if (!XuImuWrite(req_packet)) {
+        sleep_milli(5);
+        continue;
+      }
+
+      if (!XuImuRead(&res_packet)) {
+        sleep_milli(5);
+        continue;
+      }
+
+      imu_sn_ = res_packet.packet.serial_number;
+
+      if (imu_callback_) {
+        imu_callback_(res_packet.packet);
+      }
+    }
+  });
+}
+
+void Channels::StopImuTracking() {
+  if (!is_imu_tracking_) {
+    return;
+  }
+  if (imu_track_thread_.joinable()) {
+    imu_track_stop_ = true;
+    imu_track_thread_.join();
+    imu_track_stop_ = false;
+    is_imu_tracking_ = false;
+  }
+}
+
 bool Channels::PuControlRange(
     Option option, int32_t *min, int32_t *max, int32_t *def) const {
   CHECK_NOTNULL(device_);
@@ -291,8 +352,36 @@ bool Channels::XuImuRead(ImuResPacket *res) const {
   static std::uint8_t data[2000]{};
   // std::fill(data, data + 2000, 0);  // reset
   if (XuControlQuery(CHANNEL_IMU_READ, uvc::XU_QUERY_GET, 2000, data)) {
-    VLOG(2) << "XuImuRead response success";
     res->from_data(data);
+
+    if (res->header != 0x5B) {
+      LOG(WARNING) << "Imu response packet header must be 0x5B, but 0x"
+                   << std::hex << std::uppercase << std::setw(2)
+                   << std::setfill('0') << static_cast<int>(res->header)
+                   << " now";
+      return false;
+    }
+
+    if (res->state != 0) {
+      LOG(WARNING) << "Imu response packet state must be 0, but " << res->state
+                   << " now";
+      return false;
+    }
+
+    std::uint8_t checksum = 0;
+    for (std::size_t i = 4, n = 4 + res->size; i < n; i++) {
+      checksum = (checksum ^ data[i]);
+    }
+    if (checksum != res->checksum) {
+      LOG(WARNING) << "Imu response packet checksum should be 0x" << std::hex
+                   << std::uppercase << std::setw(2) << std::setfill('0')
+                   << static_cast<int>(res->checksum) << ", but 0x"
+                   << std::setw(2) << std::setfill('0')
+                   << static_cast<int>(res->checksum) << " now";
+      return false;
+    }
+
+    VLOG(2) << "XuImuRead response success";
     return true;
   } else {
     LOG(WARNING) << "XuImuRead response failed";
