@@ -22,10 +22,9 @@ class Streams {
   using stream_datas_t = std::vector<stream_data_t>;
 
   using unpack_img_data_t = std::function<bool(
-      const void *data, const StreamRequest &request, ImgData &img)>;  // NOLINT
+      const void *data, const StreamRequest &request, ImgData *img)>;
   using unpack_img_pixels_t = std::function<bool(
-      const void *data, const StreamRequest &request,
-      frame_t &frame)>;  // NOLINT
+      const void *data, const StreamRequest &request, frame_t *frame)>;
 
   explicit Streams(const std::vector<Stream> key_streams);
   ~Streams();

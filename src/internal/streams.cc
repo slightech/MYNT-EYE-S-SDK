@@ -13,7 +13,8 @@ MYNTEYE_BEGIN_NAMESPACE
 namespace {
 
 bool unpack_stereo_img_data(
-    const void *data, const StreamRequest &request, ImgData &img) {  // NOLINT
+    const void *data, const StreamRequest &request, ImgData *img) {
+  CHECK_NOTNULL(img);
   CHECK_EQ(request.format, Format::YUYV);
 
   auto data_new = reinterpret_cast<const std::uint8_t *>(data);
@@ -65,34 +66,34 @@ bool unpack_stereo_img_data(
     return false;
   }
 
-  img.frame_id = img_packet.frame_id;
-  img.timestamp = img_packet.timestamp;
-  img.exposure_time = img_packet.exposure_time;
+  img->frame_id = img_packet.frame_id;
+  img->timestamp = img_packet.timestamp;
+  img->exposure_time = img_packet.exposure_time;
   return true;
 }
 
 bool unpack_left_img_pixels(
-    const void *data, const StreamRequest &request,
-    Streams::frame_t &frame) {  // NOLINT
+    const void *data, const StreamRequest &request, Streams::frame_t *frame) {
+  CHECK_NOTNULL(frame);
   CHECK_EQ(request.format, Format::YUYV);
-  CHECK_EQ(frame.format(), Format::GREY);
+  CHECK_EQ(frame->format(), Format::GREY);
   auto data_new = reinterpret_cast<const std::uint8_t *>(data);
-  std::size_t n = frame.width() * frame.height();
+  std::size_t n = frame->width() * frame->height();
   for (std::size_t i = 0; i < n; i++) {
-    frame.data()[i] = *(data_new + (i * 2));
+    frame->data()[i] = *(data_new + (i * 2));
   }
   return true;
 }
 
 bool unpack_right_img_pixels(
-    const void *data, const StreamRequest &request,
-    Streams::frame_t &frame) {  // NOLINT
+    const void *data, const StreamRequest &request, Streams::frame_t *frame) {
+  CHECK_NOTNULL(frame);
   CHECK_EQ(request.format, Format::YUYV);
-  CHECK_EQ(frame.format(), Format::GREY);
+  CHECK_EQ(frame->format(), Format::GREY);
   auto data_new = reinterpret_cast<const std::uint8_t *>(data);
-  std::size_t n = frame.width() * frame.height();
+  std::size_t n = frame->width() * frame->height();
   for (std::size_t i = 0; i < n; i++) {
-    frame.data()[i] = *(data_new + (i * 2 + 1));
+    frame->data()[i] = *(data_new + (i * 2 + 1));
   }
   return true;
 }
@@ -141,15 +142,18 @@ void Streams::PushStream(const Capabilities &capability, const void *data) {
       auto &&left_data = stream_datas_map_[Stream::LEFT].back();
       auto &&right_data = stream_datas_map_[Stream::RIGHT].back();
       // unpack img data
-      if (unpack_img_data_map_[Stream::LEFT](data, request, *left_data.img)) {
+      if (unpack_img_data_map_[Stream::LEFT](
+              data, request, left_data.img.get())) {
         // TODO(JohnZhao)
       } else {
         LOG(WARNING) << "Image packet is unaccepted, frame dropped";
       }
       *right_data.img = *left_data.img;
       // unpack frame
-      unpack_img_pixels_map_[Stream::LEFT](data, request, *left_data.frame);
-      unpack_img_pixels_map_[Stream::RIGHT](data, request, *right_data.frame);
+      unpack_img_pixels_map_[Stream::LEFT](
+          data, request, left_data.frame.get());
+      unpack_img_pixels_map_[Stream::RIGHT](
+          data, request, right_data.frame.get());
     } break;
     default:
       LOG(FATAL) << "Not supported " << capability << " now";
