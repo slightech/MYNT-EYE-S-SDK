@@ -43,7 +43,22 @@ int XuCamCtrlId(Option option) {
 
 Channels::Channels(std::shared_ptr<uvc::device> device) : device_(device) {
   VLOG(2) << __func__;
+  UpdateControlInfos();
+}
 
+Channels::~Channels() {
+  VLOG(2) << __func__;
+}
+
+void Channels::LogControlInfos() const {
+  for (auto &&it = control_infos_.begin(); it != control_infos_.end(); it++) {
+    LOG(INFO) << it->first << ": min=" << it->second.min
+              << ", max=" << it->second.max << ", def=" << it->second.def
+              << ", cur=" << GetControlValue(it->first);
+  }
+}
+
+void Channels::UpdateControlInfos() {
   for (auto &&option : std::vector<Option>{Option::GAIN, Option::BRIGHTNESS,
                                            Option::CONTRAST}) {
     control_infos_[option] = PuControlInfo(option);
@@ -65,22 +80,11 @@ Channels::Channels(std::shared_ptr<uvc::device> device) : device_(device) {
   }
 }
 
-Channels::~Channels() {
-  VLOG(2) << __func__;
-}
-
-void Channels::LogControlInfos() const {
-  for (auto &&it = control_infos_.begin(); it != control_infos_.end(); it++) {
-    LOG(INFO) << it->first << ": min=" << it->second.min
-              << ", max=" << it->second.max << ", def=" << it->second.def
-              << ", cur=" << GetControlValue(it->first);
-  }
-}
-
 Channels::control_info_t Channels::GetControlInfo(const Option &option) const {
   try {
     return control_infos_.at(option);
   } catch (const std::out_of_range &e) {
+    LOG(WARNING) << "Get control info of " << option << " failed";
     return {0, 0, 0};
   }
 }
@@ -117,9 +121,44 @@ std::int32_t Channels::GetControlValue(const Option &option) const {
 }
 
 void Channels::SetControlValue(const Option &option, std::int32_t value) {
-  // TODO(JohnZhao)
-  UNUSED(option)
-  UNUSED(value)
+  auto in_range = [this, &option, &value]() {
+    auto &&info = GetControlInfo(option);
+    if (value < info.min || value > info.max) {
+      LOG(WARNING) << option << " set value out of range, " << value
+                   << " not in [" << info.min << "," << info.max << "]";
+      return false;
+    }
+    return true;
+  };
+  switch (option) {
+    case Option::GAIN:
+    case Option::BRIGHTNESS:
+    case Option::CONTRAST: {
+      if (!in_range())
+        break;
+      if (!PuControlQuery(option, uvc::PU_QUERY_SET, &value)) {
+        LOG(WARNING) << option << " set value failed";
+      }
+    } break;
+    case Option::FRAME_RATE:
+    case Option::IMU_FREQUENCY:
+    case Option::EXPOSURE_MODE:
+    case Option::MAX_GAIN:
+    case Option::MAX_EXPOSURE_TIME:
+    case Option::DESIRED_BRIGHTNESS:
+    case Option::IR_CONTROL:
+    case Option::HDR_MODE: {
+      if (!in_range())
+        break;
+      XuCamCtrlSet(option, value);
+    } break;
+    case Option::ZERO_DRIFT_CALIBRATION:
+    case Option::ERASE_CHIP:
+      LOG(WARNING) << option << " set value useless";
+      break;
+    default:
+      LOG(FATAL) << "Unsupported option " << option;
+  }
 }
 
 bool Channels::PuControlRange(
@@ -166,6 +205,16 @@ std::int32_t Channels::XuCamCtrlGet(Option option) const {
   } else {
     LOG(WARNING) << "Get control value of " << option << " failed";
     return -1;
+  }
+}
+
+void Channels::XuCamCtrlSet(Option option, std::int32_t value) const {
+  int id = XuCamCtrlId(option);
+  std::uint8_t data[3] = {static_cast<std::uint8_t>(id & 0xFF),
+                          static_cast<std::uint8_t>((value >> 8) & 0xFF),
+                          static_cast<std::uint8_t>(value & 0xFF)};
+  if (!XuCamCtrlQuery(uvc::XU_QUERY_SET, 3, data)) {
+    LOG(WARNING) << "Set control value of " << option << " failed";
   }
 }
 

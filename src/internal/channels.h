@@ -39,6 +39,8 @@ class Channels {
 
   void LogControlInfos() const;
 
+  void UpdateControlInfos();
+
   control_info_t GetControlInfo(const Option &option) const;
   std::int32_t GetControlValue(const Option &option) const;
   void SetControlValue(const Option &option, std::int32_t value);
@@ -57,6 +59,7 @@ class Channels {
 
   bool XuCamCtrlQuery(uvc::xu_query query, uint16_t size, uint8_t *data) const;
   std::int32_t XuCamCtrlGet(Option option) const;
+  void XuCamCtrlSet(Option option, std::int32_t value) const;
 
   control_info_t PuControlInfo(Option option) const;
   control_info_t XuControlInfo(Option option) const;

@@ -42,6 +42,23 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  /*
+  {  // auto-exposure
+    device->SetOptionValue(Option::EXPOSURE_MODE, 0);
+    device->SetOptionValue(Option::MAX_GAIN, 40);  // [0.48]
+    device->SetOptionValue(Option::MAX_EXPOSURE_TIME, 120);  // [0,240]
+    device->SetOptionValue(Option::DESIRED_BRIGHTNESS, 200);  // [0,255]
+  }
+  */
+  /*
+  {  // manual-exposure
+    device->SetOptionValue(Option::EXPOSURE_MODE, 1);
+    device->SetOptionValue(Option::GAIN, 20);  // [0.48]
+    device->SetOptionValue(Option::BRIGHTNESS, 20);  // [0,240]
+    device->SetOptionValue(Option::CONTRAST, 20);  // [0,255]
+  }
+  device->SetOptionValue(Option::IR_CONTROL, 80);
+  */
   device->LogOptionInfos();
 
   std::size_t left_count = 0;

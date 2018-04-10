@@ -58,7 +58,7 @@ bool Device::Supports(const Option &option) const {
 const std::vector<StreamRequest> &Device::GetStreamRequests(
     const Capabilities &capability) const {
   if (!Supports(capability)) {
-    LOG(FATAL) << "Unsupported capability: " << to_string(capability);
+    LOG(FATAL) << "Unsupported capability: " << capability;
   }
   try {
     auto &&cap_requests = stream_requests_map.at(model_);
@@ -132,15 +132,27 @@ ImuExtrinsics Device::GetImuExtrinsics() const {
 }
 
 OptionInfo Device::GetOptionInfo(const Option &option) const {
+  if (!Supports(option)) {
+    LOG(WARNING) << "Unsupported option: " << option;
+    return {0, 0, 0};
+  }
   auto &&info = channels_->GetControlInfo(option);
   return {info.min, info.max, info.def};
 }
 
 std::int32_t Device::GetOptionValue(const Option &option) const {
+  if (!Supports(option)) {
+    LOG(WARNING) << "Unsupported option: " << option;
+    return -1;
+  }
   return channels_->GetControlValue(option);
 }
 
 void Device::SetOptionValue(const Option &option, std::int32_t value) {
+  if (!Supports(option)) {
+    LOG(WARNING) << "Unsupported option: " << option;
+    return;
+  }
   channels_->SetControlValue(option, value);
 }
 
@@ -151,7 +163,7 @@ void Device::LogOptionInfos() const {
 void Device::SetStreamCallback(
     const Stream &stream, stream_callback_t callback) {
   if (!Supports(stream)) {
-    LOG(WARNING) << "Unsupported stream: " << to_string(stream);
+    LOG(WARNING) << "Unsupported stream: " << stream;
     return;
   }
   if (callback) {
