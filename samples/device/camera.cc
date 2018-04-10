@@ -49,8 +49,6 @@ int main(int argc, char *argv[]) {
     device->SetOptionValue(Option::MAX_EXPOSURE_TIME, 120);  // [0,240]
     device->SetOptionValue(Option::DESIRED_BRIGHTNESS, 200);  // [0,255]
   }
-  */
-  /*
   {  // manual-exposure
     device->SetOptionValue(Option::EXPOSURE_MODE, 1);
     device->SetOptionValue(Option::GAIN, 20);  // [0.48]
@@ -60,6 +58,8 @@ int main(int argc, char *argv[]) {
   device->SetOptionValue(Option::IR_CONTROL, 80);
   */
   device->LogOptionInfos();
+
+  // device->RunOptionAction(Option::ZERO_DRIFT_CALIBRATION);
 
   std::size_t left_count = 0;
   device->SetStreamCallback(
