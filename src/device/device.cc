@@ -15,6 +15,30 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
+namespace {
+
+struct DeviceModel {
+  char type;
+  std::uint8_t generation;
+  std::uint8_t baseline_code;
+  std::uint8_t hardware_code;
+  std::uint8_t custom_code;
+  bool ir_fixed;
+
+  DeviceModel() = default;
+  explicit DeviceModel(std::string model) {
+    CHECK_GE(model.size(), 5);
+    type = model[0];
+    generation = model[1];
+    baseline_code = model[2];
+    hardware_code = model[3];
+    custom_code = model[4];
+    ir_fixed = (model.size() == 8) && model.substr(5) == "-IR";
+  }
+};
+
+}  // namespace
+
 Device::Device(const Model &model, std::shared_ptr<uvc::device> device)
     : video_streaming_(false),
       motion_tracking_(false),
@@ -36,6 +60,15 @@ std::shared_ptr<Device> Device::Create(
     return std::make_shared<StandardDevice>(device);
   } else if (strings::starts_with(name, "MYNT-EYE-")) {
     // TODO(JohnZhao): Create different device by name, such as MYNT-EYE-S1000
+    std::string model_s = name.substr(9);
+    VLOG(2) << "MYNE EYE Model: " << model_s;
+    DeviceModel model(model_s);
+    switch (model.type) {
+      case 'S':
+        return std::make_shared<StandardDevice>(device);
+      default:
+        LOG(FATAL) << "MYNT EYE model is not supported now";
+    }
   }
   return nullptr;
 }
