@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <chrono>
 #include <iomanip>
+#include <stdexcept>
 
 #include "internal/types.h"
 
@@ -136,24 +137,26 @@ void Streams::PushStream(const Capabilities &capability, const void *data) {
   auto &&request = GetStreamConfigRequest(capability);
   switch (capability) {
     case Capabilities::STEREO: {
-      // alloc
+      // alloc left
       AllocStreamData(Stream::LEFT, request, Format::GREY);
-      AllocStreamData(Stream::RIGHT, request, Format::GREY);
       auto &&left_data = stream_datas_map_[Stream::LEFT].back();
-      auto &&right_data = stream_datas_map_[Stream::RIGHT].back();
       // unpack img data
       if (unpack_img_data_map_[Stream::LEFT](
               data, request, left_data.img.get())) {
-        // TODO(JohnZhao)
+        // alloc right
+        AllocStreamData(Stream::RIGHT, request, Format::GREY);
+        auto &&right_data = stream_datas_map_[Stream::RIGHT].back();
+        *right_data.img = *left_data.img;
+        // unpack frame
+        unpack_img_pixels_map_[Stream::LEFT](
+            data, request, left_data.frame.get());
+        unpack_img_pixels_map_[Stream::RIGHT](
+            data, request, right_data.frame.get());
       } else {
+        // discard left
+        DiscardStreamData(Stream::LEFT);
         LOG(WARNING) << "Image packet is unaccepted, frame dropped";
       }
-      *right_data.img = *left_data.img;
-      // unpack frame
-      unpack_img_pixels_map_[Stream::LEFT](
-          data, request, left_data.frame.get());
-      unpack_img_pixels_map_[Stream::RIGHT](
-          data, request, right_data.frame.get());
     } break;
     default:
       LOG(FATAL) << "Not supported " << capability << " now";
@@ -186,9 +189,14 @@ Streams::stream_data_t Streams::GetLatestStreamData(const Stream &stream) {
   return GetStreamDatas(stream).back();
 }
 
-const Streams::stream_datas_t &Streams::stream_datas(
-    const Stream &stream) const {
-  return stream_datas_map_.at(stream);
+const Streams::stream_datas_t &Streams::stream_datas(const Stream &stream) {
+  try {
+    return stream_datas_map_.at(stream);
+  } catch (const std::out_of_range &e) {
+    // Add empty vector of this stream key
+    stream_datas_map_[stream] = {};
+    return stream_datas_map_.at(stream);
+  }
 }
 
 bool Streams::IsStreamCapability(const Capabilities &capability) const {
@@ -233,6 +241,16 @@ void Streams::AllocStreamData(
     auto &&datas = stream_datas_map_[stream];
     datas.erase(datas.begin());
     VLOG(2) << "Stream data of " << stream << " is dropped";
+  }
+}
+
+void Streams::DiscardStreamData(const Stream &stream) {
+  // Must discard after alloc, otherwise at will out of range when no this key.
+  if (stream_datas_map_.at(stream).size() > 0) {
+    auto &&datas = stream_datas_map_[stream];
+    datas.erase(datas.end() - 1);
+  } else {
+    VLOG(2) << "Stream data of " << stream << " is empty, could not discard";
   }
 }
 

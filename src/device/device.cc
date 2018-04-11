@@ -321,15 +321,25 @@ void Device::StartVideoStreaming() {
         *device_, stream_request.width, stream_request.height,
         static_cast<int>(stream_request.format), stream_request.fps,
         [this](const void *data) {
+          // drop the first stereo stream data
+          static std::uint8_t drop_count = 1;
+          if (drop_count > 0) {
+            --drop_count;
+            return;
+          }
           std::lock_guard<std::mutex> _(mtx_streams_);
           streams_->PushStream(Capabilities::STEREO, data);
           if (HasStreamCallback(Stream::LEFT)) {
-            auto &&stream_data = streams_->stream_datas(Stream::LEFT).back();
-            stream_callbacks_.at(Stream::LEFT)(stream_data);
+            auto &&stream_datas = streams_->stream_datas(Stream::LEFT);
+            if (stream_datas.size() > 0) {
+              stream_callbacks_.at(Stream::LEFT)(stream_datas.back());
+            }
           }
           if (HasStreamCallback(Stream::RIGHT)) {
-            auto &&stream_data = streams_->stream_datas(Stream::RIGHT).back();
-            stream_callbacks_.at(Stream::RIGHT)(stream_data);
+            auto &&stream_datas = streams_->stream_datas(Stream::RIGHT);
+            if (stream_datas.size() > 0) {
+              stream_callbacks_.at(Stream::RIGHT)(stream_datas.back());
+            }
           }
         });
   } else {

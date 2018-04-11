@@ -39,7 +39,7 @@ class Streams {
   stream_datas_t GetStreamDatas(const Stream &stream);
   stream_data_t GetLatestStreamData(const Stream &stream);
 
-  const stream_datas_t &stream_datas(const Stream &stream) const;
+  const stream_datas_t &stream_datas(const Stream &stream);
 
  private:
   bool IsStreamCapability(const Capabilities &capability) const;
@@ -53,6 +53,8 @@ class Streams {
   void AllocStreamData(const Stream &stream, const StreamRequest &request);
   void AllocStreamData(
       const Stream &stream, const StreamRequest &request, const Format &format);
+
+  void DiscardStreamData(const Stream &stream);
 
   bool HasKeyStreamDatas() const;
 
