@@ -6,7 +6,7 @@
 
 | 名称 | 字段 | 字节数 | 默认值 | 最小值 | 最大值 | 是否储存 | Flash 地址 | 说明 |
 | :----- | :----- | :-------- | :-------- | :-------- | :-------- | :----------- | :----------- | :----- |
-| 增益 | gain | 2 | 48 | 0 | 48 | √ | 0x12 | 关闭自动曝光，手动设定的参数 |
+| 增益 | gain | 2 | 24 | 0 | 48 | √ | 0x12 | 关闭自动曝光，手动设定的参数 |
 | 亮度 | brightness/exposure_time | 2 | 120 | 0 | 240 | √ | 0x14 | 关闭自动曝光，手动设定的参数 |
 | 对比度 | contrast/black_level_calibration | 2 | 127 | 0 | 255 | √ | 0x10 | |
 
@@ -22,7 +22,7 @@
 | 最大增益 | max_gain | 2 | 48 | 0 | 48 | √ | 0x1D | XU_CAM_CTRL | 0x0100 | 开始自动曝光，可设定的阈值 |
 | 最大曝光时间 | max_exposure_time | 2 | 240 | 0 | 240 | √ | 0x1B | XU_CAM_CTRL | 0x0100 | 开始自动曝光，可设定的阈值 |
 | 期望亮度 | desired_brightness | 2 | 192 | 0 | 255 | √ | 0x19 | XU_CAM_CTRL | 0x0100 | |
-| IR 控制 | ir_control | 1 | 0 | 0 | 160? | × | - | XU_CAM_CTRL | 0x0100 | |
+| IR 控制 | ir_control | 1 | 0 | 0 | 160 | × | - | XU_CAM_CTRL | 0x0100 | |
 | HDR 模式 | hdr_mode | 1 | 0 | 0 | 1 | √ | 0x1F | XU_CAM_CTRL | 0x0100 | 0：10-bit；1：12-bit |
 | 零漂标定 | zero_drift_calibration | | - | - | - | × | - | XU_HALF_DUPLEX | 0x0200 | |
 | 擦除芯片 | erase_chip | | - | - | - | × | - | XU_HALF_DUPLEX | 0x0200 | |
