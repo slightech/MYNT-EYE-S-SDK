@@ -8,6 +8,7 @@
 #include "device/device_s.h"
 #include "internal/channels.h"
 #include "internal/config.h"
+#include "internal/motions.h"
 #include "internal/streams.h"
 #include "internal/strings.h"
 #include "internal/types.h"
@@ -45,7 +46,8 @@ Device::Device(const Model &model, std::shared_ptr<uvc::device> device)
       model_(model),
       device_(device),
       streams_(nullptr),
-      channels_(std::make_shared<Channels>(device)) {
+      channels_(std::make_shared<Channels>(device)),
+      motions_(std::make_shared<Motions>(channels_)) {
   VLOG(2) << __func__;
   ReadDeviceInfo();
 }
@@ -276,6 +278,17 @@ device::StreamData Device::GetLatestStreamData(const Stream &stream) {
   return streams_->GetLatestStreamData(stream);
 }
 
+void Device::EnableMotionDatas(std::size_t max_size) {
+  CHECK_NOTNULL(motions_);
+  motions_->EnableMotionDatas(max_size);
+}
+
+std::vector<device::MotionData> Device::GetMotionDatas() {
+  CHECK(motion_tracking_);
+  CHECK_NOTNULL(motions_);
+  return motions_->GetMotionDatas();
+}
+
 const StreamRequest &Device::GetStreamRequest(const Capabilities &capability) {
   try {
     return stream_config_requests_.at(capability);
@@ -367,27 +380,12 @@ void Device::StartMotionTracking() {
     LOG(WARNING) << "Cannot start motion tracking without first stopping it";
     return;
   }
-  channels_->StartImuTracking([this](const ImuPacket &packet) {
-    if (!HasMotionCallback())
-      return;
-    for (auto &&seg : packet.segments) {
-      auto &&imu = std::make_shared<ImuData>();
-      imu->frame_id = seg.frame_id;
-      if (seg.offset < 0 &&
-          static_cast<uint32_t>(-seg.offset) > packet.timestamp) {
-        LOG(WARNING) << "Imu timestamp offset is incorrect";
-      }
-      imu->timestamp = packet.timestamp + seg.offset;
-      imu->accel[0] = seg.accel[0] * 8.f / 0x10000;
-      imu->accel[1] = seg.accel[1] * 8.f / 0x10000;
-      imu->accel[2] = seg.accel[2] * 8.f / 0x10000;
-      imu->gyro[0] = seg.gyro[0] * 1000.f / 0x10000;
-      imu->gyro[1] = seg.gyro[1] * 1000.f / 0x10000;
-      imu->gyro[2] = seg.gyro[2] * 1000.f / 0x10000;
-      imu->temperature = seg.temperature / 326.8f + 25;
-      motion_callback_({imu});
+  motions_->SetMotionCallback([this](const device::MotionData &data) {
+    if (motion_callback_) {
+      motion_callback_(data);
     }
   });
+  motions_->StartMotionTracking();
   motion_tracking_ = true;
 }
 
@@ -396,7 +394,7 @@ void Device::StopMotionTracking() {
     LOG(WARNING) << "Cannot stop motion tracking without first starting it";
     return;
   }
-  channels_->StopImuTracking();
+  motions_->StopMotionTracking();
   motion_tracking_ = false;
 }
 

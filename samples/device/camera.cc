@@ -6,6 +6,8 @@
 #include "device/context.h"
 #include "device/device.h"
 
+#include "internal/times.h"
+
 MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
@@ -86,22 +88,23 @@ int main(int argc, char *argv[]) {
   device->SetMotionCallback([&imu_count](const device::MotionData &data) {
     CHECK_NOTNULL(data.imu);
     ++imu_count;
-    LOG(INFO) << "Imu count: " << imu_count;
-    LOG(INFO) << "  frame_id: " << data.imu->frame_id
-              << ", timestamp: " << data.imu->timestamp
-              << ", accel_x: " << data.imu->accel[0]
-              << ", accel_y: " << data.imu->accel[1]
-              << ", accel_z: " << data.imu->accel[2]
-              << ", gyro_x: " << data.imu->gyro[0]
-              << ", gyro_y: " << data.imu->gyro[1]
-              << ", gyro_z: " << data.imu->gyro[2]
-              << ", temperature: " << data.imu->temperature;
+    VLOG(2) << "Imu count: " << imu_count;
+    VLOG(2) << "  frame_id: " << data.imu->frame_id
+            << ", timestamp: " << data.imu->timestamp
+            << ", accel_x: " << data.imu->accel[0]
+            << ", accel_y: " << data.imu->accel[1]
+            << ", accel_z: " << data.imu->accel[2]
+            << ", gyro_x: " << data.imu->gyro[0]
+            << ", gyro_y: " << data.imu->gyro[1]
+            << ", gyro_z: " << data.imu->gyro[2]
+            << ", temperature: " << data.imu->temperature;
   });
 
   device->Start(Source::ALL);
 
   cv::namedWindow("frame");
 
+  auto &&time_beg = times::now();
   while (true) {
     device->WaitForStreams();
 
@@ -124,7 +127,20 @@ int main(int argc, char *argv[]) {
       break;
     }
   }
+  auto &&time_end = times::now();
 
   device->Stop(Source::ALL);
+
+  float elapsed_ms =
+      times::count<times::microseconds>(time_end - time_beg) * 0.001f;
+  LOG(INFO) << "Time beg: " << times::to_local_string(time_beg)
+            << ", end: " << times::to_local_string(time_end)
+            << ", cost: " << elapsed_ms << "ms";
+  LOG(INFO) << "Left count: " << left_count
+            << ", fps: " << (1000.f * left_count / elapsed_ms);
+  LOG(INFO) << "Right count: " << right_count
+            << ", fps: " << (1000.f * right_count / elapsed_ms);
+  LOG(INFO) << "Imu count: " << imu_count
+            << ", hz: " << (1000.f * imu_count / elapsed_ms);
   return 0;
 }

@@ -2,6 +2,7 @@
 #define MYNTEYE_DEVICE_H_
 #pragma once
 
+#include <limits>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -24,6 +25,7 @@ struct device;
 struct DeviceInfo;
 
 class Channels;
+class Motions;
 class Streams;
 
 class Device {
@@ -83,6 +85,10 @@ class Device {
   std::vector<device::StreamData> GetStreamDatas(const Stream &stream);
   device::StreamData GetLatestStreamData(const Stream &stream);
 
+  void EnableMotionDatas(
+      std::size_t max_size = std::numeric_limits<std::size_t>::max());
+  std::vector<device::MotionData> GetMotionDatas();
+
  protected:
   std::shared_ptr<uvc::device> device() const {
     return device_;
@@ -125,6 +131,8 @@ class Device {
   std::mutex mtx_streams_;
 
   std::shared_ptr<Channels> channels_;
+
+  std::shared_ptr<Motions> motions_;
 
   void ReadDeviceInfo();
 
