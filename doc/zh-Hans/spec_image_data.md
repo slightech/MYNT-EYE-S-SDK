@@ -6,11 +6,9 @@
 | 时间戳 | timestamp | 10 us | 4 | uint32_t |
 | 曝光时间 | exposure_time | 10 us | 2 | uint16_t |
 
-> 图像数据传输方式待调研： frame header 或占用像素末尾。
+> 图像数据传输方式：倒序排在图像尾部。
 
 ## 图像数据包
-
-> 大端序。如果传输方式是占用像素末尾，则数据包倒序排在尾部。
 
 | Name | Header | Size | FrameID | Timestamp | ExposureTime | Checksum |
 | :--- | :----- | :--- | :------ | :-------- | :----------- | :------- |
