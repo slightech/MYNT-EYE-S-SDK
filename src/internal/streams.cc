@@ -173,6 +173,20 @@ void Streams::WaitForStreams() {
   }
 }
 
+void Streams::ConfigStreamLimits(
+    const Stream &stream, std::size_t max_data_size) {
+  CHECK_GT(max_data_size, 0);
+  stream_limits_map_[stream] = max_data_size;
+}
+
+std::size_t Streams::GetStreamDataMaxSize(const Stream &stream) const {
+  try {
+    return stream_limits_map_.at(stream);
+  } catch (const std::out_of_range &e) {
+    return 4;  // default stream data max size
+  }
+}
+
 Streams::stream_datas_t Streams::GetStreamDatas(const Stream &stream) {
   std::unique_lock<std::mutex> lock(mtx_);
   if (!HasStreamDatas(stream) || stream_datas_map_.at(stream).empty()) {
@@ -226,7 +240,6 @@ void Streams::AllocStreamData(
 
 void Streams::AllocStreamData(
     const Stream &stream, const StreamRequest &request, const Format &format) {
-  static std::size_t stream_data_limits_max = 4;
   stream_data_t data;
   if (stream == Stream::LEFT || stream == Stream::RIGHT) {
     data.img = std::make_shared<ImgData>();
@@ -237,10 +250,10 @@ void Streams::AllocStreamData(
       std::make_shared<frame_t>(request.width, request.height, format, nullptr);
   stream_datas_map_[stream].push_back(data);
   // If cached more then limits_max, drop the oldest one.
-  if (stream_datas_map_.at(stream).size() > stream_data_limits_max) {
+  if (stream_datas_map_.at(stream).size() > GetStreamDataMaxSize(stream)) {
     auto &&datas = stream_datas_map_[stream];
     datas.erase(datas.begin());
-    VLOG(2) << "Stream data of " << stream << " is dropped";
+    VLOG(2) << "Stream data of " << stream << " is dropped as out of limits";
   }
 }
 

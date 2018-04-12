@@ -36,6 +36,9 @@ class Streams {
 
   void WaitForStreams();
 
+  void ConfigStreamLimits(const Stream &stream, std::size_t max_data_size);
+  std::size_t GetStreamDataMaxSize(const Stream &stream) const;
+
   stream_datas_t GetStreamDatas(const Stream &stream);
   stream_data_t GetLatestStreamData(const Stream &stream);
 
@@ -66,6 +69,7 @@ class Streams {
   std::map<Stream, unpack_img_data_t> unpack_img_data_map_;
   std::map<Stream, unpack_img_pixels_t> unpack_img_pixels_map_;
 
+  std::map<Stream, std::size_t> stream_limits_map_;
   std::map<Stream, stream_datas_t> stream_datas_map_;
 
   std::mutex mtx_;
