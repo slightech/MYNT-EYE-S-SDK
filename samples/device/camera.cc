@@ -58,6 +58,8 @@ int main(int argc, char *argv[]) {
     device->SetOptionValue(Option::CONTRAST, 20);  // [0,255]
   }
   device->SetOptionValue(Option::IR_CONTROL, 80);
+  device->SetOptionValue(Option::FRAME_RATE, 25);
+  device->SetOptionValue(Option::IMU_FREQUENCY, 500);
   */
   device->LogOptionInfos();
 
@@ -117,7 +119,7 @@ int main(int argc, char *argv[]) {
     auto &&motion_datas = device->GetMotionDatas();
     motion_count += motion_datas.size();
     for (auto &&data : motion_datas) {
-      LOG(INFO) << "  frame_id: " << data.imu->frame_id
+      LOG(INFO) << "Imu frame_id: " << data.imu->frame_id
                 << ", timestamp: " << data.imu->timestamp
                 << ", accel_x: " << data.imu->accel[0]
                 << ", accel_y: " << data.imu->accel[1]
