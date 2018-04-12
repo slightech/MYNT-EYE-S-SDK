@@ -212,7 +212,7 @@ void Channels::SetImuCallback(imu_callback_t callback) {
 
 void Channels::StartImuTracking(imu_callback_t callback) {
   if (is_imu_tracking_) {
-    LOG(WARNING) << "start imu tracking failed, is tracking already";
+    LOG(WARNING) << "Start imu tracking failed, is tracking already";
     return;
   }
   if (callback) {

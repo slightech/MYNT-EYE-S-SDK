@@ -244,7 +244,7 @@ struct device {
 
   void start_capture() {
     if (is_capturing) {
-      LOG(WARNING) << "start capture failed: is capturing already";
+      LOG(WARNING) << "Start capture failed, is capturing already";
       return;
     }
 
