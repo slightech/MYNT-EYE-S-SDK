@@ -343,9 +343,9 @@ void Channels::XuCamCtrlSet(Option option, std::int32_t value) const {
 
 bool Channels::XuHalfDuplexSet(Option option, xu_cmd_t cmd) const {
   int id = XuHalfDuplexId(option);
-  std::uint8_t data[3] = {static_cast<std::uint8_t>(id & 0xFF),
-                          static_cast<std::uint8_t>(cmd)};
-  if (XuControlQuery(CHANNEL_HALF_DUPLEX, uvc::XU_QUERY_SET, 3, data)) {
+  std::uint8_t data[20] = {static_cast<std::uint8_t>(id & 0xFF),
+                           static_cast<std::uint8_t>(cmd)};
+  if (XuControlQuery(CHANNEL_HALF_DUPLEX, uvc::XU_QUERY_SET, 20, data)) {
     VLOG(2) << "XuHalfDuplexSet value (0x" << std::hex << std::uppercase << cmd
             << ") of " << option << " success";
     return true;
