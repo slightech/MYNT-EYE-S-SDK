@@ -45,8 +45,12 @@ void Motions::StartMotionTracking() {
         imu->gyro[1] = seg.gyro[1] * 1000.f / 0x10000;
         imu->gyro[2] = seg.gyro[2] * 1000.f / 0x10000;
         imu->temperature = seg.temperature / 326.8f + 25;
+
+        std::lock_guard<std::mutex> _(mtx_datas_);
+        motion_data_t data = {imu};
+        motion_datas_.push_back(data);
         if (motion_callback_) {
-          motion_callback_({imu});
+          motion_callback_(data);
         }
       }
     });
@@ -77,7 +81,10 @@ Motions::motion_datas_t Motions::GetMotionDatas() {
     LOG(FATAL) << "Must enable motion datas before getting them, or you set "
                   "motion callback instead";
   }
-  return motion_datas_;
+  std::lock_guard<std::mutex> _(mtx_datas_);
+  motion_datas_t datas = motion_datas_;
+  motion_datas_.clear();
+  return datas;
 }
 
 MYNTEYE_END_NAMESPACE

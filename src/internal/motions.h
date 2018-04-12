@@ -3,6 +3,7 @@
 #pragma once
 
 #include <memory>
+#include <mutex>
 #include <vector>
 
 #include "mynteye/mynteye.h"
@@ -41,6 +42,8 @@ class Motions {
   std::size_t motion_datas_max_size;
 
   bool is_imu_tracking;
+
+  std::mutex mtx_datas_;
 };
 
 MYNTEYE_END_NAMESPACE

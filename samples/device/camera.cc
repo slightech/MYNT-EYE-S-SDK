@@ -100,16 +100,33 @@ int main(int argc, char *argv[]) {
             << ", temperature: " << data.imu->temperature;
   });
 
+  // Enable this will cache the motion datas until you get them.
+  device->EnableMotionDatas();
   device->Start(Source::ALL);
 
   cv::namedWindow("frame");
 
+  std::size_t motion_count = 0;
   auto &&time_beg = times::now();
   while (true) {
     device->WaitForStreams();
 
     device::StreamData left_data = device->GetLatestStreamData(Stream::LEFT);
     device::StreamData right_data = device->GetLatestStreamData(Stream::RIGHT);
+
+    auto &&motion_datas = device->GetMotionDatas();
+    motion_count += motion_datas.size();
+    for (auto &&data : motion_datas) {
+      LOG(INFO) << "  frame_id: " << data.imu->frame_id
+                << ", timestamp: " << data.imu->timestamp
+                << ", accel_x: " << data.imu->accel[0]
+                << ", accel_y: " << data.imu->accel[1]
+                << ", accel_z: " << data.imu->accel[2]
+                << ", gyro_x: " << data.imu->gyro[0]
+                << ", gyro_y: " << data.imu->gyro[1]
+                << ", gyro_z: " << data.imu->gyro[2]
+                << ", temperature: " << data.imu->temperature;
+    }
 
     cv::Mat left_img(
         left_data.frame->height(), left_data.frame->width(), CV_8UC1,
@@ -142,5 +159,7 @@ int main(int argc, char *argv[]) {
             << ", fps: " << (1000.f * right_count / elapsed_ms);
   LOG(INFO) << "Imu count: " << imu_count
             << ", hz: " << (1000.f * imu_count / elapsed_ms);
+  // LOG(INFO) << "Motion count: " << motion_count
+  //           << ", hz: " << (1000.f * motion_count / elapsed_ms);
   return 0;
 }
