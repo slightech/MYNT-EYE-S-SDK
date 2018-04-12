@@ -32,8 +32,8 @@ IMU 包/小包，是一组 IMU 数据。
 
 | Name | Offset | FrameID | Accelerometer | Temperature | Gyroscope |
 | :--- | :----- | :------ | :------------ | :---------- | :-------- |
-| 字节数 | 2 | 2 | 3 | 1 | 3 |
-| 类型 | int16_t | uint16_t | int8_t * 3 | int8_t | int8_t * 3 |
+| 字节数 | 2 | 2 | 6 | 2 | 6 |
+| 类型 | int16_t | uint16_t | int16_t * 3 | int16_t | int16_t * 3 |
 | Description | 相对基准时间戳的偏移量 | 图像帧 ID | 加速度计 x y z 三轴的值 | IMU 的温度 | 陀螺仪 x y z 三轴的值 |
 
 * 加速度计和陀螺仪的计量值换算成物理值公式： **real = data * range / 0x10000** 。

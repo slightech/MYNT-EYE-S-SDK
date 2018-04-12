@@ -188,9 +188,9 @@ struct ImuReqPacket {
 struct ImuSegment {
   std::int16_t offset;
   std::uint16_t frame_id;
-  std::int8_t accel[3];
-  std::int8_t temperature;
-  std::int8_t gyro[3];
+  std::int16_t accel[3];
+  std::int16_t temperature;
+  std::int16_t gyro[3];
 
   ImuSegment() = default;
   explicit ImuSegment(std::uint8_t *data) {
@@ -200,13 +200,13 @@ struct ImuSegment {
   void from_data(std::uint8_t *data) {
     offset = (*(data) << 8) + *(data + 1);
     frame_id = (*(data + 2) << 8) + *(data + 3);
-    accel[0] = *(data + 4);
-    accel[1] = *(data + 5);
-    accel[2] = *(data + 6);
-    temperature = *(data + 7);
-    gyro[0] = *(data + 8);
-    gyro[1] = *(data + 9);
-    gyro[2] = *(data + 10);
+    accel[0] = (*(data + 4) << 8) + *(data + 5);
+    accel[1] = (*(data + 6) << 8) + *(data + 7);
+    accel[2] = (*(data + 8) << 8) + *(data + 9);
+    temperature = (*(data + 10) << 8) + *(data + 11);
+    gyro[0] = (*(data + 12) << 8) + *(data + 13);
+    gyro[1] = (*(data + 14) << 8) + *(data + 15);
+    gyro[2] = (*(data + 16) << 8) + *(data + 17);
   }
 };
 #pragma pack(pop)
@@ -234,7 +234,7 @@ struct ImuPacket {
                 *(data + 7);
     count = *(data + 8);
 
-    std::size_t seg_n = sizeof(ImuSegment);
+    std::size_t seg_n = sizeof(ImuSegment);  // 18
     for (std::size_t i = 0; i < count; i++) {
       segments.push_back(ImuSegment(data + 9 + (seg_n * i)));
     }
@@ -251,7 +251,7 @@ struct ImuResPacket {
   std::uint8_t header;
   std::uint8_t state;
   std::uint16_t size;
-  ImuPacket packet;
+  std::vector<ImuPacket> packets;
   std::uint8_t checksum;
 
   ImuResPacket() = default;
@@ -263,7 +263,14 @@ struct ImuResPacket {
     header = *data;
     state = *(data + 1);
     size = (*(data + 2) << 8) + *(data + 3);
-    packet.from_data(data + 4);
+
+    std::size_t seg_n = sizeof(ImuSegment);  // 18
+    for (std::size_t i = 4; i < size;) {
+      ImuPacket packet(data + i);
+      packets.push_back(packet);
+      i += 9 + (packet.count * seg_n);
+    }
+
     checksum = *(data + 4 + size);
   }
 };

@@ -223,26 +223,46 @@ void Channels::StartImuTracking(imu_callback_t callback) {
     imu_sn_ = 0;
     ImuReqPacket req_packet{imu_sn_};
     ImuResPacket res_packet;
-    auto sleep_milli = [](std::intmax_t n) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(n));
-    };
+    // auto sleep_milli = [](std::intmax_t n) {
+    //   std::this_thread::sleep_for(std::chrono::milliseconds(n));
+    // };
     while (!imu_track_stop_) {
       req_packet.serial_number = imu_sn_;
       if (!XuImuWrite(req_packet)) {
-        sleep_milli(5);
         continue;
       }
 
       if (!XuImuRead(&res_packet)) {
-        sleep_milli(5);
         continue;
       }
 
-      imu_sn_ = res_packet.packet.serial_number;
+      if (res_packet.packets.size() == 0) {
+        continue;
+      }
+
+      VLOG(2) << "Imu req sn: " << imu_sn_
+              << ", res count: " << [&res_packet]() {
+                   std::size_t n = 0;
+                   for (auto &&packet : res_packet.packets) {
+                     n += packet.count;
+                   }
+                   return n;
+                 }();
+
+      auto &&sn = res_packet.packets.back().serial_number;
+      if (imu_sn_ == sn) {
+        VLOG(2) << "New imu not ready, dropped";
+        continue;
+      }
+      imu_sn_ = sn;
 
       if (imu_callback_) {
-        imu_callback_(res_packet.packet);
+        for (auto &&packet : res_packet.packets) {
+          imu_callback_(packet);
+        }
       }
+
+      res_packet.packets.clear();
     }
   });
 }

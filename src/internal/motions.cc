@@ -33,10 +33,10 @@ void Motions::StartMotionTracking() {
       for (auto &&seg : packet.segments) {
         auto &&imu = std::make_shared<ImuData>();
         imu->frame_id = seg.frame_id;
-        if (seg.offset < 0 &&
-            static_cast<uint32_t>(-seg.offset) > packet.timestamp) {
-          LOG(WARNING) << "Imu timestamp offset is incorrect";
-        }
+        // if (seg.offset < 0 &&
+        //     static_cast<uint32_t>(-seg.offset) > packet.timestamp) {
+        //   LOG(WARNING) << "Imu timestamp offset is incorrect";
+        // }
         imu->timestamp = packet.timestamp + seg.offset;
         imu->accel[0] = seg.accel[0] * 8.f / 0x10000;
         imu->accel[1] = seg.accel[1] * 8.f / 0x10000;
