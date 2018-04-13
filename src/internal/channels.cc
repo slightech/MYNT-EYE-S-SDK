@@ -470,13 +470,15 @@ bool Channels::GetFiles(
   std::uint8_t data[2000]{};
 
   std::bitset<8> header;
-  header[0] = 0;  // get
+  header[7] = 0;  // get
 
-  header[7] = (info != nullptr);
-  header[6] = (img_params != nullptr);
-  header[5] = (imu_params != nullptr);
+  header[0] = (info != nullptr);
+  header[1] = (img_params != nullptr);
+  header[2] = (imu_params != nullptr);
 
   data[0] = static_cast<std::uint8_t>(header.to_ulong());
+  // VLOG(2) << "GetFiles header: 0x" << std::hex << std::uppercase
+  //         << std::setw(2) << std::setfill('0') << static_cast<int>(data[0]);
   if (!XuFileQuery(uvc::XU_QUERY_SET, 2000, data)) {
     LOG(WARNING) << "GetFiles failed";
     return false;
@@ -733,19 +735,19 @@ bool Channels::SetFiles(
   std::uint8_t data[2000]{};
 
   std::bitset<8> header;
-  header[0] = 1;  // set
+  header[7] = 1;  // set
 
   std::uint16_t size = 0;
   if (info != nullptr) {
-    header[7] = true;
+    header[0] = true;
     size += to_data(info, data + 3 + size);
   }
   if (img_params != nullptr) {
-    header[6] = true;
+    header[1] = true;
     size += to_data(img_params, data + 3 + size);
   }
   if (imu_params != nullptr) {
-    header[5] = true;
+    header[2] = true;
     size += to_data(imu_params, data + 3 + size);
   }
 
