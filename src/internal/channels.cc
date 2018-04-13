@@ -320,7 +320,7 @@ std::int32_t Channels::XuCamCtrlGet(Option option) const {
 
   data[0] = id & 0xFF;
   if (XuCamCtrlQuery(uvc::XU_QUERY_GET, 3, data)) {
-    return (data[1] << 8) + (data[2]);
+    return (data[1] << 8) | (data[2]);
   } else {
     LOG(WARNING) << "XuCamCtrlGet value of " << option << " failed";
     return -1;
@@ -430,17 +430,17 @@ Channels::control_info_t Channels::XuControlInfo(Option option) const {
 
   data[0] = id & 0xFF;
   if (XuCamCtrlQuery(uvc::XU_QUERY_MIN, 3, data)) {
-    info.min = (data[1] << 8) + (data[2]);
+    info.min = (data[1] << 8) | (data[2]);
   } else {
     LOG(WARNING) << "Get XuControlInfo.min of " << option << " failed";
   }
   if (XuCamCtrlQuery(uvc::XU_QUERY_MAX, 3, data)) {
-    info.max = (data[1] << 8) + (data[2]);
+    info.max = (data[1] << 8) | (data[2]);
   } else {
     LOG(WARNING) << "Get XuControlInfo.max of " << option << " failed";
   }
   if (XuCamCtrlQuery(uvc::XU_QUERY_DEF, 3, data)) {
-    info.def = (data[1] << 8) + (data[2]);
+    info.def = (data[1] << 8) | (data[2]);
   } else {
     LOG(WARNING) << "Get XuControlInfo.def of " << option << " failed";
   }

@@ -23,23 +23,12 @@ bool unpack_stereo_img_data(
       request.width * request.height * bytes_per_pixel(request.format);
   auto data_end = data_new + data_n;
 
-  // LOG(INFO) << "ImagePacket (raw): header=0x" << std::hex <<
-  // static_cast<int>(*(data_end - 1))
-  //   << ", size=0x" << std::hex << static_cast<int>(*(data_end - 2))
-  //   << ", frame_id="<< std::dec << ((*(data_end - 3) << 8) + *(data_end - 4))
-  //   << ", timestamp="<< std::dec << ((*(data_end - 5) << 24) + (*(data_end -
-  //   6) << 16) + (*(data_end - 7) << 8) + *(data_end - 8))
-  //   << ", exposure_time="<< std::dec << ((*(data_end - 9) << 8) + *(data_end
-  //   - 10))
-  //   << ", checksum=0x" << std::hex << static_cast<int>(*(data_end - 11));
-
   std::size_t packet_n = sizeof(ImagePacket);
-  // LOG(INFO) << "ImagePacket Size: " << packet_n;
   std::vector<std::uint8_t> packet(packet_n);
   std::reverse_copy(data_end - packet_n, data_end, packet.begin());
 
   ImagePacket img_packet(packet.data());
-  // LOG(INFO) << "ImagePacket (new): header=0x" << std::hex <<
+  // LOG(INFO) << "ImagePacket: header=0x" << std::hex <<
   // static_cast<int>(img_packet.header)
   //   << ", size=0x" << std::hex << static_cast<int>(img_packet.size)
   //   << ", frame_id="<< std::dec << img_packet.frame_id

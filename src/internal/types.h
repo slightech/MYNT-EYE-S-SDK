@@ -147,10 +147,10 @@ struct ImagePacket {
   void from_data(std::uint8_t *data) {
     header = *data;
     size = *(data + 1);
-    frame_id = (*(data + 2) << 8) + *(data + 3);
-    timestamp = (*(data + 4) << 24) + (*(data + 5) << 16) + (*(data + 6) << 8) +
+    frame_id = (*(data + 2) << 8) | *(data + 3);
+    timestamp = (*(data + 4) << 24) | (*(data + 5) << 16) | (*(data + 6) << 8) |
                 *(data + 7);
-    exposure_time = (*(data + 8) << 8) + *(data + 9);
+    exposure_time = (*(data + 8) << 8) | *(data + 9);
     checksum = *(data + 10);
   }
 };
@@ -198,15 +198,15 @@ struct ImuSegment {
   }
 
   void from_data(std::uint8_t *data) {
-    offset = (*(data) << 8) + *(data + 1);
-    frame_id = (*(data + 2) << 8) + *(data + 3);
-    accel[0] = (*(data + 4) << 8) + *(data + 5);
-    accel[1] = (*(data + 6) << 8) + *(data + 7);
-    accel[2] = (*(data + 8) << 8) + *(data + 9);
-    temperature = (*(data + 10) << 8) + *(data + 11);
-    gyro[0] = (*(data + 12) << 8) + *(data + 13);
-    gyro[1] = (*(data + 14) << 8) + *(data + 15);
-    gyro[2] = (*(data + 16) << 8) + *(data + 17);
+    offset = (*(data) << 8) | *(data + 1);
+    frame_id = (*(data + 2) << 8) | *(data + 3);
+    accel[0] = (*(data + 4) << 8) | *(data + 5);
+    accel[1] = (*(data + 6) << 8) | *(data + 7);
+    accel[2] = (*(data + 8) << 8) | *(data + 9);
+    temperature = (*(data + 10) << 8) | *(data + 11);
+    gyro[0] = (*(data + 12) << 8) | *(data + 13);
+    gyro[1] = (*(data + 14) << 8) | *(data + 15);
+    gyro[2] = (*(data + 16) << 8) | *(data + 17);
   }
 };
 #pragma pack(pop)
@@ -228,9 +228,9 @@ struct ImuPacket {
   }
 
   void from_data(std::uint8_t *data) {
-    serial_number = (*(data) << 24) + (*(data + 1) << 16) + (*(data + 2) << 8) +
+    serial_number = (*(data) << 24) | (*(data + 1) << 16) | (*(data + 2) << 8) |
                     *(data + 3);
-    timestamp = (*(data + 4) << 24) + (*(data + 5) << 16) + (*(data + 6) << 8) +
+    timestamp = (*(data + 4) << 24) | (*(data + 5) << 16) | (*(data + 6) << 8) |
                 *(data + 7);
     count = *(data + 8);
 
@@ -262,7 +262,7 @@ struct ImuResPacket {
   void from_data(std::uint8_t *data) {
     header = *data;
     state = *(data + 1);
-    size = (*(data + 2) << 8) + *(data + 3);
+    size = (*(data + 2) << 8) | *(data + 3);
 
     std::size_t seg_n = sizeof(ImuSegment);  // 18
     for (std::size_t i = 4; i < size;) {
