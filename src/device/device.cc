@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <stdexcept>
+#include <utility>
 
 #include "device/device_s.h"
 #include "internal/channels.h"
@@ -49,7 +50,7 @@ Device::Device(const Model &model, std::shared_ptr<uvc::device> device)
       channels_(std::make_shared<Channels>(device)),
       motions_(std::make_shared<Motions>(channels_)) {
   VLOG(2) << __func__;
-  ReadDeviceInfo();
+  ReadAllInfos();
 }
 
 Device::~Device() {
@@ -158,12 +159,28 @@ ImgExtrinsics Device::GetImgExtrinsics() const {
   return img_extrinsics_;
 }
 
+void Device::SetImgIntrinsics(const ImgIntrinsics &in) {
+  img_intrinsics_ = std::move(in);
+}
+
+void Device::SetImgExtrinsics(const ImgExtrinsics &ex) {
+  img_extrinsics_ = std::move(ex);
+}
+
 ImuIntrinsics Device::GetImuIntrinsics() const {
   return imu_intrinsics_;
 }
 
 ImuExtrinsics Device::GetImuExtrinsics() const {
   return imu_extrinsics_;
+}
+
+void Device::SetImuIntrinsics(const ImuIntrinsics &in) {
+  imu_intrinsics_ = std::move(in);
+}
+
+void Device::SetImuExtrinsics(const ImuExtrinsics &ex) {
+  imu_extrinsics_ = std::move(ex);
 }
 
 void Device::LogOptionInfos() const {
@@ -398,13 +415,15 @@ void Device::StopMotionTracking() {
   motion_tracking_ = false;
 }
 
-void Device::ReadDeviceInfo() {
+void Device::ReadAllInfos() {
   device_info_ = std::make_shared<DeviceInfo>();
 
   CHECK_NOTNULL(channels_);
   Channels::img_params_t img_params;
   Channels::imu_params_t imu_params;
-  channels_->GetFiles(device_info_.get(), &img_params, &imu_params);
+  if (!channels_->GetFiles(device_info_.get(), &img_params, &imu_params)) {
+    // LOG(FATAL) << "Read device infos failed :(";
+  }
 
   device_info_->name = uvc::get_name(*device_);
   img_intrinsics_ = img_params.in;
@@ -413,28 +432,24 @@ void Device::ReadDeviceInfo() {
   imu_extrinsics_ = imu_params.ex;
 }
 
-void Device::WriteImgIntrinsics(const ImgIntrinsics &intrinsics) {
+void Device::WriteImgParams(
+    const ImgIntrinsics &intrinsics, const ImgExtrinsics &extrinsics) {
   CHECK_NOTNULL(channels_);
-  Channels::img_params_t img_params{intrinsics, img_extrinsics_};
-  channels_->SetFiles(nullptr, &img_params, nullptr);
+  Channels::img_params_t img_params{intrinsics, extrinsics};
+  if (channels_->SetFiles(nullptr, &img_params, nullptr)) {
+    img_intrinsics_ = intrinsics;
+    img_extrinsics_ = extrinsics;
+  }
 }
 
-void Device::WriteImgExtrinsics(const ImgExtrinsics &extrinsics) {
+void Device::WriteImuParams(
+    const ImuIntrinsics &intrinsics, const ImuExtrinsics &extrinsics) {
   CHECK_NOTNULL(channels_);
-  Channels::img_params_t img_params{img_intrinsics_, extrinsics};
-  channels_->SetFiles(nullptr, &img_params, nullptr);
-}
-
-void Device::WriteImuIntrinsics(const ImuIntrinsics &intrinsics) {
-  CHECK_NOTNULL(channels_);
-  Channels::imu_params_t imu_params{intrinsics, imu_extrinsics_};
-  channels_->SetFiles(nullptr, nullptr, &imu_params);
-}
-
-void Device::WriteImuExtrinsics(const ImuExtrinsics &extrinsics) {
-  CHECK_NOTNULL(channels_);
-  Channels::imu_params_t imu_params{imu_intrinsics_, extrinsics};
-  channels_->SetFiles(nullptr, nullptr, &imu_params);
+  Channels::imu_params_t imu_params{intrinsics, extrinsics};
+  if (channels_->SetFiles(nullptr, nullptr, &imu_params)) {
+    imu_intrinsics_ = intrinsics;
+    imu_extrinsics_ = extrinsics;
+  }
 }
 
 MYNTEYE_END_NAMESPACE

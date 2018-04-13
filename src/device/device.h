@@ -59,9 +59,13 @@ class Device {
 
   ImgIntrinsics GetImgIntrinsics() const;
   ImgExtrinsics GetImgExtrinsics() const;
+  void SetImgIntrinsics(const ImgIntrinsics &in);
+  void SetImgExtrinsics(const ImgExtrinsics &ex);
 
   ImuIntrinsics GetImuIntrinsics() const;
   ImuExtrinsics GetImuExtrinsics() const;
+  void SetImuIntrinsics(const ImuIntrinsics &in);
+  void SetImuExtrinsics(const ImuExtrinsics &ex);
 
   void LogOptionInfos() const;
   OptionInfo GetOptionInfo(const Option &option) const;
@@ -134,13 +138,12 @@ class Device {
 
   std::shared_ptr<Motions> motions_;
 
-  void ReadDeviceInfo();
+  void ReadAllInfos();
 
-  void WriteImgIntrinsics(const ImgIntrinsics &intrinsics);
-  void WriteImgExtrinsics(const ImgExtrinsics &extrinsics);
-
-  void WriteImuIntrinsics(const ImuIntrinsics &intrinsics);
-  void WriteImuExtrinsics(const ImuExtrinsics &extrinsics);
+  void WriteImgParams(
+      const ImgIntrinsics &intrinsics, const ImgExtrinsics &extrinsics);
+  void WriteImuParams(
+      const ImuIntrinsics &intrinsics, const ImuExtrinsics &extrinsics);
 
   // friend DeviceWriter;
 };
