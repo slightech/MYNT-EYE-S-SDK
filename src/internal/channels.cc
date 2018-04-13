@@ -2,6 +2,7 @@
 
 #include <glog/logging.h>
 
+#include <bitset>
 #include <chrono>
 #include <iomanip>
 #include <stdexcept>
@@ -279,6 +280,488 @@ void Channels::StopImuTracking() {
   }
 }
 
+namespace {
+
+template <typename T>
+T _from_data(const std::uint8_t *data) {
+  std::size_t size = sizeof(T) / sizeof(std::uint8_t);
+  T value = 0;
+  for (std::size_t i = 0; i < size; i++) {
+    value |= data[i] << (8 * (size - i - 1));
+  }
+  return value;
+}
+
+template <>
+std::string _from_data(const std::uint8_t *data) {
+  return std::string(reinterpret_cast<const char *>(data));
+}
+
+template <>
+double _from_data(const std::uint8_t *data) {
+  return *(reinterpret_cast<const double *>(data));
+}
+
+// std::string _from_data(const std::uint8_t *data, std::size_t n) {
+//   return std::string(reinterpret_cast<const char *>(data), n);
+// }
+
+std::size_t from_data(Channels::device_info_t *info, const std::uint8_t *data) {
+  std::size_t i = 0;
+  // name, 16
+  info->name = _from_data<std::string>(data + i);
+  i += 16;
+  // serial_number, 16
+  info->serial_number = _from_data<std::string>(data + i);
+  i += 16;
+  // firmware_version, 2
+  info->firmware_version.set_major(data[i]);
+  info->firmware_version.set_minor(data[i + 1]);
+  i += 2;
+  // hardware_version, 3
+  info->hardware_version.set_major(data[i]);
+  info->hardware_version.set_minor(data[i + 1]);
+  info->hardware_version.set_flag(std::bitset<8>(data[i + 2]));
+  i += 3;
+  // spec_version, 2
+  info->spec_version.set_major(data[i]);
+  info->spec_version.set_minor(data[i + 1]);
+  i += 2;
+  // lens_type, 4
+  info->lens_type.set_vendor(_from_data<std::uint16_t>(data + i));
+  info->lens_type.set_product(_from_data<std::uint16_t>(data + i + 2));
+  i += 4;
+  // imu_type, 4
+  info->imu_type.set_vendor(_from_data<std::uint16_t>(data + i));
+  info->imu_type.set_product(_from_data<std::uint16_t>(data + i + 2));
+  i += 4;
+  // nominal_baseline, 2
+  info->nominal_baseline = _from_data<std::uint16_t>(data + i);
+  i += 2;
+  return i;
+}
+
+std::size_t from_data(
+    Channels::img_params_t *img_params, const std::uint8_t *data) {
+  std::size_t i = 0;
+
+  auto &&in = img_params->in;
+  // width, 2
+  in.width = _from_data<std::uint16_t>(data + i);
+  i += 2;
+  // height, 2
+  in.height = _from_data<std::uint16_t>(data + i);
+  i += 2;
+  // fx, 8
+  in.fx = _from_data<double>(data + i);
+  i += 8;
+  // fy, 8
+  in.fy = _from_data<double>(data + i);
+  i += 8;
+  // cx, 8
+  in.cx = _from_data<double>(data + i);
+  i += 8;
+  // cy, 8
+  in.cy = _from_data<double>(data + i);
+  i += 8;
+  // model, 1
+  in.model = data[i];
+  i += 1;
+  // coeffs, 40
+  for (std::size_t j = 0; j < 5; j++) {
+    in.coeffs[j] = _from_data<double>(data + i + j * 8);
+  }
+  i += 40;
+
+  auto &&ex = img_params->ex.left_to_right;
+  // rotation
+  for (std::size_t j = 0; j < 3; j++) {
+    for (std::size_t k = 0; k < 3; k++) {
+      ex.rotation[j][k] = _from_data<double>(data + i + j * 3 + k);
+    }
+  }
+  i += 72;
+  // translation
+  for (std::size_t j = 0; j < 3; j++) {
+    ex.translation[j] = _from_data<double>(data + i + j * 8);
+  }
+  i += 24;
+
+  return i;
+}
+
+std::size_t from_data(
+    Channels::imu_params_t *imu_params, const std::uint8_t *data) {
+  std::size_t i = 0;
+
+  auto &&in = imu_params->in;
+  // acc_scale
+  for (std::size_t j = 0; j < 3; j++) {
+    for (std::size_t k = 0; k < 3; k++) {
+      in.accel.scale[j][k] = _from_data<double>(data + i + j * 3 + k);
+    }
+  }
+  i += 72;
+  // gyro_scale
+  for (std::size_t j = 0; j < 3; j++) {
+    for (std::size_t k = 0; k < 3; k++) {
+      in.gyro.scale[j][k] = _from_data<double>(data + i + j * 3 + k);
+    }
+  }
+  i += 72;
+  // acc_drift
+  for (std::size_t j = 0; j < 3; j++) {
+    in.accel.drift[j] = _from_data<double>(data + i + j * 8);
+  }
+  i += 24;
+  // gyro_drift
+  for (std::size_t j = 0; j < 3; j++) {
+    in.gyro.drift[j] = _from_data<double>(data + i + j * 8);
+  }
+  i += 24;
+  // acc_noise
+  for (std::size_t j = 0; j < 3; j++) {
+    in.accel.noise[j] = _from_data<double>(data + i + j * 8);
+  }
+  i += 24;
+  // gyro_noise
+  for (std::size_t j = 0; j < 3; j++) {
+    in.gyro.noise[j] = _from_data<double>(data + i + j * 8);
+  }
+  i += 24;
+  // acc_bias
+  for (std::size_t j = 0; j < 3; j++) {
+    in.accel.bias[j] = _from_data<double>(data + i + j * 8);
+  }
+  i += 24;
+  // gyro_bias
+  for (std::size_t j = 0; j < 3; j++) {
+    in.gyro.bias[j] = _from_data<double>(data + i + j * 8);
+  }
+  i += 24;
+
+  auto &&ex = imu_params->ex.left_to_imu;
+  // rotation
+  for (std::size_t j = 0; j < 3; j++) {
+    for (std::size_t k = 0; k < 3; k++) {
+      ex.rotation[j][k] = _from_data<double>(data + i + j * 3 + k);
+    }
+  }
+  i += 72;
+  // translation
+  for (std::size_t j = 0; j < 3; j++) {
+    ex.translation[j] = _from_data<double>(data + i + j * 8);
+  }
+  i += 24;
+
+  return i;
+}
+
+}  // namespace
+
+bool Channels::GetFiles(
+    device_info_t *info, img_params_t *img_params,
+    imu_params_t *imu_params) const {
+  if (info == nullptr && img_params == nullptr && imu_params == nullptr) {
+    LOG(WARNING) << "Files are not provided to get";
+    return false;
+  }
+
+  std::uint8_t data[2000]{};
+
+  std::bitset<8> header;
+  header[0] = 0;  // get
+
+  header[7] = (info != nullptr);
+  header[6] = (img_params != nullptr);
+  header[5] = (imu_params != nullptr);
+
+  data[0] = static_cast<std::uint8_t>(header.to_ulong());
+  if (!XuFileQuery(uvc::XU_QUERY_SET, 2000, data)) {
+    LOG(WARNING) << "GetFiles failed";
+    return false;
+  }
+
+  if (XuFileQuery(uvc::XU_QUERY_GET, 2000, data)) {
+    VLOG(2) << "GetFiles success";
+    // header = std::bitset<8>(data[0]);
+    std::uint16_t size = _from_data<std::uint16_t>(data + 1);
+    std::uint8_t checksum = data[3 + size];
+
+    std::uint8_t checksum_cal = 0;
+    for (std::size_t i = 4, n = 4 + size; i < n; i++) {
+      checksum_cal = (checksum_cal ^ data[i]);
+    }
+    if (checksum_cal != checksum) {
+      LOG(WARNING) << "Files checksum should be 0x" << std::hex
+                   << std::uppercase << std::setw(2) << std::setfill('0')
+                   << static_cast<int>(checksum_cal) << ", but 0x"
+                   << std::setw(2) << std::setfill('0')
+                   << static_cast<int>(checksum) << " now";
+      return false;
+    }
+
+    std::size_t i = 3;
+    std::size_t end = 3 + size;
+    while (i < end) {
+      std::uint8_t file_id = *(data + i);
+      std::uint16_t file_size = _from_data<std::uint16_t>(data + i + 1);
+      i += 3;
+      switch (file_id) {
+        case FID_DEVICE_INFO: {
+          CHECK_EQ(from_data(info, data + i), file_size);
+        } break;
+        case FID_IMG_PARAMS: {
+          CHECK_EQ(from_data(img_params, data + i), file_size);
+        } break;
+        case FID_IMU_PARAMS: {
+          CHECK_EQ(from_data(imu_params, data + i), file_size);
+        } break;
+        default:
+          LOG(FATAL) << "Unsupported file id: " << file_id;
+      }
+      i += file_size;
+    }
+
+    return true;
+  } else {
+    LOG(WARNING) << "GetFiles failed";
+    return false;
+  }
+}
+
+namespace {
+
+template <typename T>
+std::size_t _to_data(T value, std::uint8_t *data) {
+  std::size_t size = sizeof(T) / sizeof(std::uint8_t);
+  for (std::size_t i = 0; i < size; i++) {
+    data[i] =
+        static_cast<std::uint8_t>((value >> (8 * (size - i - 1))) && 0xFF);
+  }
+  return size;
+}
+
+template <>
+std::size_t _to_data(double value, std::uint8_t *data) {
+  std::copy(data, data + 8, reinterpret_cast<std::uint8_t *>(&value));
+  return 8;
+}
+
+template <>
+std::size_t _to_data(std::string value, std::uint8_t *data) {
+  std::copy(value.begin(), value.end(), data);
+  data[value.size()] = '\0';
+  return value.size() + 1;
+}
+
+std::size_t to_data(const Channels::device_info_t *info, std::uint8_t *data) {
+  std::size_t i = 3;
+  // name, 16
+  _to_data(info->name, data + i);
+  i += 16;
+  // serial_number, 16
+  _to_data(info->serial_number, data + i);
+  i += 16;
+  // firmware_version, 2
+  data[i] = info->firmware_version.major();
+  data[i + 1] = info->firmware_version.minor();
+  i += 2;
+  // hardware_version, 3
+  data[i] = info->hardware_version.major();
+  data[i + 1] = info->hardware_version.minor();
+  data[i + 2] =
+      static_cast<std::uint8_t>(info->hardware_version.flag().to_ulong());
+  i += 3;
+  // spec_version, 2
+  data[i] = info->spec_version.major();
+  data[i + 1] = info->spec_version.minor();
+  i += 2;
+  // lens_type, 4
+  _to_data(info->lens_type.vendor(), data + i);
+  _to_data(info->lens_type.product(), data + i + 2);
+  i += 4;
+  // imu_type, 4
+  _to_data(info->imu_type.vendor(), data + i);
+  _to_data(info->imu_type.product(), data + i + 2);
+  i += 4;
+  // nominal_baseline, 2
+  _to_data(info->nominal_baseline, data + i);
+  i += 2;
+  // others
+  std::size_t size = i - 3;
+  data[0] = Channels::FID_DEVICE_INFO;
+  data[1] = static_cast<std::uint8_t>((size >> 8) & 0xFF);
+  data[2] = static_cast<std::uint8_t>(size & 0xFF);
+  return size + 3;
+}
+
+std::size_t to_data(
+    const Channels::img_params_t *img_params, std::uint8_t *data) {
+  std::size_t i = 3;
+
+  auto &&in = img_params->in;
+  // width, 2
+  _to_data(in.width, data + i);
+  i += 2;
+  // height, 2
+  _to_data(in.height, data + i);
+  i += 2;
+  // fx, 8
+  _to_data(in.fx, data + i);
+  i += 8;
+  // fy, 8
+  _to_data(in.fy, data + i);
+  i += 8;
+  // cx, 8
+  _to_data(in.cx, data + i);
+  i += 8;
+  // cy, 8
+  _to_data(in.cy, data + i);
+  i += 8;
+  // model, 1
+  data[i] = in.model;
+  i += 1;
+  // coeffs, 40
+  for (std::size_t j = 0; j < 5; j++) {
+    _to_data(in.coeffs[j], data + i + j * 8);
+  }
+  i += 40;
+
+  auto &&ex = img_params->ex.left_to_right;
+  // rotation
+  for (std::size_t j = 0; j < 3; j++) {
+    for (std::size_t k = 0; k < 3; k++) {
+      _to_data(ex.rotation[j][k], data + i + j * 3 + k);
+    }
+  }
+  i += 72;
+  // translation
+  for (std::size_t j = 0; j < 3; j++) {
+    _to_data(ex.translation[j], data + i + j * 8);
+  }
+  i += 24;
+
+  // others
+  std::size_t size = i - 3;
+  data[0] = Channels::FID_IMG_PARAMS;
+  data[1] = static_cast<std::uint8_t>((size >> 8) & 0xFF);
+  data[2] = static_cast<std::uint8_t>(size & 0xFF);
+  return size + 3;
+}
+
+std::size_t to_data(
+    const Channels::imu_params_t *imu_params, std::uint8_t *data) {
+  std::size_t i = 3;
+
+  auto &&in = imu_params->in;
+  // acc_scale
+  for (std::size_t j = 0; j < 3; j++) {
+    for (std::size_t k = 0; k < 3; k++) {
+      _to_data(in.accel.scale[j][k], data + i + j * 3 + k);
+    }
+  }
+  i += 72;
+  // gyro_scale
+  for (std::size_t j = 0; j < 3; j++) {
+    for (std::size_t k = 0; k < 3; k++) {
+      _to_data(in.gyro.scale[j][k], data + i + j * 3 + k);
+    }
+  }
+  i += 72;
+  // acc_drift
+  for (std::size_t j = 0; j < 3; j++) {
+    _to_data(in.accel.drift[j], data + i + j * 8);
+  }
+  i += 24;
+  // gyro_drift
+  for (std::size_t j = 0; j < 3; j++) {
+    _to_data(in.gyro.drift[j], data + i + j * 8);
+  }
+  i += 24;
+  // acc_noise
+  for (std::size_t j = 0; j < 3; j++) {
+    _to_data(in.accel.noise[j], data + i + j * 8);
+  }
+  i += 24;
+  // gyro_noise
+  for (std::size_t j = 0; j < 3; j++) {
+    _to_data(in.gyro.noise[j], data + i + j * 8);
+  }
+  i += 24;
+  // acc_bias
+  for (std::size_t j = 0; j < 3; j++) {
+    _to_data(in.accel.bias[j], data + i + j * 8);
+  }
+  i += 24;
+  // gyro_bias
+  for (std::size_t j = 0; j < 3; j++) {
+    _to_data(in.gyro.bias[j], data + i + j * 8);
+  }
+  i += 24;
+
+  auto &&ex = imu_params->ex.left_to_imu;
+  // rotation
+  for (std::size_t j = 0; j < 3; j++) {
+    for (std::size_t k = 0; k < 3; k++) {
+      _to_data(ex.rotation[j][k], data + i + j * 3 + k);
+    }
+  }
+  i += 72;
+  // translation
+  for (std::size_t j = 0; j < 3; j++) {
+    _to_data(ex.translation[j], data + i + j * 8);
+  }
+  i += 24;
+
+  // others
+  std::size_t size = i - 3;
+  data[0] = Channels::FID_IMU_PARAMS;
+  data[1] = static_cast<std::uint8_t>((size >> 8) & 0xFF);
+  data[2] = static_cast<std::uint8_t>(size & 0xFF);
+  return size + 3;
+}
+
+}  // namespace
+
+bool Channels::SetFiles(
+    device_info_t *info, img_params_t *img_params, imu_params_t *imu_params) {
+  if (info == nullptr && img_params == nullptr && imu_params == nullptr) {
+    LOG(WARNING) << "Files are not provided to set";
+    return false;
+  }
+  std::uint8_t data[2000]{};
+
+  std::bitset<8> header;
+  header[0] = 1;  // set
+
+  std::uint16_t size = 0;
+  if (info != nullptr) {
+    header[7] = true;
+    size += to_data(info, data + 3 + size);
+  }
+  if (img_params != nullptr) {
+    header[6] = true;
+    size += to_data(img_params, data + 3 + size);
+  }
+  if (imu_params != nullptr) {
+    header[5] = true;
+    size += to_data(imu_params, data + 3 + size);
+  }
+
+  data[0] = static_cast<std::uint8_t>(header.to_ulong());
+  data[1] = static_cast<std::uint8_t>((size >> 8) & 0xFF);
+  data[2] = static_cast<std::uint8_t>(size & 0xFF);
+
+  if (XuFileQuery(uvc::XU_QUERY_SET, 2000, data)) {
+    VLOG(2) << "SetFiles success";
+    return true;
+  } else {
+    LOG(WARNING) << "SetFiles failed";
+    return false;
+  }
+}
+
 bool Channels::PuControlRange(
     Option option, int32_t *min, int32_t *max, int32_t *def) const {
   CHECK_NOTNULL(device_);
@@ -407,6 +890,11 @@ bool Channels::XuImuRead(ImuResPacket *res) const {
     LOG(WARNING) << "XuImuRead response failed";
     return false;
   }
+}
+
+bool Channels::XuFileQuery(
+    uvc::xu_query query, uint16_t size, uint8_t *data) const {
+  return XuControlQuery(CHANNEL_FILE, query, size, data);
 }
 
 Channels::control_info_t Channels::PuControlInfo(Option option) const {

@@ -399,29 +399,42 @@ void Device::StopMotionTracking() {
 }
 
 void Device::ReadDeviceInfo() {
-  // TODO(JohnZhao): Read device info
   device_info_ = std::make_shared<DeviceInfo>();
+
+  CHECK_NOTNULL(channels_);
+  Channels::img_params_t img_params;
+  Channels::imu_params_t imu_params;
+  channels_->GetFiles(device_info_.get(), &img_params, &imu_params);
+
   device_info_->name = uvc::get_name(*device_);
+  img_intrinsics_ = img_params.in;
+  img_extrinsics_ = img_params.ex;
+  imu_intrinsics_ = imu_params.in;
+  imu_extrinsics_ = imu_params.ex;
 }
 
 void Device::WriteImgIntrinsics(const ImgIntrinsics &intrinsics) {
-  // TODO(JohnZhao): Write img intrinsics
-  UNUSED(intrinsics);
+  CHECK_NOTNULL(channels_);
+  Channels::img_params_t img_params{intrinsics, img_extrinsics_};
+  channels_->SetFiles(nullptr, &img_params, nullptr);
 }
 
 void Device::WriteImgExtrinsics(const ImgExtrinsics &extrinsics) {
-  // TODO(JohnZhao): Write img extrinsics
-  UNUSED(extrinsics);
+  CHECK_NOTNULL(channels_);
+  Channels::img_params_t img_params{img_intrinsics_, extrinsics};
+  channels_->SetFiles(nullptr, &img_params, nullptr);
 }
 
 void Device::WriteImuIntrinsics(const ImuIntrinsics &intrinsics) {
-  // TODO(JohnZhao): Write imu intrinsics
-  UNUSED(intrinsics);
+  CHECK_NOTNULL(channels_);
+  Channels::imu_params_t imu_params{intrinsics, imu_extrinsics_};
+  channels_->SetFiles(nullptr, nullptr, &imu_params);
 }
 
 void Device::WriteImuExtrinsics(const ImuExtrinsics &extrinsics) {
-  // TODO(JohnZhao): Write imu extrinsics
-  UNUSED(extrinsics);
+  CHECK_NOTNULL(channels_);
+  Channels::imu_params_t imu_params{imu_intrinsics_, extrinsics};
+  channels_->SetFiles(nullptr, nullptr, &imu_params);
 }
 
 MYNTEYE_END_NAMESPACE

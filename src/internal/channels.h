@@ -7,6 +7,7 @@
 #include <thread>
 
 #include "mynteye/mynteye.h"
+#include "mynteye/types.h"
 
 #include "internal/types.h"
 #include "uvc/uvc.h"
@@ -43,7 +44,26 @@ class Channels {
     XU_CMD_LAST
   } xu_cmd_t;
 
+  typedef enum FileId {
+    FID_DEVICE_INFO = 0,  // device info
+    FID_IMG_PARAMS = 1,   // image intrinsics & extrinsics
+    FID_IMU_PARAMS = 2,   // imu intrinsics & extrinsics
+    FID_LAST,
+  } file_id_t;
+
   using imu_callback_t = std::function<void(const ImuPacket &packet)>;
+
+  using device_info_t = DeviceInfo;
+
+  typedef struct ImgParams {
+    ImgIntrinsics in;
+    ImgExtrinsics ex;
+  } img_params_t;
+
+  typedef struct ImuParams {
+    ImuIntrinsics in;
+    ImuExtrinsics ex;
+  } imu_params_t;
 
   explicit Channels(std::shared_ptr<uvc::device> device);
   ~Channels();
@@ -60,6 +80,12 @@ class Channels {
   void SetImuCallback(imu_callback_t callback);
   void StartImuTracking(imu_callback_t callback = nullptr);
   void StopImuTracking();
+
+  bool GetFiles(
+      device_info_t *info, img_params_t *img_params,
+      imu_params_t *imu_params) const;
+  bool SetFiles(
+      device_info_t *info, img_params_t *img_params, imu_params_t *imu_params);
 
  private:
   bool PuControlRange(
@@ -81,6 +107,8 @@ class Channels {
 
   bool XuImuWrite(const ImuReqPacket &req) const;
   bool XuImuRead(ImuResPacket *res) const;
+
+  bool XuFileQuery(uvc::xu_query query, uint16_t size, uint8_t *data) const;
 
   control_info_t PuControlInfo(Option option) const;
   control_info_t XuControlInfo(Option option) const;
