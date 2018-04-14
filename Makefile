@@ -105,12 +105,16 @@ cleanros:
 	@$(call rm,./wrappers/ros/install/)
 	@$(call rm,./wrappers/ros/.catkin_workspace)
 	@$(call rm,./wrappers/ros/src/CMakeLists.txt)
+	@$(call rm_f,*INFO*,$(HOME)/.ros/)
+	@$(call rm_f,*WARNING*,$(HOME)/.ros/)
+	@$(call rm_f,*ERROR*,$(HOME)/.ros/)
+	@$(call rm_f,*FATAL*,$(HOME)/.ros/)
 
 .PHONY: cleanros
 
 # clean
 
-clean: cleanros
+clean:
 	@$(call echo,Make $@)
 	@$(call rm,./_build/)
 	@$(call rm,./_output/)
@@ -120,6 +124,9 @@ clean: cleanros
 	@$(call rm,./test/_build/)
 	@$(call rm,./test/_output/)
 	@$(MAKE) cleanlog
+ifeq ($(HOST_OS),Linux)
+	@$(MAKE) cleanros
+endif
 
 cleanlog:
 	@$(call rm_f,*INFO*)
@@ -127,7 +134,7 @@ cleanlog:
 	@$(call rm_f,*ERROR*)
 	@$(call rm_f,*FATAL*)
 
-cleanall: clean cleanlog
+cleanall: clean
 	@$(call rm,./doc/_output/)
 	@$(call rm,./test/gtest/_build/)
 	@$(call rm,./third_party/glog/_build/)
