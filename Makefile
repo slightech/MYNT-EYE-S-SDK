@@ -12,6 +12,7 @@ help:
 	@echo "  make test            build test and run"
 	@echo "  make install         install project"
 	@echo "  make samples         build samples"
+	@echo "  make ros             build ros wrapper"
 	@echo "  make clean|cleanall  clean generated or useless things"
 
 .PHONY: help
@@ -89,9 +90,27 @@ samples: install
 
 .PHONY: samples
 
+# ros
+
+ros: install
+	@$(call echo,Make $@)
+	@cd ./wrappers/ros && catkin_make
+
+.PHONY: ros
+
+cleanros:
+	@$(call echo,Make $@)
+	@$(call rm,./wrappers/ros/build/)
+	@$(call rm,./wrappers/ros/devel/)
+	@$(call rm,./wrappers/ros/install/)
+	@$(call rm,./wrappers/ros/.catkin_workspace)
+	@$(call rm,./wrappers/ros/src/CMakeLists.txt)
+
+.PHONY: cleanros
+
 # clean
 
-clean:
+clean: cleanros
 	@$(call echo,Make $@)
 	@$(call rm,./_build/)
 	@$(call rm,./_output/)
@@ -102,19 +121,19 @@ clean:
 	@$(call rm,./test/_output/)
 	@$(MAKE) cleanlog
 
-cleanall: clean
-	@$(call rm,./doc/_output/)
-	@$(call rm,./test/gtest/_build/)
-	@$(call rm,./third_party/glog/_build/)
-	@$(FIND) . -type f -name ".DS_Store" -print0 | xargs -0 rm -f
-
 cleanlog:
 	@$(call rm_f,*INFO*)
 	@$(call rm_f,*WARNING*)
 	@$(call rm_f,*ERROR*)
 	@$(call rm_f,*FATAL*)
 
-.PHONY: clean cleanall cleanlog
+cleanall: clean cleanlog
+	@$(call rm,./doc/_output/)
+	@$(call rm,./test/gtest/_build/)
+	@$(call rm,./third_party/glog/_build/)
+	@$(FIND) . -type f -name ".DS_Store" -print0 | xargs -0 rm -f
+
+.PHONY: clean cleanlog cleanall
 
 # others
 

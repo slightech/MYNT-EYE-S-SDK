@@ -11,3 +11,11 @@ _output/
 /*WARNING*
 /*ERROR*
 /*FATAL*
+
+# ros
+
+/wrappers/ros/build
+/wrappers/ros/devel
+/wrappers/ros/install
+/wrappers/ros/.catkin_workspace
+/wrappers/ros/src/CMakeLists.txt
