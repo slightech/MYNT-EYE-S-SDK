@@ -19,3 +19,9 @@ _output/
 /wrappers/ros/install
 /wrappers/ros/.catkin_workspace
 /wrappers/ros/src/CMakeLists.txt
+
+# tools
+
+*.pyc
+/mynteye/
+/mynteye.bag

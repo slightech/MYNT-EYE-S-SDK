@@ -1,0 +1,9 @@
+# dataset model: rosbag, euroc
+dataset: "rosbag"
+
+# rosbag config
+rosbag:
+  topic_img_left: "/mynteye/left"
+  topic_img_right: "/mynteye/right"
+  topic_imu: "/mynteye/imu"
+  topic_temp: "/mynteye/temp"
