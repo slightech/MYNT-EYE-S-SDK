@@ -1,4 +1,4 @@
-#include <nodelet/nodelet.h>  // NOLINT
+#include <nodelet/nodelet.h>
 #include <ros/ros.h>
 
 #include <cv_bridge/cv_bridge.h>
