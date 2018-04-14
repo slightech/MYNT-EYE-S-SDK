@@ -13,6 +13,7 @@ MYNTEYE_USE_NAMESPACE
 int main(int argc, char *argv[]) {
   glog_init _(argc, argv);
 
+  LOG(INFO) << "Detecting MYNT EYE devices";
   Context context;
   auto &&devices = context.devices();
 
