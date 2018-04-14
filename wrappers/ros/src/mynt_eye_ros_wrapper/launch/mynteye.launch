@@ -13,6 +13,8 @@
   <arg name="right_frame_id" default="$(arg mynteye)_right_frame" />
   <arg name="imu_frame_id" default="$(arg mynteye)_imu_frame" />
 
+  <arg name="gravity" default="9.8" />
+
   <!-- device options, -1 will not set the value -->
 
   <!-- gain range: [0,48]-->
@@ -75,6 +77,8 @@
       <param name="left_frame_id" value="$(arg left_frame_id)" />
       <param name="right_frame_id" value="$(arg right_frame_id)" />
       <param name="imu_frame_id" value="$(arg imu_frame_id)" />
+
+      <param name="gravity" value="$(arg gravity)" />
 
       <!-- device options -->
 

@@ -9,6 +9,8 @@
 
 #include <glog/logging.h>
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <map>
 #include <string>
 
@@ -70,6 +72,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     private_nh_.getParam("left_frame_id", left_frame_id_);
     private_nh_.getParam("right_frame_id", right_frame_id_);
     private_nh_.getParam("imu_frame_id", imu_frame_id_);
+
+    gravity_ = 9.8;
+    private_nh_.getParam("gravity", gravity_);
 
     // device options
 
@@ -246,9 +251,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     msg.header.frame_id = imu_frame_id_;
 
     // acceleration should be in m/s^2 (not in g's)
-    msg.linear_acceleration.x = data.imu->accel[0] * 9.8;
-    msg.linear_acceleration.y = data.imu->accel[1] * 9.8;
-    msg.linear_acceleration.z = data.imu->accel[2] * 9.8;
+    msg.linear_acceleration.x = data.imu->accel[0] * gravity_;
+    msg.linear_acceleration.y = data.imu->accel[1] * gravity_;
+    msg.linear_acceleration.z = data.imu->accel[2] * gravity_;
 
     msg.linear_acceleration_covariance[0] = 0;
     msg.linear_acceleration_covariance[1] = 0;
@@ -263,9 +268,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     msg.linear_acceleration_covariance[8] = 0;
 
     // velocity should be in rad/sec
-    msg.angular_velocity.x = data.imu->gyro[0] / 57.2956;
-    msg.angular_velocity.y = data.imu->gyro[1] / 57.2956;
-    msg.angular_velocity.z = data.imu->gyro[2] / 57.2956;
+    msg.angular_velocity.x = data.imu->gyro[0] * M_PI / 180;
+    msg.angular_velocity.y = data.imu->gyro[1] * M_PI / 180;
+    msg.angular_velocity.z = data.imu->gyro[2] * M_PI / 180;
 
     msg.angular_velocity_covariance[0] = 0;
     msg.angular_velocity_covariance[1] = 0;
@@ -337,6 +342,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   std::string left_frame_id_;
   std::string right_frame_id_;
   std::string imu_frame_id_;
+
+  double gravity_;
 
   // device
 
