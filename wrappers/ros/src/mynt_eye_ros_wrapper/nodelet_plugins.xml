@@ -1,0 +1,7 @@
+<library path="lib/libmynteye_wrapper">
+  <class name="mynteye/ROSWrapperNodelet"
+         type="mynteye::ROSWrapperNodelet"
+         base_class_type="nodelet::Nodelet">
+    <description>This is the nodelet of ROS interface for MYNT EYE camera.</description>
+  </class>
+</library>
