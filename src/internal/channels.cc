@@ -5,6 +5,8 @@
 #include <bitset>
 #include <chrono>
 #include <iomanip>
+#include <iterator>
+#include <sstream>
 #include <stdexcept>
 
 MYNTEYE_BEGIN_NAMESPACE
@@ -152,6 +154,19 @@ void Channels::SetControlValue(const Option &option, std::int32_t value) {
     }
     return true;
   };
+  auto in_values = [&option, &value](std::vector<std::int32_t> values) {
+    if (std::find(values.begin(), values.end(), value) != values.end()) {
+      return true;
+    } else {
+      std::ostringstream ss;
+      std::copy(
+          values.begin(), values.end(),
+          std::ostream_iterator<std::int32_t>(ss, ","));
+      LOG(WARNING) << option << " set value invalid, must be {" << ss.str()
+                   << "}";
+      return false;
+    }
+  };
   switch (option) {
     case Option::GAIN:
     case Option::BRIGHTNESS:
@@ -162,8 +177,17 @@ void Channels::SetControlValue(const Option &option, std::int32_t value) {
         LOG(WARNING) << option << " set value failed";
       }
     } break;
-    case Option::FRAME_RATE:
-    case Option::IMU_FREQUENCY:
+    case Option::FRAME_RATE: {
+      if (!in_range() ||
+          !in_values({10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60}))
+        break;
+      XuCamCtrlSet(option, value);
+    } break;
+    case Option::IMU_FREQUENCY: {
+      if (!in_range() || !in_values({100, 200, 250, 333, 500}))
+        break;
+      XuCamCtrlSet(option, value);
+    } break;
     case Option::EXPOSURE_MODE:
     case Option::MAX_GAIN:
     case Option::MAX_EXPOSURE_TIME:

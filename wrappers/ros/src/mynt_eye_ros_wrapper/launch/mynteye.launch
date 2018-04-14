@@ -17,23 +17,23 @@
 
   <!-- device options, -1 will not set the value -->
 
-  <!-- gain range: [0,48]-->
+  <!-- gain range: [0,48] -->
   <arg name="gain" default="-1" />
   <!-- <arg name="gain" default="24" /> -->
 
-  <!-- brightness range: [0,240]-->
+  <!-- brightness range: [0,240] -->
   <arg name="brightness" default="-1" />
   <!-- <arg name="brightness" default="120" /> -->
 
-  <!-- contrast range: [0,255]-->
+  <!-- contrast range: [0,255] -->
   <arg name="contrast" default="-1" />
   <!-- <arg name="contrast" default="127" /> -->
 
-  <!-- frame_rate range: [10,60]-->
+  <!-- frame_rate range: {10,15,20,25,30,35,40,45,50,55,60} -->
   <arg name="frame_rate" default="-1" />
   <!-- <arg name="frame_rate" default="25" /> -->
 
-  <!-- imu_frequency range: [200,500]-->
+  <!-- imu_frequency range: {100,200,250,333,500} -->
   <arg name="imu_frequency" default="-1" />
   <!-- <arg name="imu_frequency" default="200" /> -->
 
@@ -41,19 +41,19 @@
   <arg name="exposure_mode" default="-1" />
   <!-- <arg name="exposure_mode" default="0" /> -->
 
-  <!-- max_gain range: [0,48]-->
+  <!-- max_gain range: [0,48] -->
   <arg name="max_gain" default="-1" />
   <!-- <arg name="max_gain" default="48" /> -->
 
-  <!-- max_exposure_time range: [0,240]-->
+  <!-- max_exposure_time range: [0,240] -->
   <arg name="max_exposure_time" default="-1" />
   <!-- <arg name="max_exposure_time" default="240" /> -->
 
-  <!-- desired_brightness range: [0,255]-->
+  <!-- desired_brightness range: [0,255] -->
   <arg name="desired_brightness" default="-1" />
   <!-- <arg name="desired_brightness" default="192" /> -->
 
-  <!-- ir_control range: [0,160]-->
+  <!-- ir_control range: [0,160] -->
   <arg name="ir_control" default="-1" />
   <!-- <arg name="ir_control" default="0" /> -->
 
