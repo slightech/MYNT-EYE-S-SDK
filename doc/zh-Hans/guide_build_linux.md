@@ -3,7 +3,7 @@
 ## 获取代码
 
 ```bash
-git clone
+git clone https://github.com/slightech/MYNT-EYE-SDK-2.git
 ```
 
 ## 准备依赖
