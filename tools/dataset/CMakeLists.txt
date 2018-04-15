@@ -6,13 +6,9 @@ set_outdir(
   "${OUT_DIR}/bin/${DIR_NAME}"
 )
 
-include_directories(
-  ${PRO_DIR}/src
-)
-
 ## record
 
-add_executable(record record.cc)
+add_executable(record record.cc dataset.cc)
 target_link_libraries(record mynteye ${OpenCV_LIBS})
 
 if(OS_WIN)

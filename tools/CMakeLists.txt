@@ -33,12 +33,22 @@ LIST(APPEND CMAKE_MODULE_PATH ${PRO_DIR}/cmake)
 
 find_package(OpenCV REQUIRED)
 message(STATUS "Found OpenCV: ${OpenCV_VERSION}")
+if(OpenCV_VERSION VERSION_LESS 3.0)
+  add_definitions(-DUSE_OPENCV2)
+else()
+  add_definitions(-DUSE_OPENCV3)
+endif()
 
 # targets
 
 include(${PRO_DIR}/cmake/Common.cmake)
 
 set(OUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_output")
+
+include_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${PRO_DIR}/src
+)
 
 # dataset
 

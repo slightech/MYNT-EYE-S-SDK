@@ -8,6 +8,8 @@
 
 #include "internal/times.h"
 
+#include "dataset/dataset.h"
+
 MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
@@ -68,6 +70,14 @@ int main(int argc, char *argv[]) {
   device->EnableMotionDatas();
   device->Start(Source::ALL);
 
+  const char *outdir;
+  if (argc >= 2) {
+    outdir = argv[1];
+  } else {
+    outdir = "./dataset";
+  }
+  tools::Dataset dataset(outdir);
+
   cv::namedWindow("frame");
 
   std::size_t img_count = 0;
@@ -95,11 +105,28 @@ int main(int argc, char *argv[]) {
     cv::hconcat(left_img, right_img, img);
     cv::imshow("frame", img);
 
+    {  // save
+      for (auto &&left : left_datas) {
+        dataset.SaveStreamData(Stream::LEFT, left);
+      }
+      for (auto &&right : right_datas) {
+        dataset.SaveStreamData(Stream::RIGHT, right);
+      }
+
+      for (auto &&motion : motion_datas) {
+        dataset.SaveMotionData(motion);
+      }
+
+      std::cout << "\rSaved " << img_count << " imgs"
+                << ", " << imu_count << " imus" << std::flush;
+    }
+
     char key = static_cast<char>(cv::waitKey(1));
     if (key == 27 || key == 'q' || key == 'Q') {  // ESC/Q
       break;
     }
   }
+  std::cout << " to " << outdir << std::endl;
   auto &&time_end = times::now();
 
   device->Stop(Source::ALL);
