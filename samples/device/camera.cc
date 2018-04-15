@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
   size_t n = devices.size();
   LOG_IF(FATAL, n <= 0) << "No MYNT EYE devices :(";
 
-  LOG(INFO) << "MYNT EYE devices: ";
+  LOG(INFO) << "MYNT EYE devices:";
   for (size_t i = 0; i < n; i++) {
     auto &&device = devices[i];
     auto &&name = device->GetInfo(Info::DEVICE_NAME);

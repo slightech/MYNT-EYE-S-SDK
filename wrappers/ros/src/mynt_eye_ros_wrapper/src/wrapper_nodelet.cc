@@ -345,7 +345,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     size_t n = devices.size();
     NODELET_FATAL_COND(n <= 0, "No MYNT EYE devices :(");
 
-    NODELET_INFO_STREAM("MYNT EYE devices: ");
+    NODELET_INFO_STREAM("MYNT EYE devices:");
     for (size_t i = 0; i < n; i++) {
       auto &&device = devices[i];
       auto &&name = device->GetInfo(Info::DEVICE_NAME);
