@@ -17,6 +17,7 @@ Usage:
   make test            build test and run
   make install         install project
   make samples         build samples
+  make tools           build tools
   make ros             build ros wrapper
   make clean|cleanall  clean generated or useless things
 ```

@@ -12,6 +12,7 @@ help:
 	@echo "  make test            build test and run"
 	@echo "  make install         install project"
 	@echo "  make samples         build samples"
+	@echo "  make tools           build tools"
 	@echo "  make ros             build ros wrapper"
 	@echo "  make clean|cleanall  clean generated or useless things"
 
@@ -90,6 +91,14 @@ samples: install
 
 .PHONY: samples
 
+# tools
+
+tools: install
+	@$(call echo,Make $@)
+	@$(call cmake_build,./tools/_build)
+
+.PHONY: tools
+
 # ros
 
 ros: install
@@ -121,6 +130,8 @@ clean:
 	@$(call rm,./_install/)
 	@$(call rm,./samples/_build/)
 	@$(call rm,./samples/_output/)
+	@$(call rm,./tools/_build/)
+	@$(call rm,./tools/_output/)
 	@$(call rm,./test/_build/)
 	@$(call rm,./test/_output/)
 	@$(MAKE) cleanlog
