@@ -17,6 +17,9 @@
 #include "device/context.h"
 #include "device/device.h"
 
+#define FULL_PRECISION \
+  std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10)
+
 MYNTEYE_BEGIN_NAMESPACE
 
 namespace enc = sensor_msgs::image_encodings;
@@ -170,8 +173,23 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   void publishTopics() {
     device_->SetStreamCallback(
         Stream::LEFT, [this](const device::StreamData &data) {
+          static double ros_time_beg = ros::Time::now().toSec();
+          static double img_time_beg = data.img->timestamp;
+          ros::Time stamp(
+              ros_time_beg + (data.img->timestamp - img_time_beg) * 0.00001f);
+
+          // static double img_time_prev = -1;
+          // NODELET_INFO_STREAM("ros_time_beg: " << FULL_PRECISION <<
+          // ros_time_beg
+          //     << ", img_time_elapsed: " << FULL_PRECISION
+          //     << ((data.img->timestamp - img_time_beg) * 0.00001f)
+          //     << ", img_time_diff: " << FULL_PRECISION
+          //     << ((img_time_prev < 0) ? 0
+          //         : (data.img->timestamp - img_time_prev) * 0.01f) << " ms");
+          // img_time_prev = data.img->timestamp;
+
           ++left_count_;
-          publishLeft(data, left_count_, ros::Time::now());
+          publishLeft(data, left_count_, stamp);
           NODELET_DEBUG_STREAM(
               Stream::LEFT << ", count: " << left_count_
                            << ", frame_id: " << data.img->frame_id
@@ -181,8 +199,13 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     device_->SetStreamCallback(
         Stream::RIGHT, [this](const device::StreamData &data) {
+          static double ros_time_beg = ros::Time::now().toSec();
+          static double img_time_beg = data.img->timestamp;
+          ros::Time stamp(
+              ros_time_beg + (data.img->timestamp - img_time_beg) * 0.00001f);
+
           ++right_count_;
-          publishRight(data, right_count_, ros::Time::now());
+          publishRight(data, right_count_, stamp);
           NODELET_DEBUG_STREAM(
               Stream::RIGHT << ", count: " << right_count_
                             << ", frame_id: " << data.img->frame_id
@@ -191,18 +214,22 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         });
 
     device_->SetMotionCallback([this](const device::MotionData &data) {
-      static std::uint32_t imu_time_beg = -1;
-      static double imu_ros_time_beg;
-      if (imu_time_beg == -1) {
-        imu_time_beg = data.imu->timestamp;
-        imu_ros_time_beg = ros::Time::now().toSec();
-      }
-      // 0.01 ms > 1 s
+      static double ros_time_beg = ros::Time::now().toSec();
+      static double imu_time_beg = data.imu->timestamp;
       ros::Time stamp(
-          imu_ros_time_beg + (data.imu->timestamp - imu_time_beg) * 0.00001f);
+          ros_time_beg + (data.imu->timestamp - imu_time_beg) * 0.00001f);
+
+      // static double imu_time_prev = -1;
+      // NODELET_INFO_STREAM("ros_time_beg: " << FULL_PRECISION << ros_time_beg
+      //     << ", imu_time_elapsed: " << FULL_PRECISION
+      //     << ((data.imu->timestamp - imu_time_beg) * 0.00001f)
+      //     << ", imu_time_diff: " << FULL_PRECISION
+      //     << ((imu_time_prev < 0) ? 0
+      //         : (data.imu->timestamp - imu_time_prev) * 0.01f) << " ms");
+      // imu_time_prev = data.imu->timestamp;
 
       ++imu_count_;
-      publishIMU(data, imu_count_, stamp);
+      publishImu(data, imu_count_, stamp);
       NODELET_DEBUG_STREAM(
           "Imu count: " << imu_count_ << ", frame_id: " << data.imu->frame_id
                         << ", timestamp: " << data.imu->timestamp
@@ -242,7 +269,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         cv_bridge::CvImage(header, enc::MONO8, img).toImageMsg());
   }
 
-  void publishIMU(
+  void publishImu(
       const device::MotionData &data, std::uint32_t seq, ros::Time stamp) {
     sensor_msgs::Imu msg;
 
