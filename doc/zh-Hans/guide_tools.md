@@ -28,11 +28,23 @@ python tools/analytics/imu_analytics.py -i dataset -c tools/config/mynteye/mynte
 -al=-1.2,1.2 -gl= -gdu=d -gsu=d -kl=
 ```
 
+![imu analytics](imu_analytics.png)
+
+\latexonly
+\includegraphics[width=0.6\textwidth,keepaspectratio]{imu_analytics.png}
+\endlatexonly
+
 分析图像 & IMU 时间戳，
 
 ```bash
 python tools/analytics/stamp_analytics.py -i dataset -c tools/config/mynteye/mynteye_config.yaml
 ```
+
+![stamp analytics](stamp_analytics.png)
+
+\latexonly
+\includegraphics[width=0.6\textwidth,keepaspectratio]{stamp_analytics.png}
+\endlatexonly
 
 ## 结语
 

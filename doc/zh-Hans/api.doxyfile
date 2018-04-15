@@ -1765,7 +1765,9 @@ LATEX_EXTRA_STYLESHEET =
 # markers available.
 # This tag requires that the tag GENERATE_LATEX is set to YES.
 
-LATEX_EXTRA_FILES      = ../static/images/make_install.png
+LATEX_EXTRA_FILES      = ../static/images/make_install.png \
+                         ../static/images/imu_analytics.png \
+                         ../static/images/stamp_analytics.png
 
 # If the PDF_HYPERLINKS tag is set to YES, the LaTeX that is generated is
 # prepared for conversion to PDF (using ps2pdf or pdflatex). The PDF file will
