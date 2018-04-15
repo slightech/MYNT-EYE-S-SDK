@@ -794,8 +794,10 @@ INPUT                  = mainpage.md \
                          guides.md \
                          guide_build_linux.md \
                          guide_samples.md \
+                         guide_tools.md \
                          guide_log.md \
                          guide_opencv.md \
+                         guide_ros.md \
                          specs_data.md \
                          spec_hardware_info.md \
                          spec_image_params.md \
