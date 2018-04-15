@@ -10,5 +10,5 @@ make samples
 ## Run
 
 ```bash
- ./samples/_output/bin/device/camera_d
+./samples/_output/bin/device/camera_d
 ```
