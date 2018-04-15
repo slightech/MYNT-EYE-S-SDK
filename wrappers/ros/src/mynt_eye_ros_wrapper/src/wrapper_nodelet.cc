@@ -7,6 +7,8 @@
 #include <sensor_msgs/image_encodings.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 
+#include <mynt_eye_ros_wrapper/Temp.h>
+
 #include <glog/logging.h>
 
 #define _USE_MATH_DEFINES
@@ -63,18 +65,22 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     std::string left_topic = "left";
     std::string right_topic = "right";
     std::string imu_topic = "imu";
+    std::string temp_topic = "temp";
     private_nh_.getParam("left_topic", left_topic);
     private_nh_.getParam("right_topic", right_topic);
     private_nh_.getParam("imu_topic", imu_topic);
+    private_nh_.getParam("temp_topic", temp_topic);
 
     base_frame_id_ = "camera_link";
     left_frame_id_ = "camera_left_frame";
     right_frame_id_ = "camera_right_frame";
     imu_frame_id_ = "camera_imu_frame";
+    temp_frame_id_ = "camera_temp_frame";
     private_nh_.getParam("base_frame_id", base_frame_id_);
     private_nh_.getParam("left_frame_id", left_frame_id_);
     private_nh_.getParam("right_frame_id", right_frame_id_);
     private_nh_.getParam("imu_frame_id", imu_frame_id_);
+    private_nh_.getParam("temp_frame_id", temp_frame_id_);
 
     gravity_ = 9.8;
     private_nh_.getParam("gravity", gravity_);
@@ -119,6 +125,11 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     pub_imu_ = nh_.advertise<sensor_msgs::Imu>(imu_topic, 1);
     NODELET_INFO_STREAM("Advertized on topic " << imu_topic);
+
+    // temp publisher
+
+    pub_temp_ = nh_.advertise<mynt_eye_ros_wrapper::Temp>(temp_topic, 1);
+    NODELET_INFO_STREAM("Advertized on topic " << temp_topic);
 
     publishStaticTransforms();
     publishTopics();
@@ -230,6 +241,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
       ++imu_count_;
       publishImu(data, imu_count_, stamp);
+      publishTemp(data.imu->temperature, imu_count_, stamp);
       NODELET_DEBUG_STREAM(
           "Imu count: " << imu_count_ << ", frame_id: " << data.imu->frame_id
                         << ", timestamp: " << data.imu->timestamp
@@ -314,6 +326,15 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     pub_imu_.publish(msg);
   }
 
+  void publishTemp(float temperature, std::uint32_t seq, ros::Time stamp) {
+    mynt_eye_ros_wrapper::Temp msg;
+    msg.header.seq = seq;
+    msg.header.stamp = stamp;
+    msg.header.frame_id = temp_frame_id_;
+    msg.data = temperature;
+    pub_temp_.publish(msg);
+  }
+
  private:
   void initDevice() {
     NODELET_INFO_STREAM("Detecting MYNT EYE devices");
@@ -360,6 +381,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   image_transport::Publisher pub_right_;
 
   ros::Publisher pub_imu_;
+  ros::Publisher pub_temp_;
 
   tf2_ros::StaticTransformBroadcaster static_tf_broadcaster_;
 
@@ -369,6 +391,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   std::string left_frame_id_;
   std::string right_frame_id_;
   std::string imu_frame_id_;
+  std::string temp_frame_id_;
 
   double gravity_;
 

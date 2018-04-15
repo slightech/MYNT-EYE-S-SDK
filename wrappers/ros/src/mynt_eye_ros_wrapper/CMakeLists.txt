@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mynt_eye_ros_wrapper)
 
-
 get_filename_component(SDK_DIR "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -26,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   geometry_msgs
   image_transport
+  message_runtime
   nodelet
   roscpp
   sensor_msgs
@@ -41,6 +41,18 @@ checkPackage("roscpp" "")
 checkPackage("sensor_msgs" "")
 checkPackage("std_msgs" "")
 checkPackage("tf" "")
+
+## messages
+
+add_message_files(
+  FILES
+  Temp.msg
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 catkin_package(
   CATKIN_DEPENDS cv_bridge geometry_msgs image_transport nodelet roscpp sensor_msgs std_msgs tf
