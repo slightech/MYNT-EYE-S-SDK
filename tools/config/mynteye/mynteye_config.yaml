@@ -1,5 +1,5 @@
-# dataset model: rosbag, euroc
-dataset: "rosbag"
+# dataset model: rosbag, mynteye
+dataset: "mynteye"
 
 # rosbag config
 rosbag:

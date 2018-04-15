@@ -11,7 +11,7 @@ TOOLBOX_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.join(TOOLBOX_DIR, 'internal'))
 
 # pylint: disable=import-error,wrong-import-position
-from data import DataError, Dataset, ROSBag, What
+from data import DataError, Dataset, ROSBag, MYNTEYE, What
 
 
 TIME_SCALE_FACTORS = {
@@ -626,9 +626,13 @@ def _main():
     if args.config:
       import yaml
       config = yaml.load(file(args.config, 'r'))
-      if config['dataset'] != 'rosbag':
-        sys.exit('Error: dataset model only support rosbag now')
-      dataset = ROSBag(path, **config['rosbag'])
+      model = config['dataset']
+      if model == 'rosbag':
+        dataset = ROSBag(path, **config['rosbag'])
+      elif model == 'mynteye':
+        dataset = MYNTEYE(path)
+      else:
+        sys.exit('Error: dataset model not supported {}'.format(model))
     else:
       dataset = ROSBag(
           path,

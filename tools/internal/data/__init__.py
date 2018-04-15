@@ -275,6 +275,122 @@ class ROSBag(Dataset):
     return self._info['duration']
 
 
+class MYNTEYE(Dataset):
+  # pylint: disable=no-member
+
+  def __init__(self, path):
+    super(MYNTEYE, self).__init__(path)
+    self._info = self._get_info()
+
+  def _get_info(self):
+    import os
+    import sys
+    from os import path
+
+    info = type('', (), {})()
+
+    info.img_left_dir = path.join(self.path, 'left')
+    info.img_left_txt = path.join(info.img_left_dir, 'stream.txt')
+    info.has_img_left = path.isfile(info.img_left_txt)
+
+    info.img_right_dir = path.join(self.path, 'right')
+    info.img_right_txt = path.join(info.img_right_dir, 'stream.txt')
+    info.has_img_right = path.isfile(info.img_right_txt)
+
+    info.imu_txt = path.join(self.path, 'motion.txt')
+    info.has_imu = path.isfile(info.imu_txt)
+
+    if info.has_img_left:
+      info_txt = info.img_left_txt
+    elif info.has_img_right:
+      info_txt = info.img_right_txt
+    elif info.has_imu:
+      info_txt = info.img_left_txt
+    else:
+      sys.exit('Error: Dataset is empty or unexpected format')
+    with open(info_txt, 'rb') as f:
+      fields = [_.strip() for _ in f.readline().split(',')]
+
+      first = f.readline()
+      f.seek(-2, os.SEEK_END)
+      while f.read(1) != b'\n':
+        f.seek(-2, os.SEEK_CUR)
+      last = f.readline()
+
+      index = -1
+      for i, field in enumerate(fields):
+        if field == 'timestamp':
+          index = i
+          break
+      if index == -1:
+        sys.exit('Error: Dataset is unexpected format, timestamp not found')
+
+      # unit from 0.01ms to 1s
+      info.timebeg = float(first.split(',')[index].strip()) * 0.00001
+      info.timeend = float(last.split(',')[index].strip()) * 0.00001
+      # print('time: [{}, {}]'.format(info.timebeg, info.timeend))
+
+    return info
+
+  def generate(self, *what):
+    hit_img_left = What.img_left in what
+    hit_img_right = What.img_right in what
+    hit_imu = What.imu in what
+    hit_temp = What.temp in what
+
+    def get_fields(f):
+      fields = {}
+      for i, field in enumerate(_.strip() for _ in f.readline().split(',')):
+        fields[field] = i
+      return fields
+
+    if hit_img_left and self._info.has_img_left:
+      with open(self._info.img_left_txt) as f:
+        fields = get_fields(f)
+        for line in f:
+          values = [_.strip() for _ in line.split(',')]
+          img = Image()
+          img.timestamp = float(values[fields['timestamp']]) * 0.00001
+          yield {What.img_left: img}
+    if hit_img_right and self._info.has_img_right:
+      with open(self._info.img_right_txt) as f:
+        fields = get_fields(f)
+        for line in f:
+          values = [_.strip() for _ in line.split(',')]
+          img = Image()
+          img.timestamp = float(values[fields['timestamp']]) * 0.00001
+          yield {What.img_right: img}
+    if (hit_imu or hit_temp) and self._info.has_imu:
+      with open(self._info.imu_txt) as f:
+        fields = get_fields(f)
+        for line in f:
+          values = [_.strip() for _ in line.split(',')]
+          imu = IMU()
+          imu.timestamp = float(values[fields['timestamp']]) * 0.00001
+          imu.accel_x = float(values[fields['accel_x']])
+          imu.accel_y = float(values[fields['accel_y']])
+          imu.accel_z = float(values[fields['accel_z']])
+          imu.gyro_x = float(values[fields['gyro_x']])
+          imu.gyro_y = float(values[fields['gyro_y']])
+          imu.gyro_z = float(values[fields['gyro_z']])
+          temp = Temp()
+          temp.timestamp = imu.timestamp
+          temp.value = float(values[fields['temperature']])
+          yield {What.imu: imu, What.temp: temp}
+
+  @property
+  def timebeg(self):
+    return self._info.timebeg
+
+  @property
+  def timeend(self):
+    return self._info.timeend
+
+  @property
+  def duration(self):
+    return self.timeend - self.timebeg
+
+
 if __name__ == '__main__':
 
   class DataA(Dataset):
