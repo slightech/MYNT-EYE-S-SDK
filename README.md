@@ -30,6 +30,13 @@ make samples
 ./samples/_output/bin/device/camera_d
 ```
 
+## Firmwares
+
+[Google Drive]: https://drive.google.com/drive/folders/1tdFCcTBMNcImEGZ39tdOZmlX2SHKCr2f
+[百度网盘]: https://pan.baidu.com/s/1yPQDp2r0x4jvNwn2UjlMUQ
+
+Get firmwares from our online disks: [Google Drive][], [百度网盘][].
+
 ## License
 
 This project is licensed under the Apache License, Version 2.0. Copyright 2018 Slightech Co., Ltd.
