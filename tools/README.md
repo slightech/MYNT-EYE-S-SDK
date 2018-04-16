@@ -70,3 +70,11 @@ python tools/analytics/imu_analytics.py -i mynteye.bag
 ```bash
 python tools/analytics/stamp_analytics.py -i mynteye.bag
 ```
+
+---
+
+## Checksum
+
+```bash
+./tools/checksum/md5sum.sh <file or directory>
+```
