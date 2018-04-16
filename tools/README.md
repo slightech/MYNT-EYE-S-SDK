@@ -1,13 +1,15 @@
-# Tools for MYNT® EYE tools
+# Tools for MYNT® EYE cameras
 
 ## Prerequisites
 
-Ubuntu 16.04, ROS Kinetic.
+Python packages,
 
 ```bash
 cd <sdk>/tools/
 sudo pip install -r requirements.txt
 ```
+
+[ROS](http://www.ros.org/) if using rosbag.
 
 ---
 
