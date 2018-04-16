@@ -252,6 +252,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                         << ", gyro_y: " << data.imu->gyro[1]
                         << ", gyro_z: " << data.imu->gyro[2]
                         << ", temperature: " << data.imu->temperature);
+      // Sleep 1ms, otherwise publish may drop some datas.
+      ros::Duration(0.001).sleep();
     });
 
     time_beg_ = ros::Time::now().toSec();
