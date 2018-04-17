@@ -514,16 +514,16 @@ bool Channels::GetFiles(
     std::uint16_t size = _from_data<std::uint16_t>(data + 1);
     std::uint8_t checksum = data[3 + size];
 
-    std::uint8_t checksum_cal = 0;
+    std::uint8_t checksum_now = 0;
     for (std::size_t i = 4, n = 4 + size; i < n; i++) {
-      checksum_cal = (checksum_cal ^ data[i]);
+      checksum_now = (checksum_now ^ data[i]);
     }
-    if (checksum_cal != checksum) {
+    if (checksum != checksum_now) {
       LOG(WARNING) << "Files checksum should be 0x" << std::hex
                    << std::uppercase << std::setw(2) << std::setfill('0')
-                   << static_cast<int>(checksum_cal) << ", but 0x"
-                   << std::setw(2) << std::setfill('0')
-                   << static_cast<int>(checksum) << " now";
+                   << static_cast<int>(checksum) << ", but 0x" << std::setw(2)
+                   << std::setfill('0') << static_cast<int>(checksum_now)
+                   << " now";
       return false;
     }
 
@@ -901,12 +901,12 @@ bool Channels::XuImuRead(ImuResPacket *res) const {
     for (std::size_t i = 4, n = 4 + res->size; i < n; i++) {
       checksum = (checksum ^ data[i]);
     }
-    if (checksum != res->checksum) {
+    if (res->checksum != checksum) {
       LOG(WARNING) << "Imu response packet checksum should be 0x" << std::hex
                    << std::uppercase << std::setw(2) << std::setfill('0')
-                   << static_cast<int>(checksum) << ", but 0x" << std::setw(2)
-                   << std::setfill('0') << static_cast<int>(res->checksum)
-                   << " now";
+                   << static_cast<int>(res->checksum) << ", but 0x"
+                   << std::setw(2) << std::setfill('0')
+                   << static_cast<int>(checksum) << " now";
       return false;
     }
 

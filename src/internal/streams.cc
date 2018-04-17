@@ -47,12 +47,12 @@ bool unpack_stereo_img_data(
   for (std::size_t i = 2, n = packet_n - 2; i <= n; i++) {  // content: [2,9]
     checksum = (checksum ^ packet[i]);
   }
-  if (checksum != img_packet.checksum) {
+  if (img_packet.checksum != checksum) {
     LOG(WARNING) << "Image packet checksum should be 0x" << std::hex
                  << std::uppercase << std::setw(2) << std::setfill('0')
-                 << static_cast<int>(checksum) << ", but 0x" << std::setw(2)
-                 << std::setfill('0') << static_cast<int>(img_packet.checksum)
-                 << " now";
+                 << static_cast<int>(img_packet.checksum) << ", but 0x"
+                 << std::setw(2) << std::setfill('0')
+                 << static_cast<int>(checksum) << " now";
     return false;
   }
 
