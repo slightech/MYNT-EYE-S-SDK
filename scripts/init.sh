@@ -3,7 +3,6 @@
 # _FORCE_INSRALL_=1
 
 BASE_DIR=$(cd "$(dirname "$0")" && pwd)
-ROOT_DIR=$(realpath "$BASE_DIR/..")
 
 source "$BASE_DIR/common/echo.sh"
 source "$BASE_DIR/common/detect.sh"
@@ -20,11 +19,12 @@ _detect $PYTHON
 
 if [ "$HOST_OS" = "Linux" ]; then
   _detect_install() {
-    dpkg -s "$1" > /dev/null
+    _detect_cmd "$1" || [ $(dpkg-query -W -f='${Status}' "$1" 2> /dev/null \
+        | grep -c "ok installed") -gt 0 ]
   }
 elif [ "$HOST_OS" = "Mac" ]; then
   _detect_install() {
-    brew ls --versions "$1" > /dev/null
+    _detect_cmd "$1" || brew ls --versions "$1" > /dev/null
   }
 else
   _detect_install() {
@@ -63,6 +63,12 @@ if [ "$HOST_OS" = "Linux" ]; then
   # apt-get install
   _install_deps "sudo apt-get install" build-essential cmake git clang-format
   _install_deps "sudo apt-get install" libv4l-dev
+  if ! _detect_cmd clang-format; then
+    # on Ubuntu 14.04, apt-cache search clang-format
+    _install_deps "sudo apt-get install" clang-format-3.9
+    sudo ln -sf clang-format-3.9 /usr/bin/clang-format
+    sudo ln -sf clang-format-diff-3.9 /usr/bin/clang-format-diff
+  fi
   # sudo
   SUDO="sudo"
 elif [ "$HOST_OS" = "Mac" ]; then
@@ -124,6 +130,27 @@ fi
 # pip install
 _echo_d "pip install --upgrade autopep8 cpplint pylint requests"
 $SUDO pip install --upgrade autopep8 cpplint pylint requests
+
+## realpath
+
+# detect realpath
+if ! _detect_cmd realpath; then
+  _echo_sn "Install realpath"
+  if [ "$HOST_OS" = "Linux" ]; then
+    # How to install realpath on Ubuntu 14.04
+    #   https://www.howtoinstall.co/en/ubuntu/trusty/realpath
+    sudo apt-get install coreutils realpath
+  elif [ "$HOST_OS" = "Mac" ]; then
+    brew install coreutils
+  elif [ "$HOST_OS" = "Win" ]; then
+    pacman -S coreutils
+  else  # unexpected
+    _echo_e "Unknown host os :("
+    exit 1
+  fi
+fi
+
+ROOT_DIR=$(realpath "$BASE_DIR/..")
 
 ## init
 
