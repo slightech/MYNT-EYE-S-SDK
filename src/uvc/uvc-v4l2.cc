@@ -146,7 +146,7 @@ struct device {
                     << strerror(errno);
     }
 
-    v4l2_capability cap = {};
+    v4l2_capability cap;
     if (xioctl(fd, VIDIOC_QUERYCAP, &cap) < 0) {
       if (errno == EINVAL)
         throw_error() << dev_name << " is no V4L2 device";
@@ -160,10 +160,10 @@ struct device {
       throw_error() << dev_name + " does not support streaming I/O";
 
     // Select video input, video standard and tune here.
-    v4l2_cropcap cropcap = {};
+    v4l2_cropcap cropcap;
     cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     if (xioctl(fd, VIDIOC_CROPCAP, &cropcap) == 0) {
-      v4l2_crop crop = {};
+      v4l2_crop crop;
       crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
       crop.c = cropcap.defrect;  // reset to default
       if (xioctl(fd, VIDIOC_S_CROP, &crop) < 0) {
@@ -188,7 +188,7 @@ struct device {
 
   bool pu_control_range(
       uint32_t id, int32_t *min, int32_t *max, int32_t *def) const {
-    struct v4l2_queryctrl query = {};
+    struct v4l2_queryctrl query;
     query.id = id;
     if (xioctl(fd, VIDIOC_QUERYCTRL, &query) < 0) {
       LOG_ERROR(WARNING, "pu_control_range failed");
@@ -242,7 +242,7 @@ struct device {
       return;
     }
 
-    v4l2_format fmt = {};
+    v4l2_format fmt;
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     fmt.fmt.pix.width = width;
     fmt.fmt.pix.height = height;
@@ -252,7 +252,7 @@ struct device {
     if (xioctl(fd, VIDIOC_S_FMT, &fmt) < 0)
       LOG_ERROR(FATAL, "VIDIOC_S_FMT");
 
-    v4l2_streamparm parm = {};
+    v4l2_streamparm parm;
     parm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     if (xioctl(fd, VIDIOC_G_PARM, &parm) < 0)
       LOG_ERROR(FATAL, "VIDIOC_G_PARM");
@@ -262,7 +262,7 @@ struct device {
       LOG_ERROR(FATAL, "VIDIOC_S_PARM");
 
     // Init memory mapped IO
-    v4l2_requestbuffers req = {};
+    v4l2_requestbuffers req;
     req.count = 4;
     req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     req.memory = V4L2_MEMORY_MMAP;
@@ -278,7 +278,7 @@ struct device {
 
     buffers.resize(req.count);
     for (size_t i = 0; i < buffers.size(); ++i) {
-      v4l2_buffer buf = {};
+      v4l2_buffer buf;
       buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
       buf.memory = V4L2_MEMORY_MMAP;
       buf.index = i;
@@ -295,7 +295,7 @@ struct device {
 
     // Start capturing
     for (size_t i = 0; i < buffers.size(); ++i) {
-      v4l2_buffer buf = {};
+      v4l2_buffer buf;
       buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
       buf.memory = V4L2_MEMORY_MMAP;
       buf.index = i;
@@ -330,7 +330,7 @@ struct device {
     }
 
     // Close memory mapped IO
-    struct v4l2_requestbuffers req = {};
+    struct v4l2_requestbuffers req;
     req.count = 0;
     req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     req.memory = V4L2_MEMORY_MMAP;
@@ -358,7 +358,7 @@ struct device {
     }
 
     if (FD_ISSET(fd, &fds)) {
-      v4l2_buffer buf = {};
+      v4l2_buffer buf;
       buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
       buf.memory = V4L2_MEMORY_MMAP;
       if (xioctl(fd, VIDIOC_DQBUF, &buf) < 0) {
