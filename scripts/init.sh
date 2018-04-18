@@ -157,4 +157,12 @@ ROOT_DIR=$(realpath "$BASE_DIR/..")
 _echo_s "Init git hooks"
 $PYTHON "$ROOT_DIR/tools/linter/init-git-hooks.py"
 
+## cmake version
+
+_echo_s "Expect cmake version >= 3.0"
+cmake --version | head -1
+# sudo apt remove cmake
+_echo "How to upgrade cmake in Ubuntu"
+_echo "  https://askubuntu.com/questions/829310/how-to-upgrade-cmake-in-ubuntu"
+
 exit 0
