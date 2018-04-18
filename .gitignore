@@ -18,6 +18,7 @@ _output/
 /wrappers/ros/devel
 /wrappers/ros/install
 /wrappers/ros/.catkin_workspace
+/wrappers/ros/src/cv_bridge
 /wrappers/ros/src/CMakeLists.txt
 
 # tools
