@@ -145,4 +145,71 @@ std::ostream &operator<<(std::ostream &os, const StreamRequest &request) {
             << ", format: " << request.format << ", fps: " << request.fps;
 }
 
+std::ostream &operator<<(std::ostream &os, const ImgIntrinsics &in) {
+  os << "width: " << in.width << ", height: " << in.height << ", fx: " << in.fx
+     << ", fy: " << in.fy << ", cx: " << in.cx << ", cy: " << in.cy
+     << ", model: " << static_cast<int>(in.model) << ", coeffs: [";
+  for (int i = 0; i <= 3; i++)
+    os << in.coeffs[i] << ", ";
+  return os << in.coeffs[4] << "]";
+}
+
+std::ostream &operator<<(std::ostream &os, const ImuSensorIntrinsics &in) {
+  os << "scale: [";
+  for (int i = 0; i <= 2; i++)
+    os << in.scale[0][i] << ", ";
+  for (int i = 0; i <= 2; i++)
+    os << in.scale[1][i] << ", ";
+  for (int i = 0; i <= 1; i++)
+    os << in.scale[2][i] << ", ";
+  os << in.scale[2][2] << "]";
+
+  os << ", drift: [";
+  for (int i = 0; i <= 1; i++)
+    os << in.drift[i] << ", ";
+  os << in.drift[2] << "]";
+
+  os << ", noise: [";
+  for (int i = 0; i <= 1; i++)
+    os << in.noise[i] << ", ";
+  os << in.noise[2] << "]";
+
+  os << ", bias: [";
+  for (int i = 0; i <= 1; i++)
+    os << in.bias[i] << ", ";
+  os << in.bias[2] << "]";
+
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const ImuIntrinsics &in) {
+  return os << "accel: {" << in.accel << "}, gyro: {" << in.gyro << "}";
+}
+
+std::ostream &operator<<(std::ostream &os, const Extrinsics &ex) {
+  os << "rotation: [";
+  for (int i = 0; i <= 2; i++)
+    os << ex.rotation[0][i] << ", ";
+  for (int i = 0; i <= 2; i++)
+    os << ex.rotation[1][i] << ", ";
+  for (int i = 0; i <= 1; i++)
+    os << ex.rotation[2][i] << ", ";
+  os << ex.rotation[2][2] << "]";
+
+  os << ", translation: [";
+  for (int i = 0; i <= 1; i++)
+    os << ex.translation[i] << ", ";
+  os << ex.translation[2] << "]";
+
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const ImgExtrinsics &ex) {
+  return os << "left_to_right: {" << ex.left_to_right << "}";
+}
+
+std::ostream &operator<<(std::ostream &os, const ImuExtrinsics &ex) {
+  return os << "left_to_imu: {" << ex.left_to_imu << "}";
+}
+
 MYNTEYE_END_NAMESPACE

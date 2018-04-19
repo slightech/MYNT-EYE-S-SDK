@@ -45,9 +45,9 @@ class Channels {
   } xu_cmd_t;
 
   typedef enum FileId {
-    FID_DEVICE_INFO = 0,  // device info
-    FID_IMG_PARAMS = 1,   // image intrinsics & extrinsics
-    FID_IMU_PARAMS = 2,   // imu intrinsics & extrinsics
+    FID_DEVICE_INFO = 1,  // device info
+    FID_IMG_PARAMS = 2,   // image intrinsics & extrinsics
+    FID_IMU_PARAMS = 4,   // imu intrinsics & extrinsics
     FID_LAST,
   } file_id_t;
 
@@ -56,11 +56,13 @@ class Channels {
   using device_info_t = DeviceInfo;
 
   typedef struct ImgParams {
+    bool ok;
     ImgIntrinsics in;
     ImgExtrinsics ex;
   } img_params_t;
 
   typedef struct ImuParams {
+    bool ok;
     ImuIntrinsics in;
     ImuExtrinsics ex;
   } imu_params_t;
@@ -82,10 +84,11 @@ class Channels {
   void StopImuTracking();
 
   bool GetFiles(
-      device_info_t *info, img_params_t *img_params,
-      imu_params_t *imu_params) const;
+      device_info_t *info, img_params_t *img_params, imu_params_t *imu_params,
+      Version *spec_version = nullptr) const;
   bool SetFiles(
-      device_info_t *info, img_params_t *img_params, imu_params_t *imu_params);
+      device_info_t *info, img_params_t *img_params, imu_params_t *imu_params,
+      Version *spec_version = nullptr);
 
  private:
   bool PuControlRange(

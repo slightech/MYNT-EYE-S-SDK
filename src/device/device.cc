@@ -424,21 +424,54 @@ void Device::ReadAllInfos() {
   Channels::img_params_t img_params;
   Channels::imu_params_t imu_params;
   if (!channels_->GetFiles(device_info_.get(), &img_params, &imu_params)) {
-    // LOG(FATAL) << "Read device infos failed :(";
+    LOG(FATAL) << "Read device infos failed :(";
   }
+  VLOG(2) << "Device name: " << device_info_->name
+          << ", serial_number: " << device_info_->serial_number
+          << ", firmware_version: "
+          << device_info_->firmware_version.to_string()
+          << ", hardware_version: "
+          << device_info_->hardware_version.to_string()
+          << ", spec_version: " << device_info_->spec_version.to_string()
+          << ", lens_type: " << device_info_->lens_type.to_string()
+          << ", imu_type: " << device_info_->imu_type.to_string()
+          << ", nominal_baseline: " << device_info_->nominal_baseline;
 
   device_info_->name = uvc::get_name(*device_);
-  img_intrinsics_ = img_params.in;
-  img_extrinsics_ = img_params.ex;
-  imu_intrinsics_ = imu_params.in;
-  imu_extrinsics_ = imu_params.ex;
+  if (img_params.ok) {
+    img_intrinsics_ = img_params.in;
+    img_extrinsics_ = img_params.ex;
+    VLOG(2) << "ImgIntrinsics " << img_intrinsics_;
+    VLOG(2) << "ImgExtrinsics " << img_extrinsics_;
+  } else {
+    LOG(WARNING) << "Img intrinsics & extrinsics not exist";
+  }
+  if (imu_params.ok) {
+    imu_intrinsics_ = imu_params.in;
+    imu_extrinsics_ = imu_params.ex;
+    VLOG(2) << "ImuIntrinsics " << imu_intrinsics_;
+    VLOG(2) << "ImuExtrinsics " << imu_extrinsics_;
+  } else {
+    LOG(WARNING) << "Imu intrinsics & extrinsics not exist";
+  }
+}
+
+void Device::WriteDeviceInfo(const DeviceInfo &device_info) {
+  CHECK_NOTNULL(channels_);
+  DeviceInfo info = device_info;
+  if (channels_->SetFiles(&info, nullptr, nullptr)) {
+    device_info_->lens_type = info.lens_type;
+    device_info_->imu_type = info.imu_type;
+    device_info_->nominal_baseline = info.nominal_baseline;
+  }
 }
 
 void Device::WriteImgParams(
     const ImgIntrinsics &intrinsics, const ImgExtrinsics &extrinsics) {
   CHECK_NOTNULL(channels_);
-  Channels::img_params_t img_params{intrinsics, extrinsics};
-  if (channels_->SetFiles(nullptr, &img_params, nullptr)) {
+  Channels::img_params_t img_params{false, intrinsics, extrinsics};
+  if (channels_->SetFiles(
+          nullptr, &img_params, nullptr, &device_info_->spec_version)) {
     img_intrinsics_ = intrinsics;
     img_extrinsics_ = extrinsics;
   }
@@ -447,8 +480,9 @@ void Device::WriteImgParams(
 void Device::WriteImuParams(
     const ImuIntrinsics &intrinsics, const ImuExtrinsics &extrinsics) {
   CHECK_NOTNULL(channels_);
-  Channels::imu_params_t imu_params{intrinsics, extrinsics};
-  if (channels_->SetFiles(nullptr, nullptr, &imu_params)) {
+  Channels::imu_params_t imu_params{false, intrinsics, extrinsics};
+  if (channels_->SetFiles(
+          nullptr, nullptr, &imu_params, &device_info_->spec_version)) {
     imu_intrinsics_ = intrinsics;
     imu_extrinsics_ = extrinsics;
   }

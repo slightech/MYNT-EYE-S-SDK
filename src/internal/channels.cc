@@ -9,6 +9,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "internal/strings.h"
+
 MYNTEYE_BEGIN_NAMESPACE
 
 namespace {
@@ -55,6 +57,26 @@ int XuHalfDuplexId(Option option) {
     default:
       LOG(FATAL) << "No half duplex id for " << option;
   }
+}
+
+void CheckSpecVersion(const Version *spec_version) {
+  if (spec_version == nullptr) {
+    LOG(FATAL) << "Spec version must be specified";
+  }
+
+  std::vector<std::string> spec_versions{"1.0"};
+  for (auto &&spec_ver : spec_versions) {
+    if (*spec_version == Version(spec_ver)) {
+      return;  // supported
+    }
+  }
+
+  std::ostringstream ss;
+  std::copy(
+      spec_versions.begin(), spec_versions.end(),
+      std::ostream_iterator<std::string>(ss, ","));
+  LOG(FATAL) << "Spec version " << spec_version->to_string()
+             << " not supported, must be {" << ss.str() << "}";
 }
 
 }  // namespace
@@ -317,26 +339,23 @@ T _from_data(const std::uint8_t *data) {
 }
 
 template <>
-std::string _from_data(const std::uint8_t *data) {
-  return std::string(reinterpret_cast<const char *>(data));
-}
-
-template <>
 double _from_data(const std::uint8_t *data) {
   return *(reinterpret_cast<const double *>(data));
 }
 
-// std::string _from_data(const std::uint8_t *data, std::size_t n) {
-//   return std::string(reinterpret_cast<const char *>(data), n);
-// }
+std::string _from_data(const std::uint8_t *data, std::size_t count) {
+  std::string s(reinterpret_cast<const char *>(data), count);
+  strings::trim(s);
+  return s;
+}
 
 std::size_t from_data(Channels::device_info_t *info, const std::uint8_t *data) {
-  std::size_t i = 0;
+  std::size_t i = 4;  // skip vid, pid
   // name, 16
-  info->name = _from_data<std::string>(data + i);
+  info->name = _from_data(data + i, 16);
   i += 16;
   // serial_number, 16
-  info->serial_number = _from_data<std::string>(data + i);
+  info->serial_number = _from_data(data + i, 16);
   i += 16;
   // firmware_version, 2
   info->firmware_version.set_major(data[i]);
@@ -362,11 +381,13 @@ std::size_t from_data(Channels::device_info_t *info, const std::uint8_t *data) {
   // nominal_baseline, 2
   info->nominal_baseline = _from_data<std::uint16_t>(data + i);
   i += 2;
+
   return i;
 }
 
 std::size_t from_data(
-    Channels::img_params_t *img_params, const std::uint8_t *data) {
+    Channels::img_params_t *img_params, const std::uint8_t *data,
+    const Version *spec_version) {
   std::size_t i = 0;
 
   auto &&in = img_params->in;
@@ -401,7 +422,7 @@ std::size_t from_data(
   // rotation
   for (std::size_t j = 0; j < 3; j++) {
     for (std::size_t k = 0; k < 3; k++) {
-      ex.rotation[j][k] = _from_data<double>(data + i + j * 3 + k);
+      ex.rotation[j][k] = _from_data<double>(data + i + (j * 3 + k) * 8);
     }
   }
   i += 72;
@@ -411,25 +432,27 @@ std::size_t from_data(
   }
   i += 24;
 
+  UNUSED(spec_version)
   return i;
 }
 
 std::size_t from_data(
-    Channels::imu_params_t *imu_params, const std::uint8_t *data) {
+    Channels::imu_params_t *imu_params, const std::uint8_t *data,
+    const Version *spec_version) {
   std::size_t i = 0;
 
   auto &&in = imu_params->in;
   // acc_scale
   for (std::size_t j = 0; j < 3; j++) {
     for (std::size_t k = 0; k < 3; k++) {
-      in.accel.scale[j][k] = _from_data<double>(data + i + j * 3 + k);
+      in.accel.scale[j][k] = _from_data<double>(data + i + (j * 3 + k) * 8);
     }
   }
   i += 72;
   // gyro_scale
   for (std::size_t j = 0; j < 3; j++) {
     for (std::size_t k = 0; k < 3; k++) {
-      in.gyro.scale[j][k] = _from_data<double>(data + i + j * 3 + k);
+      in.gyro.scale[j][k] = _from_data<double>(data + i + (j * 3 + k) * 8);
     }
   }
   i += 72;
@@ -468,7 +491,7 @@ std::size_t from_data(
   // rotation
   for (std::size_t j = 0; j < 3; j++) {
     for (std::size_t k = 0; k < 3; k++) {
-      ex.rotation[j][k] = _from_data<double>(data + i + j * 3 + k);
+      ex.rotation[j][k] = _from_data<double>(data + i + (j * 3 + k) * 8);
     }
   }
   i += 72;
@@ -478,14 +501,15 @@ std::size_t from_data(
   }
   i += 24;
 
+  UNUSED(spec_version)
   return i;
 }
 
 }  // namespace
 
 bool Channels::GetFiles(
-    device_info_t *info, img_params_t *img_params,
-    imu_params_t *imu_params) const {
+    device_info_t *info, img_params_t *img_params, imu_params_t *imu_params,
+    Version *spec_version) const {
   if (info == nullptr && img_params == nullptr && imu_params == nullptr) {
     LOG(WARNING) << "Files are not provided to get";
     return false;
@@ -501,21 +525,22 @@ bool Channels::GetFiles(
   header[2] = (imu_params != nullptr);
 
   data[0] = static_cast<std::uint8_t>(header.to_ulong());
-  // VLOG(2) << "GetFiles header: 0x" << std::hex << std::uppercase
-  //         << std::setw(2) << std::setfill('0') << static_cast<int>(data[0]);
+  VLOG(2) << "GetFiles header: 0x" << std::hex << std::uppercase << std::setw(2)
+          << std::setfill('0') << static_cast<int>(data[0]);
   if (!XuFileQuery(uvc::XU_QUERY_SET, 2000, data)) {
     LOG(WARNING) << "GetFiles failed";
     return false;
   }
 
   if (XuFileQuery(uvc::XU_QUERY_GET, 2000, data)) {
-    VLOG(2) << "GetFiles success";
     // header = std::bitset<8>(data[0]);
     std::uint16_t size = _from_data<std::uint16_t>(data + 1);
     std::uint8_t checksum = data[3 + size];
+    VLOG(2) << "GetFiles data size: " << size << ", checksum: 0x" << std::hex
+            << std::setw(2) << std::setfill('0') << static_cast<int>(checksum);
 
     std::uint8_t checksum_now = 0;
-    for (std::size_t i = 4, n = 4 + size; i < n; i++) {
+    for (std::size_t i = 3, n = 3 + size; i < n; i++) {
       checksum_now = (checksum_now ^ data[i]);
     }
     if (checksum != checksum_now) {
@@ -527,21 +552,34 @@ bool Channels::GetFiles(
       return false;
     }
 
+    Version *spec_ver = spec_version;
     std::size_t i = 3;
     std::size_t end = 3 + size;
     while (i < end) {
       std::uint8_t file_id = *(data + i);
       std::uint16_t file_size = _from_data<std::uint16_t>(data + i + 1);
+      VLOG(2) << "GetFiles id: " << static_cast<int>(file_id)
+              << ", size: " << file_size;
       i += 3;
       switch (file_id) {
         case FID_DEVICE_INFO: {
           CHECK_EQ(from_data(info, data + i), file_size);
+          spec_ver = &info->spec_version;
+          CheckSpecVersion(spec_ver);
         } break;
         case FID_IMG_PARAMS: {
-          CHECK_EQ(from_data(img_params, data + i), file_size);
+          img_params->ok = file_size > 0;
+          if (img_params->ok) {
+            CheckSpecVersion(spec_ver);
+            CHECK_EQ(from_data(img_params, data + i, spec_ver), file_size);
+          }
         } break;
         case FID_IMU_PARAMS: {
-          CHECK_EQ(from_data(imu_params, data + i), file_size);
+          imu_params->ok = file_size > 0;
+          if (imu_params->ok) {
+            CheckSpecVersion(spec_ver);
+            CHECK_EQ(from_data(imu_params, data + i, spec_ver), file_size);
+          }
         } break;
         default:
           LOG(FATAL) << "Unsupported file id: " << file_id;
@@ -549,6 +587,7 @@ bool Channels::GetFiles(
       i += file_size;
     }
 
+    VLOG(2) << "GetFiles success";
     return true;
   } else {
     LOG(WARNING) << "GetFiles failed";
@@ -562,32 +601,36 @@ template <typename T>
 std::size_t _to_data(T value, std::uint8_t *data) {
   std::size_t size = sizeof(T) / sizeof(std::uint8_t);
   for (std::size_t i = 0; i < size; i++) {
-    data[i] =
-        static_cast<std::uint8_t>((value >> (8 * (size - i - 1))) && 0xFF);
+    data[i] = static_cast<std::uint8_t>((value >> (8 * (size - i - 1))) & 0xFF);
   }
   return size;
 }
 
 template <>
 std::size_t _to_data(double value, std::uint8_t *data) {
-  std::copy(data, data + 8, reinterpret_cast<std::uint8_t *>(&value));
+  std::uint8_t *val = reinterpret_cast<std::uint8_t *>(&value);
+  std::copy(val, val + 8, data);
   return 8;
 }
 
-template <>
-std::size_t _to_data(std::string value, std::uint8_t *data) {
+std::size_t _to_data(std::string value, std::uint8_t *data, std::size_t count) {
   std::copy(value.begin(), value.end(), data);
-  data[value.size()] = '\0';
-  return value.size() + 1;
+  for (std::size_t i = value.size(); i < count; i++) {
+    data[i] = ' ';
+  }
+  return count;
 }
 
-std::size_t to_data(const Channels::device_info_t *info, std::uint8_t *data) {
-  std::size_t i = 3;
+std::size_t to_data(
+    const Channels::device_info_t *info, std::uint8_t *data,
+    const Version *spec_version) {
+  std::size_t i = 3;  // skip id, size
+  i += 4;             // skip vid, pid
   // name, 16
-  _to_data(info->name, data + i);
+  _to_data(info->name, data + i, 16);
   i += 16;
   // serial_number, 16
-  _to_data(info->serial_number, data + i);
+  _to_data(info->serial_number, data + i, 16);
   i += 16;
   // firmware_version, 2
   data[i] = info->firmware_version.major();
@@ -614,6 +657,9 @@ std::size_t to_data(const Channels::device_info_t *info, std::uint8_t *data) {
   // nominal_baseline, 2
   _to_data(info->nominal_baseline, data + i);
   i += 2;
+
+  UNUSED(spec_version)
+
   // others
   std::size_t size = i - 3;
   data[0] = Channels::FID_DEVICE_INFO;
@@ -623,8 +669,9 @@ std::size_t to_data(const Channels::device_info_t *info, std::uint8_t *data) {
 }
 
 std::size_t to_data(
-    const Channels::img_params_t *img_params, std::uint8_t *data) {
-  std::size_t i = 3;
+    const Channels::img_params_t *img_params, std::uint8_t *data,
+    const Version *spec_version) {
+  std::size_t i = 3;  // skip id, size
 
   auto &&in = img_params->in;
   // width, 2
@@ -658,7 +705,7 @@ std::size_t to_data(
   // rotation
   for (std::size_t j = 0; j < 3; j++) {
     for (std::size_t k = 0; k < 3; k++) {
-      _to_data(ex.rotation[j][k], data + i + j * 3 + k);
+      _to_data(ex.rotation[j][k], data + i + (j * 3 + k) * 8);
     }
   }
   i += 72;
@@ -667,6 +714,8 @@ std::size_t to_data(
     _to_data(ex.translation[j], data + i + j * 8);
   }
   i += 24;
+
+  UNUSED(spec_version)
 
   // others
   std::size_t size = i - 3;
@@ -677,21 +726,22 @@ std::size_t to_data(
 }
 
 std::size_t to_data(
-    const Channels::imu_params_t *imu_params, std::uint8_t *data) {
-  std::size_t i = 3;
+    const Channels::imu_params_t *imu_params, std::uint8_t *data,
+    const Version *spec_version) {
+  std::size_t i = 3;  // skip id, size
 
   auto &&in = imu_params->in;
   // acc_scale
   for (std::size_t j = 0; j < 3; j++) {
     for (std::size_t k = 0; k < 3; k++) {
-      _to_data(in.accel.scale[j][k], data + i + j * 3 + k);
+      _to_data(in.accel.scale[j][k], data + i + (j * 3 + k) * 8);
     }
   }
   i += 72;
   // gyro_scale
   for (std::size_t j = 0; j < 3; j++) {
     for (std::size_t k = 0; k < 3; k++) {
-      _to_data(in.gyro.scale[j][k], data + i + j * 3 + k);
+      _to_data(in.gyro.scale[j][k], data + i + (j * 3 + k) * 8);
     }
   }
   i += 72;
@@ -730,7 +780,7 @@ std::size_t to_data(
   // rotation
   for (std::size_t j = 0; j < 3; j++) {
     for (std::size_t k = 0; k < 3; k++) {
-      _to_data(ex.rotation[j][k], data + i + j * 3 + k);
+      _to_data(ex.rotation[j][k], data + i + (j * 3 + k) * 8);
     }
   }
   i += 72;
@@ -739,6 +789,8 @@ std::size_t to_data(
     _to_data(ex.translation[j], data + i + j * 8);
   }
   i += 24;
+
+  UNUSED(spec_version)
 
   // others
   std::size_t size = i - 3;
@@ -751,11 +803,18 @@ std::size_t to_data(
 }  // namespace
 
 bool Channels::SetFiles(
-    device_info_t *info, img_params_t *img_params, imu_params_t *imu_params) {
+    device_info_t *info, img_params_t *img_params, imu_params_t *imu_params,
+    Version *spec_version) {
   if (info == nullptr && img_params == nullptr && imu_params == nullptr) {
     LOG(WARNING) << "Files are not provided to set";
     return false;
   }
+  Version *spec_ver = spec_version;
+  if (spec_ver == nullptr && info != nullptr) {
+    spec_ver = &info->spec_version;
+  }
+  CheckSpecVersion(spec_ver);
+
   std::uint8_t data[2000]{};
 
   std::bitset<8> header;
@@ -764,21 +823,23 @@ bool Channels::SetFiles(
   std::uint16_t size = 0;
   if (info != nullptr) {
     header[0] = true;
-    size += to_data(info, data + 3 + size);
+    size += to_data(info, data + 3 + size, spec_ver);
   }
   if (img_params != nullptr) {
     header[1] = true;
-    size += to_data(img_params, data + 3 + size);
+    size += to_data(img_params, data + 3 + size, spec_ver);
   }
   if (imu_params != nullptr) {
     header[2] = true;
-    size += to_data(imu_params, data + 3 + size);
+    size += to_data(imu_params, data + 3 + size, spec_ver);
   }
 
   data[0] = static_cast<std::uint8_t>(header.to_ulong());
   data[1] = static_cast<std::uint8_t>((size >> 8) & 0xFF);
   data[2] = static_cast<std::uint8_t>(size & 0xFF);
 
+  VLOG(2) << "SetFiles header: 0x" << std::hex << std::uppercase << std::setw(2)
+          << std::setfill('0') << static_cast<int>(data[0]);
   if (XuFileQuery(uvc::XU_QUERY_SET, 2000, data)) {
     VLOG(2) << "SetFiles success";
     return true;

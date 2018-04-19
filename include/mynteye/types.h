@@ -269,6 +269,8 @@ struct MYNTEYE_API ImgIntrinsics {
   double coeffs[5];
 };
 
+std::ostream &operator<<(std::ostream &os, const ImgIntrinsics &in);
+
 /**
  * @ingroup calibration
  * IMU sensor intrinsics: scale, drift and variances.
@@ -289,6 +291,8 @@ struct MYNTEYE_API ImuSensorIntrinsics {
   double bias[3];
 };
 
+std::ostream &operator<<(std::ostream &os, const ImuSensorIntrinsics &in);
+
 /**
  * @ingroup calibration
  * IMU intrinsics, including accelerometer and gyroscope.
@@ -297,6 +301,8 @@ struct MYNTEYE_API ImuIntrinsics {
   ImuSensorIntrinsics accel;
   ImuSensorIntrinsics gyro;
 };
+
+std::ostream &operator<<(std::ostream &os, const ImuIntrinsics &in);
 
 /**
  * @ingroup calibration
@@ -307,6 +313,8 @@ struct MYNTEYE_API Extrinsics {
   double translation[3]; /**< translation vector */
 };
 
+std::ostream &operator<<(std::ostream &os, const Extrinsics &ex);
+
 /**
  * @ingroup calibration
  * Image extrinsics.
@@ -315,6 +323,8 @@ struct MYNTEYE_API ImgExtrinsics {
   Extrinsics left_to_right;
 };
 
+std::ostream &operator<<(std::ostream &os, const ImgExtrinsics &ex);
+
 /**
  * @ingroup calibration
  * IMU extrinsics.
@@ -322,6 +332,8 @@ struct MYNTEYE_API ImgExtrinsics {
 struct MYNTEYE_API ImuExtrinsics {
   Extrinsics left_to_imu;
 };
+
+std::ostream &operator<<(std::ostream &os, const ImuExtrinsics &ex);
 
 /**
  * @defgroup datatypes Datatypes

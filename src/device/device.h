@@ -140,6 +140,7 @@ class Device {
 
   void ReadAllInfos();
 
+  void WriteDeviceInfo(const DeviceInfo &device_info);
   void WriteImgParams(
       const ImgIntrinsics &intrinsics, const ImgExtrinsics &extrinsics);
   void WriteImuParams(
