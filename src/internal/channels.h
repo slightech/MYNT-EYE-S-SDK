@@ -57,14 +57,16 @@ class Channels {
 
   typedef struct ImgParams {
     bool ok;
-    ImgIntrinsics in;
-    ImgExtrinsics ex;
+    Intrinsics in_left;
+    Intrinsics in_right;
+    Extrinsics ex_left_to_right;
   } img_params_t;
 
   typedef struct ImuParams {
     bool ok;
-    ImuIntrinsics in;
-    ImuExtrinsics ex;
+    ImuIntrinsics in_accel;
+    ImuIntrinsics in_gyro;
+    Extrinsics ex_left_to_imu;
   } imu_params_t;
 
   explicit Channels(std::shared_ptr<uvc::device> device);

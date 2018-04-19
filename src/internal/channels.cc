@@ -386,49 +386,64 @@ std::size_t from_data(Channels::device_info_t *info, const std::uint8_t *data) {
 }
 
 std::size_t from_data(
-    Channels::img_params_t *img_params, const std::uint8_t *data,
-    const Version *spec_version) {
+    Intrinsics *in, const std::uint8_t *data, const Version *spec_version) {
   std::size_t i = 0;
 
-  auto &&in = img_params->in;
   // width, 2
-  in.width = _from_data<std::uint16_t>(data + i);
+  in->width = _from_data<std::uint16_t>(data + i);
   i += 2;
   // height, 2
-  in.height = _from_data<std::uint16_t>(data + i);
+  in->height = _from_data<std::uint16_t>(data + i);
   i += 2;
   // fx, 8
-  in.fx = _from_data<double>(data + i);
+  in->fx = _from_data<double>(data + i);
   i += 8;
   // fy, 8
-  in.fy = _from_data<double>(data + i);
+  in->fy = _from_data<double>(data + i);
   i += 8;
   // cx, 8
-  in.cx = _from_data<double>(data + i);
+  in->cx = _from_data<double>(data + i);
   i += 8;
   // cy, 8
-  in.cy = _from_data<double>(data + i);
+  in->cy = _from_data<double>(data + i);
   i += 8;
   // model, 1
-  in.model = data[i];
+  in->model = data[i];
   i += 1;
   // coeffs, 40
   for (std::size_t j = 0; j < 5; j++) {
-    in.coeffs[j] = _from_data<double>(data + i + j * 8);
+    in->coeffs[j] = _from_data<double>(data + i + j * 8);
   }
   i += 40;
 
-  auto &&ex = img_params->ex.left_to_right;
-  // rotation
+  UNUSED(spec_version)
+  return i;
+}
+
+std::size_t from_data(
+    ImuIntrinsics *in, const std::uint8_t *data, const Version *spec_version) {
+  std::size_t i = 0;
+
+  // scale
   for (std::size_t j = 0; j < 3; j++) {
     for (std::size_t k = 0; k < 3; k++) {
-      ex.rotation[j][k] = _from_data<double>(data + i + (j * 3 + k) * 8);
+      in->scale[j][k] = _from_data<double>(data + i + (j * 3 + k) * 8);
     }
   }
   i += 72;
-  // translation
+  // drift
   for (std::size_t j = 0; j < 3; j++) {
-    ex.translation[j] = _from_data<double>(data + i + j * 8);
+    in->drift[j] = _from_data<double>(data + i + j * 8);
+  }
+  i += 24;
+  // noise
+  for (std::size_t j = 0; j < 3; j++) {
+    in->noise[j] = _from_data<double>(data + i + j * 8);
+  }
+  i += 24;
+  // bias
+  for (std::size_t j = 0; j < 3; j++) {
+    in->bias[j] = _from_data<double>(data + i + j * 8);
   }
   i += 24;
 
@@ -437,71 +452,43 @@ std::size_t from_data(
 }
 
 std::size_t from_data(
-    Channels::imu_params_t *imu_params, const std::uint8_t *data,
-    const Version *spec_version) {
+    Extrinsics *ex, const std::uint8_t *data, const Version *spec_version) {
   std::size_t i = 0;
 
-  auto &&in = imu_params->in;
-  // acc_scale
-  for (std::size_t j = 0; j < 3; j++) {
-    for (std::size_t k = 0; k < 3; k++) {
-      in.accel.scale[j][k] = _from_data<double>(data + i + (j * 3 + k) * 8);
-    }
-  }
-  i += 72;
-  // gyro_scale
-  for (std::size_t j = 0; j < 3; j++) {
-    for (std::size_t k = 0; k < 3; k++) {
-      in.gyro.scale[j][k] = _from_data<double>(data + i + (j * 3 + k) * 8);
-    }
-  }
-  i += 72;
-  // acc_drift
-  for (std::size_t j = 0; j < 3; j++) {
-    in.accel.drift[j] = _from_data<double>(data + i + j * 8);
-  }
-  i += 24;
-  // gyro_drift
-  for (std::size_t j = 0; j < 3; j++) {
-    in.gyro.drift[j] = _from_data<double>(data + i + j * 8);
-  }
-  i += 24;
-  // acc_noise
-  for (std::size_t j = 0; j < 3; j++) {
-    in.accel.noise[j] = _from_data<double>(data + i + j * 8);
-  }
-  i += 24;
-  // gyro_noise
-  for (std::size_t j = 0; j < 3; j++) {
-    in.gyro.noise[j] = _from_data<double>(data + i + j * 8);
-  }
-  i += 24;
-  // acc_bias
-  for (std::size_t j = 0; j < 3; j++) {
-    in.accel.bias[j] = _from_data<double>(data + i + j * 8);
-  }
-  i += 24;
-  // gyro_bias
-  for (std::size_t j = 0; j < 3; j++) {
-    in.gyro.bias[j] = _from_data<double>(data + i + j * 8);
-  }
-  i += 24;
-
-  auto &&ex = imu_params->ex.left_to_imu;
   // rotation
   for (std::size_t j = 0; j < 3; j++) {
     for (std::size_t k = 0; k < 3; k++) {
-      ex.rotation[j][k] = _from_data<double>(data + i + (j * 3 + k) * 8);
+      ex->rotation[j][k] = _from_data<double>(data + i + (j * 3 + k) * 8);
     }
   }
   i += 72;
   // translation
   for (std::size_t j = 0; j < 3; j++) {
-    ex.translation[j] = _from_data<double>(data + i + j * 8);
+    ex->translation[j] = _from_data<double>(data + i + j * 8);
   }
   i += 24;
 
   UNUSED(spec_version)
+  return i;
+}
+
+std::size_t from_data(
+    Channels::img_params_t *img_params, const std::uint8_t *data,
+    const Version *spec_version) {
+  std::size_t i = 0;
+  i += from_data(&img_params->in_left, data + i, spec_version);
+  i += from_data(&img_params->in_right, data + i, spec_version);
+  i += from_data(&img_params->ex_left_to_right, data + i, spec_version);
+  return i;
+}
+
+std::size_t from_data(
+    Channels::imu_params_t *imu_params, const std::uint8_t *data,
+    const Version *spec_version) {
+  std::size_t i = 0;
+  i += from_data(&imu_params->in_accel, data + i, spec_version);
+  i += from_data(&imu_params->in_gyro, data + i, spec_version);
+  i += from_data(&imu_params->ex_left_to_imu, data + i, spec_version);
   return i;
 }
 
@@ -669,54 +656,99 @@ std::size_t to_data(
 }
 
 std::size_t to_data(
-    const Channels::img_params_t *img_params, std::uint8_t *data,
-    const Version *spec_version) {
-  std::size_t i = 3;  // skip id, size
+    const Intrinsics *in, std::uint8_t *data, const Version *spec_version) {
+  std::size_t i = 0;
 
-  auto &&in = img_params->in;
   // width, 2
-  _to_data(in.width, data + i);
+  _to_data(in->width, data + i);
   i += 2;
   // height, 2
-  _to_data(in.height, data + i);
+  _to_data(in->height, data + i);
   i += 2;
   // fx, 8
-  _to_data(in.fx, data + i);
+  _to_data(in->fx, data + i);
   i += 8;
   // fy, 8
-  _to_data(in.fy, data + i);
+  _to_data(in->fy, data + i);
   i += 8;
   // cx, 8
-  _to_data(in.cx, data + i);
+  _to_data(in->cx, data + i);
   i += 8;
   // cy, 8
-  _to_data(in.cy, data + i);
+  _to_data(in->cy, data + i);
   i += 8;
   // model, 1
-  data[i] = in.model;
+  data[i] = in->model;
   i += 1;
   // coeffs, 40
   for (std::size_t j = 0; j < 5; j++) {
-    _to_data(in.coeffs[j], data + i + j * 8);
+    _to_data(in->coeffs[j], data + i + j * 8);
   }
   i += 40;
 
-  auto &&ex = img_params->ex.left_to_right;
+  UNUSED(spec_version)
+  return i;
+}
+
+std::size_t to_data(
+    const ImuIntrinsics *in, std::uint8_t *data, const Version *spec_version) {
+  std::size_t i = 0;
+
+  // scale
+  for (std::size_t j = 0; j < 3; j++) {
+    for (std::size_t k = 0; k < 3; k++) {
+      _to_data(in->scale[j][k], data + i + (j * 3 + k) * 8);
+    }
+  }
+  i += 72;
+  // drift
+  for (std::size_t j = 0; j < 3; j++) {
+    _to_data(in->drift[j], data + i + j * 8);
+  }
+  i += 24;
+  // noise
+  for (std::size_t j = 0; j < 3; j++) {
+    _to_data(in->noise[j], data + i + j * 8);
+  }
+  i += 24;
+  // bias
+  for (std::size_t j = 0; j < 3; j++) {
+    _to_data(in->bias[j], data + i + j * 8);
+  }
+  i += 24;
+
+  UNUSED(spec_version)
+  return i;
+}
+
+std::size_t to_data(
+    const Extrinsics *ex, std::uint8_t *data, const Version *spec_version) {
+  std::size_t i = 0;
+
   // rotation
   for (std::size_t j = 0; j < 3; j++) {
     for (std::size_t k = 0; k < 3; k++) {
-      _to_data(ex.rotation[j][k], data + i + (j * 3 + k) * 8);
+      _to_data(ex->rotation[j][k], data + i + (j * 3 + k) * 8);
     }
   }
   i += 72;
   // translation
   for (std::size_t j = 0; j < 3; j++) {
-    _to_data(ex.translation[j], data + i + j * 8);
+    _to_data(ex->translation[j], data + i + j * 8);
   }
   i += 24;
 
   UNUSED(spec_version)
+  return i;
+}
 
+std::size_t to_data(
+    const Channels::img_params_t *img_params, std::uint8_t *data,
+    const Version *spec_version) {
+  std::size_t i = 3;  // skip id, size
+  i += to_data(&img_params->in_left, data + i, spec_version);
+  i += to_data(&img_params->in_right, data + i, spec_version);
+  i += to_data(&img_params->ex_left_to_right, data + i, spec_version);
   // others
   std::size_t size = i - 3;
   data[0] = Channels::FID_IMG_PARAMS;
@@ -729,69 +761,9 @@ std::size_t to_data(
     const Channels::imu_params_t *imu_params, std::uint8_t *data,
     const Version *spec_version) {
   std::size_t i = 3;  // skip id, size
-
-  auto &&in = imu_params->in;
-  // acc_scale
-  for (std::size_t j = 0; j < 3; j++) {
-    for (std::size_t k = 0; k < 3; k++) {
-      _to_data(in.accel.scale[j][k], data + i + (j * 3 + k) * 8);
-    }
-  }
-  i += 72;
-  // gyro_scale
-  for (std::size_t j = 0; j < 3; j++) {
-    for (std::size_t k = 0; k < 3; k++) {
-      _to_data(in.gyro.scale[j][k], data + i + (j * 3 + k) * 8);
-    }
-  }
-  i += 72;
-  // acc_drift
-  for (std::size_t j = 0; j < 3; j++) {
-    _to_data(in.accel.drift[j], data + i + j * 8);
-  }
-  i += 24;
-  // gyro_drift
-  for (std::size_t j = 0; j < 3; j++) {
-    _to_data(in.gyro.drift[j], data + i + j * 8);
-  }
-  i += 24;
-  // acc_noise
-  for (std::size_t j = 0; j < 3; j++) {
-    _to_data(in.accel.noise[j], data + i + j * 8);
-  }
-  i += 24;
-  // gyro_noise
-  for (std::size_t j = 0; j < 3; j++) {
-    _to_data(in.gyro.noise[j], data + i + j * 8);
-  }
-  i += 24;
-  // acc_bias
-  for (std::size_t j = 0; j < 3; j++) {
-    _to_data(in.accel.bias[j], data + i + j * 8);
-  }
-  i += 24;
-  // gyro_bias
-  for (std::size_t j = 0; j < 3; j++) {
-    _to_data(in.gyro.bias[j], data + i + j * 8);
-  }
-  i += 24;
-
-  auto &&ex = imu_params->ex.left_to_imu;
-  // rotation
-  for (std::size_t j = 0; j < 3; j++) {
-    for (std::size_t k = 0; k < 3; k++) {
-      _to_data(ex.rotation[j][k], data + i + (j * 3 + k) * 8);
-    }
-  }
-  i += 72;
-  // translation
-  for (std::size_t j = 0; j < 3; j++) {
-    _to_data(ex.translation[j], data + i + j * 8);
-  }
-  i += 24;
-
-  UNUSED(spec_version)
-
+  i += to_data(&imu_params->in_accel, data + i, spec_version);
+  i += to_data(&imu_params->in_gyro, data + i, spec_version);
+  i += to_data(&imu_params->ex_left_to_imu, data + i, spec_version);
   // others
   std::size_t size = i - 3;
   data[0] = Channels::FID_IMU_PARAMS;

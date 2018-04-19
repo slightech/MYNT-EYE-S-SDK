@@ -248,9 +248,9 @@ std::ostream &operator<<(std::ostream &os, const StreamRequest &request);
 
 /**
  * @ingroup calibration
- * Image intrinsics.
+ * Stream intrinsics,
  */
-struct MYNTEYE_API ImgIntrinsics {
+struct MYNTEYE_API Intrinsics {
   /** width of the image in pixels */
   std::uint16_t width;
   /** height of the image in pixels */
@@ -269,13 +269,13 @@ struct MYNTEYE_API ImgIntrinsics {
   double coeffs[5];
 };
 
-std::ostream &operator<<(std::ostream &os, const ImgIntrinsics &in);
+std::ostream &operator<<(std::ostream &os, const Intrinsics &in);
 
 /**
  * @ingroup calibration
- * IMU sensor intrinsics: scale, drift and variances.
+ * IMU intrinsics: scale, drift and variances.
  */
-struct MYNTEYE_API ImuSensorIntrinsics {
+struct MYNTEYE_API ImuIntrinsics {
   /**
    * Scale X     cross axis  cross axis
    * cross axis  Scale Y     cross axis
@@ -291,18 +291,18 @@ struct MYNTEYE_API ImuSensorIntrinsics {
   double bias[3];
 };
 
-std::ostream &operator<<(std::ostream &os, const ImuSensorIntrinsics &in);
+std::ostream &operator<<(std::ostream &os, const ImuIntrinsics &in);
 
 /**
  * @ingroup calibration
- * IMU intrinsics, including accelerometer and gyroscope.
+ * Motion intrinsics, including accelerometer and gyroscope.
  */
-struct MYNTEYE_API ImuIntrinsics {
-  ImuSensorIntrinsics accel;
-  ImuSensorIntrinsics gyro;
+struct MYNTEYE_API MotionIntrinsics {
+  ImuIntrinsics accel;
+  ImuIntrinsics gyro;
 };
 
-std::ostream &operator<<(std::ostream &os, const ImuIntrinsics &in);
+std::ostream &operator<<(std::ostream &os, const MotionIntrinsics &in);
 
 /**
  * @ingroup calibration
@@ -314,26 +314,6 @@ struct MYNTEYE_API Extrinsics {
 };
 
 std::ostream &operator<<(std::ostream &os, const Extrinsics &ex);
-
-/**
- * @ingroup calibration
- * Image extrinsics.
- */
-struct MYNTEYE_API ImgExtrinsics {
-  Extrinsics left_to_right;
-};
-
-std::ostream &operator<<(std::ostream &os, const ImgExtrinsics &ex);
-
-/**
- * @ingroup calibration
- * IMU extrinsics.
- */
-struct MYNTEYE_API ImuExtrinsics {
-  Extrinsics left_to_imu;
-};
-
-std::ostream &operator<<(std::ostream &os, const ImuExtrinsics &ex);
 
 /**
  * @defgroup datatypes Datatypes

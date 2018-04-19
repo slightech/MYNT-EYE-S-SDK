@@ -145,7 +145,7 @@ std::ostream &operator<<(std::ostream &os, const StreamRequest &request) {
             << ", format: " << request.format << ", fps: " << request.fps;
 }
 
-std::ostream &operator<<(std::ostream &os, const ImgIntrinsics &in) {
+std::ostream &operator<<(std::ostream &os, const Intrinsics &in) {
   os << "width: " << in.width << ", height: " << in.height << ", fx: " << in.fx
      << ", fy: " << in.fy << ", cx: " << in.cx << ", cy: " << in.cy
      << ", model: " << static_cast<int>(in.model) << ", coeffs: [";
@@ -154,7 +154,7 @@ std::ostream &operator<<(std::ostream &os, const ImgIntrinsics &in) {
   return os << in.coeffs[4] << "]";
 }
 
-std::ostream &operator<<(std::ostream &os, const ImuSensorIntrinsics &in) {
+std::ostream &operator<<(std::ostream &os, const ImuIntrinsics &in) {
   os << "scale: [";
   for (int i = 0; i <= 2; i++)
     os << in.scale[0][i] << ", ";
@@ -182,7 +182,7 @@ std::ostream &operator<<(std::ostream &os, const ImuSensorIntrinsics &in) {
   return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const ImuIntrinsics &in) {
+std::ostream &operator<<(std::ostream &os, const MotionIntrinsics &in) {
   return os << "accel: {" << in.accel << "}, gyro: {" << in.gyro << "}";
 }
 
@@ -202,14 +202,6 @@ std::ostream &operator<<(std::ostream &os, const Extrinsics &ex) {
   os << ex.translation[2] << "]";
 
   return os;
-}
-
-std::ostream &operator<<(std::ostream &os, const ImgExtrinsics &ex) {
-  return os << "left_to_right: {" << ex.left_to_right << "}";
-}
-
-std::ostream &operator<<(std::ostream &os, const ImuExtrinsics &ex) {
-  return os << "left_to_imu: {" << ex.left_to_imu << "}";
 }
 
 MYNTEYE_END_NAMESPACE

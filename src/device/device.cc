@@ -151,36 +151,60 @@ std::string Device::GetInfo(const Info &info) const {
   }
 }
 
-ImgIntrinsics Device::GetImgIntrinsics() const {
-  return img_intrinsics_;
+Intrinsics Device::GetIntrinsics(const Stream &stream) const {
+  try {
+    return stream_intrinsics_.at(stream);
+  } catch (const std::out_of_range &e) {
+    LOG(WARNING) << "Intrinsics of " << stream << " not found";
+    return {};
+  }
 }
 
-ImgExtrinsics Device::GetImgExtrinsics() const {
-  return img_extrinsics_;
+Extrinsics Device::GetExtrinsics(const Stream &from, const Stream &to) const {
+  try {
+    return stream_from_extrinsics_.at(from).at(to);
+  } catch (const std::out_of_range &e) {
+    LOG(WARNING) << "Extrinsics from " << from << " to " << to << " not found";
+    return {};
+  }
 }
 
-void Device::SetImgIntrinsics(const ImgIntrinsics &in) {
-  img_intrinsics_ = std::move(in);
+MotionIntrinsics Device::GetMotionIntrinsics() const {
+  if (motion_intrinsics_) {
+    return *motion_intrinsics_;
+  } else {
+    LOG(WARNING) << "Motion intrinsics not found";
+    return {};
+  }
 }
 
-void Device::SetImgExtrinsics(const ImgExtrinsics &ex) {
-  img_extrinsics_ = std::move(ex);
+Extrinsics Device::GetMotionExtrinsics(const Stream &from) const {
+  try {
+    return motion_from_extrinsics_.at(from);
+  } catch (const std::out_of_range &e) {
+    LOG(WARNING) << "Motion extrinsics from " << from << " not found";
+    return {};
+  }
 }
 
-ImuIntrinsics Device::GetImuIntrinsics() const {
-  return imu_intrinsics_;
+void Device::SetIntrinsics(const Stream &stream, const Intrinsics &in) {
+  stream_intrinsics_[stream] = in;
 }
 
-ImuExtrinsics Device::GetImuExtrinsics() const {
-  return imu_extrinsics_;
+void Device::SetExtrinsics(
+    const Stream &from, const Stream &to, const Extrinsics &ex) {
+  stream_from_extrinsics_[from][to] = ex;
 }
 
-void Device::SetImuIntrinsics(const ImuIntrinsics &in) {
-  imu_intrinsics_ = std::move(in);
+void Device::SetMotionIntrinsics(const MotionIntrinsics &in) {
+  if (motion_intrinsics_ == nullptr) {
+    motion_intrinsics_ = std::make_shared<MotionIntrinsics>();
+  }
+  *motion_intrinsics_ = in;
 }
 
-void Device::SetImuExtrinsics(const ImuExtrinsics &ex) {
-  imu_extrinsics_ = std::move(ex);
+void Device::SetMotionExtrinsics(const Stream &from, const Extrinsics &ex) {
+  motion_from_extrinsics_[from] = ex;
 }
 
 void Device::LogOptionInfos() const {
@@ -426,7 +450,7 @@ void Device::ReadAllInfos() {
   if (!channels_->GetFiles(device_info_.get(), &img_params, &imu_params)) {
     LOG(FATAL) << "Read device infos failed :(";
   }
-  VLOG(2) << "Device name: " << device_info_->name
+  VLOG(2) << "Device info: {name: " << device_info_->name
           << ", serial_number: " << device_info_->serial_number
           << ", firmware_version: "
           << device_info_->firmware_version.to_string()
@@ -435,56 +459,28 @@ void Device::ReadAllInfos() {
           << ", spec_version: " << device_info_->spec_version.to_string()
           << ", lens_type: " << device_info_->lens_type.to_string()
           << ", imu_type: " << device_info_->imu_type.to_string()
-          << ", nominal_baseline: " << device_info_->nominal_baseline;
+          << ", nominal_baseline: " << device_info_->nominal_baseline << "}";
 
   device_info_->name = uvc::get_name(*device_);
   if (img_params.ok) {
-    img_intrinsics_ = img_params.in;
-    img_extrinsics_ = img_params.ex;
-    VLOG(2) << "ImgIntrinsics " << img_intrinsics_;
-    VLOG(2) << "ImgExtrinsics " << img_extrinsics_;
+    SetIntrinsics(Stream::LEFT, img_params.in_left);
+    SetIntrinsics(Stream::RIGHT, img_params.in_right);
+    SetExtrinsics(Stream::LEFT, Stream::RIGHT, img_params.ex_left_to_right);
+    VLOG(2) << "Intrinsics left: {" << GetIntrinsics(Stream::LEFT) << "}";
+    VLOG(2) << "Intrinsics right: {" << GetIntrinsics(Stream::RIGHT) << "}";
+    VLOG(2) << "Extrinsics left to right: {"
+            << GetExtrinsics(Stream::LEFT, Stream::RIGHT) << "}";
   } else {
-    LOG(WARNING) << "Img intrinsics & extrinsics not exist";
+    LOG(WARNING) << "Intrinsics & extrinsics not exist";
   }
   if (imu_params.ok) {
-    imu_intrinsics_ = imu_params.in;
-    imu_extrinsics_ = imu_params.ex;
-    VLOG(2) << "ImuIntrinsics " << imu_intrinsics_;
-    VLOG(2) << "ImuExtrinsics " << imu_extrinsics_;
+    SetMotionIntrinsics({imu_params.in_accel, imu_params.in_gyro});
+    SetMotionExtrinsics(Stream::LEFT, imu_params.ex_left_to_imu);
+    VLOG(2) << "Motion intrinsics: {" << GetMotionIntrinsics() << "}";
+    VLOG(2) << "Motion extrinsics left to imu: {"
+            << GetMotionExtrinsics(Stream::LEFT) << "}";
   } else {
-    LOG(WARNING) << "Imu intrinsics & extrinsics not exist";
-  }
-}
-
-void Device::WriteDeviceInfo(const DeviceInfo &device_info) {
-  CHECK_NOTNULL(channels_);
-  DeviceInfo info = device_info;
-  if (channels_->SetFiles(&info, nullptr, nullptr)) {
-    device_info_->lens_type = info.lens_type;
-    device_info_->imu_type = info.imu_type;
-    device_info_->nominal_baseline = info.nominal_baseline;
-  }
-}
-
-void Device::WriteImgParams(
-    const ImgIntrinsics &intrinsics, const ImgExtrinsics &extrinsics) {
-  CHECK_NOTNULL(channels_);
-  Channels::img_params_t img_params{false, intrinsics, extrinsics};
-  if (channels_->SetFiles(
-          nullptr, &img_params, nullptr, &device_info_->spec_version)) {
-    img_intrinsics_ = intrinsics;
-    img_extrinsics_ = extrinsics;
-  }
-}
-
-void Device::WriteImuParams(
-    const ImuIntrinsics &intrinsics, const ImuExtrinsics &extrinsics) {
-  CHECK_NOTNULL(channels_);
-  Channels::imu_params_t imu_params{false, intrinsics, extrinsics};
-  if (channels_->SetFiles(
-          nullptr, nullptr, &imu_params, &device_info_->spec_version)) {
-    imu_intrinsics_ = intrinsics;
-    imu_extrinsics_ = extrinsics;
+    LOG(WARNING) << "Motion intrinsics & extrinsics not exist";
   }
 }
 

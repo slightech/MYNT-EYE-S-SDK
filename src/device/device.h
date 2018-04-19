@@ -57,15 +57,16 @@ class Device {
   std::shared_ptr<DeviceInfo> GetInfo() const;
   std::string GetInfo(const Info &info) const;
 
-  ImgIntrinsics GetImgIntrinsics() const;
-  ImgExtrinsics GetImgExtrinsics() const;
-  void SetImgIntrinsics(const ImgIntrinsics &in);
-  void SetImgExtrinsics(const ImgExtrinsics &ex);
+  Intrinsics GetIntrinsics(const Stream &stream) const;
+  Extrinsics GetExtrinsics(const Stream &from, const Stream &to) const;
+  MotionIntrinsics GetMotionIntrinsics() const;
+  Extrinsics GetMotionExtrinsics(const Stream &from) const;
 
-  ImuIntrinsics GetImuIntrinsics() const;
-  ImuExtrinsics GetImuExtrinsics() const;
-  void SetImuIntrinsics(const ImuIntrinsics &in);
-  void SetImuExtrinsics(const ImuExtrinsics &ex);
+  void SetIntrinsics(const Stream &stream, const Intrinsics &in);
+  void SetExtrinsics(
+      const Stream &from, const Stream &to, const Extrinsics &ex);
+  void SetMotionIntrinsics(const MotionIntrinsics &in);
+  void SetMotionExtrinsics(const Stream &from, const Extrinsics &ex);
 
   void LogOptionInfos() const;
   OptionInfo GetOptionInfo(const Option &option) const;
@@ -120,10 +121,11 @@ class Device {
   std::shared_ptr<uvc::device> device_;
   std::shared_ptr<DeviceInfo> device_info_;
 
-  ImgIntrinsics img_intrinsics_;
-  ImgExtrinsics img_extrinsics_;
-  ImuIntrinsics imu_intrinsics_;
-  ImuExtrinsics imu_extrinsics_;
+  std::map<Stream, Intrinsics> stream_intrinsics_;
+  std::map<Stream, std::map<Stream, Extrinsics>> stream_from_extrinsics_;
+
+  std::shared_ptr<MotionIntrinsics> motion_intrinsics_;
+  std::map<Stream, Extrinsics> motion_from_extrinsics_;
 
   stream_callbacks_t stream_callbacks_;
   motion_callback_t motion_callback_;
@@ -140,11 +142,9 @@ class Device {
 
   void ReadAllInfos();
 
-  void WriteDeviceInfo(const DeviceInfo &device_info);
-  void WriteImgParams(
-      const ImgIntrinsics &intrinsics, const ImgExtrinsics &extrinsics);
-  void WriteImuParams(
-      const ImuIntrinsics &intrinsics, const ImuExtrinsics &extrinsics);
+  std::shared_ptr<Channels> channels() {
+    return channels_;
+  }
 
   // friend DeviceWriter;
 };
