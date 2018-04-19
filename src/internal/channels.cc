@@ -76,7 +76,7 @@ void CheckSpecVersion(const Version *spec_version) {
       spec_versions.begin(), spec_versions.end(),
       std::ostream_iterator<std::string>(ss, ","));
   LOG(FATAL) << "Spec version " << spec_version->to_string()
-             << " not supported, must be {" << ss.str() << "}";
+             << " not supported, must in [" << ss.str() << "]";
 }
 
 }  // namespace
@@ -184,8 +184,8 @@ void Channels::SetControlValue(const Option &option, std::int32_t value) {
       std::copy(
           values.begin(), values.end(),
           std::ostream_iterator<std::int32_t>(ss, ","));
-      LOG(WARNING) << option << " set value invalid, must be {" << ss.str()
-                   << "}";
+      LOG(WARNING) << option << " set value invalid, must in [" << ss.str()
+                   << "]";
       return false;
     }
   };
