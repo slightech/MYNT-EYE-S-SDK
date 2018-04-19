@@ -69,10 +69,16 @@ target_include_directories(main PRIVATE
 set(MYNTEYE_NAME ${PROJECT_NAME})
 
 set(MYNTEYE_PUBLIC_H
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/callbacks.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/global.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/glog_init.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/mynteye/mynteye.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/types.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/device/context.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/device/device.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/internal/files.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/internal/strings.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/internal/times.h
 )
 
 if(OS_WIN)

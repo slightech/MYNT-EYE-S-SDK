@@ -1,5 +1,5 @@
-#ifndef MYNTEYE_INTERNAL_CALLBACKS_H_  // NOLINT
-#define MYNTEYE_INTERNAL_CALLBACKS_H_
+#ifndef MYNTEYE_CALLBACKS_H_  // NOLINT
+#define MYNTEYE_CALLBACKS_H_
 #pragma once
 
 #include <cstdint>
@@ -90,4 +90,4 @@ using MotionCallback = std::function<void(const MotionData &data)>;
 
 MYNTEYE_END_NAMESPACE
 
-#endif  // MYNTEYE_INTERNAL_CALLBACKS_H_ NOLINT
+#endif  // MYNTEYE_CALLBACKS_H_ NOLINT

@@ -3,10 +3,10 @@
 
 #include "mynteye/glog_init.h"
 
-#include "device/context.h"
-#include "device/device.h"
+#include "mynteye/context.h"
+#include "mynteye/device.h"
 
-#include "internal/times.h"
+#include "mynteye/times.h"
 
 MYNTEYE_USE_NAMESPACE
 

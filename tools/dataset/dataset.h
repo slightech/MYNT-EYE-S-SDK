@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 
-#include "internal/callbacks.h"
+#include "mynteye/callbacks.h"
 #include "mynteye/mynteye.h"
 
 MYNTEYE_BEGIN_NAMESPACE

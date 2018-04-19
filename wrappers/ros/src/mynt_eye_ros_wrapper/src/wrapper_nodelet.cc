@@ -16,8 +16,8 @@
 #include <map>
 #include <string>
 
-#include "device/context.h"
-#include "device/device.h"
+#include "mynteye/context.h"
+#include "mynteye/device.h"
 
 #define FULL_PRECISION \
   std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10)

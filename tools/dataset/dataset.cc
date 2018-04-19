@@ -13,7 +13,7 @@
 #include <stdexcept>
 #include <utility>
 
-#include "internal/files.h"
+#include "mynteye/files.h"
 
 #define FULL_PRECISION \
   std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10)

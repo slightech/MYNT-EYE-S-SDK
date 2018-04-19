@@ -6,9 +6,8 @@
 #include <mutex>
 #include <vector>
 
+#include "mynteye/callbacks.h"
 #include "mynteye/mynteye.h"
-
-#include "internal/callbacks.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 

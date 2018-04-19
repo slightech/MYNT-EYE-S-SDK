@@ -8,10 +8,9 @@
 #include <mutex>
 #include <vector>
 
+#include "mynteye/callbacks.h"
 #include "mynteye/mynteye.h"
 #include "mynteye/types.h"
-
-#include "internal/callbacks.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 

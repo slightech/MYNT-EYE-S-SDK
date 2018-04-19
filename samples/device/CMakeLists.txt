@@ -6,10 +6,6 @@ set_outdir(
   "${OUT_DIR}/bin/${DIR_NAME}"
 )
 
-include_directories(
-  ${PRO_DIR}/src
-)
-
 ## camera_d
 
 add_executable(camera_d camera.cc)

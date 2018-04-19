@@ -47,7 +47,6 @@ set(OUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_output")
 
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${PRO_DIR}/src
 )
 
 # dataset
