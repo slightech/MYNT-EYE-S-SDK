@@ -74,6 +74,7 @@ set(MYNTEYE_PUBLIC_H
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/glog_init.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/mynteye/mynteye.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/types.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/utils.h
   ${CMAKE_CURRENT_SOURCE_DIR}/src/device/context.h
   ${CMAKE_CURRENT_SOURCE_DIR}/src/device/device.h
   ${CMAKE_CURRENT_SOURCE_DIR}/src/internal/files.h
@@ -106,6 +107,7 @@ set(MYNTEYE_SRCS
   src/internal/strings.cc
   src/internal/types.cc
   src/public/types.cc
+  src/public/utils.cc
   src/device/context.cc
   src/device/device.cc
   src/device/device_s.cc
