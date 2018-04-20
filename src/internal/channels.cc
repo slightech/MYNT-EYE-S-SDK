@@ -550,7 +550,9 @@ bool Channels::GetFiles(
       i += 3;
       switch (file_id) {
         case FID_DEVICE_INFO: {
-          CHECK_EQ(from_data(info, data + i), file_size);
+          CHECK_EQ(from_data(info, data + i), file_size)
+              << "The firmware not support getting device info, you could "
+                 "upgrade to latest";
           spec_ver = &info->spec_version;
           CheckSpecVersion(spec_ver);
         } break;
