@@ -73,6 +73,28 @@ python tools/analytics/stamp_analytics.py -i mynteye.bag
 
 ---
 
+## Writer
+
+### device_info_writer.cc
+
+```bash
+./tools/_output/bin/writer/device_info_writer tools/writer/config/device.info
+```
+
+### img_params_writer.cc
+
+```bash
+./tools/_output/bin/writer/img_params_writer tools/writer/config/img.params
+```
+
+### imu_params_writer.cc
+
+```bash
+./tools/_output/bin/writer/imu_params_writer tools/writer/config/imu.params
+```
+
+---
+
 ## Checksum
 
 ```bash

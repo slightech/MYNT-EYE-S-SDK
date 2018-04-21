@@ -1,0 +1,5 @@
+%YAML:1.0
+---
+lens_type: "0000"
+imu_type: "0000"
+nominal_baseline: 120

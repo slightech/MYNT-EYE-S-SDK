@@ -21,6 +21,12 @@ struct device;
 
 }  // namespace uvc
 
+namespace tools {
+
+class DeviceWriter;
+
+}  // namespace tools
+
 struct DeviceInfo;
 
 class Channels;
@@ -145,7 +151,7 @@ class Device {
     return channels_;
   }
 
-  // friend DeviceWriter;
+  friend tools::DeviceWriter;
 };
 
 MYNTEYE_END_NAMESPACE

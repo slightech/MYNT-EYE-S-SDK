@@ -2,6 +2,12 @@
 
 #include <glog/logging.h>
 
+#include <iomanip>
+#include <limits>
+
+#define FULL_PRECISION \
+  std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10)
+
 MYNTEYE_BEGIN_NAMESPACE
 
 const char *to_string(const Model &value) {
@@ -146,16 +152,17 @@ std::ostream &operator<<(std::ostream &os, const StreamRequest &request) {
 }
 
 std::ostream &operator<<(std::ostream &os, const Intrinsics &in) {
-  os << "width: " << in.width << ", height: " << in.height << ", fx: " << in.fx
-     << ", fy: " << in.fy << ", cx: " << in.cx << ", cy: " << in.cy
-     << ", model: " << static_cast<int>(in.model) << ", coeffs: [";
+  os << FULL_PRECISION << "width: " << in.width << ", height: " << in.height
+     << ", fx: " << in.fx << ", fy: " << in.fy << ", cx: " << in.cx
+     << ", cy: " << in.cy << ", model: " << static_cast<int>(in.model)
+     << ", coeffs: [";
   for (int i = 0; i <= 3; i++)
     os << in.coeffs[i] << ", ";
   return os << in.coeffs[4] << "]";
 }
 
 std::ostream &operator<<(std::ostream &os, const ImuIntrinsics &in) {
-  os << "scale: [";
+  os << FULL_PRECISION << "scale: [";
   for (int i = 0; i <= 2; i++)
     os << in.scale[0][i] << ", ";
   for (int i = 0; i <= 2; i++)
@@ -183,11 +190,12 @@ std::ostream &operator<<(std::ostream &os, const ImuIntrinsics &in) {
 }
 
 std::ostream &operator<<(std::ostream &os, const MotionIntrinsics &in) {
-  return os << "accel: {" << in.accel << "}, gyro: {" << in.gyro << "}";
+  return os << FULL_PRECISION << "accel: {" << in.accel << "}, gyro: {"
+            << in.gyro << "}";
 }
 
 std::ostream &operator<<(std::ostream &os, const Extrinsics &ex) {
-  os << "rotation: [";
+  os << FULL_PRECISION << "rotation: [";
   for (int i = 0; i <= 2; i++)
     os << ex.rotation[0][i] << ", ";
   for (int i = 0; i <= 2; i++)

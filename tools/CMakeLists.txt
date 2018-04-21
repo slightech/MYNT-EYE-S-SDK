@@ -52,3 +52,7 @@ include_directories(
 # dataset
 
 add_subdirectory(dataset)
+
+# writer
+
+add_subdirectory(writer)
