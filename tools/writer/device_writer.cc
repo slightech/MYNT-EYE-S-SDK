@@ -151,6 +151,11 @@ bool DeviceWriter::SaveDeviceInfo(
     LOG(ERROR) << "Failed to save file: " << filepath;
     return false;
   }
+  fs << "device_name" << info.name;
+  fs << "serial_number" << info.serial_number;
+  fs << "firmware_version" << info.firmware_version.to_string();
+  fs << "hardware_version" << info.hardware_version.to_string();
+  fs << "spec_version" << info.spec_version.to_string();
   fs << "lens_type" << info.lens_type.to_string();
   fs << "imu_type" << info.imu_type.to_string();
   fs << "nominal_baseline" << info.nominal_baseline;
