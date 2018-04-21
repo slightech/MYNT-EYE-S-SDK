@@ -116,9 +116,9 @@ enum class Option : std::uint8_t {
   BRIGHTNESS,
   /** Image contrast */
   CONTRAST,
-  /** Image frame rate */
+  /** Image frame rate, must set IMU_FREQUENCY together */
   FRAME_RATE,
-  /** IMU frequency */
+  /** IMU frequency, must set FRAME_RATE together */
   IMU_FREQUENCY,
   /**
    * Exposure mode
