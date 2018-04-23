@@ -1,5 +1,7 @@
 # 编译 on Linux {#guide_build_linux}
 
+> Ubuntu 16.04, Ubuntu 14.04
+
 ## 获取代码
 
 ```bash

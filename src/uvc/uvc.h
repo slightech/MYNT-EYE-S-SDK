@@ -24,7 +24,7 @@ typedef enum pu_query {
 } pu_query;
 
 // Extension Unit
-struct xu {
+struct MYNTEYE_API xu {
   uint8_t unit;
 };
 
@@ -42,40 +42,40 @@ struct context;  // Opaque type representing access to the underlying UVC
 struct device;   // Opaque type representing access to a specific UVC device
 
 // Enumerate devices
-std::shared_ptr<context> create_context();
-std::vector<std::shared_ptr<device>> query_devices(
+MYNTEYE_API std::shared_ptr<context> create_context();
+MYNTEYE_API std::vector<std::shared_ptr<device>> query_devices(
     std::shared_ptr<context> context);
 
 // Static device properties
-std::string get_name(const device &device);
-int get_vendor_id(const device &device);
-int get_product_id(const device &device);
+MYNTEYE_API std::string get_name(const device &device);
+MYNTEYE_API int get_vendor_id(const device &device);
+MYNTEYE_API int get_product_id(const device &device);
 
-std::string get_video_name(const device &device);
+MYNTEYE_API std::string get_video_name(const device &device);
 
 // Access PU (Processing Unit) controls
 inline bool is_pu_control(Option option) {
   return option >= Option::GAIN && option <= Option::CONTRAST;
 }
-bool pu_control_range(
+MYNTEYE_API bool pu_control_range(
     const device &device, Option option, int32_t *min, int32_t *max,
     int32_t *def);
-bool pu_control_query(
+MYNTEYE_API bool pu_control_query(
     const device &device, Option option, pu_query query, int32_t *value);
 
 // Access XU (Extension Unit) controls
-bool xu_control_query(
+MYNTEYE_API bool xu_control_query(
     const device &device, const xu &xu, uint8_t selector, xu_query query,
     uint16_t size, uint8_t *data);
 
 // Control streaming
 typedef std::function<void(const void *frame)> video_channel_callback;
 
-void set_device_mode(
+MYNTEYE_API void set_device_mode(
     device &device, int width, int height, int fourcc, int fps,  // NOLINT
     video_channel_callback callback);
-void start_streaming(device &device, int num_transfer_bufs);  // NOLINT
-void stop_streaming(device &device);                          // NOLINT
+MYNTEYE_API void start_streaming(device &device, int num_transfer_bufs);  // NOLINT
+MYNTEYE_API void stop_streaming(device &device);                          // NOLINT
 
 }  // namespace uvc
 

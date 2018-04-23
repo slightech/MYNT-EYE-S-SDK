@@ -33,7 +33,7 @@ class Channels;
 class Motions;
 class Streams;
 
-class Device {
+class MYNTEYE_API Device {
  public:
   using stream_callback_t = device::StreamCallback;
   using motion_callback_t = device::MotionCallback;

@@ -11,7 +11,7 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
-class strings_error : public std::runtime_error {
+class MYNTEYE_API strings_error : public std::runtime_error {
  public:
   explicit strings_error(const std::string &what_arg) noexcept
       : std::runtime_error(std::move(what_arg)) {}
@@ -21,17 +21,21 @@ class strings_error : public std::runtime_error {
 
 namespace strings {
 
+MYNTEYE_API
 int hex2int(const std::string &text);
 
+MYNTEYE_API
 bool starts_with(const std::string &text, const std::string &prefix);
 
+MYNTEYE_API
 std::vector<std::string> split(
     const std::string &text, const std::string &delimiters);
 
-void ltrim(std::string &s);  // NOLINT
-void rtrim(std::string &s);  // NOLINT
-void trim(std::string &s);   // NOLINT
+MYNTEYE_API void ltrim(std::string &s);  // NOLINT
+MYNTEYE_API void rtrim(std::string &s);  // NOLINT
+MYNTEYE_API void trim(std::string &s);   // NOLINT
 
+MYNTEYE_API
 std::string trim_copy(const std::string &text);
 
 }  // namespace strings

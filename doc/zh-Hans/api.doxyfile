@@ -793,6 +793,7 @@ WARN_LOGFILE           =
 INPUT                  = mainpage.md \
                          guides.md \
                          guide_build_linux.md \
+                         guide_build_win.md \
                          guide_samples.md \
                          guide_tools.md \
                          guide_log.md \

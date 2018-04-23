@@ -21,7 +21,7 @@ struct xu;
 
 }  // namespace uvc
 
-class Channels {
+class MYNTEYE_API Channels {
  public:
   typedef enum Channel {
     CHANNEL_CAM_CTRL = 0x0100,

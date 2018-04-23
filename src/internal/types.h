@@ -28,7 +28,7 @@ MYNTEYE_BEGIN_NAMESPACE
 /**
  * Version.
  */
-class Version {
+class MYNTEYE_API Version {
  public:
   using size_t = std::size_t;
   using value_t = std::uint8_t;
@@ -77,7 +77,7 @@ class Version {
 /**
  * Hardware version.
  */
-class HardwareVersion : public Version {
+class MYNTEYE_API HardwareVersion : public Version {
  public:
   using flag_t = std::bitset<8>;
 
@@ -93,7 +93,7 @@ class HardwareVersion : public Version {
 /**
  * Type.
  */
-class Type {
+class MYNTEYE_API Type {
  public:
   using size_t = std::size_t;
   using value_t = std::uint16_t;
@@ -115,7 +115,7 @@ class Type {
  * @ingroup datatypes
  * Device infomation.
  */
-struct DeviceInfo {
+struct MYNTEYE_API DeviceInfo {
   std::string name;
   std::string serial_number;
   Version firmware_version;

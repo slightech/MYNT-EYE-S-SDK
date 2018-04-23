@@ -166,7 +166,7 @@ enum class Source : std::uint8_t {
 };
 
 #define MYNTEYE_ENUM_HELPERS(TYPE)                                       \
-  const char *to_string(const TYPE &value);                              \
+  MYNTEYE_API const char *to_string(const TYPE &value);                  \
   inline bool is_valid(const TYPE &value) {                              \
     using utype = std::underlying_type<TYPE>::type;                      \
     utype val = static_cast<utype>(value);                               \
@@ -209,13 +209,13 @@ enum class Format : std::uint32_t {
 
 #undef MYNTEYE_FOURCC
 
-const char *to_string(const Format &value);
+MYNTEYE_API const char *to_string(const Format &value);
 
 inline std::ostream &operator<<(std::ostream &os, const Format &value) {
   return os << to_string(value);
 }
 
-std::size_t bytes_per_pixel(const Format &value);
+MYNTEYE_API std::size_t bytes_per_pixel(const Format &value);
 
 /**
  * Stream request.
@@ -239,6 +239,7 @@ struct MYNTEYE_API StreamRequest {
   }
 };
 
+MYNTEYE_API
 std::ostream &operator<<(std::ostream &os, const StreamRequest &request);
 
 /**
@@ -269,6 +270,7 @@ struct MYNTEYE_API Intrinsics {
   double coeffs[5];
 };
 
+MYNTEYE_API
 std::ostream &operator<<(std::ostream &os, const Intrinsics &in);
 
 /**
@@ -291,6 +293,7 @@ struct MYNTEYE_API ImuIntrinsics {
   double bias[3];
 };
 
+MYNTEYE_API
 std::ostream &operator<<(std::ostream &os, const ImuIntrinsics &in);
 
 /**
@@ -302,6 +305,7 @@ struct MYNTEYE_API MotionIntrinsics {
   ImuIntrinsics gyro;
 };
 
+MYNTEYE_API
 std::ostream &operator<<(std::ostream &os, const MotionIntrinsics &in);
 
 /**
@@ -313,6 +317,7 @@ struct MYNTEYE_API Extrinsics {
   double translation[3]; /**< translation vector */
 };
 
+MYNTEYE_API
 std::ostream &operator<<(std::ostream &os, const Extrinsics &ex);
 
 /**

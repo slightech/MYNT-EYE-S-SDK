@@ -13,7 +13,7 @@ class Device;
 namespace device {
 
 /** Detecting MYNT EYE devices and prompt user to select one */
-std::shared_ptr<Device> select();
+MYNTEYE_API std::shared_ptr<Device> select();
 
 }  // namespace device
 

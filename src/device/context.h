@@ -17,7 +17,7 @@ struct context;
 
 class Device;
 
-class Context {
+class MYNTEYE_API Context {
  public:
   Context();
   ~Context();

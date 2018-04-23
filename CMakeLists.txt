@@ -2,12 +2,19 @@ cmake_minimum_required(VERSION 3.0)
 
 project(mynteye VERSION 2.0.0 LANGUAGES C CXX)
 
+include(cmake/Common.cmake)
+
 # options
 
 # flags
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+if(OS_WIN)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+else()
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+endif()
 
 include(cmake/DetectCXX11.cmake)
 
@@ -41,7 +48,7 @@ configure_file(
 
 # targets
 
-include(cmake/Common.cmake)
+add_definitions(-DMYNTEYE_EXPORTS)
 
 set(OUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_output")
 set_outdir(

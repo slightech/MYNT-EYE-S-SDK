@@ -4,10 +4,17 @@ project(mynteye_test VERSION 2.0.0 LANGUAGES C CXX)
 
 get_filename_component(PRO_DIR ${PROJECT_SOURCE_DIR} DIRECTORY)
 
+include(${PRO_DIR}/cmake/Common.cmake)
+
 # flags
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+if(OS_WIN)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+else()
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+endif()
 
 include(${PRO_DIR}/cmake/DetectCXX11.cmake)
 
@@ -50,8 +57,6 @@ set(GTEST_LIBS
 message(STATUS "Found gtest libs: ${GTEST_LIBS}")
 
 # targets
-
-include(${PRO_DIR}/cmake/Common.cmake)
 
 set(OUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_output")
 

@@ -12,6 +12,12 @@
 
 * [OpenCV](https://opencv.org/)，用于显示图像。
 
+<!--
+```cmd
+>set OpenCV_DIR=C:\opencv
+```
+-->
+
 ## 编译
 
 ```bash

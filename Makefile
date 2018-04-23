@@ -79,7 +79,15 @@ test: install
 
 install: build
 	@$(call echo,Make $@)
+ifeq ($(HOST_OS),Win)
+ifneq ($(HOST_NAME),MinGW)
+	@cd ./_build; msbuild.exe INSTALL.vcxproj /property:Configuration=Release
+else
 	@cd ./_build; make install
+endif
+else
+	@cd ./_build; make install
+endif
 
 .PHONY: install
 
@@ -103,7 +111,11 @@ tools: install
 
 ros: install
 	@$(call echo,Make $@)
+ifeq ($(HOST_OS),Win)
+	$(error "Can't make ros on win")
+else
 	@cd ./wrappers/ros && catkin_make
+endif
 
 .PHONY: ros
 

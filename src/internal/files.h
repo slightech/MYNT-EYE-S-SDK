@@ -10,7 +10,7 @@ MYNTEYE_BEGIN_NAMESPACE
 
 namespace files {
 
-bool mkdir(const std::string &path);
+MYNTEYE_API bool mkdir(const std::string &path);
 
 }  // namespace files
 

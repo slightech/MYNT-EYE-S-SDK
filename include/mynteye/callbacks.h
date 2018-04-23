@@ -16,7 +16,7 @@ MYNTEYE_BEGIN_NAMESPACE
 
 namespace device {
 
-class Frame {
+class MYNTEYE_API Frame {
  public:
   using data_t = std::vector<std::uint8_t>;
 
