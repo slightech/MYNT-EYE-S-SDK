@@ -21,6 +21,10 @@ set(LINK_LIBS device_writer)
 
 add_executable(device_info_writer device_info_writer.cc)
 target_link_libraries(device_info_writer ${LINK_LIBS})
+target_create_scripts(device_info_writer DLL_SEARCH_PATHS
+  ${PRO_DIR}/_install/bin
+  ${OpenCV_LIB_SEARCH_PATH}
+)
 
 if(OS_WIN)
   target_compile_definitions(device_info_writer
@@ -32,6 +36,10 @@ endif()
 
 add_executable(img_params_writer img_params_writer.cc)
 target_link_libraries(img_params_writer ${LINK_LIBS})
+target_create_scripts(img_params_writer DLL_SEARCH_PATHS
+  ${PRO_DIR}/_install/bin
+  ${OpenCV_LIB_SEARCH_PATH}
+)
 
 if(OS_WIN)
   target_compile_definitions(img_params_writer
@@ -43,6 +51,10 @@ endif()
 
 add_executable(imu_params_writer imu_params_writer.cc)
 target_link_libraries(imu_params_writer ${LINK_LIBS})
+target_create_scripts(imu_params_writer DLL_SEARCH_PATHS
+  ${PRO_DIR}/_install/bin
+  ${OpenCV_LIB_SEARCH_PATH}
+)
 
 if(OS_WIN)
   target_compile_definitions(imu_params_writer

@@ -41,6 +41,12 @@ LIST(APPEND CMAKE_MODULE_PATH ${PRO_DIR}/cmake)
 find_package(OpenCV REQUIRED)
 message(STATUS "Found OpenCV: ${OpenCV_VERSION}")
 
+if(OS_WIN)
+  get_filename_component(OpenCV_LIB_SEARCH_PATH "${OpenCV_LIB_PATH}/../bin" ABSOLUTE)
+else()
+  set(OpenCV_LIB_SEARCH_PATH "${OpenCV_LIB_PATH}")
+endif()
+
 # targets
 
 set(OUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_output")

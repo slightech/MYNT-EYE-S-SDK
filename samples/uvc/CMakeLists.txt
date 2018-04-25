@@ -14,6 +14,10 @@ include_directories(
 
 add_executable(camera_u camera.cc)
 target_link_libraries(camera_u mynteye ${OpenCV_LIBS})
+target_create_scripts(camera_u DLL_SEARCH_PATHS
+  ${PRO_DIR}/_install/bin
+  ${OpenCV_LIB_SEARCH_PATH}
+)
 
 if(OS_WIN)
   target_compile_definitions(camera_u

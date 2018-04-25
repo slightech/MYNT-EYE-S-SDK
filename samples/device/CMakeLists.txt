@@ -10,6 +10,10 @@ set_outdir(
 
 add_executable(camera_d camera.cc)
 target_link_libraries(camera_d mynteye ${OpenCV_LIBS})
+target_create_scripts(camera_d DLL_SEARCH_PATHS
+  ${PRO_DIR}/_install/bin
+  ${OpenCV_LIB_SEARCH_PATH}
+)
 
 if(OS_WIN)
   target_compile_definitions(camera_d

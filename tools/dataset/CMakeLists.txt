@@ -10,6 +10,10 @@ set_outdir(
 
 add_executable(record record.cc dataset.cc)
 target_link_libraries(record mynteye ${OpenCV_LIBS})
+target_create_scripts(record DLL_SEARCH_PATHS
+  ${PRO_DIR}/_install/bin
+  ${OpenCV_LIB_SEARCH_PATH}
+)
 
 if(OS_WIN)
   target_compile_definitions(record
