@@ -1,0 +1,13 @@
+@echo off
+set "MY_DIR=%~dp0"
+set "MY_PWD=%cd%"
+
+if "%MY_PATH_SET_@__exe_name@%"=="" (
+  set "MY_PATH_SET_@__exe_name@=1"
+  set "PATH=@__dll_search_paths@;%PATH%"
+)
+
+cd "%MY_DIR%"
+"%MY_DIR%@__exe_name@.exe" %*
+cd "%MY_PWD%"
+::pause >nul

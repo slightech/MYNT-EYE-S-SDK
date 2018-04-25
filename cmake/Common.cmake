@@ -1,5 +1,7 @@
 include(CMakeParseArguments)
 
+set(CUR_DIR ${CMAKE_CURRENT_LIST_DIR})
+
 if(MSVC OR MSYS OR MINGW)
   set(OS_WIN TRUE)
 elseif(APPLE)
@@ -23,4 +25,43 @@ macro(set_outdir ARCHIVE_OUTPUT_DIRECTORY LIBRARY_OUTPUT_DIRECTORY RUNTIME_OUTPU
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CONFIG} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CONFIG} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
   endforeach()
+endmacro()
+
+macro(exe2bat exe_name exe_dir dll_search_paths)
+  message(STATUS "Generating ${exe_name}.bat")
+  set(__exe_name ${exe_name})
+  set(__dll_relative_search_paths "")
+  foreach(path ${dll_search_paths})
+    file(RELATIVE_PATH __relative_path "${exe_dir}" "${path}")
+    file(TO_NATIVE_PATH ${__relative_path} __relative_path)
+    list(APPEND __dll_relative_search_paths ${__relative_path})
+  endforeach()
+  #message(STATUS __dll_relative_search_paths: "${__dll_relative_search_paths}")
+  set(__dll_search_paths "${__dll_relative_search_paths}")
+  configure_file(
+    "${CUR_DIR}/templates/exe.bat.in"
+    "${exe_dir}/${__exe_name}.bat"
+  )
+endmacro()
+
+# target_create_scripts(NAME
+#                       [BIN_DIR bin_dir]
+#                       [DLL_SEARCH_PATHS path1 path2 ...])
+macro(target_create_scripts NAME)
+  set(options BIN_DIR)
+  set(oneValueArgs)
+  set(multiValueArgs DLL_SEARCH_PATHS)
+  cmake_parse_arguments(THIS "${options}" "${oneValueArgs}"
+                        "${multiValueArgs}" ${ARGN})
+  if(NOT THIS_BIN_DIR)
+    set(THIS_BIN_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+  endif()
+
+  #message(STATUS "NAME: ${NAME}")
+  #message(STATUS "THIS_BIN_DIR: ${THIS_BIN_DIR}")
+  #message(STATUS "THIS_DLL_SEARCH_PATHS: ${THIS_DLL_SEARCH_PATHS}")
+
+  if(OS_WIN)
+    exe2bat("${NAME}" "${THIS_BIN_DIR}" "${THIS_DLL_SEARCH_PATHS}")
+  endif()
 endmacro()

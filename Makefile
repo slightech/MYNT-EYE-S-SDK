@@ -68,10 +68,18 @@ build: third_party
 test: install
 	@$(call echo,Make $@)
 	@$(call echo,Make gtest,33)
+ifeq ($(HOST_OS),Win)
+	@$(call cmake_build,./test/gtest/_build,..,-Dgtest_force_shared_crt=ON)
+else
 	@$(call cmake_build,./test/gtest/_build)
+endif
 	@$(call echo,Make test,33)
 	@$(call cmake_build,./test/_build)
+ifeq ($(HOST_OS),Win)
+	@.\\\test\\\_output\\\bin\\\mynteye_test.bat
+else
 	@./test/_output/bin/mynteye_test
+endif
 
 .PHONY: test
 

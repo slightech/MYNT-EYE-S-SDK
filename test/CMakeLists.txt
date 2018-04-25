@@ -21,6 +21,20 @@ include(${PRO_DIR}/cmake/DetectCXX11.cmake)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 
+#if(OS_WIN AND NOT MINGW)
+#  set(CompilerFlags
+#    CMAKE_CXX_FLAGS
+#    CMAKE_CXX_FLAGS_DEBUG
+#    CMAKE_CXX_FLAGS_RELEASE
+#    CMAKE_C_FLAGS
+#    CMAKE_C_FLAGS_DEBUG
+#    CMAKE_C_FLAGS_RELEASE
+#  )
+#  foreach(CompilerFlag ${CompilerFlags})
+#    string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+#  endforeach()
+#endif()
+
 string(STRIP "${CMAKE_C_FLAGS}" CMAKE_C_FLAGS)
 string(STRIP "${CMAKE_CXX_FLAGS}" CMAKE_CXX_FLAGS)
 message(STATUS "C_FLAGS: ${CMAKE_C_FLAGS}")
@@ -80,6 +94,9 @@ add_executable(${PROJECT_NAME}
   ${TEST_PUBLIC_SRC}
 )
 target_link_libraries(${PROJECT_NAME} ${GTEST_LIBS} mynteye)
+target_create_scripts(${PROJECT_NAME} DLL_SEARCH_PATHS
+  ${PRO_DIR}/_install/bin
+)
 
 if(OS_WIN)
   target_compile_definitions(${PROJECT_NAME}
