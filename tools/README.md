@@ -2,6 +2,16 @@
 
 ## Prerequisites
 
+[OpenCV](https://opencv.org/),
+
+```bash
+# Linux, macOS
+export OpenCV_DIR=~/opencv
+
+# Windows
+set OpenCV_DIR=C:\opencv
+```
+
 Python packages,
 
 ```bash
@@ -11,17 +21,22 @@ sudo pip install -r requirements.txt
 
 [ROS](http://www.ros.org/) if using rosbag.
 
----
-
-## Record data (mynteye dataset)
+## Build
 
 ```bash
 cd <sdk>
 make tools
 ```
 
+---
+
+## Record data (mynteye dataset)
+
 ```bash
 ./tools/_output/bin/dataset/record
+
+# Windows
+.\tools\_output\bin\dataset\record.bat
 ```
 
 ## Analytics data (mynteye dataset)
@@ -79,18 +94,27 @@ python tools/analytics/stamp_analytics.py -i mynteye.bag
 
 ```bash
 ./tools/_output/bin/writer/device_info_writer tools/writer/config/device.info
+
+# Windows
+.\tools\_output\bin\writer\device_info_writer.bat tools\writer\config\device.info
 ```
 
 ### img_params_writer.cc
 
 ```bash
 ./tools/_output/bin/writer/img_params_writer tools/writer/config/img.params
+
+# Windows
+.\tools\_output\bin\writer\img_params_writer.bat tools\writer\config\img.params
 ```
 
 ### imu_params_writer.cc
 
 ```bash
 ./tools/_output/bin/writer/imu_params_writer tools/writer/config/imu.params
+
+# Windows
+.\tools\_output\bin\writer\imu_params_writer.bat tools\writer\config\imu.params
 ```
 
 ---

@@ -1,5 +1,17 @@
 # Samples for MYNT® EYE cameras
 
+## Prerequisites
+
+[OpenCV](https://opencv.org/),
+
+```bash
+# Linux, macOS
+export OpenCV_DIR=~/opencv
+
+# Windows
+set OpenCV_DIR=C:\opencv
+```
+
 ## Build
 
 ```bash
@@ -11,4 +23,7 @@ make samples
 
 ```bash
 ./samples/_output/bin/device/camera_d
+
+# Windows
+.\samples\_output\bin\device\camera_d.bat
 ```

@@ -11,12 +11,15 @@
 ## 依赖
 
 * [OpenCV](https://opencv.org/)，用于显示图像。
+  * 编译前，可在系统终端（Windows 命令提示符）里如下指定 OpenCV 路径，其为 `OpenCVConfig.cmake` 目录：
 
-<!--
-```cmd
->set OpenCV_DIR=C:\opencv
+```bash
+# Linux, macOS
+export OpenCV_DIR=~/opencv
+
+# Windows
+set OpenCV_DIR=C:\opencv
 ```
--->
 
 ## 编译
 
@@ -30,4 +33,11 @@ make samples
 
 ```bash
 ./samples/_output/bin/device/camera_d
+
+# Windows
+.\samples\_output\bin\device\camera_d.bat
 ```
+
+## 结语
+
+更多样例的说明，请见 `samples/README.md` 。

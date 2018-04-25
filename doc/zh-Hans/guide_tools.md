@@ -2,19 +2,39 @@
 
 样例在 `<sdk>/tools` 目录，其提供一些有用的工具。
 
-## 准备
+## 依赖
+
+* [OpenCV](https://opencv.org/)，部分工具需要。
+  * 编译前，可在系统终端（Windows 命令提示符）里如下指定 OpenCV 路径，其为 `OpenCVConfig.cmake` 目录：
+
+```bash
+# Linux, macOS
+export OpenCV_DIR=~/opencv
+
+# Windows
+set OpenCV_DIR=C:\opencv
+```
+
+* Python 第三方库，脚本需要。
+
+```bash
+cd tools/
+sudo pip install -r requirements.txt
+```
+
+## 编译
 
 ```bash
 make tools
-
-cd tools/
-sudo pip install -r requirements.txt
 ```
 
 ## 录制数据集
 
 ```bash
 ./tools/_output/bin/dataset/record
+
+# Windows
+.\tools\_output\bin\dataset\record.bat
 ```
 
 默认录制进 `dataset` 目录，加参数可指定该目录。
@@ -46,6 +66,8 @@ python tools/analytics/stamp_analytics.py -i dataset -c tools/config/mynteye/myn
 \includegraphics[width=0.6\textwidth,keepaspectratio]{stamp_analytics.png}
 \endlatexonly
 
+> 如果用 ROS ，分析脚本也支持 ROS Bag 格式。
+
 ## 结语
 
-如果用 ROS ，分析脚本也支持 ROS Bag 格式。关于 ROS 的录制和分析，请见 `tools/README.md` 。
+设备信息读写、校验码等更多工具的说明，请见 `tools/README.md` 。
