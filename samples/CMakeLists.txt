@@ -6,6 +6,10 @@ get_filename_component(PRO_DIR ${PROJECT_SOURCE_DIR} DIRECTORY)
 
 include(${PRO_DIR}/cmake/Common.cmake)
 
+# options
+
+include(${PRO_DIR}/cmake/Option.cmake)
+
 # flags
 
 if(OS_WIN)
@@ -50,6 +54,12 @@ endif()
 # targets
 
 set(OUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_output")
+
+# samples above api layer
+
+if(WITH_API)
+  add_subdirectory(api)
+endif()
 
 # samples above device layer
 

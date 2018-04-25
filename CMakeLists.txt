@@ -6,6 +6,8 @@ include(cmake/Common.cmake)
 
 # options
 
+include(cmake/Option.cmake)
+
 # flags
 
 if(OS_WIN)
@@ -88,6 +90,11 @@ set(MYNTEYE_PUBLIC_H
   ${CMAKE_CURRENT_SOURCE_DIR}/src/internal/strings.h
   ${CMAKE_CURRENT_SOURCE_DIR}/src/internal/times.h
 )
+if(WITH_API)
+  list(APPEND MYNTEYE_PUBLIC_H
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/api.h
+  )
+endif()
 
 if(OS_WIN)
   set(UVC_SRC src/uvc/uvc-wmf.cc)
@@ -119,6 +126,11 @@ set(MYNTEYE_SRCS
   src/device/device.cc
   src/device/device_s.cc
 )
+if(WITH_API)
+  list(APPEND MYNTEYE_SRCS
+    src/api/api.cc
+  )
+endif()
 
 set(MYNTEYE_LINKLIBS
   glog::glog
