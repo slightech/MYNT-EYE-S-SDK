@@ -140,6 +140,7 @@ set(MYNTEYE_SRCS
 if(WITH_API)
   list(APPEND MYNTEYE_SRCS
     src/api/api.cc
+    src/api/synthetic.cc
   )
 endif()
 
