@@ -39,8 +39,8 @@ class Processor /*: public std::enable_shared_from_this<Processor>*/ {
   void SetPostProcessCallback(PostProcessCallback callback);
   void SetProcessCallback(ProcessCallback callback);
 
-  void Activate();
-  void Deactivate();
+  void Activate(bool tree = false);
+  void Deactivate(bool tree = false);
   bool IsActivated();
 
   bool IsIdle();
@@ -92,6 +92,15 @@ class Processor /*: public std::enable_shared_from_this<Processor>*/ {
 
   std::thread thread_;
 };
+
+template <typename T>
+void iterate_processors(
+    const T &processors, std::function<void(std::shared_ptr<Processor>)> fn) {
+  for (auto &&proc : processors) {
+    fn(proc);
+    iterate_processors(proc->GetChilds(), fn);
+  }
+}
 
 MYNTEYE_END_NAMESPACE
 
