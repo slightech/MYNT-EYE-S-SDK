@@ -21,6 +21,17 @@ make samples
 
 ## Run
 
+Camera with api layer,
+
+```bash
+./samples/_output/bin/api/camera_a
+
+# Windows
+.\samples\_output\bin\api\camera_a.bat
+```
+
+Camera with device layer,
+
 ```bash
 ./samples/_output/bin/device/camera_d
 

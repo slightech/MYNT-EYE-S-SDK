@@ -34,6 +34,17 @@ LIST(APPEND CMAKE_PREFIX_PATH third_party/glog/_build)
 find_package(glog REQUIRED)
 message(STATUS "Found glog: ${glog_VERSION}")
 
+if(WITH_API)
+  find_package(OpenCV REQUIRED)
+  message(STATUS "Found OpenCV: ${OpenCV_VERSION}")
+
+  if(OpenCV_VERSION VERSION_LESS 3.0)
+    add_definitions(-DUSE_OPENCV2)
+  else()
+    add_definitions(-DUSE_OPENCV3)
+  endif()
+endif()
+
 LIST(APPEND CMAKE_MODULE_PATH cmake)
 
 include(CMakePackageConfigHelpers)
@@ -136,6 +147,9 @@ set(MYNTEYE_LINKLIBS
   glog::glog
   ${UVC_LIB}
 )
+if(WITH_API)
+  list(APPEND MYNTEYE_LINKLIBS ${OpenCV_LIBS})
+endif()
 #message(STATUS "MYNTEYE_LINKLIBS: ${MYNTEYE_LINKLIBS}")
 
 add_library(${MYNTEYE_NAME} SHARED ${MYNTEYE_SRCS})
