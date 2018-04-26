@@ -2,6 +2,8 @@
 
 #include <glog/logging.h>
 
+#include <thread>
+
 #include "mynteye/utils.h"
 
 #include "api/synthetic.h"
@@ -31,7 +33,7 @@ Model API::GetModel() const {
 }
 
 bool API::Supports(const Stream &stream) const {
-  return device_->Supports(stream);
+  return synthetic_->Supports(stream);
 }
 
 bool API::Supports(const Capabilities &capability) const {
@@ -90,6 +92,80 @@ void API::SetOptionValue(const Option &option, std::int32_t value) {
 
 bool API::RunOptionAction(const Option &option) const {
   return device_->RunOptionAction(option);
+}
+
+void API::SetStreamCallback(const Stream &stream, stream_callback_t callback) {
+  synthetic_->SetStreamCallback(stream, callback);
+}
+
+void API::SetMotionCallback(motion_callback_t callback) {
+  static auto callback_ = callback;
+  if (callback_) {
+    device_->SetMotionCallback(
+        [](const device::MotionData &data) { callback_({data.imu}); });
+  } else {
+    device_->SetMotionCallback(nullptr);
+  }
+}
+
+bool API::HasStreamCallback(const Stream &stream) const {
+  return synthetic_->HasStreamCallback(stream);
+}
+
+bool API::HasMotionCallback() const {
+  return device_->HasMotionCallback();
+}
+
+void API::Start(const Source &source) {
+  if (source == Source::VIDEO_STREAMING) {
+    synthetic_->StartVideoStreaming();
+  } else if (source == Source::MOTION_TRACKING) {
+    device_->StartMotionTracking();
+  } else if (source == Source::ALL) {
+    Start(Source::VIDEO_STREAMING);
+    Start(Source::MOTION_TRACKING);
+  } else {
+    LOG(FATAL) << "Unsupported source :(";
+  }
+}
+
+void API::Stop(const Source &source) {
+  if (source == Source::VIDEO_STREAMING) {
+    synthetic_->StopVideoStreaming();
+  } else if (source == Source::MOTION_TRACKING) {
+    device_->StopMotionTracking();
+  } else if (source == Source::ALL) {
+    Stop(Source::MOTION_TRACKING);
+    // Must stop motion tracking before video streaming and sleep a moment here
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    Stop(Source::VIDEO_STREAMING);
+  } else {
+    LOG(FATAL) << "Unsupported source :(";
+  }
+}
+
+void API::WaitForStreams() {
+  synthetic_->WaitForStreams();
+}
+
+api::StreamData API::GetStreamData(const Stream &stream) {
+  return synthetic_->GetStreamData(stream);
+}
+
+std::vector<api::StreamData> API::GetStreamDatas(const Stream &stream) {
+  return synthetic_->GetStreamDatas(stream);
+}
+
+void API::EnableMotionDatas(std::size_t max_size) {
+  device_->EnableMotionDatas(max_size);
+}
+
+std::vector<api::MotionData> API::GetMotionDatas() {
+  std::vector<api::MotionData> datas;
+  for (auto &&data : device_->GetMotionDatas()) {
+    datas.push_back({data.imu});
+  }
+  return datas;
 }
 
 std::shared_ptr<Device> API::device() {

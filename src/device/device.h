@@ -29,6 +29,7 @@ class DeviceWriter;
 
 struct DeviceInfo;
 
+class API;
 class Channels;
 class Motions;
 class Streams;
@@ -104,10 +105,6 @@ class MYNTEYE_API Device {
     return device_;
   }
 
-  std::shared_ptr<DeviceInfo> device_info() const {
-    return device_info_;
-  }
-
   const StreamRequest &GetStreamRequest(const Capabilities &capability);
 
   virtual void StartVideoStreaming();
@@ -151,6 +148,7 @@ class MYNTEYE_API Device {
     return channels_;
   }
 
+  friend API;
   friend tools::DeviceWriter;
 };
 
