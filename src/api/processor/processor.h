@@ -39,8 +39,8 @@ class Processor /*: public std::enable_shared_from_this<Processor>*/ {
   void SetPostProcessCallback(PostProcessCallback callback);
   void SetProcessCallback(ProcessCallback callback);
 
-  void Activate(bool tree = false);
-  void Deactivate(bool tree = false);
+  void Activate(bool parents = false);
+  void Deactivate(bool childs = false);
   bool IsActivated();
 
   bool IsIdle();

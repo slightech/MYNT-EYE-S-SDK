@@ -59,10 +59,10 @@ void Processor::SetProcessCallback(ProcessCallback callback) {
   callback_ = std::move(callback);
 }
 
-void Processor::Activate(bool tree) {
+void Processor::Activate(bool parents) {
   if (activated_)
     return;
-  if (tree) {
+  if (parents) {
     // Activate all parents
     Processor *parent = parent_;
     while (parent != nullptr) {
@@ -75,10 +75,10 @@ void Processor::Activate(bool tree) {
   // thread_.detach();
 }
 
-void Processor::Deactivate(bool tree) {
+void Processor::Deactivate(bool childs) {
   if (!activated_)
     return;
-  if (tree) {
+  if (childs) {
     // Deactivate all childs
     iterate_processors(GetChilds(), [](std::shared_ptr<Processor> proc) {
       proc->Deactivate();

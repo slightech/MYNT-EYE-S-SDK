@@ -152,6 +152,10 @@ void API::EnableStreamData(const Stream &stream) {
   synthetic_->EnableStreamData(stream);
 }
 
+void API::DisableStreamData(const Stream &stream) {
+  synthetic_->DisableStreamData(stream);
+}
+
 api::StreamData API::GetStreamData(const Stream &stream) {
   return synthetic_->GetStreamData(stream);
 }
