@@ -28,8 +28,8 @@ class Synthetic {
   explicit Synthetic(API *api);
   ~Synthetic();
 
-  mode_t GetMode(const Stream &stream) const;
   bool Supports(const Stream &stream) const;
+  mode_t SupportsMode(const Stream &stream) const;
 
   void EnableStreamData(const Stream &stream);
   void DisableStreamData(const Stream &stream);
@@ -49,6 +49,10 @@ class Synthetic {
  private:
   void InitStreamSupports();
 
+  mode_t GetStreamEnabledMode(const Stream &stream) const;
+  bool IsStreamEnabledNative(const Stream &stream) const;
+  bool IsStreamEnabledSynthetic(const Stream &stream) const;
+
   void EnableStreamData(const Stream &stream, std::uint32_t depth);
   void DisableStreamData(const Stream &stream, std::uint32_t depth);
 
@@ -58,6 +62,8 @@ class Synthetic {
   bool ActivateProcessor(bool tree = false);
   template <class T>
   bool DeactivateProcessor(bool tree = false);
+
+  void Process(const Stream &stream, const api::StreamData &data);
 
   bool OnRectifyProcess(
       Object *const in, Object *const out, Processor *const parent);
@@ -73,6 +79,7 @@ class Synthetic {
   API *api_;
 
   std::map<Stream, mode_t> stream_supports_mode_;
+  std::map<Stream, mode_t> stream_enabled_mode_;
 
   std::map<Stream, stream_callback_t> stream_callbacks_;
 
