@@ -142,6 +142,11 @@ if(WITH_API)
     src/api/api.cc
     src/api/synthetic.cc
     src/api/processor/processor.cc
+    src/api/processor/rectify_processor.cc
+    src/api/processor/disparity_processor.cc
+    src/api/processor/disparity_normalized_processor.cc
+    src/api/processor/depth_processor.cc
+    src/api/processor/points_processor.cc
   )
 endif()
 

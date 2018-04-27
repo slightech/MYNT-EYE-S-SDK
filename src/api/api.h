@@ -78,6 +78,7 @@ class MYNTEYE_API API {
 
   void WaitForStreams();
 
+  void EnableStreamData(const Stream &stream);
   api::StreamData GetStreamData(const Stream &stream);
   std::vector<api::StreamData> GetStreamDatas(const Stream &stream);
 

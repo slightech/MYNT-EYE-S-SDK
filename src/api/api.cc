@@ -148,6 +148,10 @@ void API::WaitForStreams() {
   synthetic_->WaitForStreams();
 }
 
+void API::EnableStreamData(const Stream &stream) {
+  synthetic_->EnableStreamData(stream);
+}
+
 api::StreamData API::GetStreamData(const Stream &stream) {
   return synthetic_->GetStreamData(stream);
 }
