@@ -42,6 +42,9 @@ checkPackage("sensor_msgs" "")
 checkPackage("std_msgs" "")
 checkPackage("tf" "")
 
+find_package(OpenCV REQUIRED)
+message(STATUS "Found OpenCV: ${OpenCV_VERSION}")
+
 ## messages
 
 add_message_files(
@@ -78,6 +81,7 @@ include_directories(
 
 set(LINK_LIBS
   ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
   mynteye
 )
 

@@ -16,6 +16,7 @@
 #include <map>
 #include <string>
 
+#include "mynteye/api.h"
 #include "mynteye/context.h"
 #include "mynteye/device.h"
 
@@ -32,8 +33,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
   ~ROSWrapperNodelet() {
     // std::cout << __func__ << std::endl;
-    if (device_) {
-      device_->Stop(Source::ALL);
+    if (api_) {
+      api_->Stop(Source::ALL);
     }
     if (time_beg_ != -1) {
       double time_end = ros::Time::now().toSec();
@@ -55,7 +56,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
   void onInit() override {
     initDevice();
-    NODELET_FATAL_COND(device_ == nullptr, "No MYNT EYE device selected :(");
+    NODELET_FATAL_COND(api_ == nullptr, "No MYNT EYE device selected :(");
 
     nh_ = getMTNodeHandle();
     private_nh_ = getMTPrivateNodeHandle();
@@ -106,10 +107,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       private_nh_.getParam(it->first, value);
       if (value != -1) {
         NODELET_INFO_STREAM("Set " << it->first << " to " << value);
-        device_->SetOptionValue(it->second, value);
+        api_->SetOptionValue(it->second, value);
       }
       NODELET_INFO_STREAM(
-          it->second << ": " << device_->GetOptionValue(it->second));
+          it->second << ": " << api_->GetOptionValue(it->second));
     }
 
     // image publishers
@@ -182,8 +183,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
   void publishTopics() {
-    device_->SetStreamCallback(
-        Stream::LEFT, [this](const device::StreamData &data) {
+    api_->SetStreamCallback(
+        Stream::LEFT, [this](const api::StreamData &data) {
           static double ros_time_beg = ros::Time::now().toSec();
           static double img_time_beg = data.img->timestamp;
           ros::Time stamp(
@@ -208,8 +209,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                            << ", exposure_time: " << data.img->exposure_time);
         });
 
-    device_->SetStreamCallback(
-        Stream::RIGHT, [this](const device::StreamData &data) {
+    api_->SetStreamCallback(
+        Stream::RIGHT, [this](const api::StreamData &data) {
           static double ros_time_beg = ros::Time::now().toSec();
           static double img_time_beg = data.img->timestamp;
           ros::Time stamp(
@@ -224,7 +225,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                             << ", exposure_time: " << data.img->exposure_time);
         });
 
-    device_->SetMotionCallback([this](const device::MotionData &data) {
+    api_->SetMotionCallback([this](const api::MotionData &data) {
       static double ros_time_beg = ros::Time::now().toSec();
       static double imu_time_beg = data.imu->timestamp;
       ros::Time stamp(
@@ -257,34 +258,31 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     });
 
     time_beg_ = ros::Time::now().toSec();
-    device_->Start(Source::ALL);
+    api_->Start(Source::ALL);
   }
 
   void publishLeft(
-      const device::StreamData &data, std::uint32_t seq, ros::Time stamp) {
+      const api::StreamData &data, std::uint32_t seq, ros::Time stamp) {
     std_msgs::Header header;
     header.seq = seq;
     header.stamp = stamp;
     header.frame_id = left_frame_id_;
-    cv::Mat img(
-        data.frame->height(), data.frame->width(), CV_8UC1, data.frame->data());
-    pub_left_.publish(cv_bridge::CvImage(header, enc::MONO8, img).toImageMsg());
+    pub_left_.publish(
+        cv_bridge::CvImage(header, enc::MONO8, data.frame).toImageMsg());
   }
 
   void publishRight(
-      const device::StreamData &data, std::uint32_t seq, ros::Time stamp) {
+      const api::StreamData &data, std::uint32_t seq, ros::Time stamp) {
     std_msgs::Header header;
     header.seq = seq;
     header.stamp = stamp;
     header.frame_id = right_frame_id_;
-    cv::Mat img(
-        data.frame->height(), data.frame->width(), CV_8UC1, data.frame->data());
     pub_right_.publish(
-        cv_bridge::CvImage(header, enc::MONO8, img).toImageMsg());
+        cv_bridge::CvImage(header, enc::MONO8, data.frame).toImageMsg());
   }
 
   void publishImu(
-      const device::MotionData &data, std::uint32_t seq, ros::Time stamp) {
+      const api::MotionData &data, std::uint32_t seq, ros::Time stamp) {
     sensor_msgs::Imu msg;
 
     msg.header.seq = seq;
@@ -373,7 +371,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       }
     }
 
-    device_ = device;
+    api_ = API::Create(device);
   }
 
   ros::NodeHandle nh_;
@@ -397,9 +395,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
   double gravity_;
 
-  // device
+  // api
 
-  std::shared_ptr<Device> device_;
+  std::shared_ptr<API> api_;
 
   double time_beg_ = -1;
   std::size_t left_count_ = 0;
