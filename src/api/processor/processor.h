@@ -46,7 +46,7 @@ class Processor /*: public std::enable_shared_from_this<Processor>*/ {
   bool IsIdle();
 
   /** Returns dropped or not. */
-  bool Process(const Object *const in);
+  bool Process(const Object &in);
 
   /**
    * Returns the last output.

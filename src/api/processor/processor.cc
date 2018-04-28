@@ -102,7 +102,7 @@ bool Processor::IsIdle() {
   return idle_;
 }
 
-bool Processor::Process(const Object *const in) {
+bool Processor::Process(const Object &in) {
   if (!activated_)
     return false;
   if (!idle_) {
@@ -114,7 +114,7 @@ bool Processor::Process(const Object *const in) {
   }
   {
     std::lock_guard<std::mutex> lk(mtx_input_ready_);
-    input_.reset(in->Clone());
+    input_.reset(in.Clone());
     input_ready_ = true;
   }
   cond_input_ready_.notify_all();
@@ -168,7 +168,7 @@ void Processor::Run() {
 
     if (!childs_.empty()) {
       for (auto child : childs_) {
-        child->Process(output_.get());
+        child->Process(*output_);
       }
     }
 

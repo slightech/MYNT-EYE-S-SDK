@@ -63,7 +63,7 @@ class Synthetic {
   template <class T>
   bool DeactivateProcessor(bool tree = false);
 
-  void Process(const Stream &stream, const api::StreamData &data);
+  void ProcessNativeStream(const Stream &stream, const api::StreamData &data);
 
   bool OnRectifyProcess(
       Object *const in, Object *const out, Processor *const parent);
@@ -75,6 +75,12 @@ class Synthetic {
       Object *const in, Object *const out, Processor *const parent);
   bool OnDepthProcess(
       Object *const in, Object *const out, Processor *const parent);
+
+  void OnRectifyPostProcess(Object *const out);
+  void OnDisparityPostProcess(Object *const out);
+  void OnDisparityNormalizedPostProcess(Object *const out);
+  void OnPointsPostProcess(Object *const out);
+  void OnDepthPostProcess(Object *const out);
 
   API *api_;
 
@@ -88,11 +94,16 @@ class Synthetic {
 
 template <class T, class P>
 std::shared_ptr<T> find_processor(const P &processor) {
-  if (processor->Name() == T::NAME) {
+  return find_processor<T>(processor, T::NAME);
+}
+
+template <class T, class P>
+std::shared_ptr<T> find_processor(const P &processor, const std::string &name) {
+  if (processor->Name() == name) {
     return std::dynamic_pointer_cast<T>(processor);
   }
   auto &&childs = processor->GetChilds();
-  return find_processor<T>(std::begin(childs), std::end(childs), T::NAME);
+  return find_processor<T>(std::begin(childs), std::end(childs), name);
 }
 
 template <class T, class InputIt>

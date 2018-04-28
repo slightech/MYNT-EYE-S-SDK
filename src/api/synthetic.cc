@@ -92,7 +92,7 @@ void Synthetic::StartVideoStreaming() {
       device->SetStreamCallback(
           stream, [this, stream](const device::StreamData &data) {
             auto &&stream_data = data2api(data);
-            Process(stream, stream_data);
+            ProcessNativeStream(stream, stream_data);
             // Need mutex if set callback after start
             if (HasStreamCallback(stream)) {
               stream_callbacks_.at(stream)(stream_data);
@@ -124,12 +124,71 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
     auto &&device = api_->device();
     return data2api(device->GetLatestStreamData(stream));
   } else if (mode == MODE_SYNTHETIC) {
-    // TODO(JohnZhao)
+    switch (stream) {
+      case Stream::LEFT_RECTIFIED: {
+        auto &&processor = find_processor<RectifyProcessor>(processor_);
+        Object *out = processor->GetOutput();
+        if (out != nullptr) {
+          ObjMat2 *output = Object::Cast<ObjMat2>(out);
+          return {nullptr, output->first};
+        }
+        VLOG(2) << "Rectify not ready now";
+      } break;
+      case Stream::RIGHT_RECTIFIED: {
+        auto &&processor = find_processor<RectifyProcessor>(processor_);
+        Object *out = processor->GetOutput();
+        if (out != nullptr) {
+          ObjMat2 *output = Object::Cast<ObjMat2>(out);
+          return {nullptr, output->second};
+        }
+        VLOG(2) << "Rectify not ready now";
+      } break;
+      case Stream::DISPARITY: {
+        auto &&processor = find_processor<DisparityProcessor>(processor_);
+        Object *out = processor->GetOutput();
+        if (out != nullptr) {
+          ObjMat *output = Object::Cast<ObjMat>(out);
+          return {nullptr, output->value};
+        }
+        VLOG(2) << "Disparity not ready now";
+      } break;
+      case Stream::DISPARITY_NORMALIZED: {
+        auto &&processor =
+            find_processor<DisparityNormalizedProcessor>(processor_);
+        Object *out = processor->GetOutput();
+        if (out != nullptr) {
+          ObjMat *output = Object::Cast<ObjMat>(out);
+          return {nullptr, output->value};
+        }
+        VLOG(2) << "Disparity normalized not ready now";
+      } break;
+      case Stream::POINTS: {
+        auto &&processor = find_processor<PointsProcessor>(processor_);
+        Object *out = processor->GetOutput();
+        if (out != nullptr) {
+          ObjMat *output = Object::Cast<ObjMat>(out);
+          return {nullptr, output->value};
+        }
+        VLOG(2) << "Points not ready now";
+      } break;
+      case Stream::DEPTH: {
+        auto &&processor = find_processor<DepthProcessor>(processor_);
+        Object *out = processor->GetOutput();
+        if (out != nullptr) {
+          ObjMat *output = Object::Cast<ObjMat>(out);
+          return {nullptr, output->value};
+        }
+        VLOG(2) << "Depth not ready now";
+      } break;
+      default:
+        break;
+    }
+    return {};  // frame.empty() == true
   } else {
     LOG(ERROR) << "Failed to get stream data of " << stream
                << ", unsupported or disabled";
+    return {};  // frame.empty() == true
   }
-  return {};
 }
 
 std::vector<api::StreamData> Synthetic::GetStreamDatas(const Stream &stream) {
@@ -142,7 +201,7 @@ std::vector<api::StreamData> Synthetic::GetStreamDatas(const Stream &stream) {
     }
     return datas;
   } else if (mode == MODE_SYNTHETIC) {
-    // TODO(JohnZhao)
+    return {GetStreamData(stream)};
   } else {
     LOG(ERROR) << "Failed to get stream data of " << stream
                << ", unsupported or disabled";
@@ -323,6 +382,17 @@ void Synthetic::InitProcessors() {
   depth_processor->SetProcessCallback(
       std::bind(&Synthetic::OnDepthProcess, this, _1, _2, _3));
 
+  rectify_processor->SetPostProcessCallback(
+      std::bind(&Synthetic::OnRectifyPostProcess, this, _1));
+  disparity_processor->SetPostProcessCallback(
+      std::bind(&Synthetic::OnDisparityPostProcess, this, _1));
+  disparitynormalized_processor->SetPostProcessCallback(
+      std::bind(&Synthetic::OnDisparityNormalizedPostProcess, this, _1));
+  points_processor->SetPostProcessCallback(
+      std::bind(&Synthetic::OnPointsPostProcess, this, _1));
+  depth_processor->SetPostProcessCallback(
+      std::bind(&Synthetic::OnDepthPostProcess, this, _1));
+
   rectify_processor->AddChild(disparity_processor);
   disparity_processor->AddChild(disparitynormalized_processor);
   disparity_processor->AddChild(points_processor);
@@ -331,16 +401,65 @@ void Synthetic::InitProcessors() {
   processor_ = rectify_processor;
 }
 
-void Synthetic::Process(const Stream &stream, const api::StreamData &data) {
+void Synthetic::ProcessNativeStream(
+    const Stream &stream, const api::StreamData &data) {
+  bool done = false;
   static api::StreamData left_data, right_data;
   if (stream == Stream::LEFT) {
     left_data = data;
+    done = true;
   } else if (stream == Stream::RIGHT) {
     right_data = data;
+    done = true;
   }
-  if (left_data.img && right_data.img &&
+  if (done && left_data.img && right_data.img &&
       left_data.img->frame_id == right_data.img->frame_id) {
-    // TODO(JohnZhao)
+    auto &&processor = find_processor<RectifyProcessor>(processor_);
+    processor->Process(ObjMat2{left_data.frame, right_data.frame});
+  }
+  if (done)
+    return;
+
+  auto &&process_childs = [this, &stream](
+      const std::string &name, const Object &obj) {
+    auto &&processor = find_processor<Processor>(processor_, name);
+    for (auto child : processor->GetChilds()) {
+      child->Process(obj);
+    }
+  };
+
+  static api::StreamData left_rect_data, right_rect_data;
+  if (stream == Stream::LEFT_RECTIFIED) {
+    left_rect_data = data;
+    done = true;
+  } else if (stream == Stream::RIGHT_RECTIFIED) {
+    right_rect_data = data;
+    done = true;
+  }
+  if (done && left_rect_data.img && right_rect_data.img &&
+      left_rect_data.img->frame_id == right_rect_data.img->frame_id) {
+    process_childs(
+        RectifyProcessor::NAME,
+        ObjMat2{left_rect_data.frame, right_rect_data.frame});
+  }
+  if (done)
+    return;
+
+  switch (stream) {
+    case Stream::DISPARITY: {
+      process_childs(DisparityProcessor::NAME, ObjMat{data.frame});
+    } break;
+    case Stream::DISPARITY_NORMALIZED: {
+      process_childs(DisparityNormalizedProcessor::NAME, ObjMat{data.frame});
+    } break;
+    case Stream::POINTS: {
+      process_childs(PointsProcessor::NAME, ObjMat{data.frame});
+    } break;
+    case Stream::DEPTH: {
+      process_childs(DepthProcessor::NAME, ObjMat{data.frame});
+    } break;
+    default:
+      break;
   }
 }
 
@@ -349,7 +468,8 @@ bool Synthetic::OnRectifyProcess(
   UNUSED(in)
   UNUSED(out)
   UNUSED(parent)
-  return false;
+  return GetStreamEnabledMode(Stream::LEFT_RECTIFIED) != MODE_SYNTHETIC;
+  // && GetStreamEnabledMode(Stream::RIGHT_RECTIFIED) != MODE_SYNTHETIC
 }
 
 bool Synthetic::OnDisparityProcess(
@@ -357,7 +477,7 @@ bool Synthetic::OnDisparityProcess(
   UNUSED(in)
   UNUSED(out)
   UNUSED(parent)
-  return false;
+  return GetStreamEnabledMode(Stream::DISPARITY) != MODE_SYNTHETIC;
 }
 
 bool Synthetic::OnDisparityNormalizedProcess(
@@ -365,7 +485,7 @@ bool Synthetic::OnDisparityNormalizedProcess(
   UNUSED(in)
   UNUSED(out)
   UNUSED(parent)
-  return false;
+  return GetStreamEnabledMode(Stream::DISPARITY_NORMALIZED) != MODE_SYNTHETIC;
 }
 
 bool Synthetic::OnPointsProcess(
@@ -373,7 +493,7 @@ bool Synthetic::OnPointsProcess(
   UNUSED(in)
   UNUSED(out)
   UNUSED(parent)
-  return false;
+  return GetStreamEnabledMode(Stream::POINTS) != MODE_SYNTHETIC;
 }
 
 bool Synthetic::OnDepthProcess(
@@ -381,7 +501,46 @@ bool Synthetic::OnDepthProcess(
   UNUSED(in)
   UNUSED(out)
   UNUSED(parent)
-  return false;
+  return GetStreamEnabledMode(Stream::DEPTH) != MODE_SYNTHETIC;
+}
+
+void Synthetic::OnRectifyPostProcess(Object *const out) {
+  const ObjMat2 *output = Object::Cast<ObjMat2>(out);
+  if (HasStreamCallback(Stream::LEFT_RECTIFIED)) {
+    stream_callbacks_.at(Stream::LEFT_RECTIFIED)({nullptr, output->first});
+  }
+  if (HasStreamCallback(Stream::RIGHT_RECTIFIED)) {
+    stream_callbacks_.at(Stream::RIGHT_RECTIFIED)({nullptr, output->second});
+  }
+}
+
+void Synthetic::OnDisparityPostProcess(Object *const out) {
+  const ObjMat *output = Object::Cast<ObjMat>(out);
+  if (HasStreamCallback(Stream::DISPARITY)) {
+    stream_callbacks_.at(Stream::DISPARITY)({nullptr, output->value});
+  }
+}
+
+void Synthetic::OnDisparityNormalizedPostProcess(Object *const out) {
+  const ObjMat *output = Object::Cast<ObjMat>(out);
+  if (HasStreamCallback(Stream::DISPARITY_NORMALIZED)) {
+    stream_callbacks_.at(Stream::DISPARITY_NORMALIZED)(
+        {nullptr, output->value});
+  }
+}
+
+void Synthetic::OnPointsPostProcess(Object *const out) {
+  const ObjMat *output = Object::Cast<ObjMat>(out);
+  if (HasStreamCallback(Stream::POINTS)) {
+    stream_callbacks_.at(Stream::POINTS)({nullptr, output->value});
+  }
+}
+
+void Synthetic::OnDepthPostProcess(Object *const out) {
+  const ObjMat *output = Object::Cast<ObjMat>(out);
+  if (HasStreamCallback(Stream::DEPTH)) {
+    stream_callbacks_.at(Stream::DEPTH)({nullptr, output->value});
+  }
 }
 
 MYNTEYE_END_NAMESPACE
