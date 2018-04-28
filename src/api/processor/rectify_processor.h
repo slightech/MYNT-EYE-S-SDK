@@ -23,6 +23,9 @@ class RectifyProcessor : public Processor {
 
   std::string Name() override;
 
+  cv::Mat R1, P1, R2, P2, Q;
+  cv::Mat map11, map12, map21, map22;
+
  protected:
   Object *OnCreateOutput() override;
   bool OnProcess(
@@ -31,9 +34,6 @@ class RectifyProcessor : public Processor {
  private:
   void InitParams(
       Intrinsics in_left, Intrinsics in_right, Extrinsics ex_left_to_right);
-
-  cv::Mat R1, P1, R2, P2, Q;
-  cv::Mat map11, map12, map21, map22;
 };
 
 MYNTEYE_END_NAMESPACE

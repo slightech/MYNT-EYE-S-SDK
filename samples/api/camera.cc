@@ -12,6 +12,10 @@ int main(int argc, char *argv[]) {
   glog_init _(argc, argv);
 
   auto &&api = API::Create();
+
+  // api->SetOptionValue(Option::FRAME_RATE, 25);
+  // api->SetOptionValue(Option::IMU_FREQUENCY, 500);
+  api->SetOptionValue(Option::IR_CONTROL, 80);
   api->LogOptionInfos();
 
   std::size_t left_count = 0;
@@ -51,15 +55,17 @@ int main(int argc, char *argv[]) {
             << ", temperature: " << data.imu->temperature;
   });
 
-  api->EnableStreamData(Stream::LEFT_RECTIFIED);
-  api->EnableStreamData(Stream::RIGHT_RECTIFIED);
+  // api->EnableStreamData(Stream::LEFT_RECTIFIED);
+  // api->EnableStreamData(Stream::RIGHT_RECTIFIED);
   api->EnableStreamData(Stream::DISPARITY_NORMALIZED);
+  api->EnableStreamData(Stream::DEPTH);
   // Enable this will cache the motion datas until you get them.
   api->EnableMotionDatas();
   api->Start(Source::ALL);
 
   cv::namedWindow("frame");
   cv::namedWindow("disparity");
+  cv::namedWindow("depth");
 
   std::size_t motion_count = 0;
   auto &&time_beg = times::now();
@@ -78,7 +84,12 @@ int main(int argc, char *argv[]) {
 
     auto &&disp_data = api->GetStreamData(Stream::DISPARITY_NORMALIZED);
     if (!disp_data.frame.empty()) {
-      cv::imshow("disparity", disp_data.frame);
+      cv::imshow("disparity", disp_data.frame);  // CV_8UC1
+    }
+
+    auto &&depth_data = api->GetStreamData(Stream::DEPTH);
+    if (!depth_data.frame.empty()) {
+      cv::imshow("depth", depth_data.frame);  // CV_16UC1
     }
 
     auto &&motion_datas = api->GetMotionDatas();

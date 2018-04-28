@@ -367,7 +367,8 @@ void Synthetic::InitProcessors() {
   auto &&disparity_processor = std::make_shared<DisparityProcessor>();
   auto &&disparitynormalized_processor =
       std::make_shared<DisparityNormalizedProcessor>();
-  auto &&points_processor = std::make_shared<PointsProcessor>();
+  auto &&points_processor =
+      std::make_shared<PointsProcessor>(rectify_processor->Q);
   auto &&depth_processor = std::make_shared<DepthProcessor>();
 
   using namespace std::placeholders;  // NOLINT

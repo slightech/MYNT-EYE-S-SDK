@@ -17,14 +17,17 @@ std::string DepthProcessor::Name() {
 }
 
 Object *DepthProcessor::OnCreateOutput() {
-  return nullptr;
+  return new ObjMat();
 }
 
 bool DepthProcessor::OnProcess(
     Object *const in, Object *const out, Processor *const parent) {
-  UNUSED(in)
-  UNUSED(out)
   UNUSED(parent)
+  const ObjMat *input = Object::Cast<ObjMat>(in);
+  ObjMat *output = Object::Cast<ObjMat>(out);
+  cv::Mat channels[3 /*input->value.channels()*/];
+  cv::split(input->value, channels);
+  channels[2].convertTo(output->value, CV_16UC1);
   return true;
 }
 
