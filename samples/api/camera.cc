@@ -51,6 +51,8 @@ int main(int argc, char *argv[]) {
             << ", temperature: " << data.imu->temperature;
   });
 
+  api->EnableStreamData(Stream::LEFT_RECTIFIED);
+  api->EnableStreamData(Stream::RIGHT_RECTIFIED);
   // Enable this will cache the motion datas until you get them.
   api->EnableMotionDatas();
   api->Start(Source::ALL);
@@ -62,8 +64,13 @@ int main(int argc, char *argv[]) {
   while (true) {
     api->WaitForStreams();
 
-    auto &&left_data = api->GetStreamData(Stream::LEFT);
-    auto &&right_data = api->GetStreamData(Stream::RIGHT);
+    // auto &&left_data = api->GetStreamData(Stream::LEFT);
+    // auto &&right_data = api->GetStreamData(Stream::RIGHT);
+    auto &&left_data = api->GetStreamData(Stream::LEFT_RECTIFIED);
+    auto &&right_data = api->GetStreamData(Stream::RIGHT_RECTIFIED);
+    if (left_data.frame.empty() || right_data.frame.empty()) {
+      continue;
+    }
 
     auto &&motion_datas = api->GetMotionDatas();
     motion_count += motion_datas.size();

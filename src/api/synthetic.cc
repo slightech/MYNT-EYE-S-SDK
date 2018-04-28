@@ -363,7 +363,7 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
 }
 
 void Synthetic::InitProcessors() {
-  auto &&rectify_processor = std::make_shared<RectifyProcessor>();
+  auto &&rectify_processor = std::make_shared<RectifyProcessor>(api_->device());
   auto &&disparity_processor = std::make_shared<DisparityProcessor>();
   auto &&disparitynormalized_processor =
       std::make_shared<DisparityNormalizedProcessor>();
