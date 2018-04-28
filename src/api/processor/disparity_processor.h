@@ -6,6 +6,12 @@
 
 #include "api/processor/processor.h"
 
+namespace cv {
+
+class StereoSGBM;
+
+}  // namespace cv
+
 MYNTEYE_BEGIN_NAMESPACE
 
 class DisparityProcessor : public Processor {
@@ -21,6 +27,9 @@ class DisparityProcessor : public Processor {
   Object *OnCreateOutput() override;
   void OnProcess(
       Object *const in, Object *const out, Processor *const parent) override;
+
+ private:
+  cv::Ptr<cv::StereoSGBM> sgbm_;
 };
 
 MYNTEYE_END_NAMESPACE

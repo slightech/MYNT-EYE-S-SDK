@@ -53,11 +53,13 @@ int main(int argc, char *argv[]) {
 
   api->EnableStreamData(Stream::LEFT_RECTIFIED);
   api->EnableStreamData(Stream::RIGHT_RECTIFIED);
+  api->EnableStreamData(Stream::DISPARITY_NORMALIZED);
   // Enable this will cache the motion datas until you get them.
   api->EnableMotionDatas();
   api->Start(Source::ALL);
 
   cv::namedWindow("frame");
+  cv::namedWindow("disparity");
 
   std::size_t motion_count = 0;
   auto &&time_beg = times::now();
@@ -68,8 +70,15 @@ int main(int argc, char *argv[]) {
     // auto &&right_data = api->GetStreamData(Stream::RIGHT);
     auto &&left_data = api->GetStreamData(Stream::LEFT_RECTIFIED);
     auto &&right_data = api->GetStreamData(Stream::RIGHT_RECTIFIED);
-    if (left_data.frame.empty() || right_data.frame.empty()) {
-      continue;
+    if (!left_data.frame.empty() && !right_data.frame.empty()) {
+      cv::Mat img;
+      cv::hconcat(left_data.frame, right_data.frame, img);
+      cv::imshow("frame", img);
+    }
+
+    auto &&disp_data = api->GetStreamData(Stream::DISPARITY_NORMALIZED);
+    if (!disp_data.frame.empty()) {
+      cv::imshow("disparity", disp_data.frame);
     }
 
     auto &&motion_datas = api->GetMotionDatas();
@@ -85,10 +94,6 @@ int main(int argc, char *argv[]) {
                 << ", gyro_z: " << data.imu->gyro[2]
                 << ", temperature: " << data.imu->temperature;
     }
-
-    cv::Mat img;
-    cv::hconcat(left_data.frame, right_data.frame, img);
-    cv::imshow("frame", img);
 
     char key = static_cast<char>(cv::waitKey(1));
     if (key == 27 || key == 'q' || key == 'Q') {  // ESC/Q
