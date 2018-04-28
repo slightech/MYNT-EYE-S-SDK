@@ -58,7 +58,7 @@ class Processor /*: public std::enable_shared_from_this<Processor>*/ {
 
  protected:
   virtual Object *OnCreateOutput() = 0;
-  virtual void OnProcess(
+  virtual bool OnProcess(
       Object *const in, Object *const out, Processor *const parent) = 0;
 
  private:

@@ -151,12 +151,19 @@ void Processor::Run() {
     if (pre_callback_) {
       pre_callback_(input_.get());
     }
+    bool ok = false;
     if (callback_) {
-      if (!callback_(input_.get(), output_.get(), parent_)) {
-        OnProcess(input_.get(), output_.get(), parent_);
+      if (callback_(input_.get(), output_.get(), parent_)) {
+        ok = true;
+      } else {
+        ok = OnProcess(input_.get(), output_.get(), parent_);
       }
     } else {
-      OnProcess(input_.get(), output_.get(), parent_);
+      ok = OnProcess(input_.get(), output_.get(), parent_);
+    }
+    if (!ok) {
+      VLOG(2) << Name() << " process failed";
+      continue;
     }
     if (post_callback_) {
       post_callback_(output_.get());

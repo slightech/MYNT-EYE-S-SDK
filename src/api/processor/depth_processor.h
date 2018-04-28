@@ -19,7 +19,7 @@ class DepthProcessor : public Processor {
 
  protected:
   Object *OnCreateOutput() override;
-  void OnProcess(
+  bool OnProcess(
       Object *const in, Object *const out, Processor *const parent) override;
 };
 

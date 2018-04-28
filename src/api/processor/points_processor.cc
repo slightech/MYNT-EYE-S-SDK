@@ -20,11 +20,12 @@ Object *PointsProcessor::OnCreateOutput() {
   return nullptr;
 }
 
-void PointsProcessor::OnProcess(
+bool PointsProcessor::OnProcess(
     Object *const in, Object *const out, Processor *const parent) {
   UNUSED(in)
   UNUSED(out)
   UNUSED(parent)
+  return true;
 }
 
 MYNTEYE_END_NAMESPACE

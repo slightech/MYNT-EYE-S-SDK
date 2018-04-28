@@ -54,7 +54,7 @@ Object *DisparityProcessor::OnCreateOutput() {
   return new ObjMat();
 }
 
-void DisparityProcessor::OnProcess(
+bool DisparityProcessor::OnProcess(
     Object *const in, Object *const out, Processor *const parent) {
   UNUSED(parent)
   const ObjMat2 *input = Object::Cast<ObjMat2>(in);
@@ -81,6 +81,7 @@ void DisparityProcessor::OnProcess(
   sgbm_->compute(input->first, input->second, disparity);
 #endif
   output->value = disparity / 16 + 1;
+  return true;
 }
 
 MYNTEYE_END_NAMESPACE

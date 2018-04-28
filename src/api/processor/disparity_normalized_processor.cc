@@ -22,12 +22,14 @@ Object *DisparityNormalizedProcessor::OnCreateOutput() {
   return new ObjMat();
 }
 
-void DisparityNormalizedProcessor::OnProcess(
+bool DisparityNormalizedProcessor::OnProcess(
     Object *const in, Object *const out, Processor *const parent) {
   UNUSED(parent)
   const ObjMat *input = Object::Cast<ObjMat>(in);
   ObjMat *output = Object::Cast<ObjMat>(out);
   cv::normalize(input->value, output->value, 0, 255, cv::NORM_MINMAX, CV_8UC1);
+  // cv::normalize maybe return empty ==
+  return !output->value.empty();
 }
 
 MYNTEYE_END_NAMESPACE

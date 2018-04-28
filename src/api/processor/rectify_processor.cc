@@ -29,13 +29,14 @@ Object *RectifyProcessor::OnCreateOutput() {
   return new ObjMat2();
 }
 
-void RectifyProcessor::OnProcess(
+bool RectifyProcessor::OnProcess(
     Object *const in, Object *const out, Processor *const parent) {
   UNUSED(parent)
   const ObjMat2 *input = Object::Cast<ObjMat2>(in);
   ObjMat2 *output = Object::Cast<ObjMat2>(out);
   cv::remap(input->first, output->first, map11, map12, cv::INTER_LINEAR);
   cv::remap(input->second, output->second, map21, map22, cv::INTER_LINEAR);
+  return true;
 }
 
 void RectifyProcessor::InitParams(
