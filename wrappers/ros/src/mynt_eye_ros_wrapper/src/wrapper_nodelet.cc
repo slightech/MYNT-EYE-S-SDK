@@ -65,21 +65,24 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     std::string left_topic = "left";
     std::string right_topic = "right";
-    std::string imu_topic = "imu";
-    std::string temp_topic = "temp";
     private_nh_.getParam("left_topic", left_topic);
     private_nh_.getParam("right_topic", right_topic);
+
+    std::string imu_topic = "imu";
+    std::string temp_topic = "temp";
     private_nh_.getParam("imu_topic", imu_topic);
     private_nh_.getParam("temp_topic", temp_topic);
 
     base_frame_id_ = "camera_link";
-    left_frame_id_ = "camera_left_frame";
-    right_frame_id_ = "camera_right_frame";
+    private_nh_.getParam("base_frame_id", base_frame_id_);
+
+    camera_frame_ids_[Stream::LEFT] = "camera_left_frame";
+    camera_frame_ids_[Stream::RIGHT] = "camera_right_frame";
+    private_nh_.getParam("left_frame_id", camera_frame_ids_[Stream::LEFT]);
+    private_nh_.getParam("right_frame_id", camera_frame_ids_[Stream::RIGHT]);
+
     imu_frame_id_ = "camera_imu_frame";
     temp_frame_id_ = "camera_temp_frame";
-    private_nh_.getParam("base_frame_id", base_frame_id_);
-    private_nh_.getParam("left_frame_id", left_frame_id_);
-    private_nh_.getParam("right_frame_id", right_frame_id_);
     private_nh_.getParam("imu_frame_id", imu_frame_id_);
     private_nh_.getParam("temp_frame_id", temp_frame_id_);
 
@@ -117,9 +120,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     image_transport::ImageTransport it_mynteye(nh_);
 
-    pub_left_ = it_mynteye.advertise(left_topic, 1);
+    camera_encodings_[Stream::LEFT] = enc::MONO8;
+    camera_publishers_[Stream::LEFT] =
+        it_mynteye.advertiseCamera(left_topic, 1);
     NODELET_INFO_STREAM("Advertized on topic " << left_topic);
-    pub_right_ = it_mynteye.advertise(right_topic, 1);
+
+    camera_encodings_[Stream::RIGHT] = enc::MONO8;
+    camera_publishers_[Stream::RIGHT] =
+        it_mynteye.advertiseCamera(right_topic, 1);
     NODELET_INFO_STREAM("Advertized on topic " << right_topic);
 
     // imu publisher
@@ -143,7 +151,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     geometry_msgs::TransformStamped b2l_msg;
     b2l_msg.header.stamp = tf_stamp;
     b2l_msg.header.frame_id = base_frame_id_;
-    b2l_msg.child_frame_id = left_frame_id_;
+    b2l_msg.child_frame_id = camera_frame_ids_[Stream::LEFT];
     b2l_msg.transform.translation.x = 0;
     b2l_msg.transform.translation.y = 0;
     b2l_msg.transform.translation.z = 0;
@@ -157,7 +165,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     geometry_msgs::TransformStamped b2r_msg;
     b2r_msg.header.stamp = tf_stamp;
     b2r_msg.header.frame_id = base_frame_id_;
-    b2r_msg.child_frame_id = right_frame_id_;
+    b2r_msg.child_frame_id = camera_frame_ids_[Stream::RIGHT];
     b2r_msg.transform.translation.x = 0;
     b2r_msg.transform.translation.y = 0;
     b2r_msg.transform.translation.z = 0;
@@ -201,7 +209,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           // img_time_prev = data.img->timestamp;
 
           ++left_count_;
-          publishLeft(data, left_count_, stamp);
+          publishCamera(Stream::LEFT, data, left_count_, stamp);
           NODELET_DEBUG_STREAM(
               Stream::LEFT << ", count: " << left_count_
                            << ", frame_id: " << data.img->frame_id
@@ -217,7 +225,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
               ros_time_beg + (data.img->timestamp - img_time_beg) * 0.00001f);
 
           ++right_count_;
-          publishRight(data, right_count_, stamp);
+          publishCamera(Stream::RIGHT, data, right_count_, stamp);
           NODELET_DEBUG_STREAM(
               Stream::RIGHT << ", count: " << right_count_
                             << ", frame_id: " << data.img->frame_id
@@ -261,28 +269,28 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     api_->Start(Source::ALL);
   }
 
-  void publishLeft(
-      const api::StreamData &data, std::uint32_t seq, ros::Time stamp) {
+  void publishCamera(
+      const Stream &stream, const api::StreamData &data, std::uint32_t seq,
+      ros::Time stamp) {
+    if (camera_publishers_[stream].getNumSubscribers() == 0)
+      return;
     std_msgs::Header header;
     header.seq = seq;
     header.stamp = stamp;
-    header.frame_id = left_frame_id_;
-    pub_left_.publish(
-        cv_bridge::CvImage(header, enc::MONO8, data.frame).toImageMsg());
-  }
-
-  void publishRight(
-      const api::StreamData &data, std::uint32_t seq, ros::Time stamp) {
-    std_msgs::Header header;
-    header.seq = seq;
-    header.stamp = stamp;
-    header.frame_id = right_frame_id_;
-    pub_right_.publish(
-        cv_bridge::CvImage(header, enc::MONO8, data.frame).toImageMsg());
+    header.frame_id = camera_frame_ids_[stream];
+    auto &&msg =
+        cv_bridge::CvImage(header, camera_encodings_[stream], data.frame)
+            .toImageMsg();
+    auto &&info = getCameraInfo(stream);
+    info->header.stamp = msg->header.stamp;
+    camera_publishers_[stream].publish(msg, info);
   }
 
   void publishImu(
       const api::MotionData &data, std::uint32_t seq, ros::Time stamp) {
+    if (pub_imu_.getNumSubscribers() == 0)
+      return;
+
     sensor_msgs::Imu msg;
 
     msg.header.seq = seq;
@@ -327,6 +335,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
   void publishTemp(float temperature, std::uint32_t seq, ros::Time stamp) {
+    if (pub_temp_.getNumSubscribers() == 0)
+      return;
     mynt_eye_ros_wrapper::Temp msg;
     msg.header.seq = seq;
     msg.header.stamp = stamp;
@@ -374,11 +384,83 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     api_ = API::Create(device);
   }
 
+  sensor_msgs::CameraInfoPtr getCameraInfo(const Stream &stream) {
+    if (camera_info_ptrs_.find(stream) != camera_info_ptrs_.end()) {
+      return camera_info_ptrs_[stream];
+    }
+
+    sensor_msgs::CameraInfo *camera_info = new sensor_msgs::CameraInfo();
+    camera_info_ptrs_[stream] = sensor_msgs::CameraInfoPtr(camera_info);
+
+    auto &&in = api_->GetIntrinsics(stream);
+
+    camera_info->header.frame_id = camera_frame_ids_[stream];
+    camera_info->width = in.width;
+    camera_info->height = in.height;
+
+    //     [fx  0 cx]
+    // K = [ 0 fy cy]
+    //     [ 0  0  1]
+    camera_info->K.at(0) = in.fx;
+    camera_info->K.at(2) = in.cx;
+    camera_info->K.at(4) = in.fy;
+    camera_info->K.at(5) = in.cy;
+    camera_info->K.at(8) = 1;
+
+    //     [fx'  0  cx' Tx]
+    // P = [ 0  fy' cy' Ty]
+    //     [ 0   0   1   0]
+    camera_info->P.at(0) = camera_info->K.at(0);
+    camera_info->P.at(1) = 0;
+    camera_info->P.at(2) = camera_info->K.at(2);
+    camera_info->P.at(3) = 0;
+
+    camera_info->P.at(4) = 0;
+    camera_info->P.at(5) = camera_info->K.at(4);
+    camera_info->P.at(6) = camera_info->K.at(5);
+    camera_info->P.at(7) = 0;
+
+    camera_info->P.at(8) = 0;
+    camera_info->P.at(9) = 0;
+    camera_info->P.at(10) = 1;
+    camera_info->P.at(11) = 0;
+
+    if (stream == Stream::RIGHT) {
+      /*
+      auto &&ex = api_->GetExtrinsics(stream, Stream::LEFT);
+      camera_info->P.at(3) = ex.translation[0];
+      camera_info->P.at(7) = ex.translation[1];
+      camera_info->P.at(11) = ex.translation[2];
+      */
+    }
+
+    camera_info->distortion_model = "plumb_bob";
+
+    // D of plumb_bob: (k1, k2, t1, t2, k3)
+    for (int i = 0; i < 5; i++) {
+      camera_info->D.push_back(in.coeffs[i]);
+    }
+
+    // R to identity matrix
+    camera_info->R.at(0) = 1.0;
+    camera_info->R.at(1) = 0.0;
+    camera_info->R.at(2) = 0.0;
+    camera_info->R.at(3) = 0.0;
+    camera_info->R.at(4) = 1.0;
+    camera_info->R.at(5) = 0.0;
+    camera_info->R.at(6) = 0.0;
+    camera_info->R.at(7) = 0.0;
+    camera_info->R.at(8) = 1.0;
+
+    return camera_info_ptrs_[stream];
+  }
+
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;
 
-  image_transport::Publisher pub_left_;
-  image_transport::Publisher pub_right_;
+  std::map<Stream, image_transport::CameraPublisher> camera_publishers_;
+  std::map<Stream, sensor_msgs::CameraInfoPtr> camera_info_ptrs_;
+  std::map<Stream, std::string> camera_encodings_;
 
   ros::Publisher pub_imu_;
   ros::Publisher pub_temp_;
@@ -388,10 +470,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   // node params
 
   std::string base_frame_id_;
-  std::string left_frame_id_;
-  std::string right_frame_id_;
   std::string imu_frame_id_;
   std::string temp_frame_id_;
+  std::map<Stream, std::string> camera_frame_ids_;
 
   double gravity_;
 
