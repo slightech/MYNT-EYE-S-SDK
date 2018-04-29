@@ -164,8 +164,13 @@ Extrinsics Device::GetExtrinsics(const Stream &from, const Stream &to) const {
   try {
     return stream_from_extrinsics_.at(from).at(to);
   } catch (const std::out_of_range &e) {
-    LOG(WARNING) << "Extrinsics from " << from << " to " << to << " not found";
-    return {};
+    try {
+      return stream_from_extrinsics_.at(to).at(from).Inverse();
+    } catch (const std::out_of_range &e) {
+      LOG(WARNING) << "Extrinsics from " << from << " to " << to
+                   << " not found";
+      return {};
+    }
   }
 }
 

@@ -426,12 +426,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     camera_info->P.at(11) = 0;
 
     if (stream == Stream::RIGHT) {
-      /*
       auto &&ex = api_->GetExtrinsics(stream, Stream::LEFT);
       camera_info->P.at(3) = ex.translation[0];
       camera_info->P.at(7) = ex.translation[1];
       camera_info->P.at(11) = ex.translation[2];
-      */
     }
 
     camera_info->distortion_model = "plumb_bob";
