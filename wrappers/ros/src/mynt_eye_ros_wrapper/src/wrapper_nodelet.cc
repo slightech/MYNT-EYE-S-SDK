@@ -4,7 +4,9 @@
 #include <cv_bridge/cv_bridge.h>
 #include <image_transport/image_transport.h>
 #include <sensor_msgs/Imu.h>
+#include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/image_encodings.h>
+#include <tf/tf.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 
 #include <mynt_eye_ros_wrapper/Temp.h>
@@ -63,10 +65,21 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     // node params
 
-    std::string left_topic = "left";
-    std::string right_topic = "right";
-    private_nh_.getParam("left_topic", left_topic);
-    private_nh_.getParam("right_topic", right_topic);
+    std::map<Stream, std::string> stream_names{
+        {Stream::LEFT, "left"},
+        {Stream::RIGHT, "right"},
+        {Stream::LEFT_RECTIFIED, "left_rect"},
+        {Stream::RIGHT_RECTIFIED, "right_rect"},
+        {Stream::DISPARITY, "disparity"},
+        {Stream::DISPARITY_NORMALIZED, "disparity_norm"},
+        {Stream::DEPTH, "depth"},
+        {Stream::POINTS, "points"}};
+
+    std::map<Stream, std::string> stream_topics{};
+    for (auto &&it = stream_names.begin(); it != stream_names.end(); ++it) {
+      stream_topics[it->first] = it->second;
+      private_nh_.getParam(it->second + "_topic", stream_topics[it->first]);
+    }
 
     std::string imu_topic = "imu";
     std::string temp_topic = "temp";
@@ -76,10 +89,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     base_frame_id_ = "camera_link";
     private_nh_.getParam("base_frame_id", base_frame_id_);
 
-    camera_frame_ids_[Stream::LEFT] = "camera_left_frame";
-    camera_frame_ids_[Stream::RIGHT] = "camera_right_frame";
-    private_nh_.getParam("left_frame_id", camera_frame_ids_[Stream::LEFT]);
-    private_nh_.getParam("right_frame_id", camera_frame_ids_[Stream::RIGHT]);
+    for (auto &&it = stream_names.begin(); it != stream_names.end(); ++it) {
+      frame_ids_[it->first] = "camera_" + it->second + "_frame";
+      private_nh_.getParam(it->second + "_frame_id", frame_ids_[it->first]);
+    }
 
     imu_frame_id_ = "camera_imu_frame";
     temp_frame_id_ = "camera_temp_frame";
@@ -91,54 +104,78 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     // device options
 
-    std::map<std::string, Option> option_map = {
-        {"gain", Option::GAIN},
-        {"brightness", Option::BRIGHTNESS},
-        {"contrast", Option::CONTRAST},
-        {"frame_rate", Option::FRAME_RATE},
-        {"imu_frequency", Option::IMU_FREQUENCY},
-        {"exposure_mode", Option::EXPOSURE_MODE},
-        {"max_gain", Option::MAX_GAIN},
-        {"max_exposure_time", Option::MAX_EXPOSURE_TIME},
-        {"desired_brightness", Option::DESIRED_BRIGHTNESS},
-        {"ir_control", Option::IR_CONTROL},
-        {"hdr_mode", Option::HDR_MODE},
+    std::map<Option, std::string> option_names = {
+        {Option::GAIN, "gain"},
+        {Option::BRIGHTNESS, "brightness"},
+        {Option::CONTRAST, "contrast"},
+        {Option::FRAME_RATE, "frame_rate"},
+        {Option::IMU_FREQUENCY, "imu_frequency"},
+        {Option::EXPOSURE_MODE, "exposure_mode"},
+        {Option::MAX_GAIN, "max_gain"},
+        {Option::MAX_EXPOSURE_TIME, "max_exposure_time"},
+        {Option::DESIRED_BRIGHTNESS, "desired_brightness"},
+        {Option::IR_CONTROL, "ir_control"},
+        {Option::HDR_MODE, "hdr_mode"},
     };
-    int value;
-    for (auto &&it = option_map.begin(); it != option_map.end(); it++) {
-      value = -1;
-      private_nh_.getParam(it->first, value);
+    for (auto &&it = option_names.begin(); it != option_names.end(); ++it) {
+      if (!api_->Supports(it->first))
+        continue;
+      int value = -1;
+      private_nh_.getParam(it->second, value);
       if (value != -1) {
-        NODELET_INFO_STREAM("Set " << it->first << " to " << value);
-        api_->SetOptionValue(it->second, value);
+        NODELET_INFO_STREAM("Set " << it->second << " to " << value);
+        api_->SetOptionValue(it->first, value);
       }
-      NODELET_INFO_STREAM(
-          it->second << ": " << api_->GetOptionValue(it->second));
+      NODELET_INFO_STREAM(it->first << ": " << api_->GetOptionValue(it->first));
     }
 
-    // image publishers
+    // publishers
 
     image_transport::ImageTransport it_mynteye(nh_);
 
-    camera_encodings_[Stream::LEFT] = enc::MONO8;
-    camera_publishers_[Stream::LEFT] =
-        it_mynteye.advertiseCamera(left_topic, 1);
-    NODELET_INFO_STREAM("Advertized on topic " << left_topic);
+    for (auto &&it = stream_names.begin(); it != stream_names.end(); ++it) {
+      auto &&topic = stream_topics[it->first];
+      if (it->first == Stream::LEFT || it->first == Stream::RIGHT) {  // camera
+        camera_publishers_[it->first] = it_mynteye.advertiseCamera(topic, 1);
+      } else if (it->first == Stream::POINTS) {  // pointcloud
+        points_publisher_ = nh_.advertise<sensor_msgs::PointCloud2>(topic, 1);
+      } else {  // image
+        image_publishers_[it->first] = it_mynteye.advertise(topic, 1);
+      }
+      NODELET_INFO_STREAM("Advertized on topic " << topic);
+    }
 
-    camera_encodings_[Stream::RIGHT] = enc::MONO8;
-    camera_publishers_[Stream::RIGHT] =
-        it_mynteye.advertiseCamera(right_topic, 1);
-    NODELET_INFO_STREAM("Advertized on topic " << right_topic);
+    camera_encodings_ = {{Stream::LEFT, enc::MONO8},
+                         {Stream::RIGHT, enc::MONO8}};
 
-    // imu publisher
+    image_encodings_ = {{Stream::LEFT_RECTIFIED, enc::MONO8},
+                        {Stream::RIGHT_RECTIFIED, enc::MONO8},
+                        {Stream::DISPARITY, enc::MONO8},  // float
+                        {Stream::DISPARITY_NORMALIZED, enc::MONO8},
+                        {Stream::DEPTH, enc::MONO16}};
 
     pub_imu_ = nh_.advertise<sensor_msgs::Imu>(imu_topic, 1);
     NODELET_INFO_STREAM("Advertized on topic " << imu_topic);
 
-    // temp publisher
-
     pub_temp_ = nh_.advertise<mynt_eye_ros_wrapper::Temp>(temp_topic, 1);
     NODELET_INFO_STREAM("Advertized on topic " << temp_topic);
+
+    // stream toggles
+
+    for (auto &&it = stream_names.begin(); it != stream_names.end(); ++it) {
+      if (it->first == Stream::LEFT || it->first == Stream::RIGHT) {  // camera
+        continue;
+      } else {  // image, pointcloud
+        if (!api_->Supports(it->first))
+          continue;
+        bool enabled = false;
+        private_nh_.getParam("enable_" + it->second, enabled);
+        if (enabled) {
+          api_->EnableStreamData(it->first);
+          NODELET_INFO_STREAM("Enable stream data of " << it->first);
+        }
+      }
+    }
 
     publishStaticTransforms();
     publishTopics();
@@ -151,7 +188,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     geometry_msgs::TransformStamped b2l_msg;
     b2l_msg.header.stamp = tf_stamp;
     b2l_msg.header.frame_id = base_frame_id_;
-    b2l_msg.child_frame_id = camera_frame_ids_[Stream::LEFT];
+    b2l_msg.child_frame_id = frame_ids_[Stream::LEFT];
     b2l_msg.transform.translation.x = 0;
     b2l_msg.transform.translation.y = 0;
     b2l_msg.transform.translation.z = 0;
@@ -162,17 +199,24 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     static_tf_broadcaster_.sendTransform(b2l_msg);
 
     // Transform base frame to right frame
+    auto &&b2r_ex = api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT);
+    tf::Quaternion b2r_q;
+    tf::Matrix3x3 b2r_r(
+        b2r_ex.rotation[0][0], b2r_ex.rotation[0][1], b2r_ex.rotation[0][2],
+        b2r_ex.rotation[1][0], b2r_ex.rotation[1][1], b2r_ex.rotation[1][2],
+        b2r_ex.rotation[2][0], b2r_ex.rotation[2][1], b2r_ex.rotation[2][2]);
+    b2r_r.getRotation(b2r_q);
     geometry_msgs::TransformStamped b2r_msg;
     b2r_msg.header.stamp = tf_stamp;
     b2r_msg.header.frame_id = base_frame_id_;
-    b2r_msg.child_frame_id = camera_frame_ids_[Stream::RIGHT];
-    b2r_msg.transform.translation.x = 0;
-    b2r_msg.transform.translation.y = 0;
-    b2r_msg.transform.translation.z = 0;
-    b2r_msg.transform.rotation.x = 0;
-    b2r_msg.transform.rotation.y = 0;
-    b2r_msg.transform.rotation.z = 0;
-    b2r_msg.transform.rotation.w = 1;
+    b2r_msg.child_frame_id = frame_ids_[Stream::RIGHT];
+    b2r_msg.transform.translation.x = b2r_ex.translation[0];
+    b2r_msg.transform.translation.y = b2r_ex.translation[1];
+    b2r_msg.transform.translation.z = b2r_ex.translation[2];
+    b2r_msg.transform.rotation.x = b2r_q.getX();
+    b2r_msg.transform.rotation.y = b2r_q.getY();
+    b2r_msg.transform.rotation.z = b2r_q.getZ();
+    b2r_msg.transform.rotation.w = b2r_q.getW();
     static_tf_broadcaster_.sendTransform(b2r_msg);
 
     // Transform base frame to imu frame
@@ -233,6 +277,19 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                             << ", exposure_time: " << data.img->exposure_time);
         });
 
+    std::vector<Stream> image_streams{
+        Stream::LEFT_RECTIFIED, Stream::RIGHT_RECTIFIED, Stream::DISPARITY,
+        Stream::DISPARITY_NORMALIZED, Stream::DEPTH};
+
+    for (auto &&stream : image_streams) {
+      api_->SetStreamCallback(
+          stream, [this, stream](const api::StreamData &data) {
+            static std::size_t count = 0;
+            ++count;
+            publishImage(stream, data, count, ros::Time::now());
+          });
+    }
+
     api_->SetMotionCallback([this](const api::MotionData &data) {
       static double ros_time_beg = ros::Time::now().toSec();
       static double imu_time_beg = data.imu->timestamp;
@@ -277,14 +334,38 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     std_msgs::Header header;
     header.seq = seq;
     header.stamp = stamp;
-    header.frame_id = camera_frame_ids_[stream];
+    header.frame_id = frame_ids_[stream];
+    cv::Mat img = data.frame;
+    if (stream == Stream::DISPARITY) {  // 32FC1 > 8UC1 = MONO8
+      img.convertTo(img, CV_8UC1);
+    }
     auto &&msg =
-        cv_bridge::CvImage(header, camera_encodings_[stream], data.frame)
-            .toImageMsg();
+        cv_bridge::CvImage(header, camera_encodings_[stream], img).toImageMsg();
     auto &&info = getCameraInfo(stream);
     info->header.stamp = msg->header.stamp;
     camera_publishers_[stream].publish(msg, info);
   }
+
+  void publishImage(
+      const Stream &stream, const api::StreamData &data, std::uint32_t seq,
+      ros::Time stamp) {
+    if (image_publishers_[stream].getNumSubscribers() == 0)
+      return;
+    std_msgs::Header header;
+    header.seq = seq;
+    header.stamp = stamp;
+    header.frame_id = frame_ids_[stream];
+    cv::Mat img = data.frame;
+    if (stream == Stream::DISPARITY) {  // 32FC1 > 8UC1 = MONO8
+      img.convertTo(img, CV_8UC1);
+    }
+    auto &&msg =
+        cv_bridge::CvImage(header, image_encodings_[stream], img).toImageMsg();
+    image_publishers_[stream].publish(msg);
+  }
+
+  // void publishPoints(
+  // )
 
   void publishImu(
       const api::MotionData &data, std::uint32_t seq, ros::Time stamp) {
@@ -394,7 +475,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     auto &&in = api_->GetIntrinsics(stream);
 
-    camera_info->header.frame_id = camera_frame_ids_[stream];
+    camera_info->header.frame_id = frame_ids_[stream];
     camera_info->width = in.width;
     camera_info->height = in.height;
 
@@ -456,9 +537,18 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;
 
+  // camera: LEFT, RIGHT
   std::map<Stream, image_transport::CameraPublisher> camera_publishers_;
   std::map<Stream, sensor_msgs::CameraInfoPtr> camera_info_ptrs_;
   std::map<Stream, std::string> camera_encodings_;
+
+  // image: LEFT_RECTIFIED, RIGHT_RECTIFIED, DISPARITY, DISPARITY_NORMALIZED,
+  // DEPTH
+  std::map<Stream, image_transport::Publisher> image_publishers_;
+  std::map<Stream, std::string> image_encodings_;
+
+  // pointcloud: POINTS
+  ros::Publisher points_publisher_;
 
   ros::Publisher pub_imu_;
   ros::Publisher pub_temp_;
@@ -470,7 +560,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   std::string base_frame_id_;
   std::string imu_frame_id_;
   std::string temp_frame_id_;
-  std::map<Stream, std::string> camera_frame_ids_;
+  std::map<Stream, std::string> frame_ids_;
 
   double gravity_;
 
