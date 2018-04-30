@@ -6,6 +6,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/image_encodings.h>
+#include <sensor_msgs/point_cloud2_iterator.h>
 #include <tf/tf.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 
@@ -181,59 +182,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     publishTopics();
   }
 
-  void publishStaticTransforms() {
-    ros::Time tf_stamp = ros::Time::now();
-
-    // The left frame is used as the base frame.
-    geometry_msgs::TransformStamped b2l_msg;
-    b2l_msg.header.stamp = tf_stamp;
-    b2l_msg.header.frame_id = base_frame_id_;
-    b2l_msg.child_frame_id = frame_ids_[Stream::LEFT];
-    b2l_msg.transform.translation.x = 0;
-    b2l_msg.transform.translation.y = 0;
-    b2l_msg.transform.translation.z = 0;
-    b2l_msg.transform.rotation.x = 0;
-    b2l_msg.transform.rotation.y = 0;
-    b2l_msg.transform.rotation.z = 0;
-    b2l_msg.transform.rotation.w = 1;
-    static_tf_broadcaster_.sendTransform(b2l_msg);
-
-    // Transform base frame to right frame
-    auto &&b2r_ex = api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT);
-    tf::Quaternion b2r_q;
-    tf::Matrix3x3 b2r_r(
-        b2r_ex.rotation[0][0], b2r_ex.rotation[0][1], b2r_ex.rotation[0][2],
-        b2r_ex.rotation[1][0], b2r_ex.rotation[1][1], b2r_ex.rotation[1][2],
-        b2r_ex.rotation[2][0], b2r_ex.rotation[2][1], b2r_ex.rotation[2][2]);
-    b2r_r.getRotation(b2r_q);
-    geometry_msgs::TransformStamped b2r_msg;
-    b2r_msg.header.stamp = tf_stamp;
-    b2r_msg.header.frame_id = base_frame_id_;
-    b2r_msg.child_frame_id = frame_ids_[Stream::RIGHT];
-    b2r_msg.transform.translation.x = b2r_ex.translation[0];
-    b2r_msg.transform.translation.y = b2r_ex.translation[1];
-    b2r_msg.transform.translation.z = b2r_ex.translation[2];
-    b2r_msg.transform.rotation.x = b2r_q.getX();
-    b2r_msg.transform.rotation.y = b2r_q.getY();
-    b2r_msg.transform.rotation.z = b2r_q.getZ();
-    b2r_msg.transform.rotation.w = b2r_q.getW();
-    static_tf_broadcaster_.sendTransform(b2r_msg);
-
-    // Transform base frame to imu frame
-    geometry_msgs::TransformStamped b2i_msg;
-    b2i_msg.header.stamp = tf_stamp;
-    b2i_msg.header.frame_id = base_frame_id_;
-    b2i_msg.child_frame_id = imu_frame_id_;
-    b2i_msg.transform.translation.x = 0;
-    b2i_msg.transform.translation.y = 0;
-    b2i_msg.transform.translation.z = 0;
-    b2i_msg.transform.rotation.x = 0;
-    b2i_msg.transform.rotation.y = 0;
-    b2i_msg.transform.rotation.z = 0;
-    b2i_msg.transform.rotation.w = 1;
-    static_tf_broadcaster_.sendTransform(b2i_msg);
-  }
-
   void publishTopics() {
     api_->SetStreamCallback(
         Stream::LEFT, [this](const api::StreamData &data) {
@@ -289,6 +237,13 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
             publishImage(stream, data, count, ros::Time::now());
           });
     }
+
+    api_->SetStreamCallback(
+        Stream::POINTS, [this](const api::StreamData &data) {
+          static std::size_t count = 0;
+          ++count;
+          publishPoints(data, count, ros::Time::now());
+        });
 
     api_->SetMotionCallback([this](const api::MotionData &data) {
       static double ros_time_beg = ros::Time::now().toSec();
@@ -364,8 +319,62 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     image_publishers_[stream].publish(msg);
   }
 
-  // void publishPoints(
-  // )
+  void publishPoints(
+      const api::StreamData &data, std::uint32_t seq, ros::Time stamp) {
+    if (points_publisher_.getNumSubscribers() == 0)
+      return;
+
+    auto &&in = api_->GetIntrinsics(Stream::LEFT);
+
+    sensor_msgs::PointCloud2 msg;
+    msg.header.seq = seq;
+    msg.header.stamp = stamp;
+    msg.header.frame_id = frame_ids_[Stream::POINTS];
+    msg.width = in.width;
+    msg.height = in.height;
+    msg.is_dense = true;
+
+    sensor_msgs::PointCloud2Modifier modifier(msg);
+
+    modifier.setPointCloud2Fields(
+        4, "x", 1, sensor_msgs::PointField::FLOAT32, "y", 1,
+        sensor_msgs::PointField::FLOAT32, "z", 1,
+        sensor_msgs::PointField::FLOAT32, "rgb", 1,
+        sensor_msgs::PointField::FLOAT32);
+
+    modifier.setPointCloud2FieldsByString(2, "xyz", "rgb");
+
+    sensor_msgs::PointCloud2Iterator<float> iter_x(msg, "x");
+    sensor_msgs::PointCloud2Iterator<float> iter_y(msg, "y");
+    sensor_msgs::PointCloud2Iterator<float> iter_z(msg, "z");
+
+    sensor_msgs::PointCloud2Iterator<uint8_t> iter_r(msg, "r");
+    sensor_msgs::PointCloud2Iterator<uint8_t> iter_g(msg, "g");
+    sensor_msgs::PointCloud2Iterator<uint8_t> iter_b(msg, "b");
+
+    for (std::size_t y = 0; y < in.height; ++y) {
+      for (std::size_t x = 0; x < in.width; ++x) {
+        auto &&point = data.frame.at<cv::Vec3f>(y, x);
+
+        *iter_x = point[0];
+        *iter_y = point[1];
+        *iter_z = point[2];
+
+        *iter_r = static_cast<uint8_t>(255);
+        *iter_g = static_cast<uint8_t>(255);
+        *iter_b = static_cast<uint8_t>(255);
+
+        ++iter_x;
+        ++iter_y;
+        ++iter_z;
+        ++iter_r;
+        ++iter_g;
+        ++iter_b;
+      }
+    }
+
+    points_publisher_.publish(msg);
+  }
 
   void publishImu(
       const api::MotionData &data, std::uint32_t seq, ros::Time stamp) {
@@ -532,6 +541,157 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     camera_info->R.at(8) = 1.0;
 
     return camera_info_ptrs_[stream];
+  }
+
+  void publishStaticTransforms() {
+    ros::Time tf_stamp = ros::Time::now();
+
+    // The left frame is used as the base frame.
+    geometry_msgs::TransformStamped b2l_msg;
+    b2l_msg.header.stamp = tf_stamp;
+    b2l_msg.header.frame_id = base_frame_id_;
+    b2l_msg.child_frame_id = frame_ids_[Stream::LEFT];
+    b2l_msg.transform.translation.x = 0;
+    b2l_msg.transform.translation.y = 0;
+    b2l_msg.transform.translation.z = 0;
+    b2l_msg.transform.rotation.x = 0;
+    b2l_msg.transform.rotation.y = 0;
+    b2l_msg.transform.rotation.z = 0;
+    b2l_msg.transform.rotation.w = 1;
+    static_tf_broadcaster_.sendTransform(b2l_msg);
+
+    // Transform left frame to right frame
+    auto &&l2r_ex = api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT);
+    tf::Quaternion l2r_q;
+    tf::Matrix3x3 l2r_r(
+        l2r_ex.rotation[0][0], l2r_ex.rotation[0][1], l2r_ex.rotation[0][2],
+        l2r_ex.rotation[1][0], l2r_ex.rotation[1][1], l2r_ex.rotation[1][2],
+        l2r_ex.rotation[2][0], l2r_ex.rotation[2][1], l2r_ex.rotation[2][2]);
+    l2r_r.getRotation(l2r_q);
+    geometry_msgs::TransformStamped l2r_msg;
+    l2r_msg.header.stamp = tf_stamp;
+    l2r_msg.header.frame_id = frame_ids_[Stream::LEFT];
+    l2r_msg.child_frame_id = frame_ids_[Stream::RIGHT];
+    l2r_msg.transform.translation.x = l2r_ex.translation[0];
+    l2r_msg.transform.translation.y = l2r_ex.translation[1];
+    l2r_msg.transform.translation.z = l2r_ex.translation[2];
+    l2r_msg.transform.rotation.x = l2r_q.getX();
+    l2r_msg.transform.rotation.y = l2r_q.getY();
+    l2r_msg.transform.rotation.z = l2r_q.getZ();
+    l2r_msg.transform.rotation.w = l2r_q.getW();
+    static_tf_broadcaster_.sendTransform(l2r_msg);
+
+    // Transform left frame to left_rect frame
+    geometry_msgs::TransformStamped l2rect_msg;
+    l2rect_msg.header.stamp = tf_stamp;
+    l2rect_msg.header.frame_id = frame_ids_[Stream::LEFT];
+    l2rect_msg.child_frame_id = frame_ids_[Stream::LEFT_RECTIFIED];
+    l2rect_msg.transform.translation.x = 0;
+    l2rect_msg.transform.translation.y = 0;
+    l2rect_msg.transform.translation.z = 0;
+    l2rect_msg.transform.rotation.x = 0;
+    l2rect_msg.transform.rotation.y = 0;
+    l2rect_msg.transform.rotation.z = 0;
+    l2rect_msg.transform.rotation.w = 1;
+    static_tf_broadcaster_.sendTransform(l2rect_msg);
+
+    // Transform right frame to right_rect frame
+    geometry_msgs::TransformStamped r2rect_msg;
+    r2rect_msg.header.stamp = tf_stamp;
+    r2rect_msg.header.frame_id = frame_ids_[Stream::RIGHT];
+    r2rect_msg.child_frame_id = frame_ids_[Stream::RIGHT_RECTIFIED];
+    r2rect_msg.transform.translation.x = 0;
+    r2rect_msg.transform.translation.y = 0;
+    r2rect_msg.transform.translation.z = 0;
+    r2rect_msg.transform.rotation.x = 0;
+    r2rect_msg.transform.rotation.y = 0;
+    r2rect_msg.transform.rotation.z = 0;
+    r2rect_msg.transform.rotation.w = 1;
+    static_tf_broadcaster_.sendTransform(r2rect_msg);
+
+    // Transform left frame to disparity frame
+    geometry_msgs::TransformStamped l2disp_msg;
+    l2disp_msg.header.stamp = tf_stamp;
+    l2disp_msg.header.frame_id = frame_ids_[Stream::LEFT];
+    l2disp_msg.child_frame_id = frame_ids_[Stream::DISPARITY];
+    l2disp_msg.transform.translation.x = 0;
+    l2disp_msg.transform.translation.y = 0;
+    l2disp_msg.transform.translation.z = 0;
+    l2disp_msg.transform.rotation.x = 0;
+    l2disp_msg.transform.rotation.y = 0;
+    l2disp_msg.transform.rotation.z = 0;
+    l2disp_msg.transform.rotation.w = 1;
+    static_tf_broadcaster_.sendTransform(l2disp_msg);
+
+    // Transform disparity frame to disparity_norm frame
+    geometry_msgs::TransformStamped disp2norm_msg;
+    disp2norm_msg.header.stamp = tf_stamp;
+    disp2norm_msg.header.frame_id = frame_ids_[Stream::DISPARITY];
+    disp2norm_msg.child_frame_id = frame_ids_[Stream::DISPARITY_NORMALIZED];
+    disp2norm_msg.transform.translation.x = 0;
+    disp2norm_msg.transform.translation.y = 0;
+    disp2norm_msg.transform.translation.z = 0;
+    disp2norm_msg.transform.rotation.x = 0;
+    disp2norm_msg.transform.rotation.y = 0;
+    disp2norm_msg.transform.rotation.z = 0;
+    disp2norm_msg.transform.rotation.w = 1;
+    static_tf_broadcaster_.sendTransform(disp2norm_msg);
+
+    // Transform left frame to depth frame
+    geometry_msgs::TransformStamped b2d_msg;
+    b2d_msg.header.stamp = tf_stamp;
+    b2d_msg.header.frame_id = frame_ids_[Stream::LEFT];
+    b2d_msg.child_frame_id = frame_ids_[Stream::DEPTH];
+    b2d_msg.transform.translation.x = 0;
+    b2d_msg.transform.translation.y = 0;
+    b2d_msg.transform.translation.z = 0;
+    b2d_msg.transform.rotation.x = 0;
+    b2d_msg.transform.rotation.y = 0;
+    b2d_msg.transform.rotation.z = 0;
+    b2d_msg.transform.rotation.w = 1;
+    static_tf_broadcaster_.sendTransform(b2d_msg);
+
+    // Transform left frame to points frame
+    geometry_msgs::TransformStamped b2p_msg;
+    b2p_msg.header.stamp = tf_stamp;
+    b2p_msg.header.frame_id = frame_ids_[Stream::LEFT];
+    b2p_msg.child_frame_id = frame_ids_[Stream::POINTS];
+    b2p_msg.transform.translation.x = 0;
+    b2p_msg.transform.translation.y = 0;
+    b2p_msg.transform.translation.z = 0;
+    b2p_msg.transform.rotation.x = 0;
+    b2p_msg.transform.rotation.y = 0;
+    b2p_msg.transform.rotation.z = 0;
+    b2p_msg.transform.rotation.w = 1;
+    static_tf_broadcaster_.sendTransform(b2p_msg);
+
+    // Transform left frame to imu frame
+    auto &&l2i_ex = api_->GetMotionExtrinsics(Stream::LEFT);
+    geometry_msgs::TransformStamped l2i_msg;
+    l2i_msg.header.stamp = tf_stamp;
+    l2i_msg.header.frame_id = frame_ids_[Stream::LEFT];
+    l2i_msg.child_frame_id = imu_frame_id_;
+    l2i_msg.transform.translation.x = l2i_ex.translation[0];
+    l2i_msg.transform.translation.y = l2i_ex.translation[1];
+    l2i_msg.transform.translation.z = l2i_ex.translation[2];
+    if (l2i_ex.rotation[0][0] == 0 && l2i_ex.rotation[2][2] == 0) {
+      l2i_msg.transform.rotation.x = 0;
+      l2i_msg.transform.rotation.y = 0;
+      l2i_msg.transform.rotation.z = 0;
+      l2i_msg.transform.rotation.w = 1;
+    } else {
+      tf::Quaternion l2i_q;
+      tf::Matrix3x3 l2i_r(
+          l2i_ex.rotation[0][0], l2i_ex.rotation[0][1], l2i_ex.rotation[0][2],
+          l2i_ex.rotation[1][0], l2i_ex.rotation[1][1], l2i_ex.rotation[1][2],
+          l2i_ex.rotation[2][0], l2i_ex.rotation[2][1], l2i_ex.rotation[2][2]);
+      l2i_r.getRotation(l2i_q);
+      l2i_msg.transform.rotation.x = l2i_q.getX();
+      l2i_msg.transform.rotation.y = l2i_q.getY();
+      l2i_msg.transform.rotation.z = l2i_q.getZ();
+      l2i_msg.transform.rotation.w = l2i_q.getW();
+    }
+    static_tf_broadcaster_.sendTransform(l2i_msg);
   }
 
   ros::NodeHandle nh_;
