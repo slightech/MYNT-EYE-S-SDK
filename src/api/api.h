@@ -40,6 +40,9 @@ class MYNTEYE_API API {
 
   static std::shared_ptr<API> Create();
   static std::shared_ptr<API> Create(std::shared_ptr<Device> device);
+  static std::shared_ptr<API> Create(int argc, char *argv[]);
+  static std::shared_ptr<API> Create(
+      int argc, char *argv[], std::shared_ptr<Device> device);
 
   Model GetModel() const;
 

@@ -4,6 +4,7 @@
 
 #include <thread>
 
+#include "mynteye/glog_init.h"
 #include "mynteye/utils.h"
 
 #include "api/synthetic.h"
@@ -25,6 +26,17 @@ std::shared_ptr<API> API::Create() {
 }
 
 std::shared_ptr<API> API::Create(std::shared_ptr<Device> device) {
+  return std::make_shared<API>(device);
+}
+
+std::shared_ptr<API> API::Create(int argc, char *argv[]) {
+  static glog_init _(argc, argv);
+  return std::make_shared<API>(device::select());
+}
+
+std::shared_ptr<API> API::Create(
+    int argc, char *argv[], std::shared_ptr<Device> device) {
+  static glog_init _(argc, argv);
   return std::make_shared<API>(device);
 }
 
