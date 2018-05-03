@@ -48,8 +48,8 @@ endmacro()
 #                       [BIN_DIR bin_dir]
 #                       [DLL_SEARCH_PATHS path1 path2 ...])
 macro(target_create_scripts NAME)
-  set(options BIN_DIR)
-  set(oneValueArgs)
+  set(options)
+  set(oneValueArgs BIN_DIR)
   set(multiValueArgs DLL_SEARCH_PATHS)
   cmake_parse_arguments(THIS "${options}" "${oneValueArgs}"
                         "${multiValueArgs}" ${ARGN})
