@@ -68,3 +68,7 @@ add_subdirectory(device)
 # samples above uvc layer
 
 add_subdirectory(uvc)
+
+# tutorials
+
+add_subdirectory(tutorials)
