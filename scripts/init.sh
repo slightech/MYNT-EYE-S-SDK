@@ -161,8 +161,10 @@ $PYTHON "$ROOT_DIR/tools/linter/init-git-hooks.py"
 
 _echo_s "Expect cmake version >= 3.0"
 cmake --version | head -1
-# sudo apt remove cmake
-_echo "How to upgrade cmake in Ubuntu"
-_echo "  https://askubuntu.com/questions/829310/how-to-upgrade-cmake-in-ubuntu"
+if [ "$HOST_NAME" = "Ubuntu" ]; then
+  # sudo apt remove cmake
+  _echo "How to upgrade cmake in Ubuntu"
+  _echo "  https://askubuntu.com/questions/829310/how-to-upgrade-cmake-in-ubuntu"
+fi
 
 exit 0
