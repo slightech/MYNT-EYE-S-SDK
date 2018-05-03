@@ -92,8 +92,18 @@ Init git hooks
 ERROR: clang-format-diff is not installed!
 Expect cmake version >= 3.0
 cmake version 3.10.1
-How to upgrade cmake in Ubuntu
-  https://askubuntu.com/questions/829310/how-to-upgrade-cmake-in-ubuntu
+```
+
+### [OpenCV](https://opencv.org/)
+
+编译前，可在系统终端（Windows 命令提示符）里如下指定 OpenCV 路径，其为 `OpenCVConfig.cmake` 目录：
+
+```bash
+# Linux, macOS
+export OpenCV_DIR=~/opencv
+
+# Windows
+set OpenCV_DIR=C:\opencv
 ```
 
 ## 编译代码

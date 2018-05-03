@@ -15,6 +15,18 @@ cd mynt-eye-sdk-2/
 make init
 ```
 
+### [OpenCV](https://opencv.org/)
+
+编译前，可在系统终端（Windows 命令提示符）里如下指定 OpenCV 路径，其为 `OpenCVConfig.cmake` 目录：
+
+```bash
+# Linux, macOS
+export OpenCV_DIR=~/opencv
+
+# Windows
+set OpenCV_DIR=C:\opencv
+```
+
 ## 编译代码
 
 ```bash
