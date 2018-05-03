@@ -14,7 +14,6 @@ if [ "$HOST_OS" = "Win" ]; then
   PYTHON="python2"
 fi
 
-_detect curl
 _detect $PYTHON
 
 if [ "$HOST_OS" = "Linux" ]; then
@@ -61,7 +60,7 @@ if [ "$HOST_OS" = "Linux" ]; then
   # detect apt-get
   _detect apt-get
   # apt-get install
-  _install_deps "sudo apt-get install" build-essential cmake git clang-format
+  _install_deps "sudo apt-get install" build-essential curl cmake git clang-format
   _install_deps "sudo apt-get install" libv4l-dev
   if ! _detect_cmd clang-format; then
     # on Ubuntu 14.04, apt-cache search clang-format
@@ -75,11 +74,12 @@ elif [ "$HOST_OS" = "Mac" ]; then
   # detect brew
   if ! _detect_cmd brew; then
     _echo_sn "Install brew"
+    _detect curl
     _detect ruby
     ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   fi
   # brew install
-  _install_deps "brew install" cmake git clang-format
+  _install_deps "brew install" curl cmake git clang-format
   # link clang-format-diff (if not compatible with Python 3, fix it by yourself)
   [ -f "/usr/local/bin/clang-format-diff" ] || \
     ln -s /usr/local/share/clang/clang-format-diff.py /usr/local/bin/clang-format-diff
@@ -88,7 +88,7 @@ elif [ "$HOST_OS" = "Win" ]; then
   # detect pacman on MSYS
   _detect pacman
   # pacman install (common)
-  _install_deps "pacman -S" git clang-format
+  _install_deps "pacman -S" curl git clang-format
   if [ "$HOST_NAME" = "MINGW" ]; then
     # pacman install (MINGW)
     _deps=()
