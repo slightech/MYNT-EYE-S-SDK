@@ -49,6 +49,7 @@ class MYNTEYE_API API {
   bool Supports(const Stream &stream) const;
   bool Supports(const Capabilities &capability) const;
   bool Supports(const Option &option) const;
+  bool Supports(const AddOns &addon) const;
 
   const std::vector<StreamRequest> &GetStreamRequests(
       const Capabilities &capability) const;

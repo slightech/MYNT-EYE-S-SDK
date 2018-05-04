@@ -419,6 +419,9 @@ struct MYNTEYE_API OptionInfo {
   std::int32_t def;
 };
 
+MYNTEYE_API
+std::ostream &operator<<(std::ostream &os, const OptionInfo &info);
+
 MYNTEYE_END_NAMESPACE
 
 #endif  // MYNTEYE_TYPES_H_ NOLINT

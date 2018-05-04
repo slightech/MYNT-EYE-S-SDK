@@ -91,6 +91,18 @@ bool Device::Supports(const Option &option) const {
   return supports.find(option) != supports.end();
 }
 
+bool Device::Supports(const AddOns &addon) const {
+  CHECK_NOTNULL(device_info_);
+  auto &&hw_flag = device_info_->hardware_version.flag();
+  switch (addon) {
+    case AddOns::INFRARED:
+      return hw_flag[0];
+    case AddOns::INFRARED2:
+      return hw_flag[1];
+    default: { LOG(FATAL) << "Unknown add-on"; }
+  }
+}
+
 const std::vector<StreamRequest> &Device::GetStreamRequests(
     const Capabilities &capability) const {
   if (!Supports(capability)) {

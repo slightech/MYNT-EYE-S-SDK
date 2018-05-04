@@ -225,4 +225,9 @@ std::ostream &operator<<(std::ostream &os, const Extrinsics &ex) {
   return os;
 }
 
+std::ostream &operator<<(std::ostream &os, const OptionInfo &info) {
+  return os << "min: " << info.min << ", max: " << info.max
+            << ", def: " << info.def;
+}
+
 MYNTEYE_END_NAMESPACE

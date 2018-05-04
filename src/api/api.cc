@@ -56,6 +56,10 @@ bool API::Supports(const Option &option) const {
   return device_->Supports(option);
 }
 
+bool API::Supports(const AddOns &addon) const {
+  return device_->Supports(addon);
+}
+
 const std::vector<StreamRequest> &API::GetStreamRequests(
     const Capabilities &capability) const {
   return device_->GetStreamRequests(capability);
