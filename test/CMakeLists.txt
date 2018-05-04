@@ -52,6 +52,9 @@ message(STATUS "Found mynteye: ${mynteye_VERSION}")
 
 LIST(APPEND CMAKE_MODULE_PATH ${PRO_DIR}/cmake)
 
+find_package(OpenCV REQUIRED)
+message(STATUS "Found OpenCV: ${OpenCV_VERSION}")
+
 ## gtest
 
 set(TEST_DIR ${PROJECT_SOURCE_DIR})
@@ -93,9 +96,10 @@ add_executable(${PROJECT_NAME}
   ${TEST_INTERNAL_SRC}
   ${TEST_PUBLIC_SRC}
 )
-target_link_libraries(${PROJECT_NAME} ${GTEST_LIBS} mynteye)
+target_link_libraries(${PROJECT_NAME} mynteye ${GTEST_LIBS} ${OpenCV_LIBS})
 target_create_scripts(${PROJECT_NAME} DLL_SEARCH_PATHS
   ${PRO_DIR}/_install/bin
+  ${OpenCV_LIB_SEARCH_PATH}
 )
 
 if(OS_WIN)

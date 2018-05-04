@@ -68,6 +68,11 @@ TEST(Source, VerifyToString) {
   EXPECT_STREQ("Source::ALL", to_string(Source::ALL));
 }
 
+TEST(AddOns, VerifyToString) {
+  EXPECT_STREQ("AddOns::INFRARED", to_string(AddOns::INFRARED));
+  EXPECT_STREQ("AddOns::INFRARED2", to_string(AddOns::INFRARED2));
+}
+
 TEST(Format, VerifyToString) {
   EXPECT_STREQ("Format::GREY", to_string(Format::GREY));
   EXPECT_STREQ("Format::YUYV", to_string(Format::YUYV));

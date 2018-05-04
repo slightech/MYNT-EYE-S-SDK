@@ -122,6 +122,19 @@ const char *to_string(const Source &value) {
 #undef CASE
 }
 
+const char *to_string(const AddOns &value) {
+#define CASE(X)   \
+  case AddOns::X: \
+    return "AddOns::" #X;
+  switch (value) {
+    CASE(INFRARED)
+    CASE(INFRARED2)
+    default:
+      return "AddOns::UNKNOWN";
+  }
+#undef CASE
+}
+
 const char *to_string(const Format &value) {
 #define CASE(X)   \
   case Format::X: \

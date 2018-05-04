@@ -165,6 +165,19 @@ enum class Source : std::uint8_t {
   LAST
 };
 
+/**
+ * @ingroup enumerations
+ * @brief Add-Ons are peripheral modules of our hardware.
+ */
+enum class AddOns : std::uint8_t {
+  /** Infrared */
+  INFRARED,
+  /** Second infrared */
+  INFRARED2,
+  /** Last guard */
+  LAST
+};
+
 #define MYNTEYE_ENUM_HELPERS(TYPE)                                       \
   MYNTEYE_API const char *to_string(const TYPE &value);                  \
   inline bool is_valid(const TYPE &value) {                              \
@@ -187,6 +200,7 @@ MYNTEYE_ENUM_HELPERS(Capabilities)
 MYNTEYE_ENUM_HELPERS(Info)
 MYNTEYE_ENUM_HELPERS(Option)
 MYNTEYE_ENUM_HELPERS(Source)
+MYNTEYE_ENUM_HELPERS(AddOns)
 
 #undef MYNTEYE_ENUM_HELPERS
 
