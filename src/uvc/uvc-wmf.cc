@@ -449,7 +449,7 @@ std::vector<std::shared_ptr<device>> query_devices(std::shared_ptr<context> cont
     if (!parse_usb_path(vid, pid, mi, unique_id, dev_name)) continue;
 
     std::shared_ptr<device> dev;
-for(auto & d : devices) {
+    for(auto & d : devices) {
       if(d->vid == vid && d->pid == pid && d->unique_id == unique_id)
         dev = d;
     }
