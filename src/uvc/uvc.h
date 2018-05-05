@@ -23,9 +23,13 @@ typedef enum pu_query {
   PU_QUERY_LAST
 } pu_query;
 
+struct guid { uint32_t data1; uint16_t data2, data3; uint8_t data4[8]; };
+
 // Extension Unit
 struct MYNTEYE_API xu {
   uint8_t unit;
+  int node;
+  guid id;
 };
 
 typedef enum xu_query {
