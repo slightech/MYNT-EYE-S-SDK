@@ -51,6 +51,8 @@ include(CMakePackageConfigHelpers)
 
 # config
 
+set(MYNTEYE_NAME ${PROJECT_NAME})
+
 set(MYNTEYE_NAMESPACE "mynteye")
 message(STATUS "Namespace: ${MYNTEYE_NAMESPACE}")
 
@@ -86,8 +88,6 @@ target_include_directories(main PRIVATE
 
 ## libmynteye
 
-set(MYNTEYE_NAME ${PROJECT_NAME})
-
 set(MYNTEYE_PUBLIC_H
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/callbacks.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/global.h
@@ -104,6 +104,8 @@ set(MYNTEYE_PUBLIC_H
 if(WITH_API)
   list(APPEND MYNTEYE_PUBLIC_H
     ${CMAKE_CURRENT_SOURCE_DIR}/src/api/api.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/plugin.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/processor/object.h
   )
 endif()
 
