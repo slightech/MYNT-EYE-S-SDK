@@ -15,6 +15,8 @@ MYNTEYE_BEGIN_NAMESPACE
 
 namespace {
 
+const uvc::xu mynteye_xu = {3, 1, {0x18682d34, 0xdd2c, 0x4073, {0xad, 0x23, 0x72, 0x14, 0x73, 0x9a, 0x07, 0x4c}}};
+
 int XuCamCtrlId(Option option) {
   switch (option) {
     case Option::EXPOSURE_MODE:
@@ -838,7 +840,7 @@ bool Channels::PuControlQuery(
 bool Channels::XuControlQuery(
     channel_t channel, uvc::xu_query query, uint16_t size,
     uint8_t *data) const {
-  return XuControlQuery({3}, channel >> 8, query, size, data);
+  return XuControlQuery(mynteye_xu, channel >> 8, query, size, data);
 }
 
 bool Channels::XuControlQuery(

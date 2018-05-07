@@ -139,7 +139,7 @@ static std::string win_to_utf(const WCHAR * s)
 static void check(const char *call, HRESULT hr)
 {
   if (FAILED(hr)) {
-    throw_error() << call << "(...) returned 0x" << std::hex << (uint32_t)hr;
+    throw_error() << call << "(...) returned 0x" << std::hex << (uint32_t)hr;    
   }
 }
 
@@ -278,7 +278,7 @@ public:
 struct device {
   const std::shared_ptr<context> parent;
   int vid, pid;
-  const std::string unique_id;
+  std::string unique_id;
   std::string name;
 
   com_ptr<reader_callback> reader_callback;
@@ -551,14 +551,14 @@ bool pu_control_query(
       return false;
   }
 }
-
+/*
 void get_extension_control_range(const device &device, const xu &xu, uint8_t selector, xu_query query, uint8_t *data)
 {
   CHECK_NOTNULL(data);
   int offset = 0;
   auto ks_control = const_cast<uvc::device &>(device).get_ks_control(xu);
 
-  /* get step, min and max values*/
+  // get step, min and max values
   KSP_NODE node;
   memset(&node, 0, sizeof(KSP_NODE));
   node.Property.Set = reinterpret_cast<const GUID &>(xu.id);
@@ -610,7 +610,7 @@ void get_extension_control_range(const device &device, const xu &xu, uint8_t sel
   * data = (uint8_t)*(pRangeValues + offset);
 
 }
-
+*/
 bool xu_control_query(
   const device &device, const xu &xu, uint8_t selector, xu_query query,
   uint16_t size, uint8_t *data)
@@ -634,10 +634,16 @@ bool xu_control_query(
       node.Property.Flags = KSPROPERTY_TYPE_SET | KSPROPERTY_TYPE_TOPOLOGY;
       break;
     case XU_QUERY_MIN:
+      offset = 1;
+      node.Property.Flags = KSPROPERTY_TYPE_BASICSUPPORT | KSPROPERTY_TYPE_TOPOLOGY;
+      break;
     case XU_QUERY_MAX:
+      offset = 2;
+      node.Property.Flags = KSPROPERTY_TYPE_BASICSUPPORT | KSPROPERTY_TYPE_TOPOLOGY;
+      break;
     case XU_QUERY_DEF:
-      get_extension_control_range(device, xu, selector, query, data);
-      return true;
+      node.Property.Flags = KSPROPERTY_TYPE_DEFAULTVALUES | KSPROPERTY_TYPE_TOPOLOGY;
+      break;
     default:
       return false;
   }
