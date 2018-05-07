@@ -310,8 +310,8 @@ struct device {
 
     GUID node_type;
     check("get_NodeType", ks_topology_info->get_NodeType(xu.node, &node_type));
-    //const GUID KSNODETYPE_DEV_SPECIFIC_LOCAL{0x6BDD1FC6, 0X810F, 0x11D0, {0xBE, 0xC7 ,0x08, 0x00, 0x2B, 0xE2, 0x09, 0x2F}};
-    //if(node_type != KSNODETYPE_DEV_SPECIFIC_LOCAL) throw_error() << "Invalid extension unit node ID: " << xu.node;
+    const GUID KSNODETYPE_DEV_SPECIFIC_LOCAL{0xDFF229E5, 0xF70F, 0x11D0, {0xB9, 0x17 ,0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96}};
+    if(node_type != KSNODETYPE_DEV_SPECIFIC_LOCAL) throw_error() << "Invalid extension unit node ID: " << xu.node;
 
     com_ptr<IUnknown> unknown;
     check("CreateNodeInstance", ks_topology_info->CreateNodeInstance(xu.node, IID_IUnknown, (LPVOID *)&unknown));
