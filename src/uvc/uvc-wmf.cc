@@ -670,7 +670,7 @@ bool xu_control_query(
     default:
       return false;
   }
-  check("IKsControl::KsProperty", ks_control->KsProperty((PKSPROPERTY)&node, sizeof(KSP_NODE), data, size, &bytes_received));
+  check("IKsControl::KsProperty", ks_control->KsProperty((PKSPROPERTY)&node, sizeof(node), data, size, &bytes_received));
   if (bytes_received != size) {
     throw_error() << "wrong data";
   }
