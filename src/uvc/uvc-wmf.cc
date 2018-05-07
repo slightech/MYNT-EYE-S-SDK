@@ -654,7 +654,7 @@ bool xu_control_query(
       node.Property.Flags = KSPROPERTY_TYPE_SET | KSPROPERTY_TYPE_TOPOLOGY;
       break;
     case XU_QUERY_GET:
-      node.Property.Flags = KSPROPERTY_TYPE_SET | KSPROPERTY_TYPE_TOPOLOGY;
+      node.Property.Flags = KSPROPERTY_TYPE_GET | KSPROPERTY_TYPE_TOPOLOGY;
       break;
     case XU_QUERY_MIN:
       offset = 1;
@@ -670,7 +670,7 @@ bool xu_control_query(
     default:
       return false;
   }
-  check("IKsControl::KsProperty", ks_control->KsProperty((PKSPROPERTY)&node, sizeof(node), reinterpret_cast<void *>(data), size, &bytes_received));
+  check("IKsControl::KsProperty", ks_control->KsProperty((PKSPROPERTY)&node, sizeof(KSP_NODE), data, size, &bytes_received));
   if (bytes_received != size) {
     throw_error() << "wrong data";
   }
