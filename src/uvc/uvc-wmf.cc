@@ -141,6 +141,7 @@ static void check(const char *call, HRESULT hr)
   if (FAILED(hr)) {
     throw_error() << call << "(...) returned 0x" << std::hex << (uint32_t)hr;    
   }
+  LOG(INFO) << call << " SUCCESSED";
 }
 
 std::vector<std::string> tokenize(std::string string, char separator)
@@ -156,6 +157,18 @@ std::vector<std::string> tokenize(std::string string, char separator)
     tokens.push_back(string.substr(i1, i2-i1));
     i1 = i2+1;
   }
+}
+
+static void print_guid(const char *call, GUID guid) {
+  std::cout << call << ":";
+  std::cout << " Data1: " << std::hex << guid.Data1 << ",";
+  std::cout << " Data2: " << std::hex << guid.Data2 << ",";
+  std::cout << " Data3: " << std::hex << guid.Data3 << ",";
+  std::cout << " Data4: [ ";
+  for(int j = 0; j < 8; j++) {
+    std::cout << std::hex << (int)guid.Data4[j] << " ";
+  }
+  std::cout << "]" << std::endl;
 }
 
 bool parse_usb_path(int & vid, int & pid, int & mi, std::string & unique_id, const std::string & path)
@@ -299,18 +312,28 @@ struct device {
 
 
   IKsControl * get_ks_control(const uvc::xu & xu) {
+    
     auto it = ks_controls.find(xu.node);
     if(it != end(ks_controls)) return it->second;
-
+    
     get_media_source();
-
+    
     // Attempt to retrieve IKsControl
     com_ptr<IKsTopologyInfo> ks_topology_info = NULL;
-    check("QueryInterface", mf_media_source->QueryInterface(__uuidof(IKsTopologyInfo), (void **)&ks_topology_info));
+    check("QueryInterface", mf_media_source->QueryInterface(__uuidof(IKsTopologyInfo), (void **)&ks_topology_info));  
 
     GUID node_type;
+    /*
+    DWORD numberOfNodes;
+    check("get_NumNodes",ks_topology_info->get_NumNodes(&numberOfNodes));
+    for(int i = 0; i < numberOfNodes; i++) {
+      check("get_NodeType", ks_topology_info->get_NodeType(i, &node_type));
+      std::cout << "node" << i << " ";  
+      print_guid("node_type", node_type);
+    }
+    */
     check("get_NodeType", ks_topology_info->get_NodeType(xu.node, &node_type));
-    const GUID KSNODETYPE_DEV_SPECIFIC_LOCAL{0xDFF229E5, 0xF70F, 0x11D0, {0xB9, 0x17 ,0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96}};
+    const GUID KSNODETYPE_DEV_SPECIFIC_LOCAL{0x941C7AC0L, 0xC559, 0x11D0, {0x8A, 0x2B, 0x00, 0xA0, 0xC9, 0x25, 0x5A, 0xC1}};
     if(node_type != KSNODETYPE_DEV_SPECIFIC_LOCAL) throw_error() << "Invalid extension unit node ID: " << xu.node;
 
     com_ptr<IUnknown> unknown;
@@ -318,7 +341,7 @@ struct device {
 
     com_ptr<IKsControl> ks_control;
     check("QueryInterface", unknown->QueryInterface(__uuidof(IKsControl), (void **)&ks_control));
-    VLOG(2) << "Obtained KS control node" << xu.node;
+    LOG(INFO) << "Obtained KS control node : " << xu.node;
     return ks_controls[xu.node] = ks_control;
   }
 
