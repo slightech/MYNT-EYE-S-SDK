@@ -92,6 +92,8 @@ class MYNTEYE_API API {
       std::size_t max_size = std::numeric_limits<std::size_t>::max());
   std::vector<api::MotionData> GetMotionDatas();
 
+  void EnablePlugin(const std::string &path);
+
   std::shared_ptr<Device> device();
 
  private:

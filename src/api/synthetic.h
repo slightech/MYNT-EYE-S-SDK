@@ -13,6 +13,7 @@ MYNTEYE_BEGIN_NAMESPACE
 
 class API;
 class Object;
+class Plugin;
 class Processor;
 
 class Synthetic {
@@ -45,6 +46,8 @@ class Synthetic {
 
   api::StreamData GetStreamData(const Stream &stream);
   std::vector<api::StreamData> GetStreamDatas(const Stream &stream);
+
+  void SetPlugin(std::shared_ptr<Plugin> plugin);
 
  private:
   void InitStreamSupports();
@@ -90,6 +93,8 @@ class Synthetic {
   std::map<Stream, stream_callback_t> stream_callbacks_;
 
   std::shared_ptr<Processor> processor_;
+
+  std::shared_ptr<Plugin> plugin_;
 };
 
 template <class T, class P>

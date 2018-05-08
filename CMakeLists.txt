@@ -128,6 +128,7 @@ set(MYNTEYE_SRCS
   ${UVC_SRC}
   src/internal/channels.cc
   src/internal/config.cc
+  src/internal/dl.cc
   src/internal/files.cc
   src/internal/motions.cc
   src/internal/streams.cc

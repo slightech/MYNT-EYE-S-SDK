@@ -6,6 +6,7 @@
 #include <functional>
 #include <stdexcept>
 
+#include "api/plugin.h"
 #include "api/processor/depth_processor.h"
 #include "api/processor/disparity_normalized_processor.h"
 #include "api/processor/disparity_processor.h"
@@ -31,7 +32,7 @@ api::StreamData data2api(const device::StreamData &data) {
 
 }  // namespace
 
-Synthetic::Synthetic(API *api) : api_(api) {
+Synthetic::Synthetic(API *api) : api_(api), plugin_(nullptr) {
   VLOG(2) << __func__;
   CHECK_NOTNULL(api_);
   InitStreamSupports();
@@ -207,6 +208,10 @@ std::vector<api::StreamData> Synthetic::GetStreamDatas(const Stream &stream) {
                << ", unsupported or disabled";
   }
   return {};
+}
+
+void Synthetic::SetPlugin(std::shared_ptr<Plugin> plugin) {
+  plugin_ = plugin;
 }
 
 void Synthetic::InitStreamSupports() {
@@ -466,42 +471,47 @@ void Synthetic::ProcessNativeStream(
 
 bool Synthetic::OnRectifyProcess(
     Object *const in, Object *const out, Processor *const parent) {
-  UNUSED(in)
-  UNUSED(out)
   UNUSED(parent)
+  if (plugin_ && plugin_->OnRectifyProcess(in, out)) {
+    return true;
+  }
   return GetStreamEnabledMode(Stream::LEFT_RECTIFIED) != MODE_SYNTHETIC;
   // && GetStreamEnabledMode(Stream::RIGHT_RECTIFIED) != MODE_SYNTHETIC
 }
 
 bool Synthetic::OnDisparityProcess(
     Object *const in, Object *const out, Processor *const parent) {
-  UNUSED(in)
-  UNUSED(out)
   UNUSED(parent)
+  if (plugin_ && plugin_->OnDisparityProcess(in, out)) {
+    return true;
+  }
   return GetStreamEnabledMode(Stream::DISPARITY) != MODE_SYNTHETIC;
 }
 
 bool Synthetic::OnDisparityNormalizedProcess(
     Object *const in, Object *const out, Processor *const parent) {
-  UNUSED(in)
-  UNUSED(out)
   UNUSED(parent)
+  if (plugin_ && plugin_->OnDisparityNormalizedProcess(in, out)) {
+    return true;
+  }
   return GetStreamEnabledMode(Stream::DISPARITY_NORMALIZED) != MODE_SYNTHETIC;
 }
 
 bool Synthetic::OnPointsProcess(
     Object *const in, Object *const out, Processor *const parent) {
-  UNUSED(in)
-  UNUSED(out)
   UNUSED(parent)
+  if (plugin_ && plugin_->OnPointsProcess(in, out)) {
+    return true;
+  }
   return GetStreamEnabledMode(Stream::POINTS) != MODE_SYNTHETIC;
 }
 
 bool Synthetic::OnDepthProcess(
     Object *const in, Object *const out, Processor *const parent) {
-  UNUSED(in)
-  UNUSED(out)
   UNUSED(parent)
+  if (plugin_ && plugin_->OnDepthProcess(in, out)) {
+    return true;
+  }
   return GetStreamEnabledMode(Stream::DEPTH) != MODE_SYNTHETIC;
 }
 

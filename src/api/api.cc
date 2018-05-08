@@ -7,8 +7,10 @@
 #include "mynteye/glog_init.h"
 #include "mynteye/utils.h"
 
+#include "api/plugin.h"
 #include "api/synthetic.h"
 #include "device/device.h"
+#include "internal/dl.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -190,6 +192,23 @@ std::vector<api::MotionData> API::GetMotionDatas() {
     datas.push_back({data.imu});
   }
   return datas;
+}
+
+void API::EnablePlugin(const std::string &path) {
+  DL dl;
+  CHECK(dl.Open(path.c_str())) << "Open plugin failed: " << path;
+
+  plugin_version_code_t *plugin_version_code =
+      dl.Sym<plugin_version_code_t>("plugin_version_code");
+  LOG(INFO) << "Enable plugin, version code: " << plugin_version_code();
+
+  plugin_create_t *plugin_create = dl.Sym<plugin_create_t>("plugin_create");
+  plugin_destroy_t *plugin_destroy = dl.Sym<plugin_destroy_t>("plugin_destroy");
+
+  std::shared_ptr<Plugin> plugin(plugin_create(), plugin_destroy);
+  plugin->OnCreate(this);
+
+  synthetic_->SetPlugin(plugin);
 }
 
 std::shared_ptr<Device> API::device() {

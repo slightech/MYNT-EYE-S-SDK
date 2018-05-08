@@ -11,7 +11,7 @@ MYNTEYE_BEGIN_NAMESPACE
 /**
  * Input & output object.
  */
-struct Object {
+struct MYNTEYE_API Object {
   Object() = default;
   virtual ~Object() = default;
 
@@ -28,7 +28,7 @@ struct Object {
   }
 };
 
-struct ObjMat : public Object {
+struct MYNTEYE_API ObjMat : public Object {
   ObjMat() = default;
   explicit ObjMat(const cv::Mat &value) : value(value) {}
 
@@ -41,7 +41,7 @@ struct ObjMat : public Object {
   }
 };
 
-struct ObjMat2 : public Object {
+struct MYNTEYE_API ObjMat2 : public Object {
   ObjMat2() = default;
   ObjMat2(const cv::Mat &first, const cv::Mat &second)
       : first(first), second(second) {}
