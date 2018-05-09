@@ -195,7 +195,7 @@ std::vector<api::MotionData> API::GetMotionDatas() {
 }
 
 void API::EnablePlugin(const std::string &path) {
-  DL dl;
+  static DL dl;
   CHECK(dl.Open(path.c_str())) << "Open plugin failed: " << path;
 
   plugin_version_code_t *plugin_version_code =

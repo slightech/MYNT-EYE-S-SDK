@@ -37,6 +37,7 @@ endmacro()
 if(WITH_API)
 
 make_executable(get_device_info SRCS data/get_device_info.cc)
+make_executable(get_with_plugin SRCS data/get_with_plugin.cc)
 
 make_executable(ctrl_infrared SRCS control/infrared.cc WITH_OPENCV)
 

@@ -12,6 +12,8 @@ _output/
 /*ERROR*
 /*FATAL*
 
+/plugins/
+
 # ros
 
 /wrappers/ros/build
