@@ -21,7 +21,7 @@ struct device {
 
   int vid, pid;
 
-  device(std::shared_ptr<context> parent) : parent(parent) {
+  explicit device(std::shared_ptr<context> parent) : parent(parent) {
     VLOG(2) << __func__;
   }
 
