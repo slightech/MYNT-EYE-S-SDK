@@ -98,7 +98,7 @@ make_executable(get_disparity SRCS data/get_disparity.cc WITH_OPENCV)
 make_executable(get_depth SRCS data/get_depth.cc WITH_OPENCV)
 if(PCL_FOUND)
   make_executable(get_points
-    SRCS data/get_points.cc data/pcviewer.cc
+    SRCS data/get_points.cc data/pc_viewer.cc
     WITH_OPENCV WITH_PCL
   )
 endif()

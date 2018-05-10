@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef MYNTEYE_TUTORIALS_PCVIEWER_H_  // NOLINT
-#define MYNTEYE_TUTORIALS_PCVIEWER_H_
+#ifndef MYNTEYE_TUTORIALS_PC_VIEWER_H_  // NOLINT
+#define MYNTEYE_TUTORIALS_PC_VIEWER_H_
 #pragma once
 
 #include <opencv2/core/core.hpp>
@@ -26,11 +26,11 @@ class PCViewer {
   PCViewer();
   ~PCViewer();
 
-  void Draw(const cv::Mat &xyz);
+  void Update(const cv::Mat &xyz);
 
-  void Draw(pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc);
+  void Update(pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc);
 
-  bool WasDrew() const;
+  bool WasVisual() const;
   bool WasStopped() const;
 
  private:
@@ -40,4 +40,4 @@ class PCViewer {
   std::shared_ptr<pcl::visualization::PCLVisualizer> viewer_;
 };
 
-#endif  // MYNTEYE_TUTORIALS_PCVIEWER_H_ NOLINT
+#endif  // MYNTEYE_TUTORIALS_PC_VIEWER_H_ NOLINT

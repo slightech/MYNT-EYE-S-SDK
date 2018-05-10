@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "data/pcviewer.h"
+#include "data/pc_viewer.h"
 
 #include <glog/logging.h>
 
@@ -52,13 +52,13 @@ PCViewer::~PCViewer() {
   }
 }
 
-void PCViewer::Draw(const cv::Mat &xyz) {
+void PCViewer::Update(const cv::Mat &xyz) {
   pcl::PointCloud<pcl::PointXYZ>::Ptr pc(new pcl::PointCloud<pcl::PointXYZ>);
   ConvertMatToPointCloud(xyz, pc);
-  Draw(pc);
+  Update(pc);
 }
 
-void PCViewer::Draw(pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc) {
+void PCViewer::Update(pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc) {
   if (viewer_ == nullptr) {
     viewer_ = CustomColorVis(pc);
   }
@@ -66,12 +66,12 @@ void PCViewer::Draw(pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc) {
   viewer_->spinOnce();
 }
 
-bool PCViewer::WasDrew() const {
+bool PCViewer::WasVisual() const {
   return viewer_ != nullptr;
 }
 
 bool PCViewer::WasStopped() const {
-  return viewer_ == nullptr || viewer_->wasStopped();
+  return viewer_ != nullptr && viewer_->wasStopped();
 }
 
 void PCViewer::ConvertMatToPointCloud(

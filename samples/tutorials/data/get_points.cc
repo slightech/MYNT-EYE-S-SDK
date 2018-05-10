@@ -17,7 +17,7 @@
 
 #include "mynteye/api.h"
 
-#include "data/pcviewer.h"
+#include "data/pc_viewer.h"
 
 MYNTEYE_USE_NAMESPACE
 
@@ -43,14 +43,14 @@ int main(int argc, char *argv[]) {
 
     auto &&points_data = api->GetStreamData(Stream::POINTS);
     if (!points_data.frame.empty()) {
-      pcviewer.Draw(points_data.frame);
+      pcviewer.Update(points_data.frame);
     }
 
     char key = static_cast<char>(cv::waitKey(1));
     if (key == 27 || key == 'q' || key == 'Q') {  // ESC/Q
       break;
     }
-    if (pcviewer.WasDrew() && pcviewer.WasStopped()) {
+    if (pcviewer.WasStopped()) {
       break;
     }
   }
