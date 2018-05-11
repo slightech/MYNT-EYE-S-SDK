@@ -103,6 +103,10 @@ if(PCL_FOUND)
   )
 endif()
 make_executable(get_imu SRCS data/get_imu.cc data/cv_painter.cc WITH_OPENCV)
+make_executable(get_from_callbacks
+  SRCS data/get_from_callbacks.cc data/cv_painter.cc
+  WITH_OPENCV
+)
 make_executable(get_with_plugin SRCS data/get_with_plugin.cc WITH_OPENCV)
 
 # control
