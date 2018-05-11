@@ -67,6 +67,32 @@ cv::Rect CVPainter::DrawSize(const cv::Mat &img, const gravity_t &gravity) {
   return DrawText(img, ss.str(), gravity, 5);
 }
 
+cv::Rect CVPainter::DrawImgData(
+    const cv::Mat &img, const mynteye::ImgData &data,
+    const gravity_t &gravity) {
+  int sign = 1;
+  if (gravity == BOTTOM_LEFT || gravity == BOTTOM_RIGHT)
+    sign = -1;
+
+  std::ostringstream ss;
+  ss << "frame_id: " << data.frame_id << ", stamp: " << data.timestamp
+     << ", expo: " << data.exposure_time;
+  cv::Rect rect_i = DrawText(img, ss.str(), gravity, 5);
+
+  Clear(ss) << "size: " << img.cols << "x" << img.rows;
+  cv::Rect rect_s =
+      DrawText(img, ss.str(), gravity, 5, 0, sign * (5 + rect_i.height));
+
+  // rect_i.width is the max one
+  if (sign > 0) {
+    return cv::Rect(
+        rect_i.tl(),
+        cv::Point(rect_i.x + rect_i.width, rect_s.y + rect_s.height));
+  } else {
+    return cv::Rect(rect_s.tl(), rect_i.br());
+  }
+}
+
 cv::Rect CVPainter::DrawImuData(
     const cv::Mat &img, const mynteye::ImuData &data,
     const gravity_t &gravity) {

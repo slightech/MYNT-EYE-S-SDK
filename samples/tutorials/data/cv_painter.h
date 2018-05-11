@@ -34,6 +34,9 @@ class CVPainter {
   ~CVPainter();
 
   cv::Rect DrawSize(const cv::Mat &img, const gravity_t &gravity = TOP_LEFT);
+  cv::Rect DrawImgData(
+      const cv::Mat &img, const mynteye::ImgData &data,
+      const gravity_t &gravity = TOP_LEFT);
   cv::Rect DrawImuData(
       const cv::Mat &img, const mynteye::ImuData &data,
       const gravity_t &gravity = TOP_RIGHT);
