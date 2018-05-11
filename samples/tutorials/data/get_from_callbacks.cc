@@ -31,6 +31,7 @@ int main(int argc, char *argv[]) {
 
   // Attention: must not block the callbacks.
 
+  // Get left image from callback
   std::atomic_uint left_count(0);
   api->SetStreamCallback(
       Stream::LEFT, [&left_count](const api::StreamData &data) {
@@ -42,7 +43,7 @@ int main(int argc, char *argv[]) {
         //           << ", exposure_time: " << data.img->exposure_time;
       });
 
-  // Get stream data from callback
+  // Get depth image from callback
   api->EnableStreamData(Stream::DEPTH);
   std::atomic_uint depth_count(0);
   cv::Mat depth;
