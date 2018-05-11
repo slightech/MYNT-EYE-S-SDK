@@ -24,11 +24,11 @@ set_outdir(
   "${OUT_DIR}/bin/${DIR_NAME}"
 )
 
-# make_executable(NAME
-#                 [SRCS src1 src2 ...])
+# make_executable2(NAME
+#                 [SRCS src1 src2 ...]
 #                 [WITH_OPENCV]
 #                 [WITH_PCL])
-macro(make_executable NAME)
+macro(make_executable2 NAME)
   set(options WITH_OPENCV WITH_PCL)
   set(oneValueArgs)
   set(multiValueArgs SRCS)
@@ -88,29 +88,29 @@ endif()
 
 # data
 
-make_executable(get_device_info SRCS data/get_device_info.cc)
-make_executable(get_img_params SRCS data/get_img_params.cc)
-make_executable(get_imu_params SRCS data/get_imu_params.cc)
+make_executable2(get_device_info SRCS data/get_device_info.cc)
+make_executable2(get_img_params SRCS data/get_img_params.cc)
+make_executable2(get_imu_params SRCS data/get_imu_params.cc)
 
-make_executable(get_stereo SRCS data/get_stereo.cc WITH_OPENCV)
-make_executable(get_stereo_rectified SRCS data/get_stereo_rectified.cc WITH_OPENCV)
-make_executable(get_disparity SRCS data/get_disparity.cc WITH_OPENCV)
-make_executable(get_depth SRCS data/get_depth.cc WITH_OPENCV)
+make_executable2(get_stereo SRCS data/get_stereo.cc WITH_OPENCV)
+make_executable2(get_stereo_rectified SRCS data/get_stereo_rectified.cc WITH_OPENCV)
+make_executable2(get_disparity SRCS data/get_disparity.cc WITH_OPENCV)
+make_executable2(get_depth SRCS data/get_depth.cc WITH_OPENCV)
 if(PCL_FOUND)
-  make_executable(get_points
+  make_executable2(get_points
     SRCS data/get_points.cc data/pc_viewer.cc
     WITH_OPENCV WITH_PCL
   )
 endif()
-make_executable(get_imu SRCS data/get_imu.cc data/cv_painter.cc WITH_OPENCV)
-make_executable(get_from_callbacks
+make_executable2(get_imu SRCS data/get_imu.cc data/cv_painter.cc WITH_OPENCV)
+make_executable2(get_from_callbacks
   SRCS data/get_from_callbacks.cc data/cv_painter.cc
   WITH_OPENCV
 )
-make_executable(get_with_plugin SRCS data/get_with_plugin.cc WITH_OPENCV)
+make_executable2(get_with_plugin SRCS data/get_with_plugin.cc WITH_OPENCV)
 
 # control
 
-make_executable(ctrl_infrared SRCS control/infrared.cc WITH_OPENCV)
+make_executable2(ctrl_infrared SRCS control/infrared.cc WITH_OPENCV)
 
 endif()

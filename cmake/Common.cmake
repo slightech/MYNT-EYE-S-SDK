@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+include(${CMAKE_CURRENT_LIST_DIR}/IncludeGuard.cmake)
+cmake_include_guard()
+
 include(CMakeParseArguments)
 
 set(CUR_DIR ${CMAKE_CURRENT_LIST_DIR})

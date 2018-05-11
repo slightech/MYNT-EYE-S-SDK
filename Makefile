@@ -31,6 +31,10 @@ help:
 
 .PHONY: help
 
+all: test tools samples
+
+.PHONY: all
+
 # doc
 
 apidoc:

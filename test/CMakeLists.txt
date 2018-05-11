@@ -19,6 +19,7 @@ project(mynteye_test VERSION 2.0.0 LANGUAGES C CXX)
 get_filename_component(PRO_DIR ${PROJECT_SOURCE_DIR} DIRECTORY)
 
 include(${PRO_DIR}/cmake/Common.cmake)
+include(${PRO_DIR}/cmake/Utils.cmake)
 
 # flags
 
@@ -64,10 +65,9 @@ LIST(APPEND CMAKE_PREFIX_PATH ${PRO_DIR}/_install/lib/cmake)
 find_package(mynteye REQUIRED)
 message(STATUS "Found mynteye: ${mynteye_VERSION}")
 
-LIST(APPEND CMAKE_MODULE_PATH ${PRO_DIR}/cmake)
+include(${PRO_DIR}/cmake/DetectOpenCV.cmake)
 
-find_package(OpenCV REQUIRED)
-message(STATUS "Found OpenCV: ${OpenCV_VERSION}")
+#LIST(APPEND CMAKE_MODULE_PATH ${PRO_DIR}/cmake)
 
 ## gtest
 
@@ -105,27 +105,8 @@ include_directories(
 file(GLOB TEST_INTERNAL_SRC "internal/*.cc")
 file(GLOB TEST_PUBLIC_SRC "public/*.cc")
 
-add_executable(${PROJECT_NAME}
-  gtest_main.cc
-  ${TEST_INTERNAL_SRC}
-  ${TEST_PUBLIC_SRC}
+make_executable(${PROJECT_NAME}
+  SRCS gtest_main.cc ${TEST_INTERNAL_SRC} ${TEST_PUBLIC_SRC}
+  LINK_LIBS mynteye ${GTEST_LIBS} ${OpenCV_LIBS}
+  DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
 )
-target_link_libraries(${PROJECT_NAME} mynteye ${GTEST_LIBS} ${OpenCV_LIBS})
-target_create_scripts(${PROJECT_NAME} DLL_SEARCH_PATHS
-  ${PRO_DIR}/_install/bin
-  ${OpenCV_LIB_SEARCH_PATH}
-)
-
-if(OS_WIN)
-  target_compile_definitions(${PROJECT_NAME}
-    PUBLIC GLOG_NO_ABBREVIATED_SEVERITIES
-  )
-endif()
-
-#find_package(Threads REQUIRED)
-#if(THREADS_HAVE_PTHREAD_ARG)
-#  target_compile_options(PUBLIC ${PROJECT_NAME} "-pthread")
-#endif()
-#if(CMAKE_THREAD_LIBS_INIT)
-#  target_link_libraries(${PROJECT_NAME} "${CMAKE_THREAD_LIBS_INIT}")
-#endif()

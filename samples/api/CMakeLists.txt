@@ -22,15 +22,8 @@ set_outdir(
 
 ## camera_a
 
-add_executable(camera_a camera.cc)
-target_link_libraries(camera_a mynteye ${OpenCV_LIBS})
-target_create_scripts(camera_a DLL_SEARCH_PATHS
-  ${PRO_DIR}/_install/bin
-  ${OpenCV_LIB_SEARCH_PATH}
+make_executable(camera_a
+  SRCS camera.cc
+  LINK_LIBS mynteye ${OpenCV_LIBS}
+  DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
 )
-
-if(OS_WIN)
-  target_compile_definitions(camera_a
-    PUBLIC GLOG_NO_ABBREVIATED_SEVERITIES
-  )
-endif()

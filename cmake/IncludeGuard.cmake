@@ -12,18 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-get_filename_component(DIR_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
+# include_guard: https://cmake.org/cmake/help/latest/command/include_guard.html
 
-set_outdir(
-  "${OUT_DIR}/lib/${DIR_NAME}"
-  "${OUT_DIR}/lib/${DIR_NAME}"
-  "${OUT_DIR}/bin/${DIR_NAME}"
-)
-
-## record
-
-make_executable(record
-  SRCS record.cc dataset.cc
-  LINK_LIBS mynteye ${OpenCV_LIBS}
-  DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
-)
+macro(cmake_include_guard)
+  get_property(INCLUDE_GUARD GLOBAL PROPERTY "_INCLUDE_GUARD_${CMAKE_CURRENT_LIST_FILE}")
+  if(INCLUDE_GUARD)
+    return()
+  endif()
+  set_property(GLOBAL PROPERTY "_INCLUDE_GUARD_${CMAKE_CURRENT_LIST_FILE}" TRUE)
+endmacro()

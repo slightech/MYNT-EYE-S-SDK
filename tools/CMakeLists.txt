@@ -19,6 +19,7 @@ project(mynteye_tools VERSION 2.0.0 LANGUAGES C CXX)
 get_filename_component(PRO_DIR ${PROJECT_SOURCE_DIR} DIRECTORY)
 
 include(${PRO_DIR}/cmake/Common.cmake)
+include(${PRO_DIR}/cmake/Utils.cmake)
 
 # flags
 
@@ -50,21 +51,9 @@ LIST(APPEND CMAKE_PREFIX_PATH ${PRO_DIR}/_install/lib/cmake)
 find_package(mynteye REQUIRED)
 message(STATUS "Found mynteye: ${mynteye_VERSION}")
 
-LIST(APPEND CMAKE_MODULE_PATH ${PRO_DIR}/cmake)
+include(${PRO_DIR}/cmake/DetectOpenCV.cmake)
 
-find_package(OpenCV REQUIRED)
-message(STATUS "Found OpenCV: ${OpenCV_VERSION}")
-if(OpenCV_VERSION VERSION_LESS 3.0)
-  add_definitions(-DUSE_OPENCV2)
-else()
-  add_definitions(-DUSE_OPENCV3)
-endif()
-
-if(OS_WIN)
-  get_filename_component(OpenCV_LIB_SEARCH_PATH "${OpenCV_LIB_PATH}/../bin" ABSOLUTE)
-else()
-  set(OpenCV_LIB_SEARCH_PATH "${OpenCV_LIB_PATH}")
-endif()
+#LIST(APPEND CMAKE_MODULE_PATH ${PRO_DIR}/cmake)
 
 # targets
 

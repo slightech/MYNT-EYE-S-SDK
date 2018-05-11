@@ -12,18 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-get_filename_component(DIR_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
+include(${CMAKE_CURRENT_LIST_DIR}/IncludeGuard.cmake)
+cmake_include_guard()
 
-set_outdir(
-  "${OUT_DIR}/lib/${DIR_NAME}"
-  "${OUT_DIR}/lib/${DIR_NAME}"
-  "${OUT_DIR}/bin/${DIR_NAME}"
-)
+find_package(OpenCV REQUIRED)
+message(STATUS "Found OpenCV: ${OpenCV_VERSION}")
+if(OpenCV_VERSION VERSION_LESS 3.0)
+  add_definitions(-DUSE_OPENCV2)
+else()
+  add_definitions(-DUSE_OPENCV3)
+endif()
 
-## record
-
-make_executable(record
-  SRCS record.cc dataset.cc
-  LINK_LIBS mynteye ${OpenCV_LIBS}
-  DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
-)
+if(MSVC OR MSYS OR MINGW)
+  get_filename_component(OpenCV_LIB_SEARCH_PATH "${OpenCV_LIB_PATH}/../bin" ABSOLUTE)
+else()
+  set(OpenCV_LIB_SEARCH_PATH "${OpenCV_LIB_PATH}")
+endif()
