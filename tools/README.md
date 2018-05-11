@@ -117,6 +117,15 @@ python tools/analytics/stamp_analytics.py -i mynteye.bag
 .\tools\_output\bin\writer\imu_params_writer.bat tools\writer\config\imu.params
 ```
 
+### save_all_infos.cc
+
+```bash
+./tools/_output/bin/writer/save_all_infos
+
+# Windows
+.\tools\_output\bin\writer\save_all_infos.bat
+```
+
 ---
 
 ## Checksum

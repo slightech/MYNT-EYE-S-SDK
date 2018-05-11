@@ -21,11 +21,13 @@
 #include <sys/stat.h>
 #endif
 
+#include "internal/strings.h"
+
 MYNTEYE_BEGIN_NAMESPACE
 
 namespace files {
 
-bool mkdir(const std::string &path) {
+bool _mkdir(const std::string &path) {
 #if defined(OS_MINGW) || defined(OS_CYGWIN)
   const int status = ::mkdir(path.c_str());
 #elif defined(OS_WIN)
@@ -46,6 +48,22 @@ bool mkdir(const std::string &path) {
     VLOG(2) << "Create directory success, path: " << path;
     return true;
   }
+}
+
+bool mkdir(const std::string &path) {
+  auto &&dirs = strings::split(path, OS_SEP);
+  auto &&size = dirs.size();
+  if (size <= 0)
+    return false;
+  std::string p{dirs[0]};
+  if (!_mkdir(p))
+    return false;
+  for (std::size_t i = 1; i < size; i++) {
+    p.append(OS_SEP).append(dirs[i]);
+    if (!_mkdir(p))
+      return false;
+  }
+  return true;
 }
 
 }  // namespace files

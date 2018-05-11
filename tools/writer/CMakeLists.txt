@@ -52,3 +52,11 @@ make_executable(imu_params_writer
   LINK_LIBS device_writer
   DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
 )
+
+## save_all_infos
+
+make_executable(save_all_infos
+  SRCS save_all_infos.cc
+  LINK_LIBS device_writer
+  DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
+)
