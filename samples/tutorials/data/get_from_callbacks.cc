@@ -91,6 +91,7 @@ int main(int argc, char *argv[]) {
   cv::namedWindow("frame");
   cv::namedWindow("depth");
 
+  unsigned int depth_num = 0;
   while (true) {
     api->WaitForStreams();
 
@@ -121,12 +122,17 @@ int main(int argc, char *argv[]) {
 
     // Show depth
     if (!depth.empty()) {
-      std::lock_guard<std::mutex> _(depth_mtx);
-      ss.str("");
-      ss.clear();
-      ss << "depth: " << depth_count;
-      painter.DrawText(depth, ss.str());
-      cv::imshow("depth", depth);  // CV_16UC1
+      // Is the depth a new one?
+      if (depth_num != depth_count || depth_num == 0) {
+        std::lock_guard<std::mutex> _(depth_mtx);
+        depth_num = depth_count;
+        // LOG(INFO) << "depth_num: " << depth_num;
+        ss.str("");
+        ss.clear();
+        ss << "depth: " << depth_count;
+        painter.DrawText(depth, ss.str());
+        cv::imshow("depth", depth);  // CV_16UC1
+      }
     }
 
     char key = static_cast<char>(cv::waitKey(1));
