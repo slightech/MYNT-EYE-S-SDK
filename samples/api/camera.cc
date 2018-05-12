@@ -13,18 +13,15 @@
 // limitations under the License.
 #include <opencv2/highgui/highgui.hpp>
 
-#include "mynteye/glog_init.h"
+#include <glog/logging.h>
 
 #include "mynteye/api.h"
 #include "mynteye/times.h"
-#include "mynteye/utils.h"
 
 MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
-  glog_init _(argc, argv);
-
-  auto &&api = API::Create();
+  auto &&api = API::Create(argc, argv);
 
   // api->SetOptionValue(Option::FRAME_RATE, 25);
   // api->SetOptionValue(Option::IMU_FREQUENCY, 500);
