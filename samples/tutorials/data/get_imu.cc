@@ -17,7 +17,7 @@
 
 #include "mynteye/api.h"
 
-#include "data/cv_painter.h"
+#include "util/cv_painter.h"
 
 MYNTEYE_USE_NAMESPACE
 

@@ -98,13 +98,13 @@ make_executable2(get_disparity SRCS data/get_disparity.cc WITH_OPENCV)
 make_executable2(get_depth SRCS data/get_depth.cc WITH_OPENCV)
 if(PCL_FOUND)
   make_executable2(get_points
-    SRCS data/get_points.cc data/pc_viewer.cc
+    SRCS data/get_points.cc util/pc_viewer.cc
     WITH_OPENCV WITH_PCL
   )
 endif()
-make_executable2(get_imu SRCS data/get_imu.cc data/cv_painter.cc WITH_OPENCV)
+make_executable2(get_imu SRCS data/get_imu.cc util/cv_painter.cc WITH_OPENCV)
 make_executable2(get_from_callbacks
-  SRCS data/get_from_callbacks.cc data/cv_painter.cc
+  SRCS data/get_from_callbacks.cc util/cv_painter.cc
   WITH_OPENCV
 )
 make_executable2(get_with_plugin SRCS data/get_with_plugin.cc WITH_OPENCV)
