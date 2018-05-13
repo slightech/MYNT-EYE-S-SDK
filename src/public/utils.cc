@@ -60,4 +60,52 @@ std::shared_ptr<Device> select() {
 
 }  // namespace device
 
+namespace utils {
+
+float get_real_exposure_time(
+    std::int32_t frame_rate, std::uint16_t exposure_time) {
+  float real_max = 0;
+  switch (frame_rate) {
+    case 10:
+      real_max = 18;
+      break;
+    case 15:
+      real_max = 18;
+      break;
+    case 20:
+      real_max = 18;
+      break;
+    case 25:
+      real_max = 18;
+      break;
+    case 30:
+      real_max = 18;
+      break;
+    case 35:
+      real_max = 18;
+      break;
+    case 40:
+      real_max = 18;
+      break;
+    case 45:
+      real_max = 18;
+      break;
+    case 50:
+      real_max = 17;
+      break;
+    case 55:
+      real_max = 16.325;
+      break;
+    case 60:
+      real_max = 15;
+      break;
+    default:
+      LOG(ERROR) << "Invalid frame rate: " << frame_rate;
+      return exposure_time;
+  }
+  return exposure_time * real_max / 480.f;
+}
+
+}  // namespace utils
+
 MYNTEYE_END_NAMESPACE

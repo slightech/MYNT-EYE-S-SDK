@@ -30,7 +30,7 @@ class CVPainter {
     BOTTOM_RIGHT
   } gravity_t;
 
-  CVPainter();
+  explicit CVPainter(std::int32_t frame_rate = 0);
   ~CVPainter();
 
   cv::Rect DrawSize(const cv::Mat &img, const gravity_t &gravity = TOP_LEFT);
@@ -45,6 +45,9 @@ class CVPainter {
       const cv::Mat &img, const std::string &text,
       const gravity_t &gravity = TOP_LEFT, const int &margin = 5,
       const int &offset_x = 0, const int &offset_y = 0);
+
+ private:
+  std::int32_t frame_rate_;
 };
 
 #endif  // MYNTEYE_TUTORIALS_CV_PAINTER_H_ NOLINT

@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
 
   api->Start(Source::VIDEO_STREAMING);
 
-  CVPainter painter;
+  CVPainter painter(api->GetOptionValue(Option::FRAME_RATE));
 
   cv::namedWindow("frame");
 

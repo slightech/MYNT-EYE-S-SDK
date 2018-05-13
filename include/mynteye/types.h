@@ -368,7 +368,7 @@ struct MYNTEYE_API ImgData {
   std::uint16_t frame_id;
   /** Image timestamp in 0.01ms */
   std::uint32_t timestamp;
-  /** Image exposure time in 0.01ms */
+  /** Image exposure time, virtual value in [1, 480] */
   std::uint16_t exposure_time;
 
   void Reset() {

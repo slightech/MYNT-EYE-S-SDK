@@ -22,6 +22,8 @@
 #include <memory>
 #include <utility>
 
+#include "mynteye/utils.h"
+
 #define FONT_FACE cv::FONT_HERSHEY_PLAIN
 #define FONT_SCALE 1
 #define FONT_COLOR cv::Scalar(255, 255, 255)
@@ -32,8 +34,10 @@ namespace {
 std::shared_ptr<std::ios> NewFormat(int width, int prec, char fillch = ' ') {
   auto fmt = std::make_shared<std::ios>(nullptr);
   fmt->setf(std::ios::fixed);
-  fmt->width(std::move(width));
-  fmt->precision(std::move(prec));
+  if (width > 0)
+    fmt->width(std::move(width));
+  if (prec > 0)
+    fmt->precision(std::move(prec));
   fmt->fill(std::move(fillch));
   return fmt;
 }
@@ -53,7 +57,8 @@ std::ostream &operator<<(
   return os;
 }
 
-CVPainter::CVPainter() {
+CVPainter::CVPainter(std::int32_t frame_rate)
+    : frame_rate_(std::move(frame_rate)) {
   VLOG(2) << __func__;
 }
 
@@ -74,9 +79,18 @@ cv::Rect CVPainter::DrawImgData(
   if (gravity == BOTTOM_LEFT || gravity == BOTTOM_RIGHT)
     sign = -1;
 
+  static auto fmt_time = NewFormat(0, 2);
+
   std::ostringstream ss;
-  ss << "frame_id: " << data.frame_id << ", stamp: " << data.timestamp
-     << ", expo: " << data.exposure_time;
+  ss << "frame_id: " << data.frame_id;
+  ss << ", stamp: " << fmt_time << (0.01f * data.timestamp);  // ms
+  ss << ", expo: ";
+  if (frame_rate_ == 0) {
+    ss << data.exposure_time;
+  } else {
+    ss << fmt_time << mynteye::utils::get_real_exposure_time(
+                          frame_rate_, data.exposure_time);
+  }
   cv::Rect rect_i = DrawText(img, ss.str(), gravity, 5);
 
   Clear(ss) << "size: " << img.cols << "x" << img.rows;

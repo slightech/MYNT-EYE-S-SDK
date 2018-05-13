@@ -30,6 +30,15 @@ MYNTEYE_API std::shared_ptr<Device> select();
 
 }  // namespace device
 
+namespace utils {
+
+/** Get real exposure time in ms from virtual value, according to its frame rate
+ */
+MYNTEYE_API float get_real_exposure_time(
+    std::int32_t frame_rate, std::uint16_t exposure_time);
+
+}  // namespace utils
+
 MYNTEYE_END_NAMESPACE
 
 #endif  // MYNTEYE_UTILS_H_ NOLINT
