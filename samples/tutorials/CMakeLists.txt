@@ -111,6 +111,15 @@ make_executable2(get_with_plugin SRCS data/get_with_plugin.cc WITH_OPENCV)
 
 # control
 
+make_executable2(ctrl_framerate SRCS control/framerate.cc WITH_OPENCV)
+make_executable2(ctrl_auto_exposure
+  SRCS control/auto_exposure.cc util/cv_painter.cc
+  WITH_OPENCV
+)
+make_executable2(ctrl_manual_exposure
+  SRCS control/manual_exposure.cc util/cv_painter.cc
+  WITH_OPENCV
+)
 make_executable2(ctrl_infrared SRCS control/infrared.cc WITH_OPENCV)
 
 endif()

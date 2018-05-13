@@ -17,25 +17,31 @@
 
 #include "mynteye/api.h"
 
+#include "util/cv_painter.h"
+
 MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
 
-  // Detect infrared add-ons
-  LOG(INFO) << "Support infrared: " << std::boolalpha
-            << api->Supports(AddOns::INFRARED);
-  LOG(INFO) << "Support infrared2: " << std::boolalpha
-            << api->Supports(AddOns::INFRARED2);
+  // manual-exposure: 1
+  api->SetOptionValue(Option::EXPOSURE_MODE, 1);
 
-  // Get infrared intensity range
-  auto &&info = api->GetOptionInfo(Option::IR_CONTROL);
-  LOG(INFO) << Option::IR_CONTROL << ": {" << info << "}";
+  // gain: range [0.48], default 24
+  api->SetOptionValue(Option::GAIN, 24);
+  // brightness/exposure_time: range [0,240], default 120
+  api->SetOptionValue(Option::BRIGHTNESS, 120);
+  // contrast/black_level_calibration: range [0,255], default 127
+  api->SetOptionValue(Option::CONTRAST, 127);
 
-  // Set infrared intensity value
-  api->SetOptionValue(Option::IR_CONTROL, 80);
+  LOG(INFO) << "Enable manual-exposure";
+  LOG(INFO) << "Set GAIN to " << api->GetOptionValue(Option::GAIN);
+  LOG(INFO) << "Set BRIGHTNESS to " << api->GetOptionValue(Option::BRIGHTNESS);
+  LOG(INFO) << "Set CONTRAST to " << api->GetOptionValue(Option::CONTRAST);
 
   api->Start(Source::VIDEO_STREAMING);
+
+  CVPainter painter;
 
   cv::namedWindow("frame");
 
@@ -47,6 +53,7 @@ int main(int argc, char *argv[]) {
 
     cv::Mat img;
     cv::hconcat(left_data.frame, right_data.frame, img);
+    painter.DrawImgData(img, *left_data.img);
     cv::imshow("frame", img);
 
     char key = static_cast<char>(cv::waitKey(1));
