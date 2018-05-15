@@ -23,6 +23,8 @@ MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
+  if (!api)
+    return 1;
 
   api->EnableStreamData(Stream::POINTS);
 

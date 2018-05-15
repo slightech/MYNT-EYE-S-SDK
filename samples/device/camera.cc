@@ -27,6 +27,8 @@ int main(int argc, char *argv[]) {
   glog_init _(argc, argv);
 
   auto &&device = device::select();
+  if (!device)
+    return 1;
   /*
   {  // auto-exposure
     device->SetOptionValue(Option::EXPOSURE_MODE, 0);

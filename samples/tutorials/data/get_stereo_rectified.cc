@@ -21,6 +21,8 @@ MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
+  if (!api)
+    return 1;
 
   api->EnableStreamData(Stream::LEFT_RECTIFIED);
   api->EnableStreamData(Stream::RIGHT_RECTIFIED);

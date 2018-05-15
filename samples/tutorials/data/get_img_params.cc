@@ -19,6 +19,8 @@ MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
+  if (!api)
+    return 1;
 
   LOG(INFO) << "Intrinsics left: {" << api->GetIntrinsics(Stream::LEFT) << "}";
   LOG(INFO) << "Intrinsics right: {" << api->GetIntrinsics(Stream::RIGHT)

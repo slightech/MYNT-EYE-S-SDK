@@ -23,6 +23,8 @@ MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
+  if (!api)
+    return 1;
 
   // manual-exposure: 1
   api->SetOptionValue(Option::EXPOSURE_MODE, 1);

@@ -29,6 +29,8 @@ int main(int argc, char *argv[]) {
   }
 
   auto &&device = device::select();
+  if (!device)
+    return 1;
 
   dir.append(OS_SEP "SN").append(device->GetInfo()->serial_number);
 

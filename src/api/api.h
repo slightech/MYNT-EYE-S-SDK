@@ -51,9 +51,35 @@ class MYNTEYE_API API {
   explicit API(std::shared_ptr<Device> device);
   /*virtual*/ ~API();
 
+  /**
+   * Create the API instance.
+   * @return the API instance.
+   * @note This will call device::select() to select a device.
+   */
   static std::shared_ptr<API> Create();
+  /**
+   * Create the API instance.
+   * @param device the selected device.
+   * @return the API instance.
+   */
   static std::shared_ptr<API> Create(std::shared_ptr<Device> device);
+  /**
+   * Create the API instance.
+   * @param argc the arg count.
+   * @param argv the arg values.
+   * @return the API instance.
+   * @note This will init glog with args and call device::select() to select a
+   * device.
+   */
   static std::shared_ptr<API> Create(int argc, char *argv[]);
+  /**
+   * Create the API instance.
+   * @param argc the arg count.
+   * @param argv the arg values.
+   * @param device the selected device.
+   * @return the API instance.
+   * @note This will init glog with args.
+   */
   static std::shared_ptr<API> Create(
       int argc, char *argv[], std::shared_ptr<Device> device);
 

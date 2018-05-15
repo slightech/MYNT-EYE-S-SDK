@@ -32,6 +32,8 @@ int main(int argc, char *argv[]) {
   }
 
   auto &&device = device::select();
+  if (!device)
+    return 1;
 
   tools::DeviceWriter writer(device);
   writer.WriteImuParams(filepath);

@@ -28,7 +28,10 @@ std::shared_ptr<Device> select() {
   auto &&devices = context.devices();
 
   size_t n = devices.size();
-  LOG_IF(FATAL, n <= 0) << "No MYNT EYE devices :(";
+  if (n <= 0) {
+    LOG(ERROR) << "No MYNT EYE devices :(";
+    return nullptr;
+  }
 
   LOG(INFO) << "MYNT EYE devices:";
   for (size_t i = 0; i < n; i++) {

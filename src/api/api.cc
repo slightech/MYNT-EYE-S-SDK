@@ -41,17 +41,24 @@ std::shared_ptr<API> API::Create() {
 }
 
 std::shared_ptr<API> API::Create(std::shared_ptr<Device> device) {
+  if (!device)
+    return nullptr;
   return std::make_shared<API>(device);
 }
 
 std::shared_ptr<API> API::Create(int argc, char *argv[]) {
   static glog_init _(argc, argv);
-  return std::make_shared<API>(device::select());
+  auto &&device = device::select();
+  if (!device)
+    return nullptr;
+  return std::make_shared<API>(device);
 }
 
 std::shared_ptr<API> API::Create(
     int argc, char *argv[], std::shared_ptr<Device> device) {
   static glog_init _(argc, argv);
+  if (!device)
+    return nullptr;
   return std::make_shared<API>(device);
 }
 

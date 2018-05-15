@@ -22,6 +22,8 @@ MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
+  if (!api)
+    return 1;
 
   // api->SetOptionValue(Option::FRAME_RATE, 25);
   // api->SetOptionValue(Option::IMU_FREQUENCY, 500);
