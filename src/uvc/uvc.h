@@ -23,7 +23,11 @@ typedef enum pu_query {
   PU_QUERY_LAST
 } pu_query;
 
-struct guid { uint32_t data1; uint16_t data2, data3; uint8_t data4[8]; };
+struct MYNTEYE_API guid {
+  uint32_t data1;
+  uint16_t data2, data3;
+  uint8_t data4[8];
+};
 
 // Extension Unit
 struct MYNTEYE_API xu {
@@ -73,7 +77,8 @@ MYNTEYE_API bool xu_control_query(
     uint16_t size, uint8_t *data);
 
 // Control streaming
-typedef std::function<void(const void *frame)> video_channel_callback;
+typedef std::function<void(const void *frame,
+    std::function<void()> continuation)> video_channel_callback;
 
 MYNTEYE_API void set_device_mode(
     device &device, int width, int height, int fourcc, int fps,  // NOLINT

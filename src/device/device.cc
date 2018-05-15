@@ -376,7 +376,7 @@ void Device::StartVideoStreaming() {
     uvc::set_device_mode(
         *device_, stream_request.width, stream_request.height,
         static_cast<int>(stream_request.format), stream_request.fps,
-        [this](const void *data) {
+        [this](const void *data, std::function<void()> continuation) {
           // drop the first stereo stream data
           static std::uint8_t drop_count = 1;
           if (drop_count > 0) {
@@ -385,6 +385,7 @@ void Device::StartVideoStreaming() {
           }
           std::lock_guard<std::mutex> _(mtx_streams_);
           streams_->PushStream(Capabilities::STEREO, data);
+          continuation();
           if (HasStreamCallback(Stream::LEFT)) {
             auto &&stream_datas = streams_->stream_datas(Stream::LEFT);
             if (stream_datas.size() > 0) {

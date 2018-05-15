@@ -49,15 +49,12 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
-namespace uvc
-{
+namespace uvc {
 
-const std::map<uint32_t, uint32_t> fourcc_map = { { 0x56595559, 0x32595559 } ,{ 0x59555956, 0x59555932 }};     /* 'VYUY' => '2YUY','YUYV' => 'YUY2'. */
-
-#define LOG_ERROR(severity, str)                                           \
-  do {                                                                     \
-    LOG(severity) << str << " error " << errno << ", " << strerror(errno); \
-  } while (0)
+const std::map<uint32_t, uint32_t> fourcc_map = {
+  { 0x56595559, 0x32595559 },  // 'VYUY' => '2YUY'
+  { 0x59555956, 0x59555932 }   // 'YUYV' => 'YUY2'
+};
 
 struct throw_error {
   throw_error() = default;
@@ -68,7 +65,6 @@ struct throw_error {
 
   ~throw_error() noexcept(false) {
     throw std::runtime_error(ss.str());
-    // throw device_error(ss.str());
   }
 
   template<class T>
@@ -80,8 +76,16 @@ struct throw_error {
   std::ostringstream ss;
 };
 
-template<class T> class com_ptr
-{
+static void check(const char *call, HRESULT hr) {
+  if (FAILED(hr)) {
+    throw_error() << call << "(...) returned 0x" << std::hex
+      << static_cast<uint32_t>(hr);
+  } else {
+    LOG(INFO) << call << " SUCCESSED";
+  }
+}
+
+template<class T> class com_ptr {
   T * p;
   void ref(T * new_p) {
     if(p == new_p) return;
@@ -136,14 +140,6 @@ static std::string win_to_utf(const WCHAR * s)
   return buffer;
 }
 
-static void check(const char *call, HRESULT hr)
-{
-  if (FAILED(hr)) {
-    throw_error() << call << "(...) returned 0x" << std::hex << (uint32_t)hr;    
-  }
-  LOG(INFO) << call << " SUCCESSED";
-}
-
 std::vector<std::string> tokenize(std::string string, char separator)
 {
   std::vector<std::string> tokens;
@@ -178,29 +174,29 @@ bool parse_usb_path(int & vid, int & pid, int & mi, std::string & unique_id, con
   auto tokens = tokenize(name, '#');
   if(tokens.size() < 1 || tokens[0] != R"(\\?\usb)") return false; // Not a USB device
   if(tokens.size() < 3) {
-    LOG_ERROR(WARNING,"malformed usb device path:  " << name);
+    LOG(ERROR) << "malformed usb device path:  " << name;
     return false;
   }
 
   auto ids = tokenize(tokens[1], '&');
   if(ids[0].size() != 8 || ids[0].substr(0,4) != "vid_" || !(std::istringstream(ids[0].substr(4,4)) >> std::hex >> vid)) {
-    LOG_ERROR(WARNING,"malformed vid string: " << tokens[1]);
+    LOG(ERROR) << "malformed vid string: " << tokens[1];
     return false;
   }
 
   if(ids[1].size() != 8 || ids[1].substr(0,4) != "pid_" || !(std::istringstream(ids[1].substr(4,4)) >> std::hex >> pid)) {
-    LOG_ERROR(WARNING,"malformed pid string: " << tokens[1]);
+    LOG(ERROR) << "malformed pid string: " << tokens[1];
     return false;
   }
 
   if(ids[2].size() != 5 || ids[2].substr(0,3) != "mi_" || !(std::istringstream(ids[2].substr(3,2)) >> mi)) {
-    LOG_ERROR(WARNING,"malformed mi string: " << tokens[1]);
+    LOG(ERROR) << "malformed mi string: " << tokens[1];
     return false;
   }
 
   ids = tokenize(tokens[2], '&');
   if(ids.size() < 2) {
-    LOG_ERROR(WARNING,"malformed id string: " << tokens[2]);
+    LOG(ERROR) << "malformed id string: " << tokens[2];
     return false;
   }
   unique_id = ids[1];
@@ -216,23 +212,23 @@ bool parse_usb_path_from_device_id(int & vid, int & pid, int & mi, std::string &
 
   auto ids = tokenize(tokens[1], '&');
   if (ids[0].size() != 8 || ids[0].substr(0, 4) != "vid_" || !(std::istringstream(ids[0].substr(4, 4)) >> std::hex >> vid)) {
-    LOG_ERROR(WARNING,"malformed vid string: " << tokens[1]);
+    LOG(ERROR) << "malformed vid string: " << tokens[1];
     return false;
   }
 
   if (ids[1].size() != 8 || ids[1].substr(0, 4) != "pid_" || !(std::istringstream(ids[1].substr(4, 4)) >> std::hex >> pid)) {
-    LOG_ERROR(WARNING,"malformed pid string: " << tokens[1]);
+    LOG(ERROR) << "malformed pid string: " << tokens[1];
     return false;
   }
 
   if (ids[2].size() != 5 || ids[2].substr(0, 3) != "mi_" || !(std::istringstream(ids[2].substr(3, 2)) >> mi)) {
-    LOG_ERROR(WARNING,"malformed mi string: " << tokens[1]);
+    LOG(ERROR) << "malformed mi string: " << tokens[1];
     return false;
   }
 
   ids = tokenize(tokens[2], '&');
   if (ids.size() < 2) {
-    LOG_ERROR(WARNING,"malformed id string: " + tokens[2]);
+    LOG(ERROR) << "malformed id string: " + tokens[2];
     return false;
   }
   unique_id = ids[1];
@@ -278,7 +274,7 @@ public:
   ULONG STDMETHODCALLTYPE AddRef() override { return InterlockedIncrement(&ref_count); }
   ULONG STDMETHODCALLTYPE Release() override {
     ULONG count = InterlockedDecrement(&ref_count);
-    if(count == 0) delete this;
+    if (count == 0) delete this;
     return count;
   }
 
@@ -303,8 +299,9 @@ struct device {
   com_ptr<IMFSourceReader> mf_source_reader;
   video_channel_callback callback = nullptr;
 
-  device(std::shared_ptr<context> parent, int vid, int pid, std::string unique_id, std::string name) : parent(move(parent)), vid(vid), pid(pid), unique_id(move(unique_id)), name(name)
-  {}
+  device(std::shared_ptr<context> parent, int vid, int pid, std::string unique_id, std::string name)
+      : parent(move(parent)), vid(vid), pid(pid), unique_id(move(unique_id)), name(name) {
+  }
 
   ~device() {
     stop_streaming();
@@ -312,15 +309,14 @@ struct device {
 
 
   IKsControl * get_ks_control(const uvc::xu & xu) {
-    
     auto it = ks_controls.find(xu.node);
     if(it != end(ks_controls)) return it->second;
-    
+
     get_media_source();
-    
+
     // Attempt to retrieve IKsControl
     com_ptr<IKsTopologyInfo> ks_topology_info = NULL;
-    check("QueryInterface", mf_media_source->QueryInterface(__uuidof(IKsTopologyInfo), (void **)&ks_topology_info));  
+    check("QueryInterface", mf_media_source->QueryInterface(__uuidof(IKsTopologyInfo), (void **)&ks_topology_info));
 
     GUID node_type;
     /*
@@ -328,7 +324,7 @@ struct device {
     check("get_NumNodes",ks_topology_info->get_NumNodes(&numberOfNodes));
     for(int i = 0; i < numberOfNodes; i++) {
       check("get_NodeType", ks_topology_info->get_NodeType(i, &node_type));
-      std::cout << "node" << i << " ";  
+      std::cout << "node" << i << " ";
       print_guid("node_type", node_type);
     }
     */
@@ -346,18 +342,18 @@ struct device {
   }
 
   void start_streaming() {
-    if(mf_source_reader) {
+    if (mf_source_reader) {
       reader_callback->on_start();
       check("IMFSourceReader::ReadSample", mf_source_reader->ReadSample(MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, NULL, NULL, NULL, NULL));
     }
   }
 
   void stop_streaming() {
+    if (mf_source_reader) mf_source_reader->Flush(MF_SOURCE_READER_FIRST_VIDEO_STREAM);
 
-    if(mf_source_reader) mf_source_reader->Flush(MF_SOURCE_READER_FIRST_VIDEO_STREAM);
-    while(true) {
+    while (true) {
       bool is_streaming = reader_callback->is_streaming();
-      if(is_streaming) std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      if (is_streaming) std::this_thread::sleep_for(std::chrono::milliseconds(10));
       else break;
     }
 
@@ -365,7 +361,7 @@ struct device {
     am_camera_control = nullptr;
     am_video_proc_amp = nullptr;
     ks_controls.clear();
-    if(mf_media_source) {
+    if (mf_media_source) {
       mf_media_source = nullptr;
       check("IMFActivate::ShutdownObject", mf_activate->ShutdownObject());
     }
@@ -397,7 +393,7 @@ HRESULT reader_callback::OnReadSample(HRESULT hrStatus, DWORD dwStreamIndex, DWO
           auto continuation = [buffer, this]() {
             buffer->Unlock();
           };
-          owner_ptr->callback(byte_buffer);
+          owner_ptr->callback(byte_buffer, continuation);
         }
       }
     }
@@ -405,26 +401,13 @@ HRESULT reader_callback::OnReadSample(HRESULT hrStatus, DWORD dwStreamIndex, DWO
     if (auto owner_ptr_new = owner.lock()) {
       auto hr = owner_ptr_new->mf_source_reader->ReadSample(MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, NULL, NULL, NULL, NULL);
       switch (hr) {
-        case S_OK:
-          break;
-        case MF_E_INVALIDREQUEST:
-          LOG_ERROR(WARNING,"ReadSample returned MF_E_INVALIDREQUEST");
-          break;
-        case MF_E_INVALIDSTREAMNUMBER:
-          LOG_ERROR(WARNING,"ReadSample returned MF_E_INVALIDSTREAMNUMBER");
-          break;
-        case MF_E_NOTACCEPTING:
-          LOG_ERROR(WARNING,"ReadSample returned MF_E_NOTACCEPTING");
-          break;
-        case E_INVALIDARG:
-          LOG_ERROR(WARNING,"ReadSample returned E_INVALIDARG");
-          break;
-        case MF_E_VIDEO_RECORDING_DEVICE_INVALIDATED:
-          LOG_ERROR(WARNING,"ReadSample returned MF_E_VIDEO_RECORDING_DEVICE_INVALIDATED");
-          break;
-        default:
-          LOG_ERROR(WARNING,"ReadSample returned HRESULT " << std::hex << (uint32_t)hr);
-          break;
+        case S_OK: break;
+        case MF_E_INVALIDREQUEST: LOG(ERROR) << "ReadSample returned MF_E_INVALIDREQUEST"; break;
+        case MF_E_INVALIDSTREAMNUMBER: LOG(ERROR) << "ReadSample returned MF_E_INVALIDSTREAMNUMBER"; break;
+        case MF_E_NOTACCEPTING: LOG(ERROR) << "ReadSample returned MF_E_NOTACCEPTING"; break;
+        case E_INVALIDARG: LOG(ERROR) << "ReadSample returned E_INVALIDARG"; break;
+        case MF_E_VIDEO_RECORDING_DEVICE_INVALIDATED: LOG(ERROR) << "ReadSample returned MF_E_VIDEO_RECORDING_DEVICE_INVALIDATED"; break;
+        default: LOG(ERROR) << "ReadSample returned HRESULT " << std::hex << (uint32_t)hr; break;
       }
       if (hr != S_OK) streaming = false;
     }
@@ -441,11 +424,12 @@ std::vector<std::shared_ptr<device>> query_devices(std::shared_ptr<context> cont
 {
   IMFAttributes *pAttributes = NULL;
   check("MFCreateAttributes", MFCreateAttributes(&pAttributes, 1));
-  check("IMFAttributes::SetGUID",pAttributes->SetGUID(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE,MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID));
+  check("IMFAttributes::SetGUID", pAttributes->SetGUID(
+    MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE, MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID));
 
   IMFActivate **ppDevices;
   UINT32 numDevices;
-  check("MFEnumDeviceSources",MFEnumDeviceSources(pAttributes, &ppDevices, &numDevices));
+  check("MFEnumDeviceSources", MFEnumDeviceSources(pAttributes, &ppDevices, &numDevices));
 
   std::vector<std::shared_ptr<device>> devices;
   for (UINT32 i = 0; i < numDevices; ++i) {
@@ -490,7 +474,6 @@ std::vector<std::shared_ptr<device>> query_devices(std::shared_ptr<context> cont
     dev->mf_activate = pDevice;
     dev->vid = vid;
     dev->pid = pid;
-
   }
 
   CoTaskMemFree(ppDevices);
@@ -682,14 +665,14 @@ bool xu_control_query(
 
 void set_device_mode(device & device, int width, int height, int fourcc, int fps, video_channel_callback callback)
 {
-  if(!device.mf_source_reader) {
+  if (!device.mf_source_reader) {
     com_ptr<IMFAttributes> pAttributes;
     check("MFCreateAttributes", MFCreateAttributes(&pAttributes, 1));
     check("IMFAttributes::SetUnknown", pAttributes->SetUnknown(MF_SOURCE_READER_ASYNC_CALLBACK, static_cast<IUnknown *>(device.reader_callback)));
     check("MFCreateSourceReaderFromMediaSource", MFCreateSourceReaderFromMediaSource(device.get_media_source(), pAttributes, &device.mf_source_reader));
   }
 
-  if (fourcc_map.count(fourcc))   fourcc = fourcc_map.at(fourcc);
+  if (fourcc_map.count(fourcc)) fourcc = fourcc_map.at(fourcc);
 
   for (DWORD j = 0; ; j++) {
     com_ptr<IMFMediaType> media_type;
@@ -700,13 +683,15 @@ void set_device_mode(device & device, int width, int height, int fourcc, int fps
     UINT32 uvc_width, uvc_height, uvc_fps_num, uvc_fps_denom;
     GUID subtype;
     check("MFGetAttributeSize", MFGetAttributeSize(media_type, MF_MT_FRAME_SIZE, &uvc_width, &uvc_height));
-    if(uvc_width != width || uvc_height != height) continue;
+    if (uvc_width != width || uvc_height != height) continue;
 
     check("IMFMediaType::GetGUID", media_type->GetGUID(MF_MT_SUBTYPE, &subtype));
-    if(subtype.Data1 != fourcc) continue;
+    if (subtype.Data1 != fourcc) continue;
 
     check("MFGetAttributeRatio", MFGetAttributeRatio(media_type, MF_MT_FRAME_RATE, &uvc_fps_num, &uvc_fps_denom));
-    if(uvc_fps_denom == 0) continue;
+    if (uvc_fps_denom == 0) continue;
+    //int uvc_fps = uvc_fps_num / uvc_fps_denom;
+    //LOG(INFO) << "uvc_fps: " << uvc_fps;
 
     check("IMFSourceReader::SetCurrentMediaType", device.mf_source_reader->SetCurrentMediaType((DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM, NULL, media_type));
 

@@ -14,8 +14,17 @@
 
 struct frame {
   const void *data = nullptr;
+  std::function<void()> continuation = nullptr;
+  frame() {
+    // VLOG(2) << __func__;
+  }
   ~frame() {
+    // VLOG(2) << __func__;
     data = nullptr;
+    if (continuation) {
+      continuation();
+      continuation = nullptr;
+    }
   }
 };
 
@@ -28,7 +37,11 @@ int main(int argc, char *argv[]) {
 
   auto context = uvc::create_context();
   auto devices = uvc::query_devices(context);
-  LOG_IF(FATAL, devices.size() <= 0) << "No devices :(";
+  if (devices.size() <= 0) {
+    LOG(ERROR) << "No devices :(";
+    return 1;
+  }
+
   for (auto &&device : devices) {
     auto vid = uvc::get_vendor_id(*device);
     // auto pid = uvc::get_product_id(*device);
@@ -41,7 +54,10 @@ int main(int argc, char *argv[]) {
   // std::string dashes(80, '-');
 
   size_t n = mynteye_devices.size();
-  LOG_IF(FATAL, n <= 0) << "No MYNT EYE devices :(";
+  if (n <= 0) {
+    LOG(ERROR) << "No MYNT EYE devices :(";
+    return 1;
+  }
 
   LOG(INFO) << "MYNT EYE devices: ";
   for (size_t i = 0; i < n; i++) {
@@ -74,18 +90,21 @@ int main(int argc, char *argv[]) {
   std::mutex mtx;
   std::condition_variable cv;
 
-  std::vector<frame> frames;
-  const auto frame_ready = [&frames]() { return !frames.empty(); };
-  const auto frame_empty = [&frames]() { return frames.empty(); };
+  std::shared_ptr<frame> frame = nullptr;
+  const auto frame_ready = [&frame]() { return frame != nullptr; };
+  const auto frame_empty = [&frame]() { return frame == nullptr; };
 
   uvc::set_device_mode(
       *device, 752, 480, static_cast<int>(Format::YUYV), 25,
-      [&mtx, &cv, &frames, &frame_ready](const void *data) {
+      [&mtx, &cv, &frame, &frame_ready](
+          const void *data, std::function<void()> continuation) {
         // reinterpret_cast<const std::uint8_t *>(data);
         std::unique_lock<std::mutex> lock(mtx);
-        frame frame;
-        frame.data = data;  // not copy
-        frames.push_back(frame);
+        if (frame == nullptr) {
+          frame = std::make_shared<struct frame>();
+        }
+        frame->data = data;  // not copy here
+        frame->continuation = continuation;
         if (frame_ready())
           cv.notify_one();
       });
@@ -106,13 +125,12 @@ int main(int argc, char *argv[]) {
         throw std::runtime_error("Timeout waiting for frame.");
     }
 
-    auto frame = frames.back();  // only last one is valid
-
-    cv::Mat img(480, 752, CV_8UC2, const_cast<void *>(frame.data));
+    // only lastest frame is valid
+    cv::Mat img(480, 752, CV_8UC2, const_cast<void *>(frame->data));
     cv::cvtColor(img, img, cv::COLOR_YUV2BGR_YUY2);
     cv::imshow("frame", img);
 
-    frames.clear();
+    frame = nullptr;
 
     char key = static_cast<char>(cv::waitKey(1));
     if (key == 27 || key == 'q' || key == 'Q') {  // ESC/Q
