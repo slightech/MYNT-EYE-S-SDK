@@ -23,6 +23,9 @@
 #include <stdexcept>
 
 #include "internal/strings.h"
+#include "internal/times.h"
+
+#define IMU_TRACK_PERIOD 25  // ms
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -283,10 +286,12 @@ void Channels::StartImuTracking(imu_callback_t callback) {
     imu_sn_ = 0;
     ImuReqPacket req_packet{imu_sn_};
     ImuResPacket res_packet;
-    // auto sleep_milli = [](std::intmax_t n) {
-    //   std::this_thread::sleep_for(std::chrono::milliseconds(n));
-    // };
+    auto sleep_ms = [](std::intmax_t n) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(n));
+    };
     while (!imu_track_stop_) {
+      auto &&time_beg = times::now();
+
       req_packet.serial_number = imu_sn_;
       if (!XuImuWrite(req_packet)) {
         continue;
@@ -323,6 +328,14 @@ void Channels::StartImuTracking(imu_callback_t callback) {
       }
 
       res_packet.packets.clear();
+
+      auto &&time_elapsed_ms =
+          times::count<times::milliseconds>(times::now() - time_beg);
+      if (time_elapsed_ms < IMU_TRACK_PERIOD) {
+        sleep_ms(IMU_TRACK_PERIOD - time_elapsed_ms);
+        VLOG(2) << "Imu track cost " << time_elapsed_ms << " ms"
+                << ", sleep " << (IMU_TRACK_PERIOD - time_elapsed_ms) << " ms";
+      }
     }
   });
 }
