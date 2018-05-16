@@ -21,12 +21,19 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
+/**
+ * @defgroup utils Utiliities
+ */
+
 class Device;
 
 namespace device {
 
 /**
+ * @ingroup utils
+ *
  * Detecting MYNT EYE devices and prompt user to select one.
+ *
  * @return the selected device, or `nullptr` if none.
  */
 MYNTEYE_API std::shared_ptr<Device> select();
@@ -36,7 +43,10 @@ MYNTEYE_API std::shared_ptr<Device> select();
 namespace utils {
 
 /**
+ * @ingroup utils
+ *
  * Get real exposure time in ms from virtual value, according to its frame rate.
+ *
  * @param frame_rate the frame rate of the device.
  * @param exposure_time the virtual exposure time.
  * @return the real exposure time in ms, or the virtual value if frame rate is

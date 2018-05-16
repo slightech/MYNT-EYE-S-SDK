@@ -30,11 +30,18 @@ struct context;
 
 class Device;
 
+/**
+ * The context about devices.
+ */
 class MYNTEYE_API Context {
  public:
   Context();
   ~Context();
 
+  /**
+   * Get all devices now.
+   * @return a vector of all devices.
+   */
   std::vector<std::shared_ptr<Device>> devices() const {
     return devices_;
   }

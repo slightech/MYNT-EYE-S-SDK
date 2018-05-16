@@ -24,6 +24,7 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
+/** The strings error */
 class MYNTEYE_API strings_error : public std::runtime_error {
  public:
   explicit strings_error(const std::string &what_arg) noexcept

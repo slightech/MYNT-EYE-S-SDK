@@ -30,27 +30,52 @@ MYNTEYE_BEGIN_NAMESPACE
 class API;
 class Object;
 
+/**
+ * The plugin which could implement processing by yourself.
+ */
 class MYNTEYE_API Plugin {
  public:
   Plugin() = default;
   virtual ~Plugin() = 0;
 
+  /**
+   * Called when plugin created.
+   * @param api the API instacne.
+   */
   virtual void OnCreate(API *api) {
     api_ = api;
   }
 
+  /**
+   * Called when process rectify.
+   * @param in input object.
+   * @param out output object.
+   * @return `true` if you process rectify.
+   */
   virtual bool OnRectifyProcess(Object *const in, Object *const out) {
     UNUSED(in)
     UNUSED(out)
     return false;
   }
 
+  /**
+   * Called when process disparity.
+   * @param in input object.
+   * @param out output object.
+   * @return `true` if you process disparity.
+   */
   virtual bool OnDisparityProcess(Object *const in, Object *const out) {
     UNUSED(in)
     UNUSED(out)
     return false;
   }
 
+  /**
+   * Called when process normalized disparity.
+   * @param in input object.
+   * @param out output object.
+   * @return `true` if you process normalized disparity.
+   */
   virtual bool OnDisparityNormalizedProcess(
       Object *const in, Object *const out) {
     UNUSED(in)
@@ -58,12 +83,24 @@ class MYNTEYE_API Plugin {
     return false;
   }
 
+  /**
+   * Called when process points.
+   * @param in input object.
+   * @param out output object.
+   * @return `true` if you process points.
+   */
   virtual bool OnPointsProcess(Object *const in, Object *const out) {
     UNUSED(in)
     UNUSED(out)
     return false;
   }
 
+  /**
+   * Called when process depth.
+   * @param in input object.
+   * @param out output object.
+   * @return `true` if you process depth.
+   */
   virtual bool OnDepthProcess(Object *const in, Object *const out) {
     UNUSED(in)
     UNUSED(out)
@@ -84,10 +121,19 @@ MYNTEYE_END_NAMESPACE
 
 extern "C" {
 
+/**
+ * Get the plugin version code.
+ */
 MYNTEYE_API std::uint32_t plugin_version_code();
 
+/**
+ * Create the plugin.
+ */
 MYNTEYE_API mynteye::Plugin *plugin_create();
 
+/**
+ * Destroy the plugin.
+ */
 MYNTEYE_API void plugin_destroy(mynteye::Plugin *plugin);
 }
 

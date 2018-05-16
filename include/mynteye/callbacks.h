@@ -29,13 +29,23 @@ MYNTEYE_BEGIN_NAMESPACE
 
 namespace device {
 
+/**
+ * @ingroup datatypes
+ * Frame with raw data.
+ */
 class MYNTEYE_API Frame {
  public:
   using data_t = std::vector<std::uint8_t>;
 
+  /**
+   * Construct the frame with StreamRequest and raw data.
+   */
   Frame(const StreamRequest &request, const void *data)
       : Frame(request.width, request.height, request.format, data) {}
 
+  /**
+   * Construct the frame with stream info and raw data.
+   */
   Frame(
       std::uint16_t width, std::uint16_t height, Format format,
       const void *data)
@@ -49,30 +59,37 @@ class MYNTEYE_API Frame {
     }
   }
 
+  /** Get the width. */
   std::uint16_t width() const {
     return width_;
   }
 
+  /** Get the height. */
   std::uint16_t height() const {
     return height_;
   }
 
+  /** Get the format. */
   Format format() const {
     return format_;
   }
 
+  /** Get the data. */
   std::uint8_t *data() {
     return data_.data();
   }
 
+  /** Get the const data. */
   const std::uint8_t *data() const {
     return data_.data();
   }
 
+  /** Get the size of data. */
   std::size_t size() const {
     return data_.size();
   }
 
+  /** Clone a new frame. */
   Frame clone() const {
     Frame frame(width_, height_, format_, nullptr);
     std::copy(data_.begin(), data_.end(), frame.data_.begin());
@@ -87,12 +104,23 @@ class MYNTEYE_API Frame {
   data_t data_;
 };
 
+/**
+ * @ingroup datatypes
+ * Device stream data.
+ */
 struct MYNTEYE_API StreamData {
+  /** ImgData. */
   std::shared_ptr<ImgData> img;
+  /** Frame. */
   std::shared_ptr<Frame> frame;
 };
 
+/**
+ * @ingroup datatypes
+ * Device motion data.
+ */
 struct MYNTEYE_API MotionData {
+  /** ImuData. */
   std::shared_ptr<ImuData> imu;
 };
 

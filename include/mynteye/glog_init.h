@@ -17,8 +17,14 @@
 
 #include <glog/logging.h>
 
+/** Helper to init glog with args. */
 struct glog_init {
-  glog_init(int /*argc*/, char *argv[]) {
+  /**
+   * Init glog with args in constructor, and shutdown it in destructor.
+   */
+  glog_init(int argc, char *argv[]) {
+    (void)argc;
+
     // FLAGS_logtostderr = true;
     FLAGS_alsologtostderr = true;
     FLAGS_colorlogtostderr = true;

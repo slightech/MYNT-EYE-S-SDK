@@ -72,21 +72,21 @@ enum class Stream : std::uint8_t {
  * might provide.
  */
 enum class Capabilities : std::uint8_t {
-  /** Provices stereo stream */
+  /** Provides stereo stream */
   STEREO,
-  /** Provices color stream */
+  /** Provides color stream */
   COLOR,
-  /** Provices depth stream */
+  /** Provides depth stream */
   DEPTH,
-  /** Provices point cloud stream */
+  /** Provides point cloud stream */
   POINTS,
-  /** Provices fisheye stream */
+  /** Provides fisheye stream */
   FISHEYE,
-  /** Provices infrared stream */
+  /** Provides infrared stream */
   INFRARED,
-  /** Provices second infrared stream */
+  /** Provides second infrared stream */
   INFRARED2,
-  /** Provices IMU (accelerometer, gyroscope) data */
+  /** Provides IMU (accelerometer, gyroscope) data */
   IMU,
   /** Last guard */
   LAST
@@ -123,15 +123,35 @@ enum class Info : std::uint8_t {
  * @brief Camera control options define general configuration controls.
  */
 enum class Option : std::uint8_t {
-  /** Image gain, setting it if manual-exposure */
+  /**
+   * Image gain, valid if manual-exposure
+   *
+   *   range: [0,48], default: 24
+   */
   GAIN,
-  /** Image brightness, setting it if manual-exposure */
+  /**
+   * Image brightness, valid if manual-exposure
+   *
+   *   range: [0,240], default: 120
+   */
   BRIGHTNESS,
-  /** Image contrast */
+  /**
+   * Image contrast, valid if manual-exposure
+   *
+   *   range: [0,255], default: 127
+   */
   CONTRAST,
-  /** Image frame rate, must set IMU_FREQUENCY together */
+  /**
+   * Image frame rate, must set IMU_FREQUENCY together
+   *
+   *   values: {10,15,20,25,30,35,40,45,50,55,60}, default: 25
+   */
   FRAME_RATE,
-  /** IMU frequency, must set FRAME_RATE together */
+  /**
+   * IMU frequency, must set FRAME_RATE together
+   *
+   *   values: {100,200,250,333,500}, default: 200
+   */
   IMU_FREQUENCY,
   /**
    * Exposure mode
@@ -140,13 +160,29 @@ enum class Option : std::uint8_t {
    *   1: disable auto-exposure (manual-exposure)
    */
   EXPOSURE_MODE,
-  /** Max gain, setting it if auto-exposure */
+  /**
+   * Max gain, valid if auto-exposure
+   *
+   *   range: [0,48], default: 48
+   */
   MAX_GAIN,
-  /** Max exposure time, setting it if auto-exposure */
+  /**
+   * Max exposure time, valid if auto-exposure
+   *
+   *   range: [0,240], default: 240
+   */
   MAX_EXPOSURE_TIME,
-  /** Desired brightness */
+  /**
+   * Desired brightness, valid if auto-exposure
+   *
+   *   range: [0,255], default: 192
+   */
   DESIRED_BRIGHTNESS,
-  /** IR control */
+  /**
+   * IR control
+   *
+   *   range: [0,160], default: 0
+   */
   IR_CONTROL,
   /**
    * HDR mode
@@ -248,13 +284,13 @@ MYNTEYE_API std::size_t bytes_per_pixel(const Format &value);
  * Stream request.
  */
 struct MYNTEYE_API StreamRequest {
-  /** width in pixels */
+  /** Stream width in pixels */
   std::uint16_t width;
-  /** height in pixels */
+  /** Stream height in pixels */
   std::uint16_t height;
-  /** stream pixel format */
+  /** Stream pixel format */
   Format format;
-  /** frames per second (unused) */
+  /** Stream frames per second (unused) */
   std::uint16_t fps;
 
   bool operator==(const StreamRequest &other) const {
@@ -279,21 +315,21 @@ std::ostream &operator<<(std::ostream &os, const StreamRequest &request);
  * Stream intrinsics,
  */
 struct MYNTEYE_API Intrinsics {
-  /** width of the image in pixels */
+  /** The width of the image in pixels */
   std::uint16_t width;
-  /** height of the image in pixels */
+  /** The height of the image in pixels */
   std::uint16_t height;
-  /** focal length of the image plane, as a multiple of pixel width */
+  /** The focal length of the image plane, as a multiple of pixel width */
   double fx;
-  /** focal length of the image plane, as a multiple of pixel height */
+  /** The focal length of the image plane, as a multiple of pixel height */
   double fy;
-  /** horizontal coordinate of the principal point of the image */
+  /** The horizontal coordinate of the principal point of the image */
   double cx;
-  /** vertical coordinate of the principal point of the image */
+  /** The vertical coordinate of the principal point of the image */
   double cy;
-  /** distortion model of the image */
+  /** The distortion model of the image */
   std::uint8_t model;
-  /** distortion coefficients: k1,k2,p1,p2,k3 */
+  /** The distortion coefficients: k1,k2,p1,p2,k3 */
   double coeffs[5];
 };
 
@@ -306,9 +342,12 @@ std::ostream &operator<<(std::ostream &os, const Intrinsics &in);
  */
 struct MYNTEYE_API ImuIntrinsics {
   /**
-   * Scale X     cross axis  cross axis
-   * cross axis  Scale Y     cross axis
-   * cross axis  cross axis  Scale Z
+   * Scale matrix.
+   * \code
+   *   Scale X     cross axis  cross axis
+   *   cross axis  Scale Y     cross axis
+   *   cross axis  cross axis  Scale Z
+   * \endcode
    */
   double scale[3][3];
   /* Zero-drift: X, Y, Z */
@@ -328,8 +367,8 @@ std::ostream &operator<<(std::ostream &os, const ImuIntrinsics &in);
  * Motion intrinsics, including accelerometer and gyroscope.
  */
 struct MYNTEYE_API MotionIntrinsics {
-  ImuIntrinsics accel;
-  ImuIntrinsics gyro;
+  ImuIntrinsics accel; /**< Accelerometer intrinsics */
+  ImuIntrinsics gyro;  /**< Gyroscope intrinsics */
 };
 
 MYNTEYE_API
@@ -340,9 +379,13 @@ std::ostream &operator<<(std::ostream &os, const MotionIntrinsics &in);
  * Extrinsics, represent how the different datas are connected.
  */
 struct MYNTEYE_API Extrinsics {
-  double rotation[3][3]; /**< rotation matrix */
-  double translation[3]; /**< translation vector */
+  double rotation[3][3]; /**< Rotation matrix */
+  double translation[3]; /**< Translation vector */
 
+  /**
+   * Inverse this extrinsics.
+   * @return the inversed extrinsics.
+   */
   Extrinsics Inverse() const {
     return {{{rotation[0][0], rotation[1][0], rotation[2][0]},
              {rotation[0][1], rotation[1][1], rotation[2][1]},
@@ -427,8 +470,11 @@ struct MYNTEYE_API ImuData {
  * Option info.
  */
 struct MYNTEYE_API OptionInfo {
+  /** Minimum value */
   std::int32_t min;
+  /** Maximum value */
   std::int32_t max;
+  /** Default value */
   std::int32_t def;
 };
 

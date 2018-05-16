@@ -30,21 +30,27 @@ struct MYNTEYE_API Object {
 
   virtual Object *Clone() const = 0;
 
+  /** Cast the obj to T pointer */
   template <typename T>
   static T *Cast(Object *obj) {
     return dynamic_cast<T *>(obj);
   }
 
+  /** Cast the obj to const T pointer */
   template <typename T>
   static const T *Cast(const Object *obj) {
     return dynamic_cast<const T *>(obj);
   }
 };
 
+/**
+ * Input & output object of one cv::Mat.
+ */
 struct MYNTEYE_API ObjMat : public Object {
   ObjMat() = default;
   explicit ObjMat(const cv::Mat &value) : value(value) {}
 
+  /** The value */
   cv::Mat value;
 
   Object *Clone() const {
@@ -54,12 +60,18 @@ struct MYNTEYE_API ObjMat : public Object {
   }
 };
 
+/**
+ * Input & output object of two cv::Mat.
+ */
 struct MYNTEYE_API ObjMat2 : public Object {
   ObjMat2() = default;
   ObjMat2(const cv::Mat &first, const cv::Mat &second)
       : first(first), second(second) {}
 
+  /** The first value */
   cv::Mat first;
+
+  /** The second value */
   cv::Mat second;
 
   Object *Clone() const {
