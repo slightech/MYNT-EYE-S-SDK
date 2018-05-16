@@ -21,16 +21,24 @@ source "$SCRIPTS_DIR/common/echo.sh"
 source "$SCRIPTS_DIR/common/host.sh"
 
 if [ "$HOST_OS" = "Linux" ]; then
-  MD5SUM="md5sum"
+  _md5sum() { md5sum "$1"; }
 elif [ "$HOST_OS" = "Mac" ]; then
-  MD5SUM="md5 -q"
+  _md5sum() { md5 -q "$1"; }
+elif [ "$HOST_OS" = "Win" ]; then
+  _md5sum() { certutil -hashfile "$1" MD5; }
 else  # unexpected
   _echo_e "Unknown host os :("
   exit 1
 fi
 
+PYTHON="python"
+if [ "$HOST_OS" = "Win" ]; then
+  # default python on MSYS
+  PYTHON="python2"
+fi
+
 _get_size() {
-PYTHON_ARG="$1" python - <<EOF
+PYTHON_ARG="$1" $PYTHON - <<EOF
 import math
 from os.path import getsize
 
@@ -52,7 +60,7 @@ _print_info() {
   file="$1"
   _echo "File: $file"
   _echo "Size: `_get_size "$file"`"
-  _echo "MD5: `$MD5SUM "$file"`"
+  _echo "MD5: `_md5sum "$file"`"
   _echo
 }
 
