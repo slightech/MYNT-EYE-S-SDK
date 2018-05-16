@@ -28,7 +28,7 @@
 MYNTEYE_BEGIN_NAMESPACE
 
 class API;
-class Object;
+struct Object;
 
 /**
  * The plugin which could implement processing by yourself.
