@@ -37,6 +37,15 @@ make samples
 
 Get firmwares from our online disks: [Google Drive][], [百度网盘][].
 
+## Documentations
+
+* [API Doc](https://github.com/slightech/MYNT-EYE-SDK-2/releases)
+* [Guide Doc](https://github.com/slightech/MYNT-EYE-SDK-2-Guide/releases)
+
+## Mirrors
+
+国内镜像：[码云](https://gitee.com/mynt/MYNT-EYE-SDK-2)。
+
 ## License
 
 This project is licensed under the Apache License, Version 2.0. Copyright 2018 Slightech Co., Ltd.
