@@ -27,6 +27,7 @@ help:
 	@echo "  make samples         build samples"
 	@echo "  make tools           build tools"
 	@echo "  make ros             build ros wrapper"
+	@echo "  make py              build python wrapper"
 	@echo "  make clean|cleanall  clean generated or useless things"
 
 .PHONY: help
@@ -158,6 +159,23 @@ cleanros:
 
 .PHONY: cleanros
 
+# python
+
+py: python
+
+python: install
+	@$(call echo,Make $@)
+	@$(call cmake_build,./wrappers/python/_build)
+
+.PHONY: py python
+
+cleanpy:
+	@$(call echo,Make $@)
+	@$(call rm,./wrappers/python/_build/)
+	@$(call rm,./wrappers/python/_output/)
+
+.PHONY: cleanpy
+
 # clean
 
 clean:
@@ -175,6 +193,7 @@ clean:
 ifeq ($(HOST_OS),Linux)
 	@$(MAKE) cleanros
 endif
+	@$(MAKE) cleanpy
 
 cleanlog:
 	@$(call rm_f,*INFO*)
