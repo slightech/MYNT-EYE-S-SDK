@@ -14,5 +14,5 @@ make python
 ## Run
 
 ```bash
-python
+python wrappers/python/samples/mynteye.py
 ```
