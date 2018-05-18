@@ -1,15 +1,11 @@
 #include "uvc/uvc.h"  // NOLINT
 
-#include <glog/logging.h>
-
 #include <chrono>
 #include <iostream>
 
 #include <windows.h>
 #include <usbioctl.h>
 #include <sstream>
-
-#include "uvc.h"
 
 #include <Shlwapi.h>        // For QISearch, etc.
 #include <mfapi.h>          // For MFStartup, etc.
@@ -47,6 +43,11 @@
 
 #include <strsafe.h>
 
+#include <glog/logging.h>
+
+// #define VLOG_INFO VLOG(2)
+#define VLOG_INFO LOG(INFO)
+
 MYNTEYE_BEGIN_NAMESPACE
 
 namespace uvc {
@@ -81,121 +82,120 @@ static void check(const char *call, HRESULT hr) {
     throw_error() << call << "(...) returned 0x" << std::hex
       << static_cast<uint32_t>(hr);
   } else {
-    LOG(INFO) << call << " SUCCESSED";
+    VLOG_INFO << call << " SUCCESSED";
   }
 }
 
 template<class T> class com_ptr {
-  T * p;
-  void ref(T * new_p) {
-    if(p == new_p) return;
+  T *p;
+  void ref(T *new_p) {
+    if (p == new_p) return;
     unref();
     p = new_p;
-    if(p) p->AddRef();
+    if (p) p->AddRef();
   }
 
   void unref() {
-    if(p) {
+    if (p) {
       p->Release();
       p = nullptr;
     }
   }
 public:
   com_ptr() : p() {}
-  com_ptr(T * p) : com_ptr() {
+  com_ptr(T *p) : com_ptr() {
     ref(p);
   }
-  com_ptr(const com_ptr & r) : com_ptr(r.p) {}
+  com_ptr(const com_ptr &r) : com_ptr(r.p) {}
   ~com_ptr() {
     unref();
   }
 
-  operator T * () const {
+  operator T *() const {
     return p;
   }
-  T & operator * () const {
+  T &operator*() const {
     return *p;
   }
-  T * operator -> () const {
+  T *operator->() const {
     return p;
   }
 
-  T ** operator & () {
+  T **operator&() {
     unref();
     return &p;
   }
-  com_ptr & operator = (const com_ptr & r) {
+  com_ptr &operator=(const com_ptr &r) {
     ref(r.p);
     return *this;
   }
 };
 
-static std::string win_to_utf(const WCHAR * s)
-{
+static std::string win_to_utf(const WCHAR *s) {
   int len = WideCharToMultiByte(CP_UTF8, 0, s, -1, nullptr, 0, NULL, NULL);
-  if(len == 0) throw_error() << "WideCharToMultiByte(...) returned 0 and GetLastError() is " << GetLastError();
-  std::string buffer(len-1, ' ');
+  if (len == 0) throw_error() << "WideCharToMultiByte(...) returned 0 and GetLastError() is " << GetLastError();
+  std::string buffer(len - 1, ' ');
   len = WideCharToMultiByte(CP_UTF8, 0, s, -1, &buffer[0], (int)buffer.size()+1, NULL, NULL);
-  if(len == 0) throw_error() << "WideCharToMultiByte(...) returned 0 and GetLastError() is " << GetLastError();
+  if (len == 0) throw_error() << "WideCharToMultiByte(...) returned 0 and GetLastError() is " << GetLastError();
   return buffer;
 }
 
-std::vector<std::string> tokenize(std::string string, char separator)
-{
+std::vector<std::string> tokenize(std::string string, char separator) {
   std::vector<std::string> tokens;
   std::string::size_type i1 = 0;
-  while(true) {
+  while (true) {
     auto i2 = string.find(separator, i1);
-    if(i2 == std::string::npos) {
+    if (i2 == std::string::npos) {
       tokens.push_back(string.substr(i1));
       return tokens;
     }
     tokens.push_back(string.substr(i1, i2-i1));
-    i1 = i2+1;
+    i1 = i2 + 1;
   }
 }
 
 static void print_guid(const char *call, GUID guid) {
-  std::cout << call << ":";
-  std::cout << " Data1: " << std::hex << guid.Data1 << ",";
-  std::cout << " Data2: " << std::hex << guid.Data2 << ",";
-  std::cout << " Data3: " << std::hex << guid.Data3 << ",";
-  std::cout << " Data4: [ ";
-  for(int j = 0; j < 8; j++) {
-    std::cout << std::hex << (int)guid.Data4[j] << " ";
+  std::ostringstream ss;
+  ss << call << ":";
+  ss << " Data1: " << std::hex << guid.Data1 << ",";
+  ss << " Data2: " << std::hex << guid.Data2 << ",";
+  ss << " Data3: " << std::hex << guid.Data3 << ",";
+  ss << " Data4: [ ";
+  for (int j = 0; j < 8; j++) {
+    ss << std::hex << (int)guid.Data4[j] << " ";
   }
-  std::cout << "]" << std::endl;
+  ss << "]";
+  LOG(INFO) << ss.str();
 }
 
-bool parse_usb_path(int & vid, int & pid, int & mi, std::string & unique_id, const std::string & path)
-{
+bool parse_usb_path(int &vid, int &pid, int &mi, std::string &unique_id, const std::string &path) {
   auto name = path;
   std::transform(begin(name), end(name), begin(name), ::tolower);
   auto tokens = tokenize(name, '#');
-  if(tokens.size() < 1 || tokens[0] != R"(\\?\usb)") return false; // Not a USB device
-  if(tokens.size() < 3) {
-    LOG(ERROR) << "malformed usb device path:  " << name;
+  if (tokens.size() < 1 || tokens[0] != R"(\\?\usb)") return false;  // Not a USB device
+  if (tokens.size() < 3) {
+    LOG(ERROR) << "malformed usb device path: " << name;
     return false;
   }
 
   auto ids = tokenize(tokens[1], '&');
-  if(ids[0].size() != 8 || ids[0].substr(0,4) != "vid_" || !(std::istringstream(ids[0].substr(4,4)) >> std::hex >> vid)) {
+  if (ids[0].size() != 8 || ids[0].substr(0,4) != "vid_" || !(std::istringstream(ids[0].substr(4,4)) >> std::hex >> vid)) {
     LOG(ERROR) << "malformed vid string: " << tokens[1];
     return false;
   }
 
-  if(ids[1].size() != 8 || ids[1].substr(0,4) != "pid_" || !(std::istringstream(ids[1].substr(4,4)) >> std::hex >> pid)) {
+  if (ids[1].size() != 8 || ids[1].substr(0,4) != "pid_" || !(std::istringstream(ids[1].substr(4,4)) >> std::hex >> pid)) {
     LOG(ERROR) << "malformed pid string: " << tokens[1];
     return false;
   }
 
-  if(ids[2].size() != 5 || ids[2].substr(0,3) != "mi_" || !(std::istringstream(ids[2].substr(3,2)) >> mi)) {
+  if (ids[2].size() != 5 || ids[2].substr(0,3) != "mi_" || !(std::istringstream(ids[2].substr(3,2)) >> mi)) {
     LOG(ERROR) << "malformed mi string: " << tokens[1];
     return false;
   }
 
   ids = tokenize(tokens[2], '&');
-  if(ids.size() < 2) {
+  if (ids.size() < 2) {
     LOG(ERROR) << "malformed id string: " << tokens[2];
     return false;
   }
@@ -203,12 +203,11 @@ bool parse_usb_path(int & vid, int & pid, int & mi, std::string & unique_id, con
   return true;
 }
 
-bool parse_usb_path_from_device_id(int & vid, int & pid, int & mi, std::string & unique_id, const std::string & device_id)
-{
+bool parse_usb_path_from_device_id(int &vid, int &pid, int &mi, std::string &unique_id, const std::string &device_id) {
   auto name = device_id;
   std::transform(begin(name), end(name), begin(name), ::tolower);
   auto tokens = tokenize(name, '\\');
-  if (tokens.size() < 1 || tokens[0] != R"(usb)") return false; // Not a USB device
+  if (tokens.size() < 1 || tokens[0] != R"(usb)") return false;  // Not a USB device
 
   auto ids = tokenize(tokens[1], '&');
   if (ids[0].size() != 8 || ids[0].substr(0, 4) != "vid_" || !(std::istringstream(ids[0].substr(4, 4)) >> std::hex >> vid)) {
@@ -247,8 +246,7 @@ struct context {
   }
 };
 
-class reader_callback : public IMFSourceReaderCallback
-{
+class reader_callback : public IMFSourceReaderCallback {
   std::weak_ptr<device> owner; // The device holds a reference to us, so use weak_ptr to prevent a cycle
   ULONG ref_count;
   volatile bool streaming = false;
@@ -265,7 +263,7 @@ public:
 #pragma warning( push )
 #pragma warning( disable: 4838 )
   // Implement IUnknown
-  HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void ** ppvObject) override {
+  HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) override {
     static const QITAB table[] = {QITABENT(reader_callback, IUnknown), QITABENT(reader_callback, IMFSourceReaderCallback), {0}};
     return QISearch(this, table, riid, ppvObject);
   }
@@ -279,7 +277,7 @@ public:
   }
 
   // Implement IMFSourceReaderCallback
-  HRESULT STDMETHODCALLTYPE OnReadSample(HRESULT hrStatus, DWORD dwStreamIndex, DWORD dwStreamFlags, LONGLONG llTimestamp, IMFSample * sample) override;
+  HRESULT STDMETHODCALLTYPE OnReadSample(HRESULT hrStatus, DWORD dwStreamIndex, DWORD dwStreamFlags, LONGLONG llTimestamp, IMFSample *sample) override;
   HRESULT STDMETHODCALLTYPE OnFlush(DWORD dwStreamIndex) override { streaming = false; return S_OK; }
   HRESULT STDMETHODCALLTYPE OnEvent(DWORD dwStreamIndex, IMFMediaEvent *pEvent) override { return S_OK; }
 };
@@ -308,9 +306,9 @@ struct device {
   }
 
 
-  IKsControl * get_ks_control(const uvc::xu & xu) {
+  IKsControl *get_ks_control(const uvc::xu &xu) {
     auto it = ks_controls.find(xu.node);
-    if(it != end(ks_controls)) return it->second;
+    if (it != end(ks_controls)) return it->second;
 
     get_media_source();
 
@@ -321,23 +319,22 @@ struct device {
     GUID node_type;
     /*
     DWORD numberOfNodes;
-    check("get_NumNodes",ks_topology_info->get_NumNodes(&numberOfNodes));
-    for(int i = 0; i < numberOfNodes; i++) {
+    check("get_NumNodes", ks_topology_info->get_NumNodes(&numberOfNodes));
+    for (int i = 0; i < numberOfNodes; i++) {
       check("get_NodeType", ks_topology_info->get_NodeType(i, &node_type));
-      std::cout << "node" << i << " ";
       print_guid("node_type", node_type);
     }
     */
     check("get_NodeType", ks_topology_info->get_NodeType(xu.node, &node_type));
     const GUID KSNODETYPE_DEV_SPECIFIC_LOCAL{0x941C7AC0L, 0xC559, 0x11D0, {0x8A, 0x2B, 0x00, 0xA0, 0xC9, 0x25, 0x5A, 0xC1}};
-    if(node_type != KSNODETYPE_DEV_SPECIFIC_LOCAL) throw_error() << "Invalid extension unit node ID: " << xu.node;
+    if (node_type != KSNODETYPE_DEV_SPECIFIC_LOCAL) throw_error() << "Invalid extension unit node ID: " << xu.node;
 
     com_ptr<IUnknown> unknown;
     check("CreateNodeInstance", ks_topology_info->CreateNodeInstance(xu.node, IID_IUnknown, (LPVOID *)&unknown));
 
     com_ptr<IKsControl> ks_control;
     check("QueryInterface", unknown->QueryInterface(__uuidof(IKsControl), (void **)&ks_control));
-    LOG(INFO) << "Obtained KS control node : " << xu.node;
+    VLOG_INFO << "Obtained KS control node : " << xu.node;
     return ks_controls[xu.node] = ks_control;
   }
 
@@ -369,7 +366,7 @@ struct device {
   }
 
   com_ptr<IMFMediaSource> get_media_source() {
-    if(!mf_media_source) {
+    if (!mf_media_source) {
       check("IMFActivate::ActivateObject", mf_activate->ActivateObject(__uuidof(IMFMediaSource), (void **)&mf_media_source));
       if (mf_media_source) {
         check("IMFMediaSource::QueryInterface", mf_media_source->QueryInterface(__uuidof(IAMCameraControl), (void **)&am_camera_control));
@@ -381,15 +378,14 @@ struct device {
 
 };
 
-HRESULT reader_callback::OnReadSample(HRESULT hrStatus, DWORD dwStreamIndex, DWORD dwStreamFlags, LONGLONG llTimestamp, IMFSample * sample)
-{
-  if(auto owner_ptr = owner.lock()) {
-    if(sample) {
+HRESULT reader_callback::OnReadSample(HRESULT hrStatus, DWORD dwStreamIndex, DWORD dwStreamFlags, LONGLONG llTimestamp, IMFSample *sample) {
+  if (auto owner_ptr = owner.lock()) {
+    if (sample) {
       com_ptr<IMFMediaBuffer> buffer = NULL;
-      if(SUCCEEDED(sample->GetBufferByIndex(0, &buffer))) {
-        BYTE * byte_buffer;
+      if (SUCCEEDED(sample->GetBufferByIndex(0, &buffer))) {
+        BYTE *byte_buffer;
         DWORD max_length, current_length;
-        if(SUCCEEDED(buffer->Lock(&byte_buffer, &max_length, &current_length))) {
+        if (SUCCEEDED(buffer->Lock(&byte_buffer, &max_length, &current_length))) {
           auto continuation = [buffer, this]() {
             buffer->Unlock();
           };
@@ -415,13 +411,11 @@ HRESULT reader_callback::OnReadSample(HRESULT hrStatus, DWORD dwStreamIndex, DWO
   return S_OK;
 }
 
-std::shared_ptr<context> create_context()
-{
+std::shared_ptr<context> create_context() {
   return std::make_shared<context>();
 }
 
-std::vector<std::shared_ptr<device>> query_devices(std::shared_ptr<context> context)
-{
+std::vector<std::shared_ptr<device>> query_devices(std::shared_ptr<context> context) {
   IMFAttributes *pAttributes = NULL;
   check("MFCreateAttributes", MFCreateAttributes(&pAttributes, 1));
   check("IMFAttributes::SetGUID", pAttributes->SetGUID(
@@ -456,18 +450,17 @@ std::vector<std::shared_ptr<device>> query_devices(std::shared_ptr<context> cont
     if (!parse_usb_path(vid, pid, mi, unique_id, dev_name)) continue;
 
     std::shared_ptr<device> dev;
-    for(auto & d : devices) {
-      if(d->vid == vid && d->pid == pid && d->unique_id == unique_id)
+    for (auto & d : devices) {
+      if (d->vid == vid && d->pid == pid && d->unique_id == unique_id)
         dev = d;
     }
-    if(!dev) {
+    if (!dev) {
       try {
         dev = std::make_shared<device>(context, vid, pid, unique_id, name);
         devices.push_back(dev);
       } catch (const std::exception &e) {
-        VLOG(2) << "Not a USB video device: " << e.what();
+        VLOG_INFO << "Not a USB video device: " << e.what();
       }
-
     }
 
     dev->reader_callback = new reader_callback(dev);
@@ -480,28 +473,23 @@ std::vector<std::shared_ptr<device>> query_devices(std::shared_ptr<context> cont
   return devices;
 }
 
-int get_vendor_id(const device &device)
-{
+int get_vendor_id(const device &device) {
   return device.vid;
 }
 
-int get_product_id(const device &device)
-{
+int get_product_id(const device &device) {
   return device.pid;
 }
 
-std::string get_name(const device &device)
-{
+std::string get_name(const device &device) {
   return device.name;
 }
 
-std::string get_video_name(const device &device)
-{
+std::string get_video_name(const device &device) {
   return device.name;
 }
 
-static long get_cid(Option option)
-{
+static long get_cid(Option option) {
   switch (option) {
     case Option::GAIN:
       return VideoProcAmp_Gain;
@@ -515,34 +503,30 @@ static long get_cid(Option option)
 }
 
 bool pu_control_range(
-  const device &device, Option option, int32_t *min, int32_t *max,
-  int32_t *def)
-{
+    const device &device, Option option, int32_t *min, int32_t *max,
+    int32_t *def) {
   const_cast<uvc::device &>(device).get_media_source();
-  long minVal=0, maxVal=0, steppingDelta=0, defVal=0, capsFlag=0;
+  long minVal = 0, maxVal = 0, steppingDelta = 0, defVal = 0, capsFlag = 0;
   check("IAMVideoProcAmp::GetRange", const_cast<uvc::device &>(device).am_video_proc_amp->GetRange(get_cid(option), &minVal, &maxVal, &steppingDelta, &defVal, &capsFlag));
-  if(min)  *min  = static_cast<int>(minVal);
-  if(max)  *max  = static_cast<int>(maxVal);
-  if(def)  *def  = static_cast<int>(defVal);
+  if (min) *min = static_cast<int>(minVal);
+  if (max) *max = static_cast<int>(maxVal);
+  if (def) *def = static_cast<int>(defVal);
   return true;
 }
 
-void get_pu_control(const device &device, long property, int32_t *value)
-{
-  long data, flags=0;
+void get_pu_control(const device &device, long property, int32_t *value) {
+  long data, flags = 0;
   check("IAMVideoProcAmp::Get", const_cast<uvc::device &>(device).am_video_proc_amp->Get(property, &data, &flags));
   *value = data;
 }
 
-void set_pu_control(const device &device, long property, int32_t *value)
-{
+void set_pu_control(const device &device, long property, int32_t *value) {
   long data = *value;
   check("IAMVideoProcAmp::Set", const_cast<uvc::device &>(device).am_video_proc_amp->Set(property, data, VideoProcAmp_Flags_Auto));
 }
 
 bool pu_control_query(
-  const device &device, Option option, pu_query query, int32_t *value)
-{
+    const device &device, Option option, pu_query query, int32_t *value) {
   CHECK_NOTNULL(value);
   const_cast<uvc::device &>(device).get_media_source();
   switch (query) {
@@ -557,70 +541,10 @@ bool pu_control_query(
       return false;
   }
 }
-/*
-void get_extension_control_range(const device &device, const xu &xu, uint8_t selector, xu_query query, uint8_t *data)
-{
-  CHECK_NOTNULL(data);
-  int offset = 0;
-  auto ks_control = const_cast<uvc::device &>(device).get_ks_control(xu);
 
-  // get step, min and max values
-  KSP_NODE node;
-  memset(&node, 0, sizeof(KSP_NODE));
-  node.Property.Set = reinterpret_cast<const GUID &>(xu.id);
-  node.Property.Id = selector;
-  node.NodeId = xu.node;
-
-  switch (query) {
-    case XU_QUERY_MIN:
-      offset = 1;
-      node.Property.Flags = KSPROPERTY_TYPE_BASICSUPPORT | KSPROPERTY_TYPE_TOPOLOGY;
-      break;
-    case XU_QUERY_MAX:
-      offset = 2;
-      node.Property.Flags = KSPROPERTY_TYPE_BASICSUPPORT | KSPROPERTY_TYPE_TOPOLOGY;
-      break;
-    case XU_QUERY_DEF:
-      offset = 0;
-      node.Property.Flags = KSPROPERTY_TYPE_DEFAULTVALUES | KSPROPERTY_TYPE_TOPOLOGY;
-      break;
-    default:
-      LOG(ERROR) << "xu request code is unaccepted";
-      break;
-  }
-
-  KSPROPERTY_DESCRIPTION description;
-  unsigned long bytes_received = 0;
-  check("IKsControl::KsProperty", ks_control->KsProperty(
-          (PKSPROPERTY)&node,
-          sizeof(node),
-          &description,
-          sizeof(KSPROPERTY_DESCRIPTION),
-          &bytes_received));
-
-  unsigned long size = description.DescriptionSize;
-  std::vector<BYTE> buffer((long)size);
-
-  check("IKsControl::KsProperty", ks_control->KsProperty(
-          (PKSPROPERTY)&node,
-          sizeof(node),
-          buffer.data(),
-          size,
-          &bytes_received));
-
-  if (bytes_received != size) {
-    throw  std::runtime_error("wrong data");
-  }
-
-  BYTE * pRangeValues = buffer.data() + sizeof(KSPROPERTY_MEMBERSHEADER) + sizeof(KSPROPERTY_DESCRIPTION);
-  * data = (uint8_t)*(pRangeValues + offset);
-
-}
-*/
 bool xu_control_query(
-  const device &device, const xu &xu, uint8_t selector, xu_query query,
-  uint16_t size, uint8_t *data)
-{
+    const device &device, const xu &xu, uint8_t selector, xu_query query,
+    uint16_t size, uint8_t *data) {
   CHECK_NOTNULL(data);
   int offset = 0;
   int range_offset = sizeof(KSPROPERTY_MEMBERSHEADER) + sizeof(KSPROPERTY_DESCRIPTION);
@@ -658,13 +582,12 @@ bool xu_control_query(
     throw_error() << "wrong data";
   }
 
-  *data = (int)*(data+offset);
+  *data = (int)*(data + offset);
 
   return true;
 }
 
-void set_device_mode(device & device, int width, int height, int fourcc, int fps, video_channel_callback callback)
-{
+void set_device_mode(device &device, int width, int height, int fourcc, int fps, video_channel_callback callback) {
   if (!device.mf_source_reader) {
     com_ptr<IMFAttributes> pAttributes;
     check("MFCreateAttributes", MFCreateAttributes(&pAttributes, 1));
@@ -701,12 +624,11 @@ void set_device_mode(device & device, int width, int height, int fourcc, int fps
   throw_error() << "no matching media type for pixel format " << std::hex << fourcc;
 }
 
-void start_streaming(device & device, int num_transfer_bufs)
-{
+void start_streaming(device &device, int num_transfer_bufs) {
   device.start_streaming();
 }
-void stop_streaming(device & device)
-{
+
+void stop_streaming(device &device) {
   device.stop_streaming();
 }
 
