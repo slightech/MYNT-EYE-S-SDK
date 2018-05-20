@@ -87,7 +87,7 @@ message(STATUS "Found mynteye: ${mynteye_VERSION}")
 
 if(CMAKE_VERSION VERSION_LESS "3.10" OR CMAKE_VERSION VERSION_EQUAL "3.10")
   find_package(Boost ${BOOST_FIND_VERSION} REQUIRED
-    COMPONENTS python${PYTHON_BOOST_CODE}
+    COMPONENTS python${PYTHON_BOOST_CODE}  # numpy${PYTHON_BOOST_CODE}
   )
 else()
   find_package(Boost ${BOOST_FIND_VERSION} REQUIRED COMPONENTS
@@ -103,6 +103,8 @@ message(STATUS "Found PythonLibs: ${PYTHONLIBS_VERSION_STRING}")
 message(STATUS "  PYTHON_INCLUDE_DIRS: ${PYTHON_INCLUDE_DIRS}")
 message(STATUS "  PYTHON_LIBRARIES: ${PYTHON_LIBRARIES}")
 
+include(${PRO_DIR}/cmake/DetectOpenCV.cmake)
+
 #LIST(APPEND CMAKE_MODULE_PATH ${PRO_DIR}/cmake)
 
 # targets
@@ -114,6 +116,14 @@ set_outdir(
   "${OUT_DIR}/lib"
   "${OUT_DIR}/bin"
 )
+
+set(DEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_install")
+message(STATUS "DEST_DIR: ${DEST_DIR}")
+
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+set(CMAKE_INSTALL_RPATH "${DEST_DIR}/lib")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 if(OS_WIN)
   add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
@@ -145,4 +155,42 @@ endmacro()
 
 ## mynteye_py
 
-add_library_py(mynteye_py SRCS src/mynteye_py.cc LINK_LIBS mynteye)
+include_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/array
+)
+
+#set(PBCVT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/pyboostcvconverter")
+#
+#include_directories(
+#  ${PBCVT_DIR}/include
+#)
+#
+#set(PBCVT_SRCS
+#  ${PBCVT_DIR}/src/pyboost_cv2_converter.cpp
+#  ${PBCVT_DIR}/src/pyboost_cv3_converter.cpp
+#  ${PBCVT_DIR}/include/pyboostcvconverter/pyboostcvconverter.hpp
+#)
+
+set(NPCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/numpy-opencv-converter")
+
+include_directories(
+  ${NPCV_DIR}
+)
+
+set(NPCV_SRCS
+  ${NPCV_DIR}/np_opencv_converter.cpp
+  ${NPCV_DIR}/utils/conversion.cpp
+)
+
+add_library_py(mynteye_py
+  SRCS src/mynteye_py.cc ${NPCV_SRCS}
+  LINK_LIBS mynteye ${OpenCV_LIBS}
+)
+
+# insall
+
+install(TARGETS mynteye_py
+  ARCHIVE DESTINATION "${DEST_DIR}/lib"
+  LIBRARY DESTINATION "${DEST_DIR}/lib"
+  RUNTIME DESTINATION "${DEST_DIR}/bin"
+)

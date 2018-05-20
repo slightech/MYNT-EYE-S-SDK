@@ -41,6 +41,14 @@ struct MYNTEYE_API StreamData {
   std::shared_ptr<ImgData> img;
   /** Frame. */
   cv::Mat frame;
+
+  bool operator==(const StreamData &other) const {
+    if (img && other.img) {
+      return img->frame_id == other.img->frame_id &&
+             img->timestamp == other.img->timestamp;
+    }
+    return false;
+  }
 };
 
 /**
@@ -50,6 +58,14 @@ struct MYNTEYE_API StreamData {
 struct MYNTEYE_API MotionData {
   /** ImuData. */
   std::shared_ptr<ImuData> imu;
+
+  bool operator==(const MotionData &other) const {
+    if (imu && other.imu) {
+      return imu->frame_id == other.imu->frame_id &&
+             imu->timestamp == other.imu->timestamp;
+    }
+    return false;
+  }
 };
 
 }  // namespace api
@@ -65,7 +81,7 @@ class MYNTEYE_API API {
   using motion_callback_t = std::function<void(const api::MotionData &data)>;
 
   explicit API(std::shared_ptr<Device> device);
-  /*virtual*/ ~API();
+  virtual ~API();
 
   /**
    * Create the API instance.

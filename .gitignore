@@ -29,3 +29,8 @@ _output/
 /mynteye/
 /mynteye.bag
 /dataset*/
+
+# wrappers
+
+/wrappers/python/third_party/numpy-opencv-converter/
+/wrappers/python/third_party/pyboostcvconverter/

@@ -13,6 +13,9 @@
 # limitations under the License.
 include CommonDefs.mk
 
+MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
+MKFILE_DIR := $(patsubst %/,%,$(dir $(MKFILE_PATH)))
+
 .DEFAULT_GOAL := help
 
 help:
@@ -77,7 +80,7 @@ init: submodules
 
 build: third_party
 	@$(call echo,Make $@)
-	@$(call cmake_build,./_build)
+	@$(call cmake_build,./_build,..,-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/_install)
 
 .PHONY: build
 
@@ -161,11 +164,30 @@ cleanros:
 
 # python
 
+PBCVT_DIR := wrappers/python/third_party/pyboostcvconverter
+
+$(PBCVT_DIR):
+	@git clone https://github.com/Algomorph/pyboostcvconverter.git $@
+
+pbcvt: $(PBCVT_DIR)
+	@$(call cmake_build,$(PBCVT_DIR)/_build,.., \
+		-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/wrappers/python/_install \
+		-DPYTHON_DESIRED_VERSION=2.X)
+	@cd $(PBCVT_DIR)/_build; make install
+
+.PHONY: pbcvt
+
+NPCV_DIR := wrappers/python/third_party/numpy-opencv-converter
+
+$(NPCV_DIR):
+	@git clone https://github.com/GarrickLin/numpy-opencv-converter.git $@
+
 py: python
 
-python: install
+python: install $(NPCV_DIR)
 	@$(call echo,Make $@)
 	@$(call cmake_build,./wrappers/python/_build)
+	@cd ./wrappers/python/_build; make install
 
 .PHONY: py python
 
@@ -173,6 +195,8 @@ cleanpy:
 	@$(call echo,Make $@)
 	@$(call rm,./wrappers/python/_build/)
 	@$(call rm,./wrappers/python/_output/)
+	@$(call rm,./wrappers/python/_install/)
+	@$(call rm,./$(PBCVT_DIR)/_build/)
 
 .PHONY: cleanpy
 
@@ -206,6 +230,8 @@ cleanall: clean
 	@$(call rm,./test/gtest/_build/)
 	@$(call rm,./third_party/glog/_build/)
 	@$(FIND) . -type f -name ".DS_Store" -print0 | xargs -0 rm -f
+	@$(call rm,./$(PBCVT_DIR)/)
+	@$(call rm,./$(NPCV_DIR)/)
 
 .PHONY: clean cleanlog cleanall
 
@@ -213,6 +239,8 @@ cleanall: clean
 
 host:
 	@$(call echo,Make $@)
+	@echo MKFILE_PATH: $(MKFILE_PATH)
+	@echo MKFILE_DIR: $(MKFILE_DIR)
 	@echo HOST_OS: $(HOST_OS)
 	@echo HOST_ARCH: $(HOST_ARCH)
 	@echo HOST_NAME: $(HOST_NAME)
