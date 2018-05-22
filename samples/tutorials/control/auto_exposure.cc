@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
   // auto-exposure: 0
   api->SetOptionValue(Option::EXPOSURE_MODE, 0);
 
-  // max_gain: range [0.48], default 48
+  // max_gain: range [0,48], default 48
   api->SetOptionValue(Option::MAX_GAIN, 48);
   // max_exposure_time: range [0,240], default 240
   api->SetOptionValue(Option::MAX_EXPOSURE_TIME, 240);
