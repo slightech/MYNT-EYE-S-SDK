@@ -491,6 +491,32 @@ bool pu_control_query(
   return device.pu_control_query(get_cid(option), code, value);
 }
 
+bool xu_control_range(
+    const device &device, const xu &xu, uint8_t selector, int32_t *min,
+    int32_t *max, int32_t *def) {
+  bool ret = true;
+  std::uint8_t data[3]{};
+  if (xu_control_query(device, xu, selcetor, XU_QUERY_MIN, 3, data)) {
+    *min = (data[1] << 8) | (data[2]);
+  } else {
+    LOG(WARNING) << "xu_control_range query min failed";
+    ret = false;
+  }
+  if (xu_control_query(device, xu, selcetor, XU_QUERY_MAX, 3, data)) {
+    *max = (data[1] << 8) | (data[2]);
+  } else {
+    LOG(WARNING) << "xu_control_range query max failed";
+    ret = false;
+  }
+  if (xu_control_query(device, xu, selcetor, XU_QUERY_DEF, 3, data)) {
+    *def = (data[1] << 8) | (data[2]);
+  } else {
+    LOG(WARNING) << "xu_control_range query def failed";
+    ret = false;
+  }
+  return ret;
+}
+
 bool xu_control_query(
     const device &device, const xu &xu, uint8_t selector, xu_query query,
     uint16_t size, uint8_t *data) {

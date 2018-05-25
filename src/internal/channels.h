@@ -97,6 +97,12 @@ class MYNTEYE_API Channels {
       Option option, int32_t *min, int32_t *max, int32_t *def) const;
   bool PuControlQuery(Option option, uvc::pu_query query, int32_t *value) const;
 
+  bool XuControlRange(
+      channel_t channel, int32_t *min, int32_t *max, int32_t *def) const;
+  bool XuControlRange(
+      const uvc::xu &xu, uint8_t selector, int32_t *min, int32_t *max,
+      int32_t *def) const;
+
   bool XuControlQuery(
       channel_t channel, uvc::xu_query query, uint16_t size,
       uint8_t *data) const;

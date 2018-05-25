@@ -154,19 +154,21 @@ std::vector<std::string> tokenize(std::string string, char separator) {
   }
 }
 
-static void print_guid(const char *call, GUID guid) {
+/*
+static void print_guid(const char *call, int i, GUID guid) {
   std::ostringstream ss;
-  ss << call << ":";
-  ss << " Data1: " << std::hex << guid.Data1 << ",";
-  ss << " Data2: " << std::hex << guid.Data2 << ",";
-  ss << " Data3: " << std::hex << guid.Data3 << ",";
-  ss << " Data4: [ ";
+  ss << call << "(" << i << ") = ";
+  ss << "Data1: " << std::hex << guid.Data1 << ", ";
+  ss << "Data2: " << std::hex << guid.Data2 << ", ";
+  ss << "Data3: " << std::hex << guid.Data3 << ", ";
+  ss << "Data4: [ ";
   for (int j = 0; j < 8; j++) {
     ss << std::hex << (int)guid.Data4[j] << " ";
   }
   ss << "]";
   LOG(INFO) << ss.str();
 }
+*/
 
 bool parse_usb_path(int &vid, int &pid, int &mi, std::string &unique_id, const std::string &path) {
   auto name = path;
@@ -322,7 +324,7 @@ struct device {
     check("get_NumNodes", ks_topology_info->get_NumNodes(&numberOfNodes));
     for (int i = 0; i < numberOfNodes; i++) {
       check("get_NodeType", ks_topology_info->get_NodeType(i, &node_type));
-      print_guid("node_type", node_type);
+      print_guid("node_type", i, node_type);
     }
     */
     check("get_NodeType", ks_topology_info->get_NodeType(xu.node, &node_type));
@@ -507,22 +509,28 @@ bool pu_control_range(
     int32_t *def) {
   const_cast<uvc::device &>(device).get_media_source();
   long minVal = 0, maxVal = 0, steppingDelta = 0, defVal = 0, capsFlag = 0;
-  check("IAMVideoProcAmp::GetRange", const_cast<uvc::device &>(device).am_video_proc_amp->GetRange(get_cid(option), &minVal, &maxVal, &steppingDelta, &defVal, &capsFlag));
+  check("IAMVideoProcAmp::GetRange",
+      const_cast<uvc::device &>(device).am_video_proc_amp->GetRange(
+        get_cid(option), &minVal, &maxVal, &steppingDelta, &defVal, &capsFlag));
   if (min) *min = static_cast<int>(minVal);
   if (max) *max = static_cast<int>(maxVal);
   if (def) *def = static_cast<int>(defVal);
   return true;
 }
 
-void get_pu_control(const device &device, long property, int32_t *value) {
+static void pu_control_get(const device &device, long property, int32_t *value) {
   long data, flags = 0;
-  check("IAMVideoProcAmp::Get", const_cast<uvc::device &>(device).am_video_proc_amp->Get(property, &data, &flags));
+  check("IAMVideoProcAmp::Get",
+      const_cast<uvc::device &>(device).am_video_proc_amp->Get(
+        property, &data, &flags));
   *value = data;
 }
 
-void set_pu_control(const device &device, long property, int32_t *value) {
+static void pu_control_set(const device &device, long property, int32_t *value) {
   long data = *value;
-  check("IAMVideoProcAmp::Set", const_cast<uvc::device &>(device).am_video_proc_amp->Set(property, data, VideoProcAmp_Flags_Auto));
+  check("IAMVideoProcAmp::Set",
+      const_cast<uvc::device &>(device).am_video_proc_amp->Set(
+        property, data, VideoProcAmp_Flags_Auto));
 }
 
 bool pu_control_query(
@@ -531,10 +539,10 @@ bool pu_control_query(
   const_cast<uvc::device &>(device).get_media_source();
   switch (query) {
     case PU_QUERY_SET:
-      set_pu_control(device, get_cid(option), value);
+      pu_control_set(device, get_cid(option), value);
       return true;
     case PU_QUERY_GET:
-      get_pu_control(device, get_cid(option), value);
+      pu_control_get(device, get_cid(option), value);
       return true;
     default:
       LOG(ERROR) << "pu_control_query request code is unaccepted";
@@ -542,49 +550,116 @@ bool pu_control_query(
   }
 }
 
-bool xu_control_query(
-    const device &device, const xu &xu, uint8_t selector, xu_query query,
-    uint16_t size, uint8_t *data) {
-  CHECK_NOTNULL(data);
-  int offset = 0;
-  int range_offset = sizeof(KSPROPERTY_MEMBERSHEADER) + sizeof(KSPROPERTY_DESCRIPTION);
-
+static std::vector<BYTE> xu_control_desc(const device &device, const xu &xu, ULONG id, ULONG flags) {
   auto ks_control = const_cast<uvc::device &>(device).get_ks_control(xu);
+
+  KSP_NODE node;
+  memset(&node, 0, sizeof(KSP_NODE));
+  node.Property.Set = reinterpret_cast<const GUID &>(xu.id);
+  node.Property.Id = id;
+  node.Property.Flags = flags;
+  node.NodeId = xu.node;
+
+  KSPROPERTY_DESCRIPTION description;
+  ULONG bytes_received = 0;
+  check("IKsControl::KsProperty", ks_control->KsProperty(
+      (PKSPROPERTY)&node,
+      sizeof(node),
+      &description,
+      sizeof(KSPROPERTY_DESCRIPTION),
+      &bytes_received));
+
+  ULONG size = description.DescriptionSize;
+  std::vector<BYTE> buffer(size);
+
+  check("IKsControl::KsProperty", ks_control->KsProperty(
+      (PKSPROPERTY)&node,
+      sizeof(node),
+      buffer.data(),
+      size,
+      &bytes_received));
+
+  if (bytes_received != size) { throw_error() << "wrong data"; }
+
+  return buffer;
+}
+
+bool xu_control_range(
+    const device &device, const xu &xu, uint8_t selector, int32_t *min,
+    int32_t *max, int32_t *def) {
+  // get step, min and max values
+  {
+    auto &&buffer = xu_control_desc(device, xu, selector,
+        KSPROPERTY_TYPE_BASICSUPPORT | KSPROPERTY_TYPE_TOPOLOGY);
+
+    BYTE *values = buffer.data() + sizeof(KSPROPERTY_MEMBERSHEADER) + sizeof(KSPROPERTY_DESCRIPTION);
+
+    // *step = static_cast<int32_t>(*values);
+    values++;
+    *min = static_cast<int32_t>(*values);
+    values++;
+    *max = static_cast<int32_t>(*values);
+  }
+  // get def value
+  {
+    auto &&buffer = xu_control_desc(device, xu, selector,
+        KSPROPERTY_TYPE_DEFAULTVALUES | KSPROPERTY_TYPE_TOPOLOGY);
+
+    BYTE *values = buffer.data() + sizeof(KSPROPERTY_MEMBERSHEADER) + sizeof(KSPROPERTY_DESCRIPTION);
+
+    *def = static_cast<int32_t>(*values);
+  }
+  return true;
+}
+
+static void xu_control_get(const device &device, const xu &xu, uint8_t selector, int len, void *data) {
+  auto &&ks_control = const_cast<uvc::device &>(device).get_ks_control(xu);
+
   KSP_NODE node;
   memset(&node, 0, sizeof(KSP_NODE));
   node.Property.Set = reinterpret_cast<const GUID &>(xu.id);
   node.Property.Id = selector;
+  node.Property.Flags = KSPROPERTY_TYPE_GET | KSPROPERTY_TYPE_TOPOLOGY;
   node.NodeId = xu.node;
-  unsigned long bytes_received = 0;
+
+  ULONG bytes_received = 0;
+  check("IKsControl::KsProperty", ks_control->KsProperty(
+      (PKSPROPERTY)&node, sizeof(node), data, len, &bytes_received));
+
+  if (bytes_received != len)
+    throw_error() << "xu_control_get did not return enough data";
+}
+
+static void xu_control_set(const device &device, const xu &xu, uint8_t selector, int len, void *data) {
+  auto &&ks_control = const_cast<uvc::device &>(device).get_ks_control(xu);
+
+  KSP_NODE node;
+  memset(&node, 0, sizeof(KSP_NODE));
+  node.Property.Set = reinterpret_cast<const GUID &>(xu.id);
+  node.Property.Id = selector;
+  node.Property.Flags = KSPROPERTY_TYPE_SET | KSPROPERTY_TYPE_TOPOLOGY;
+  node.NodeId = xu.node;
+
+  ULONG bytes_received = 0;
+  check("IKsControl::KsProperty", ks_control->KsProperty(
+      (PKSPROPERTY)&node, sizeof(node), data, len, &bytes_received));
+}
+
+bool xu_control_query(
+    const device &device, const xu &xu, uint8_t selector, xu_query query,
+    uint16_t size, uint8_t *data) {
+  CHECK_NOTNULL(data);
   switch (query) {
     case XU_QUERY_SET:
-      node.Property.Flags = KSPROPERTY_TYPE_SET | KSPROPERTY_TYPE_TOPOLOGY;
-      break;
+      xu_control_set(device, xu, selector, size, data);
+      return true;
     case XU_QUERY_GET:
-      node.Property.Flags = KSPROPERTY_TYPE_GET | KSPROPERTY_TYPE_TOPOLOGY;
-      break;
-    case XU_QUERY_MIN:
-      offset = 1;
-      node.Property.Flags = KSPROPERTY_TYPE_BASICSUPPORT | KSPROPERTY_TYPE_TOPOLOGY;
-      break;
-    case XU_QUERY_MAX:
-      offset = 2;
-      node.Property.Flags = KSPROPERTY_TYPE_BASICSUPPORT | KSPROPERTY_TYPE_TOPOLOGY;
-      break;
-    case XU_QUERY_DEF:
-      node.Property.Flags = KSPROPERTY_TYPE_DEFAULTVALUES | KSPROPERTY_TYPE_TOPOLOGY;
-      break;
+      xu_control_get(device, xu, selector, size, data);
+      return true;
     default:
+      LOG(ERROR) << "xu_control_query request code is unaccepted";
       return false;
   }
-  check("IKsControl::KsProperty", ks_control->KsProperty((PKSPROPERTY)&node, sizeof(node), data, size, &bytes_received));
-  if (bytes_received != size) {
-    throw_error() << "wrong data";
-  }
-
-  *data = (int)*(data + offset);
-
-  return true;
 }
 
 void set_device_mode(device &device, int width, int height, int fourcc, int fps, video_channel_callback callback) {

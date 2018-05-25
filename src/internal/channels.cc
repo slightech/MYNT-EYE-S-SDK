@@ -837,6 +837,18 @@ bool Channels::PuControlQuery(
   return uvc::pu_control_query(*device_, option, query, value);
 }
 
+bool Channels::XuControlRange(
+    channel_t channel, int32_t *min, int32_t *max, int32_t *def) const {
+  return XuControlRange(mynteye_xu, channel >> 8, min, max, def);
+}
+
+bool Channels::XuControlRange(
+    const uvc::xu &xu, uint8_t selector, int32_t *min, int32_t *max,
+    int32_t *def) const {
+  CHECK_NOTNULL(device_);
+  return uvc::xu_control_range(*device_, xu, selector, min, max, def);
+}
+
 bool Channels::XuControlQuery(
     channel_t channel, uvc::xu_query query, uint16_t size,
     uint8_t *data) const {
@@ -977,26 +989,11 @@ Channels::control_info_t Channels::XuControlInfo(Option option) const {
     return {0, 0, 0};
   }
 
-  control_info_t info{0, 0, 0};
-
-  data[0] = id & 0xFF;
-  if (XuCamCtrlQuery(uvc::XU_QUERY_MIN, 3, data)) {
-    info.min = (data[1] << 8) | (data[2]);
-  } else {
-    LOG(WARNING) << "Get XuControlInfo.min of " << option << " failed";
+  int32_t min = 0, max = 0, def = 0;
+  if (!XuControlRange(CHANNEL_CAM_CTRL, &min, &max, &def)) {
+    LOG(WARNING) << "Get XuControlInfo of " << option << " failed";
   }
-  if (XuCamCtrlQuery(uvc::XU_QUERY_MAX, 3, data)) {
-    info.max = (data[1] << 8) | (data[2]);
-  } else {
-    LOG(WARNING) << "Get XuControlInfo.max of " << option << " failed";
-  }
-  if (XuCamCtrlQuery(uvc::XU_QUERY_DEF, 3, data)) {
-    info.def = (data[1] << 8) | (data[2]);
-  } else {
-    LOG(WARNING) << "Get XuControlInfo.def of " << option << " failed";
-  }
-
-  return info;
+  return {min, max, def};
 }
 
 MYNTEYE_END_NAMESPACE

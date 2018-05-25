@@ -131,6 +131,19 @@ bool pu_control_query(
   return false;
 }
 
+bool xu_control_range(
+    const device &device, const xu &xu, uint8_t selector, int32_t *min,
+    int32_t *max, int32_t *def) {
+  // TODO(JohnZhao)
+  UNUSED(device)
+  UNUSED(xu)
+  UNUSED(selector)
+  UNUSED(min)
+  UNUSED(max)
+  UNUSED(def)
+  return false;
+}
+
 bool xu_control_query(
     const device &device, const xu &xu, uint8_t selector, xu_query query,
     uint16_t size, uint8_t *data) {
