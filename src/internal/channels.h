@@ -24,11 +24,11 @@ struct xu;
 class MYNTEYE_API Channels {
  public:
   typedef enum Channel {
-    CHANNEL_CAM_CTRL = 0x0100,
-    CHANNEL_HALF_DUPLEX = 0x0200,
-    CHANNEL_IMU_WRITE = 0x0300,
-    CHANNEL_IMU_READ = 0x0400,
-    CHANNEL_FILE = 0x0500,
+    CHANNEL_CAM_CTRL = 1,
+    CHANNEL_HALF_DUPLEX = 2,
+    CHANNEL_IMU_WRITE = 3,
+    CHANNEL_IMU_READ = 4,
+    CHANNEL_FILE = 5,
     CHANNEL_LAST
   } channel_t;
 

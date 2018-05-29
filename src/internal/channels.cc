@@ -839,7 +839,7 @@ bool Channels::PuControlQuery(
 
 bool Channels::XuControlRange(
     channel_t channel, int32_t *min, int32_t *max, int32_t *def) const {
-  return XuControlRange(mynteye_xu, channel >> 8, min, max, def);
+  return XuControlRange(mynteye_xu, channel, min, max, def);
 }
 
 bool Channels::XuControlRange(
@@ -852,7 +852,7 @@ bool Channels::XuControlRange(
 bool Channels::XuControlQuery(
     channel_t channel, uvc::xu_query query, uint16_t size,
     uint8_t *data) const {
-  return XuControlQuery(mynteye_xu, channel >> 8, query, size, data);
+  return XuControlQuery(mynteye_xu, channel, query, size, data);
 }
 
 bool Channels::XuControlQuery(
