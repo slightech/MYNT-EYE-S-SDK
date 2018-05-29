@@ -82,7 +82,7 @@ static void check(const char *call, HRESULT hr) {
     throw_error() << call << "(...) returned 0x" << std::hex
       << static_cast<uint32_t>(hr);
   } else {
-    VLOG_INFO << call << " SUCCESSED";
+    // VLOG_INFO << call << " SUCCESSED";
   }
 }
 
@@ -507,6 +507,7 @@ static long get_cid(Option option) {
 bool pu_control_range(
     const device &device, Option option, int32_t *min, int32_t *max,
     int32_t *def) {
+  VLOG_INFO << __func__ << " " << option;
   const_cast<uvc::device &>(device).get_media_source();
   long minVal = 0, maxVal = 0, steppingDelta = 0, defVal = 0, capsFlag = 0;
   check("IAMVideoProcAmp::GetRange",
@@ -515,6 +516,8 @@ bool pu_control_range(
   if (min) *min = static_cast<int>(minVal);
   if (max) *max = static_cast<int>(maxVal);
   if (def) *def = static_cast<int>(defVal);
+  VLOG_INFO << __func__ << " " << option <<
+      ": min=" << *min << ", max=" << *max << ", def=" << *def;
   return true;
 }
 
@@ -539,10 +542,14 @@ bool pu_control_query(
   const_cast<uvc::device &>(device).get_media_source();
   switch (query) {
     case PU_QUERY_SET:
+      VLOG_INFO << "pu_control_set " << option << ": " << *value;
       pu_control_set(device, get_cid(option), value);
+      VLOG_INFO << "pu_control_set " << option << " done";
       return true;
     case PU_QUERY_GET:
+      VLOG_INFO << "pu_control_get " << option;
       pu_control_get(device, get_cid(option), value);
+      VLOG_INFO << "pu_control_get " << option << ": " << *value;
       return true;
     default:
       LOG(ERROR) << "pu_control_query request code is unaccepted";
@@ -587,6 +594,7 @@ static std::vector<BYTE> xu_control_desc(const device &device, const xu &xu, ULO
 bool xu_control_range(
     const device &device, const xu &xu, uint8_t selector, int32_t *min,
     int32_t *max, int32_t *def) {
+  VLOG_INFO << __func__ << " " << static_cast<int>(selector);
   // get step, min and max values
   {
     auto &&buffer = xu_control_desc(device, xu, selector,
@@ -609,10 +617,22 @@ bool xu_control_range(
 
     *def = static_cast<int32_t>(*values);
   }
+  VLOG_INFO << __func__ << " " << static_cast<int>(selector)
+      << ": min=" << *min << ", max=" << *max << ", def=" << *def;
   return true;
 }
 
-static void xu_control_get(const device &device, const xu &xu, uint8_t selector, int len, void *data) {
+static std::string to_string(uint16_t size, uint8_t *data) {
+  std::ostringstream ss;
+  for (uint8_t *beg = data, *end = data + size; beg != end; beg++) {
+    ss << "0x" << std::hex << static_cast<int>(*beg) << ",";
+  }
+  return ss.str();
+}
+
+static void xu_control_get(const device &device, const xu &xu, uint8_t selector,
+      uint16_t size, uint8_t *data) {
+  VLOG_INFO << __func__ << " " << static_cast<int>(selector);
   auto &&ks_control = const_cast<uvc::device &>(device).get_ks_control(xu);
 
   KSP_NODE node;
@@ -624,13 +644,18 @@ static void xu_control_get(const device &device, const xu &xu, uint8_t selector,
 
   ULONG bytes_received = 0;
   check("IKsControl::KsProperty", ks_control->KsProperty(
-      (PKSPROPERTY)&node, sizeof(node), data, len, &bytes_received));
+      (PKSPROPERTY)&node, sizeof(node), data, size, &bytes_received));
 
-  if (bytes_received != len)
+  if (bytes_received != size)
     throw_error() << "xu_control_get did not return enough data";
+  VLOG_INFO << __func__ << " " << static_cast<int>(selector)
+      << ": size=" << size << ", data=[" << to_string(size, data) << "]";
 }
 
-static void xu_control_set(const device &device, const xu &xu, uint8_t selector, int len, void *data) {
+static void xu_control_set(const device &device, const xu &xu, uint8_t selector,
+      uint16_t size, uint8_t *data) {
+  VLOG_INFO << __func__ << " " << static_cast<int>(selector)
+      << ": size=" << size << ", data=[" << to_string(size, data) << "]";
   auto &&ks_control = const_cast<uvc::device &>(device).get_ks_control(xu);
 
   KSP_NODE node;
@@ -642,7 +667,8 @@ static void xu_control_set(const device &device, const xu &xu, uint8_t selector,
 
   ULONG bytes_received = 0;
   check("IKsControl::KsProperty", ks_control->KsProperty(
-      (PKSPROPERTY)&node, sizeof(node), data, len, &bytes_received));
+      (PKSPROPERTY)&node, sizeof(node), data, size, &bytes_received));
+  VLOG_INFO << __func__ << " " << static_cast<int>(selector) << " done";
 }
 
 bool xu_control_query(
