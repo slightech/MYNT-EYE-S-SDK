@@ -194,8 +194,8 @@ std::size_t Streams::GetStreamDataMaxSize(const Stream &stream) const {
 Streams::stream_datas_t Streams::GetStreamDatas(const Stream &stream) {
   std::unique_lock<std::mutex> lock(mtx_);
   if (!HasStreamDatas(stream) || stream_datas_map_.at(stream).empty()) {
-    LOG(WARNING) << "There are stream datas of " << stream
-                 << ", do you first call WaitForStreams?";
+    LOG(WARNING) << "There are no stream datas of " << stream
+                 << ". Did you call WaitForStreams() before this?";
     return {};
   }
   stream_datas_t datas = stream_datas_map_.at(stream);
