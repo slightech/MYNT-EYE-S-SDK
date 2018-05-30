@@ -23,6 +23,7 @@
 #include <tf/tf.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 
+#include <mynt_eye_ros_wrapper/GetInfo.h>
 #include <mynt_eye_ros_wrapper/Temp.h>
 
 #include <glog/logging.h>
@@ -56,7 +57,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       double time_end = ros::Time::now().toSec();
       double time_elapsed = time_end - time_beg_;
 
-      LOG(INFO) << "Time elapsed: " << time_elapsed << "s";
+      LOG(INFO) << "Time elapsed: " << time_elapsed << " s";
       LOG(INFO) << "Left count: " << left_count_
                 << ", fps: " << (left_count_ / time_elapsed);
       LOG(INFO) << "Right count: " << right_count_
@@ -191,8 +192,51 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       }
     }
 
+    // services
+
+    const std::string DEVICE_INFO_SERVICE = "get_info";
+    get_info_service_ = nh_.advertiseService(
+        DEVICE_INFO_SERVICE, &ROSWrapperNodelet::getInfo, this);
+    NODELET_INFO_STREAM("Advertized service " << DEVICE_INFO_SERVICE);
+
     publishStaticTransforms();
     publishTopics();
+  }
+
+  bool getInfo(
+      mynt_eye_ros_wrapper::GetInfo::Request &req,     // NOLINT
+      mynt_eye_ros_wrapper::GetInfo::Response &res) {  // NOLINT
+    using Request = mynt_eye_ros_wrapper::GetInfo::Request;
+    switch (req.key) {
+      case Request::DEVICE_NAME:
+        res.value = api_->GetInfo(Info::DEVICE_NAME);
+        break;
+      case Request::SERIAL_NUMBER:
+        res.value = api_->GetInfo(Info::SERIAL_NUMBER);
+        break;
+      case Request::FIRMWARE_VERSION:
+        res.value = api_->GetInfo(Info::FIRMWARE_VERSION);
+        break;
+      case Request::HARDWARE_VERSION:
+        res.value = api_->GetInfo(Info::HARDWARE_VERSION);
+        break;
+      case Request::SPEC_VERSION:
+        res.value = api_->GetInfo(Info::SPEC_VERSION);
+        break;
+      case Request::LENS_TYPE:
+        res.value = api_->GetInfo(Info::LENS_TYPE);
+        break;
+      case Request::IMU_TYPE:
+        res.value = api_->GetInfo(Info::IMU_TYPE);
+        break;
+      case Request::NOMINAL_BASELINE:
+        res.value = api_->GetInfo(Info::NOMINAL_BASELINE);
+        break;
+      default:
+        NODELET_WARN_STREAM("Info of key " << req.key << " not exist");
+        return false;
+    }
+    return true;
   }
 
   void publishTopics() {
@@ -727,6 +771,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   ros::Publisher pub_temp_;
 
   tf2_ros::StaticTransformBroadcaster static_tf_broadcaster_;
+
+  ros::ServiceServer get_info_service_;
 
   // node params
 

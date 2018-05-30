@@ -32,6 +32,15 @@ source wrappers/ros/devel/setup.bash
 roslaunch mynt_eye_ros_wrapper display.launch
 ```
 
+## Test
+
+Test `get_info` service,
+
+```bash
+source wrappers/ros/devel/setup.bash
+rosrun mynt_eye_ros_wrapper get_device_info.py
+```
+
 ## ROS Indigo
 
 How to install ROS Indigo (Ubuntu 14.04),

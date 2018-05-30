@@ -66,6 +66,11 @@ add_message_files(
   Temp.msg
 )
 
+add_service_files(
+  FILES
+  GetInfo.srv
+)
+
 generate_messages(
   DEPENDENCIES
   std_msgs
@@ -112,6 +117,11 @@ if(MSVC OR MSYS OR MINGW)
 endif()
 
 # install
+
+#install(PROGRAMS
+#  scripts/get_device_info.py
+#  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#)
 
 install(TARGETS mynteye_wrapper mynteye_wrapper_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
