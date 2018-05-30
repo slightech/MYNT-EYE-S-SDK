@@ -112,7 +112,9 @@ bool Device::Supports(const AddOns &addon) const {
       return hw_flag[0];
     case AddOns::INFRARED2:
       return hw_flag[1];
-    default: { LOG(FATAL) << "Unknown add-on"; }
+    default:
+      LOG(WARNING) << "Unknown add-on";
+      return false;
   }
 }
 
@@ -135,8 +137,9 @@ void Device::ConfigStreamRequest(
   auto &&requests = GetStreamRequests(capability);
   if (std::find(requests.cbegin(), requests.cend(), request) ==
       requests.cend()) {
-    LOG(FATAL) << "Config stream request of " << capability
-               << " is not accpected";
+    LOG(WARNING) << "Config stream request of " << capability
+                 << " is not accpected";
+    return;
   }
   stream_config_requests_[capability] = request;
 }
@@ -148,31 +151,25 @@ std::shared_ptr<DeviceInfo> Device::GetInfo() const {
 std::string Device::GetInfo(const Info &info) const {
   CHECK_NOTNULL(device_info_);
   switch (info) {
-    case Info::DEVICE_NAME: {
+    case Info::DEVICE_NAME:
       return device_info_->name;
-    } break;
-    case Info::SERIAL_NUMBER: {
+    case Info::SERIAL_NUMBER:
       return device_info_->serial_number;
-    } break;
-    case Info::FIRMWARE_VERSION: {
+    case Info::FIRMWARE_VERSION:
       return device_info_->firmware_version.to_string();
-    } break;
-    case Info::HARDWARE_VERSION: {
+    case Info::HARDWARE_VERSION:
       return device_info_->hardware_version.to_string();
-    } break;
-    case Info::SPEC_VERSION: {
+    case Info::SPEC_VERSION:
       return device_info_->spec_version.to_string();
-    } break;
-    case Info::LENS_TYPE: {
+    case Info::LENS_TYPE:
       return device_info_->lens_type.to_string();
-    } break;
-    case Info::IMU_TYPE: {
+    case Info::IMU_TYPE:
       return device_info_->imu_type.to_string();
-    } break;
-    case Info::NOMINAL_BASELINE: {
+    case Info::NOMINAL_BASELINE:
       return std::to_string(device_info_->nominal_baseline);
-    } break;
-    default: { LOG(FATAL) << "Unknown device info"; }
+    default:
+      LOG(WARNING) << "Unknown device info";
+      return "";
   }
 }
 
@@ -312,7 +309,7 @@ void Device::Start(const Source &source) {
     Start(Source::VIDEO_STREAMING);
     Start(Source::MOTION_TRACKING);
   } else {
-    LOG(FATAL) << "Unsupported source :(";
+    LOG(ERROR) << "Unsupported source :(";
   }
 }
 
@@ -327,7 +324,7 @@ void Device::Stop(const Source &source) {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     Stop(Source::VIDEO_STREAMING);
   } else {
-    LOG(FATAL) << "Unsupported source :(";
+    LOG(ERROR) << "Unsupported source :(";
   }
 }
 
@@ -367,8 +364,8 @@ const StreamRequest &Device::GetStreamRequest(const Capabilities &capability) {
     return stream_config_requests_.at(capability);
   } catch (const std::out_of_range &e) {
     auto &&requests = GetStreamRequests(capability);
-    if (requests.size() == 1) {
-      VLOG(2) << "Get the only one stream request of " << capability;
+    if (requests.size() >= 1) {
+      VLOG(2) << "Select the first one stream request of " << capability;
       return requests[0];
     } else {
       LOG(FATAL) << "Please config the stream request of " << capability;
@@ -478,7 +475,8 @@ void Device::ReadAllInfos() {
   Channels::img_params_t img_params;
   Channels::imu_params_t imu_params;
   if (!channels_->GetFiles(device_info_.get(), &img_params, &imu_params)) {
-    LOG(FATAL) << "Read device infos failed :(";
+    LOG(FATAL) << "Read device infos failed. Please upgrade your firmware to "
+                  "the latest version.";
   }
   VLOG(2) << "Device info: {name: " << device_info_->name
           << ", serial_number: " << device_info_->serial_number

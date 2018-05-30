@@ -125,7 +125,8 @@ Streams::~Streams() {
 void Streams::ConfigStream(
     const Capabilities &capability, const StreamRequest &request) {
   if (!IsStreamCapability(capability)) {
-    LOG(FATAL) << "Cannot config stream without stream capability";
+    LOG(ERROR) << "Cannot config stream without stream capability";
+    return;
   }
   VLOG(2) << "Config stream request of " << capability << ", " << request;
   stream_config_requests_[capability] = request;
@@ -171,7 +172,8 @@ void Streams::WaitForStreams() {
   std::unique_lock<std::mutex> lock(mtx_);
   auto ready = std::bind(&Streams::HasKeyStreamDatas, this);
   if (!ready() && !cv_.wait_for(lock, std::chrono::seconds(2), ready)) {
-    LOG(FATAL) << "Timeout waiting for key frames";
+    LOG(FATAL) << "Timeout waiting for key frames. Please use USB 3.0, and not "
+                  "in virtual machine.";
   }
 }
 

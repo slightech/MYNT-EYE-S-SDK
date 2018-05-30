@@ -177,7 +177,7 @@ std::int32_t Channels::GetControlValue(const Option &option) const {
       LOG(WARNING) << option << " get value useless";
       return -1;
     default:
-      LOG(FATAL) << "Unsupported option " << option;
+      LOG(ERROR) << "Unsupported option " << option;
   }
   return -1;
 }
@@ -241,7 +241,7 @@ void Channels::SetControlValue(const Option &option, std::int32_t value) {
       LOG(WARNING) << option << " set value useless";
       break;
     default:
-      LOG(FATAL) << "Unsupported option " << option;
+      LOG(ERROR) << "Unsupported option " << option;
   }
 }
 
@@ -265,7 +265,8 @@ bool Channels::RunControlAction(const Option &option) const {
       LOG(WARNING) << option << " run action useless";
       return false;
     default:
-      LOG(FATAL) << "Unsupported option " << option;
+      LOG(ERROR) << "Unsupported option " << option;
+      return false;
   }
 }
 

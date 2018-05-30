@@ -163,7 +163,7 @@ void API::Start(const Source &source) {
     Start(Source::VIDEO_STREAMING);
     Start(Source::MOTION_TRACKING);
   } else {
-    LOG(FATAL) << "Unsupported source :(";
+    LOG(ERROR) << "Unsupported source :(";
   }
 }
 
@@ -178,7 +178,7 @@ void API::Stop(const Source &source) {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     Stop(Source::VIDEO_STREAMING);
   } else {
-    LOG(FATAL) << "Unsupported source :(";
+    LOG(ERROR) << "Unsupported source :(";
   }
 }
 
