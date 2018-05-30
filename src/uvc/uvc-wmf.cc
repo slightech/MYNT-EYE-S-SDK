@@ -45,8 +45,8 @@
 
 #include <glog/logging.h>
 
-// #define VLOG_INFO VLOG(2)
-#define VLOG_INFO LOG(INFO)
+#define VLOG_INFO VLOG(2)
+// #define VLOG_INFO LOG(INFO)
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -557,6 +557,14 @@ bool pu_control_query(
   }
 }
 
+static std::string to_string(uint16_t size, uint8_t *data) {
+  std::ostringstream ss;
+  for (uint8_t *beg = data, *end = data + size; beg != end; beg++) {
+    ss << "0x" << std::hex << static_cast<int>(*beg) << ",";
+  }
+  return ss.str();
+}
+
 static std::vector<BYTE> xu_control_desc(const device &device, const xu &xu, ULONG id, ULONG flags) {
   auto ks_control = const_cast<uvc::device &>(device).get_ks_control(xu);
 
@@ -588,6 +596,8 @@ static std::vector<BYTE> xu_control_desc(const device &device, const xu &xu, ULO
 
   if (bytes_received != size) { throw_error() << "wrong data"; }
 
+  // VLOG_INFO << "buffer size=" << size << ", data=["
+  //     << to_string(size, buffer.data()) << "]";
   return buffer;
 }
 
@@ -595,39 +605,40 @@ bool xu_control_range(
     const device &device, const xu &xu, uint8_t selector, int32_t *min,
     int32_t *max, int32_t *def) {
   VLOG_INFO << __func__ << " " << static_cast<int>(selector);
+  size_t prop_header_size = sizeof(KSPROPERTY_MEMBERSHEADER) + sizeof(KSPROPERTY_DESCRIPTION);
   // get step, min and max values
   {
     auto &&buffer = xu_control_desc(device, xu, selector,
         KSPROPERTY_TYPE_BASICSUPPORT | KSPROPERTY_TYPE_TOPOLOGY);
 
-    BYTE *values = buffer.data() + sizeof(KSPROPERTY_MEMBERSHEADER) + sizeof(KSPROPERTY_DESCRIPTION);
+    BYTE *values = buffer.data() + prop_header_size;
 
-    // *step = static_cast<int32_t>(*values);
-    values++;
-    *min = static_cast<int32_t>(*values);
-    values++;
-    *max = static_cast<int32_t>(*values);
+    // size_t size = buffer.size() - prop_header_size;
+    // VLOG_INFO << "values size: " << size << ", data=["
+    //     << to_string(size, values) << "]";
+
+    *min = (values[1] << 8) | (values[2]);
+    values += 3;
+    *max = (values[1] << 8) | (values[2]);
+    // values += 3;
+    // *step = (values[1] << 8) | (values[2]);
   }
   // get def value
   {
     auto &&buffer = xu_control_desc(device, xu, selector,
         KSPROPERTY_TYPE_DEFAULTVALUES | KSPROPERTY_TYPE_TOPOLOGY);
 
-    BYTE *values = buffer.data() + sizeof(KSPROPERTY_MEMBERSHEADER) + sizeof(KSPROPERTY_DESCRIPTION);
+    BYTE *values = buffer.data() + prop_header_size;
 
-    *def = static_cast<int32_t>(*values);
+    // size_t size = buffer.size() - prop_header_size;
+    // VLOG_INFO << "values size: " << size << ", data=["
+    //     << to_string(size, values) << "]";
+
+    *def = (values[1] << 8) | (values[2]);
   }
   VLOG_INFO << __func__ << " " << static_cast<int>(selector)
       << ": min=" << *min << ", max=" << *max << ", def=" << *def;
   return true;
-}
-
-static std::string to_string(uint16_t size, uint8_t *data) {
-  std::ostringstream ss;
-  for (uint8_t *beg = data, *end = data + size; beg != end; beg++) {
-    ss << "0x" << std::hex << static_cast<int>(*beg) << ",";
-  }
-  return ss.str();
 }
 
 static void xu_control_get(const device &device, const xu &xu, uint8_t selector,
