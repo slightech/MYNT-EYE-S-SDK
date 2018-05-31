@@ -700,9 +700,9 @@ bool xu_control_range(
     const device &device, const xu &xu, uint8_t selector, uint8_t id,
     int32_t *min, int32_t *max, int32_t *def) {
   VLOG_INFO << __func__ << " " << static_cast<int>(selector);
-  *min = xu_control_range_basic(device,xu,selector,id|0x90);
-  *max = xu_control_range_basic(device,xu,selector,id|0xa0);
-  *def = xu_control_range_basic(device,xu,selector,id|0xc0);
+  *min = xu_control_range_basic(device,xu,selector,static_cast<uint8_t>(id|0x90));
+  *max = xu_control_range_basic(device,xu,selector,static_cast<uint8_t>(id|0xa0));
+  *def = xu_control_range_basic(device,xu,selector,static_cast<uint8_t>(id|0xc0));
   return true;
 }
 

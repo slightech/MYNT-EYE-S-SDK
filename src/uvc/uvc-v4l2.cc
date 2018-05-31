@@ -368,11 +368,11 @@ struct device {
       }
 
       if (callback) {
-        callback(buffers[buf.index].start);
+        callback(buffers[buf.index].start,
+            [buf, this]() mutable {
+              if(xioctl(fd, VIDIOC_QBUF, &buf) < 0) throw_error("VIDIOC_QBUF");
+            });
       }
-
-      if (xioctl(fd, VIDIOC_QBUF, &buf) < 0)
-        LOG_ERROR(FATAL, "VIDIOC_QBUF");
     }
   }
 
@@ -496,7 +496,7 @@ bool xu_control_range(
     int32_t *min, int32_t *max, int32_t *def) {
   bool ret = true;
   std::uint8_t data[3]{};
-  std::uint8_t query_id[3]{(id | 0x80), 0, 0};
+  std::uint8_t query_id[3]{static_cast<uint8_t>(id | 0x80), 0, 0};
   
   if(!xu_control_query(device, xu, selector, XU_QUERY_SET, 3, query_id)) {
     LOG(WARNING) << "xu_control_range query failed";
