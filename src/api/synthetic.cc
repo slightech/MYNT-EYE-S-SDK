@@ -104,14 +104,16 @@ void Synthetic::StartVideoStreaming() {
     if (it->second == MODE_NATIVE) {
       auto &&stream = it->first;
       device->SetStreamCallback(
-          stream, [this, stream](const device::StreamData &data) {
+          stream,
+          [this, stream](const device::StreamData &data) {
             auto &&stream_data = data2api(data);
             ProcessNativeStream(stream, stream_data);
             // Need mutex if set callback after start
             if (HasStreamCallback(stream)) {
               stream_callbacks_.at(stream)(stream_data);
             }
-          });
+          },
+          true);
     }
   }
   device->Start(Source::VIDEO_STREAMING);

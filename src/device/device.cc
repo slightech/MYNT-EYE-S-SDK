@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "device/device_s.h"
+#include "internal/async_callback.h"
 #include "internal/channels.h"
 #include "internal/config.h"
 #include "internal/motions.h"
@@ -272,20 +273,32 @@ bool Device::RunOptionAction(const Option &option) const {
 }
 
 void Device::SetStreamCallback(
-    const Stream &stream, stream_callback_t callback) {
+    const Stream &stream, stream_callback_t callback, bool async) {
   if (!Supports(stream)) {
     LOG(WARNING) << "Unsupported stream: " << stream;
     return;
   }
   if (callback) {
     stream_callbacks_[stream] = callback;
+    if (async)
+      stream_async_callbacks_[stream] =
+          std::make_shared<stream_async_callback_t>(
+              to_string(stream), callback);
   } else {
     stream_callbacks_.erase(stream);
+    stream_async_callbacks_.erase(stream);
   }
 }
 
-void Device::SetMotionCallback(motion_callback_t callback) {
+void Device::SetMotionCallback(motion_callback_t callback, bool async) {
   motion_callback_ = callback;
+  if (callback) {
+    if (async)
+      motion_async_callback_ =
+          std::make_shared<motion_async_callback_t>("motion", callback);
+  } else {
+    motion_async_callback_ = nullptr;
+  }
 }
 
 bool Device::HasStreamCallback(const Stream &stream) const {
@@ -409,16 +422,8 @@ void Device::StartVideoStreaming() {
             return;
           }
           if (streams_->PushStream(Capabilities::STEREO, data)) {
-            if (HasStreamCallback(Stream::LEFT)) {
-              auto &&stream_datas = streams_->stream_datas(Stream::LEFT);
-              // if (stream_datas.size() > 0) {}
-              stream_callbacks_.at(Stream::LEFT)(stream_datas.back());
-            }
-            if (HasStreamCallback(Stream::RIGHT)) {
-              auto &&stream_datas = streams_->stream_datas(Stream::RIGHT);
-              // if (stream_datas.size() > 0) {}
-              stream_callbacks_.at(Stream::RIGHT)(stream_datas.back());
-            }
+            CallbackPushedStreamData(Stream::LEFT);
+            CallbackPushedStreamData(Stream::RIGHT);
           }
         });
   } else {
@@ -446,11 +451,8 @@ void Device::StartMotionTracking() {
     LOG(WARNING) << "Cannot start motion tracking without first stopping it";
     return;
   }
-  motions_->SetMotionCallback([this](const device::MotionData &data) {
-    if (motion_callback_) {
-      motion_callback_(data);
-    }
-  });
+  motions_->SetMotionCallback(
+      std::bind(&Device::CallbackMotionData, this, std::placeholders::_1));
   motions_->StartMotionTracking();
   motion_tracking_ = true;
 }
@@ -505,6 +507,29 @@ void Device::ReadAllInfos() {
             << GetMotionExtrinsics(Stream::LEFT) << "}";
   } else {
     LOG(WARNING) << "Motion intrinsics & extrinsics not exist";
+  }
+}
+
+void Device::CallbackPushedStreamData(const Stream &stream) {
+  if (HasStreamCallback(stream)) {
+    auto &&datas = streams_->stream_datas(stream);
+    // if (datas.size() > 0) {}
+    auto &&data = datas.back();
+    if (stream_async_callbacks_.find(stream) != stream_async_callbacks_.end()) {
+      stream_async_callbacks_.at(stream)->PushData(data);
+    } else {
+      stream_callbacks_.at(stream)(data);
+    }
+  }
+}
+
+void Device::CallbackMotionData(const device::MotionData &data) {
+  if (HasMotionCallback()) {
+    if (motion_async_callback_) {
+      motion_async_callback_->PushData(data);
+    } else {
+      motion_callback_(data);
+    }
   }
 }
 

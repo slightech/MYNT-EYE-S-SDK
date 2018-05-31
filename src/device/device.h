@@ -46,6 +46,9 @@ class Channels;
 class Motions;
 class Streams;
 
+template <class Data>
+class AsyncCallback;
+
 /**
  * The Device class to communicate with MYNT® EYE device.
  */
@@ -57,6 +60,11 @@ class MYNTEYE_API Device {
   using motion_callback_t = device::MotionCallback;
 
   using stream_callbacks_t = std::map<Stream, stream_callback_t>;
+
+  using stream_async_callback_t = AsyncCallback<device::StreamData>;
+  using motion_async_callback_t = AsyncCallback<device::MotionData>;
+  using stream_async_callback_ptr_t = std::shared_ptr<stream_async_callback_t>;
+  using motion_async_callback_ptr_t = std::shared_ptr<motion_async_callback_t>;
 
   Device(const Model &model, std::shared_ptr<uvc::device> device);
   virtual ~Device();
@@ -175,11 +183,12 @@ class MYNTEYE_API Device {
   /**
    * Set the callback of stream.
    */
-  void SetStreamCallback(const Stream &stream, stream_callback_t callback);
+  void SetStreamCallback(
+      const Stream &stream, stream_callback_t callback, bool async = false);
   /**
    * Set the callback of motion.
    */
-  void SetMotionCallback(motion_callback_t callback);
+  void SetMotionCallback(motion_callback_t callback, bool async = false);
 
   /**
    * Has the callback of stream.
@@ -256,6 +265,9 @@ class MYNTEYE_API Device {
   stream_callbacks_t stream_callbacks_;
   motion_callback_t motion_callback_;
 
+  std::map<Stream, stream_async_callback_ptr_t> stream_async_callbacks_;
+  motion_async_callback_ptr_t motion_async_callback_;
+
   std::shared_ptr<Streams> streams_;
 
   std::map<Capabilities, StreamRequest> stream_config_requests_;
@@ -265,6 +277,9 @@ class MYNTEYE_API Device {
   std::shared_ptr<Motions> motions_;
 
   void ReadAllInfos();
+
+  void CallbackPushedStreamData(const Stream &stream);
+  void CallbackMotionData(const device::MotionData &data);
 
   std::shared_ptr<Channels> channels() {
     return channels_;
