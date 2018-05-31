@@ -565,6 +565,7 @@ static std::string to_string(uint16_t size, uint8_t *data) {
   return ss.str();
 }
 
+/*
 static std::vector<BYTE> xu_control_desc(const device &device, const xu &xu, ULONG id, ULONG flags) {
   auto ks_control = const_cast<uvc::device &>(device).get_ks_control(xu);
 
@@ -640,6 +641,7 @@ bool xu_control_range(
       << ": min=" << *min << ", max=" << *max << ", def=" << *def;
   return true;
 }
+*/
 
 static void xu_control_get(const device &device, const xu &xu, uint8_t selector,
       uint16_t size, uint8_t *data) {
@@ -680,6 +682,28 @@ static void xu_control_set(const device &device, const xu &xu, uint8_t selector,
   check("IKsControl::KsProperty", ks_control->KsProperty(
       (PKSPROPERTY)&node, sizeof(node), data, size, &bytes_received));
   VLOG_INFO << __func__ << " " << static_cast<int>(selector) << " done";
+}
+
+static int32_t xu_control_range_basic(const device &device, const xu &xu, uint8_t selector, uint8_t id) {
+  int32_t value = 0;
+  std::uint8_t data[3]{};
+  std::uint8_t query_id[3]{id, 0, 0};
+
+  xu_control_set(device,xu,selector,3,query_id);
+  xu_control_get(device,xu,selector,3,data);
+  value = (data[1] << 8) | (data[2]);
+
+  return value;
+}
+
+bool xu_control_range(
+    const device &device, const xu &xu, uint8_t selector, uint8_t id,
+    int32_t *min, int32_t *max, int32_t *def) {
+  VLOG_INFO << __func__ << " " << static_cast<int>(selector);
+  *min = xu_control_range_basic(device,xu,selector,id|0x90);
+  *max = xu_control_range_basic(device,xu,selector,id|0xa0);
+  *def = xu_control_range_basic(device,xu,selector,id|0xc0);
+  return true;
 }
 
 bool xu_control_query(

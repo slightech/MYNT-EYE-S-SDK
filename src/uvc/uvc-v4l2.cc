@@ -492,10 +492,17 @@ bool pu_control_query(
 }
 
 bool xu_control_range(
-    const device &device, const xu &xu, uint8_t selector, int32_t *min,
-    int32_t *max, int32_t *def) {
+    const device &device, const xu &xu, uint8_t selector, uint8_t id,
+    int32_t *min, int32_t *max, int32_t *def) {
   bool ret = true;
   std::uint8_t data[3]{};
+  std::uint8_t query_id[3]{(id | 0x80), 0, 0};
+  
+  if(!xu_control_query(device, xu, selcetor, XU_QUERY_SET, 3, query_id)) {
+    LOG(WARNING) << "xu_control_range query failed";
+    ret = false;
+  }
+
   if (xu_control_query(device, xu, selcetor, XU_QUERY_MIN, 3, data)) {
     *min = (data[1] << 8) | (data[2]);
   } else {

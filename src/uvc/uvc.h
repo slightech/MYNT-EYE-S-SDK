@@ -73,8 +73,8 @@ MYNTEYE_API bool pu_control_query(
 
 // Access XU (Extension Unit) controls
 MYNTEYE_API bool xu_control_range(
-    const device &device, const xu &xu, uint8_t selector, int32_t *min,
-    int32_t *max, int32_t *def);
+    const device &device, const xu &xu, uint8_t selector, uint8_t id,
+    int32_t *min, int32_t *max, int32_t *def);
 MYNTEYE_API bool xu_control_query(  // XU_QUERY_SET, XU_QUERY_GET
     const device &device, const xu &xu, uint8_t selector, xu_query query,
     uint16_t size, uint8_t *data);
