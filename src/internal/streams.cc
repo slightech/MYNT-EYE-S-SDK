@@ -132,12 +132,13 @@ void Streams::ConfigStream(
   stream_config_requests_[capability] = request;
 }
 
-void Streams::PushStream(const Capabilities &capability, const void *data) {
+bool Streams::PushStream(const Capabilities &capability, const void *data) {
   if (!HasStreamConfigRequest(capability)) {
     LOG(FATAL) << "Cannot push stream without stream config request";
   }
   std::unique_lock<std::mutex> lock(mtx_);
   auto &&request = GetStreamConfigRequest(capability);
+  bool pushed = false;
   switch (capability) {
     case Capabilities::STEREO: {
       // alloc left
@@ -155,10 +156,12 @@ void Streams::PushStream(const Capabilities &capability, const void *data) {
             data, request, left_data.frame.get());
         unpack_img_pixels_map_[Stream::RIGHT](
             data, request, right_data.frame.get());
+        pushed = true;
       } else {
         // discard left
         DiscardStreamData(Stream::LEFT);
         LOG(WARNING) << "Image packet is unaccepted, frame dropped";
+        pushed = false;
       }
     } break;
     default:
@@ -166,6 +169,7 @@ void Streams::PushStream(const Capabilities &capability, const void *data) {
   }
   if (HasKeyStreamDatas())
     cv_.notify_one();
+  return pushed;
 }
 
 void Streams::WaitForStreams() {
@@ -204,10 +208,19 @@ Streams::stream_datas_t Streams::GetStreamDatas(const Stream &stream) {
 }
 
 Streams::stream_data_t Streams::GetLatestStreamData(const Stream &stream) {
-  return GetStreamDatas(stream).back();
+  std::unique_lock<std::mutex> lock(mtx_);
+  if (!HasStreamDatas(stream) || stream_datas_map_.at(stream).empty()) {
+    LOG(WARNING) << "There are no stream datas of " << stream
+                 << ". Did you call WaitForStreams() before this?";
+    return {};
+  }
+  stream_datas_t datas = stream_datas_map_.at(stream);
+  stream_datas_map_[stream].clear();
+  return datas.back();
 }
 
 const Streams::stream_datas_t &Streams::stream_datas(const Stream &stream) {
+  std::unique_lock<std::mutex> lock(mtx_);
   try {
     return stream_datas_map_.at(stream);
   } catch (const std::out_of_range &e) {

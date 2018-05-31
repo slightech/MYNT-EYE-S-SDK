@@ -337,14 +337,12 @@ void Device::WaitForStreams() {
 std::vector<device::StreamData> Device::GetStreamDatas(const Stream &stream) {
   CHECK(video_streaming_);
   CHECK_NOTNULL(streams_);
-  std::lock_guard<std::mutex> _(mtx_streams_);
   return streams_->GetStreamDatas(stream);
 }
 
 device::StreamData Device::GetLatestStreamData(const Stream &stream) {
   CHECK(video_streaming_);
   CHECK_NOTNULL(streams_);
-  std::lock_guard<std::mutex> _(mtx_streams_);
   return streams_->GetLatestStreamData(stream);
 }
 
@@ -410,17 +408,15 @@ void Device::StartVideoStreaming() {
             --drop_count;
             return;
           }
-          std::lock_guard<std::mutex> _(mtx_streams_);
-          streams_->PushStream(Capabilities::STEREO, data);
-          if (HasStreamCallback(Stream::LEFT)) {
-            auto &&stream_datas = streams_->stream_datas(Stream::LEFT);
-            if (stream_datas.size() > 0) {
+          if (streams_->PushStream(Capabilities::STEREO, data)) {
+            if (HasStreamCallback(Stream::LEFT)) {
+              auto &&stream_datas = streams_->stream_datas(Stream::LEFT);
+              // if (stream_datas.size() > 0) {}
               stream_callbacks_.at(Stream::LEFT)(stream_datas.back());
             }
-          }
-          if (HasStreamCallback(Stream::RIGHT)) {
-            auto &&stream_datas = streams_->stream_datas(Stream::RIGHT);
-            if (stream_datas.size() > 0) {
+            if (HasStreamCallback(Stream::RIGHT)) {
+              auto &&stream_datas = streams_->stream_datas(Stream::RIGHT);
+              // if (stream_datas.size() > 0) {}
               stream_callbacks_.at(Stream::RIGHT)(stream_datas.back());
             }
           }
