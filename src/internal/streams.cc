@@ -197,26 +197,26 @@ std::size_t Streams::GetStreamDataMaxSize(const Stream &stream) const {
 
 Streams::stream_datas_t Streams::GetStreamDatas(const Stream &stream) {
   std::unique_lock<std::mutex> lock(mtx_);
-  if (!HasStreamDatas(stream) || stream_datas_map_.at(stream).empty()) {
+  if (!HasStreamDatas(stream)) {
     LOG(WARNING) << "There are no stream datas of " << stream
                  << ". Did you call WaitForStreams() before this?";
     return {};
   }
-  stream_datas_t datas = stream_datas_map_.at(stream);
+  auto datas = stream_datas_map_.at(stream);
   stream_datas_map_[stream].clear();
   return datas;
 }
 
 Streams::stream_data_t Streams::GetLatestStreamData(const Stream &stream) {
   std::unique_lock<std::mutex> lock(mtx_);
-  if (!HasStreamDatas(stream) || stream_datas_map_.at(stream).empty()) {
+  if (!HasStreamDatas(stream)) {
     LOG(WARNING) << "There are no stream datas of " << stream
                  << ". Did you call WaitForStreams() before this?";
     return {};
   }
-  stream_datas_t datas = stream_datas_map_.at(stream);
+  auto data = stream_datas_map_.at(stream).back();
   stream_datas_map_[stream].clear();
-  return datas.back();
+  return data;
 }
 
 const Streams::stream_datas_t &Streams::stream_datas(const Stream &stream) {
@@ -247,7 +247,8 @@ const StreamRequest &Streams::GetStreamConfigRequest(
 }
 
 bool Streams::HasStreamDatas(const Stream &stream) const {
-  return stream_datas_map_.find(stream) != stream_datas_map_.end();
+  return stream_datas_map_.find(stream) != stream_datas_map_.end() &&
+         !stream_datas_map_.at(stream).empty();
 }
 
 void Streams::AllocStreamData(
@@ -263,22 +264,27 @@ void Streams::AllocStreamData(
   } else {
     data.img = nullptr;
   }
-  data.frame =
-      std::make_shared<frame_t>(request.width, request.height, format, nullptr);
-  stream_datas_map_[stream].push_back(data);
-  // If cached more then limits_max, drop the oldest one.
-  if (stream_datas_map_.at(stream).size() > GetStreamDataMaxSize(stream)) {
-    auto &&datas = stream_datas_map_[stream];
-    datas.erase(datas.begin());
-    VLOG(2) << "Stream data of " << stream << " is dropped as out of limits";
+  if (HasStreamDatas(stream)) {
+    // If cached equal to limits_max, drop the oldest one.
+    if (stream_datas_map_.at(stream).size() == GetStreamDataMaxSize(stream)) {
+      auto &&datas = stream_datas_map_[stream];
+      data.frame = datas.front().frame;  // reuse this frame
+      datas.erase(datas.begin());
+      VLOG(2) << "Stream data of " << stream << " is dropped as out of limits";
+    }
   }
+  if (!data.frame) {
+    data.frame = std::make_shared<frame_t>(
+        request.width, request.height, format, nullptr);
+  }
+  stream_datas_map_[stream].push_back(data);
 }
 
 void Streams::DiscardStreamData(const Stream &stream) {
   // Must discard after alloc, otherwise at will out of range when no this key.
   if (stream_datas_map_.at(stream).size() > 0) {
     auto &&datas = stream_datas_map_[stream];
-    datas.erase(datas.end() - 1);
+    datas.pop_back();
   } else {
     VLOG(2) << "Stream data of " << stream << " is empty, could not discard";
   }
@@ -287,8 +293,6 @@ void Streams::DiscardStreamData(const Stream &stream) {
 bool Streams::HasKeyStreamDatas() const {
   for (auto &&s : key_streams_) {
     if (!HasStreamDatas(s))
-      return false;
-    if (stream_datas_map_.at(s).empty())
       return false;
   }
   return true;
