@@ -139,9 +139,8 @@ void API::SetStreamCallback(const Stream &stream, stream_callback_t callback) {
 void API::SetMotionCallback(motion_callback_t callback) {
   static auto callback_ = callback;
   if (callback_) {
-    device_->SetMotionCallback([](const device::MotionData &data) {
-      callback_({data.imu});
-    } /*, true*/);
+    device_->SetMotionCallback(
+        [](const device::MotionData &data) { callback_({data.imu}); }, true);
   } else {
     device_->SetMotionCallback(nullptr);
   }

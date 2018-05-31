@@ -23,8 +23,12 @@
 MYNTEYE_BEGIN_NAMESPACE
 
 template <class Data>
-AsyncCallback<Data>::AsyncCallback(std::string name, callback_t callback)
-    : name_(std::move(name)), callback_(std::move(callback)), count_(0) {
+AsyncCallback<Data>::AsyncCallback(
+    std::string name, callback_t callback, bool concat)
+    : name_(std::move(name)),
+      callback_(std::move(callback)),
+      count_(0),
+      concat_(concat) {
   VLOG(2) << __func__;
   running_ = true;
   thread_ = std::thread(&AsyncCallback<Data>::Run, this);
@@ -47,7 +51,10 @@ AsyncCallback<Data>::~AsyncCallback() {
 template <class Data>
 void AsyncCallback<Data>::PushData(Data data) {
   std::lock_guard<std::mutex> _(mtx_);
-  data_ = data;
+  if (!concat_) {
+    datas_.clear();
+  }
+  datas_.push_back(data);
   ++count_;
   cv_.notify_one();
 }
@@ -62,13 +69,18 @@ void AsyncCallback<Data>::Run() {
     if (!running_)
       break;
 
-    if (callback_)
-      callback_(data_);
+    if (callback_) {
+      for (auto &&data : datas_) {
+        callback_(data);
+      }
+    }
 
-    if (VLOG_IS_ON(2) && count_ > 1) {
-      VLOG(2) << "AsyncCallback(" << name_ << ") dropped " << (count_ - 1);
+    if (VLOG_IS_ON(2) && count_ > datas_.size()) {
+      VLOG(2) << "AsyncCallback(" << name_ << ") dropped "
+              << (count_ - datas_.size());
     }
     count_ = 0;
+    datas_.clear();
   }
   VLOG(2) << "AsyncCallback(" << name_ << ") thread end";
 }

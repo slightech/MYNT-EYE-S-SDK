@@ -20,6 +20,7 @@
 #include <mutex>
 #include <string>
 #include <thread>
+#include <vector>
 
 #include "mynteye/mynteye.h"
 
@@ -30,7 +31,7 @@ class AsyncCallback {
  public:
   using callback_t = std::function<void(Data data)>;
 
-  AsyncCallback(std::string name, callback_t callback);
+  AsyncCallback(std::string name, callback_t callback, bool concat = false);
   ~AsyncCallback();
 
   void PushData(Data data);
@@ -48,8 +49,9 @@ class AsyncCallback {
   bool running_;
   std::thread thread_;
 
-  Data data_;
   std::uint32_t count_;
+  bool concat_;
+  std::vector<Data> datas_;
 };
 
 MYNTEYE_END_NAMESPACE

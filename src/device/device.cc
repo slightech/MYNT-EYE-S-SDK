@@ -295,7 +295,7 @@ void Device::SetMotionCallback(motion_callback_t callback, bool async) {
   if (callback) {
     if (async)
       motion_async_callback_ =
-          std::make_shared<motion_async_callback_t>("motion", callback);
+          std::make_shared<motion_async_callback_t>("motion", callback, true);
   } else {
     motion_async_callback_ = nullptr;
   }
