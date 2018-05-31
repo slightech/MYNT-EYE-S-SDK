@@ -381,11 +381,11 @@ struct device {
       }
 
       if (callback) {
-        callback(buffers[buf.index].start);
+        callback(buffers[buf.index].start, [buf, this]() mutable {
+          if (xioctl(fd, VIDIOC_QBUF, &buf) < 0)
+            throw_error("VIDIOC_QBUF");
+        });
       }
-
-      if (xioctl(fd, VIDIOC_QBUF, &buf) < 0)
-        LOG_ERROR(FATAL, "VIDIOC_QBUF");
     }
   }
 
@@ -502,6 +502,39 @@ bool pu_control_query(
       return false;
   }
   return device.pu_control_query(get_cid(option), code, value);
+}
+
+bool xu_control_range(
+    const device &device, const xu &xu, uint8_t selector, uint8_t id,
+    int32_t *min, int32_t *max, int32_t *def) {
+  bool ret = true;
+
+  std::uint8_t data[3]{static_cast<uint8_t>(id | 0x80), 0, 0};
+
+  if (!xu_control_query(device, xu, selector, XU_QUERY_SET, 3, data)) {
+    LOG(WARNING) << "xu_control_range query failed";
+    ret = false;
+  }
+
+  if (xu_control_query(device, xu, selector, XU_QUERY_MIN, 3, data)) {
+    *min = (data[1] << 8) | (data[2]);
+  } else {
+    LOG(WARNING) << "xu_control_range query min failed";
+    ret = false;
+  }
+  if (xu_control_query(device, xu, selector, XU_QUERY_MAX, 3, data)) {
+    *max = (data[1] << 8) | (data[2]);
+  } else {
+    LOG(WARNING) << "xu_control_range query max failed";
+    ret = false;
+  }
+  if (xu_control_query(device, xu, selector, XU_QUERY_DEF, 3, data)) {
+    *def = (data[1] << 8) | (data[2]);
+  } else {
+    LOG(WARNING) << "xu_control_range query def failed";
+    ret = false;
+  }
+  return ret;
 }
 
 bool xu_control_query(

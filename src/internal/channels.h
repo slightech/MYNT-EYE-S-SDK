@@ -37,11 +37,11 @@ struct xu;
 class MYNTEYE_API Channels {
  public:
   typedef enum Channel {
-    CHANNEL_CAM_CTRL = 0x0100,
-    CHANNEL_HALF_DUPLEX = 0x0200,
-    CHANNEL_IMU_WRITE = 0x0300,
-    CHANNEL_IMU_READ = 0x0400,
-    CHANNEL_FILE = 0x0500,
+    CHANNEL_CAM_CTRL = 1,
+    CHANNEL_HALF_DUPLEX = 2,
+    CHANNEL_IMU_WRITE = 3,
+    CHANNEL_IMU_READ = 4,
+    CHANNEL_FILE = 5,
     CHANNEL_LAST
   } channel_t;
 
@@ -109,6 +109,12 @@ class MYNTEYE_API Channels {
   bool PuControlRange(
       Option option, int32_t *min, int32_t *max, int32_t *def) const;
   bool PuControlQuery(Option option, uvc::pu_query query, int32_t *value) const;
+
+  bool XuControlRange(
+      channel_t channel, uint8_t id, int32_t *min, int32_t *max, int32_t *def) const;
+  bool XuControlRange(
+      const uvc::xu &xu, uint8_t selector, uint8_t id, int32_t *min, int32_t *max,
+      int32_t *def) const;
 
   bool XuControlQuery(
       channel_t channel, uvc::xu_query query, uint16_t size,

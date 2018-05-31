@@ -31,6 +31,8 @@ MYNTEYE_BEGIN_NAMESPACE
 
 namespace {
 
+const uvc::xu mynteye_xu = {3, 2, {0x947a6d9f, 0x8a2f, 0x418d, {0x85, 0x9e, 0x6c, 0x9a, 0xa0, 0x38, 0x10, 0x14}}};
+
 int XuCamCtrlId(Option option) {
   switch (option) {
     case Option::EXPOSURE_MODE:
@@ -867,10 +869,22 @@ bool Channels::PuControlQuery(
   return uvc::pu_control_query(*device_, option, query, value);
 }
 
+bool Channels::XuControlRange(
+    channel_t channel, uint8_t id, int32_t *min, int32_t *max, int32_t *def) const {
+  return XuControlRange(mynteye_xu, channel, id, min, max, def);
+}
+
+bool Channels::XuControlRange(
+    const uvc::xu &xu, uint8_t selector, uint8_t id, int32_t *min, int32_t *max,
+    int32_t *def) const {
+  CHECK_NOTNULL(device_);
+  return uvc::xu_control_range(*device_, xu, selector, id, min, max, def);
+}
+
 bool Channels::XuControlQuery(
     channel_t channel, uvc::xu_query query, uint16_t size,
     uint8_t *data) const {
-  return XuControlQuery({3}, channel >> 8, query, size, data);
+  return XuControlQuery(mynteye_xu, channel, query, size, data);
 }
 
 bool Channels::XuControlQuery(
@@ -1001,32 +1015,11 @@ Channels::control_info_t Channels::PuControlInfo(Option option) const {
 Channels::control_info_t Channels::XuControlInfo(Option option) const {
   int id = XuCamCtrlId(option);
 
-  std::uint8_t data[3] = {static_cast<std::uint8_t>((id | 0x80) & 0xFF), 0, 0};
-  if (!XuCamCtrlQuery(uvc::XU_QUERY_SET, 3, data)) {
+  int32_t min = 0, max = 0, def = 0;
+  if (!XuControlRange(CHANNEL_CAM_CTRL, static_cast<std::uint8_t>(id), &min, &max, &def)) {
     LOG(WARNING) << "Get XuControlInfo of " << option << " failed";
-    return {0, 0, 0};
   }
-
-  control_info_t info{0, 0, 0};
-
-  data[0] = id & 0xFF;
-  if (XuCamCtrlQuery(uvc::XU_QUERY_MIN, 3, data)) {
-    info.min = (data[1] << 8) | (data[2]);
-  } else {
-    LOG(WARNING) << "Get XuControlInfo.min of " << option << " failed";
-  }
-  if (XuCamCtrlQuery(uvc::XU_QUERY_MAX, 3, data)) {
-    info.max = (data[1] << 8) | (data[2]);
-  } else {
-    LOG(WARNING) << "Get XuControlInfo.max of " << option << " failed";
-  }
-  if (XuCamCtrlQuery(uvc::XU_QUERY_DEF, 3, data)) {
-    info.def = (data[1] << 8) | (data[2]);
-  } else {
-    LOG(WARNING) << "Get XuControlInfo.def of " << option << " failed";
-  }
-
-  return info;
+  return {min, max, def};
 }
 
 MYNTEYE_END_NAMESPACE

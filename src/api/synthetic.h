@@ -25,9 +25,10 @@
 MYNTEYE_BEGIN_NAMESPACE
 
 class API;
-class Object;
 class Plugin;
 class Processor;
+
+struct Object;
 
 class Synthetic {
  public:

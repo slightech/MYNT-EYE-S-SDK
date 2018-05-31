@@ -171,23 +171,32 @@ ifeq ($(HOST_OS),Win)
 ifeq ($(HOST_NAME),MinGW)
   CMAKE += -G "MinGW Makefiles"
 else ifeq ($(HOST_ARCH),x64)
-  VS_VERSION := $(shell echo "$(shell which cl)" | sed "s/.*Visual\sStudio\s\([0-9]\+\).*/\1/g")
-  ifeq (15,$(VS_VERSION))
+  ifeq ($(VS_CODE),)
+    WHICH_CL := $(shell which cl)
+    ifeq ($(WHICH_CL),)
+      $(error "Visual Studio version is unknown. Could set VS_CODE to specify it, e.g. make [TARGET] VS_CODE=2017")
+    endif
+    # C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\...
+    # C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\...
+    VS_CODE := $(shell echo "$(WHICH_CL)" | grep -Po "(?<=Visual Studio[ /])[0-9]+")
+  endif
+  # $(call mkinfo,"VS_CODE: $(VS_CODE)")
+  ifeq ($(filter $(VS_CODE),15 2017),$(VS_CODE))
     CMAKE += -G "Visual Studio 15 2017 Win64"
-  else ifeq (14,$(VS_VERSION))
+  else ifeq ($(filter $(VS_CODE),14 2015),$(VS_CODE))
     CMAKE += -G "Visual Studio 14 2015 Win64"
-  else ifeq (12,$(VS_VERSION))
+  else ifeq ($(filter $(VS_CODE),12 2013),$(VS_CODE))
     CMAKE += -G "Visual Studio 12 2013 Win64"
-  else ifeq (11,$(VS_VERSION))
+  else ifeq ($(filter $(VS_CODE),11 2012),$(VS_CODE))
     CMAKE += -G "Visual Studio 11 2012 Win64"
-  else ifeq (10,$(VS_VERSION))
+  else ifeq ($(filter $(VS_CODE),10 2010),$(VS_CODE))
     CMAKE += -G "Visual Studio 10 2010 Win64"
-  else ifeq (9,$(VS_VERSION))
+  else ifeq ($(filter $(VS_CODE),9 2008),$(VS_CODE))
     CMAKE += -G "Visual Studio 9 2008 Win64"
-  else ifeq (8,$(VS_VERSION))
+  else ifeq ($(filter $(VS_CODE),8 2005),$(VS_CODE))
     CMAKE += -G "Visual Studio 8 2005 Win64"
   else
-    $(call mkinfo,"Connot specify Visual Studio Win64")
+    $(error "Visual Studio version is not proper, VS_CODE: $(VS_CODE)")
   endif
 endif
 

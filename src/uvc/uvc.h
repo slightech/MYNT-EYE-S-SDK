@@ -36,9 +36,17 @@ typedef enum pu_query {
   PU_QUERY_LAST
 } pu_query;
 
+struct MYNTEYE_API guid {
+  uint32_t data1;
+  uint16_t data2, data3;
+  uint8_t data4[8];
+};
+
 // Extension Unit
 struct MYNTEYE_API xu {
   uint8_t unit;
+  int node;
+  guid id;
 };
 
 typedef enum xu_query {
@@ -77,12 +85,16 @@ MYNTEYE_API bool pu_control_query(
     const device &device, Option option, pu_query query, int32_t *value);
 
 // Access XU (Extension Unit) controls
-MYNTEYE_API bool xu_control_query(
+MYNTEYE_API bool xu_control_range(
+    const device &device, const xu &xu, uint8_t selector, uint8_t id,
+    int32_t *min, int32_t *max, int32_t *def);
+MYNTEYE_API bool xu_control_query(  // XU_QUERY_SET, XU_QUERY_GET
     const device &device, const xu &xu, uint8_t selector, xu_query query,
     uint16_t size, uint8_t *data);
 
 // Control streaming
-typedef std::function<void(const void *frame)> video_channel_callback;
+typedef std::function<void(const void *frame,
+    std::function<void()> continuation)> video_channel_callback;
 
 MYNTEYE_API void set_device_mode(
     device &device, int width, int height, int fourcc, int fps,  // NOLINT
