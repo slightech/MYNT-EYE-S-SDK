@@ -498,24 +498,24 @@ bool xu_control_range(
   std::uint8_t data[3]{};
   std::uint8_t query_id[3]{(id | 0x80), 0, 0};
   
-  if(!xu_control_query(device, xu, selcetor, XU_QUERY_SET, 3, query_id)) {
+  if(!xu_control_query(device, xu, selector, XU_QUERY_SET, 3, query_id)) {
     LOG(WARNING) << "xu_control_range query failed";
     ret = false;
   }
 
-  if (xu_control_query(device, xu, selcetor, XU_QUERY_MIN, 3, data)) {
+  if (xu_control_query(device, xu, selector, XU_QUERY_MIN, 3, data)) {
     *min = (data[1] << 8) | (data[2]);
   } else {
     LOG(WARNING) << "xu_control_range query min failed";
     ret = false;
   }
-  if (xu_control_query(device, xu, selcetor, XU_QUERY_MAX, 3, data)) {
+  if (xu_control_query(device, xu, selector, XU_QUERY_MAX, 3, data)) {
     *max = (data[1] << 8) | (data[2]);
   } else {
     LOG(WARNING) << "xu_control_range query max failed";
     ret = false;
   }
-  if (xu_control_query(device, xu, selcetor, XU_QUERY_DEF, 3, data)) {
+  if (xu_control_query(device, xu, selector, XU_QUERY_DEF, 3, data)) {
     *def = (data[1] << 8) | (data[2]);
   } else {
     LOG(WARNING) << "xu_control_range query def failed";
