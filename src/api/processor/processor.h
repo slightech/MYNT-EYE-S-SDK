@@ -37,7 +37,7 @@ class Processor /*: public std::enable_shared_from_this<Processor>*/ {
   using ProcessCallback = std::function<bool(
       Object *const in, Object *const out, Processor *const parent)>;
 
-  Processor();
+  explicit Processor(std::int32_t proc_period = 0);
   virtual ~Processor();
 
   virtual std::string Name();
@@ -79,6 +79,8 @@ class Processor /*: public std::enable_shared_from_this<Processor>*/ {
   void Run();
 
   void SetIdle(bool idle);
+
+  std::int32_t proc_period_;
 
   bool activated_;
 

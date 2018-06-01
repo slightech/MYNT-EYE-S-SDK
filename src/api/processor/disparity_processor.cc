@@ -17,10 +17,13 @@
 
 #include <glog/logging.h>
 
+#include <utility>
+
 MYNTEYE_BEGIN_NAMESPACE
 
-DisparityProcessor::DisparityProcessor() : Processor() {
-  VLOG(2) << __func__;
+DisparityProcessor::DisparityProcessor(std::int32_t proc_period)
+    : Processor(std::move(proc_period)) {
+  VLOG(2) << __func__ << ": proc_period=" << proc_period;
   int sgbmWinSize = 3;
   int numberOfDisparities = 64;
 

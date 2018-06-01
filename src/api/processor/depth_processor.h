@@ -25,7 +25,7 @@ class DepthProcessor : public Processor {
  public:
   static constexpr auto &&NAME = "DepthProcessor";
 
-  DepthProcessor();
+  explicit DepthProcessor(std::int32_t proc_period = 0);
   virtual ~DepthProcessor();
 
   std::string Name() override;

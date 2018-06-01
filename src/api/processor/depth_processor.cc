@@ -15,10 +15,13 @@
 
 #include <glog/logging.h>
 
+#include <utility>
+
 MYNTEYE_BEGIN_NAMESPACE
 
-DepthProcessor::DepthProcessor() : Processor() {
-  VLOG(2) << __func__;
+DepthProcessor::DepthProcessor(std::int32_t proc_period)
+    : Processor(std::move(proc_period)) {
+  VLOG(2) << __func__ << ": proc_period=" << proc_period;
 }
 
 DepthProcessor::~DepthProcessor() {

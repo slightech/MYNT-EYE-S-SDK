@@ -31,7 +31,8 @@ class RectifyProcessor : public Processor {
  public:
   static constexpr auto &&NAME = "RectifyProcessor";
 
-  explicit RectifyProcessor(std::shared_ptr<Device> device);
+  RectifyProcessor(
+      std::shared_ptr<Device> device, std::int32_t proc_period = 0);
   virtual ~RectifyProcessor();
 
   std::string Name() override;

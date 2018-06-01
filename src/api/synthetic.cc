@@ -29,6 +29,12 @@
 #include "api/processor/rectify_processor.h"
 #include "device/device.h"
 
+#define RECTIFY_PROC_PERIOD 0
+#define DISPARITY_PROC_PERIOD 0
+#define DISPARITY_NORM_PROC_PERIOD 0
+#define POINTS_PROC_PERIOD 0
+#define DEPTH_PROC_PERIOD 0
+
 MYNTEYE_BEGIN_NAMESPACE
 
 namespace {
@@ -383,13 +389,16 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
 }
 
 void Synthetic::InitProcessors() {
-  auto &&rectify_processor = std::make_shared<RectifyProcessor>(api_->device());
-  auto &&disparity_processor = std::make_shared<DisparityProcessor>();
+  auto &&rectify_processor =
+      std::make_shared<RectifyProcessor>(api_->device(), RECTIFY_PROC_PERIOD);
+  auto &&disparity_processor =
+      std::make_shared<DisparityProcessor>(DISPARITY_PROC_PERIOD);
   auto &&disparitynormalized_processor =
-      std::make_shared<DisparityNormalizedProcessor>();
-  auto &&points_processor =
-      std::make_shared<PointsProcessor>(rectify_processor->Q);
-  auto &&depth_processor = std::make_shared<DepthProcessor>();
+      std::make_shared<DisparityNormalizedProcessor>(
+          DISPARITY_NORM_PROC_PERIOD);
+  auto &&points_processor = std::make_shared<PointsProcessor>(
+      rectify_processor->Q, POINTS_PROC_PERIOD);
+  auto &&depth_processor = std::make_shared<DepthProcessor>(DEPTH_PROC_PERIOD);
 
   using namespace std::placeholders;  // NOLINT
   rectify_processor->SetProcessCallback(

@@ -27,7 +27,7 @@ class PointsProcessor : public Processor {
  public:
   static constexpr auto &&NAME = "PointsProcessor";
 
-  explicit PointsProcessor(cv::Mat Q);
+  explicit PointsProcessor(cv::Mat Q, std::int32_t proc_period = 0);
   virtual ~PointsProcessor();
 
   std::string Name() override;

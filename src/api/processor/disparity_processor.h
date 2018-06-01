@@ -31,7 +31,7 @@ class DisparityProcessor : public Processor {
  public:
   static constexpr auto &&NAME = "DisparityProcessor";
 
-  DisparityProcessor();
+  explicit DisparityProcessor(std::int32_t proc_period = 0);
   virtual ~DisparityProcessor();
 
   std::string Name() override;

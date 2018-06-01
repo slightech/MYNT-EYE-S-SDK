@@ -17,10 +17,13 @@
 
 #include <utility>
 
+#include "internal/times.h"
+
 MYNTEYE_BEGIN_NAMESPACE
 
-Processor::Processor()
-    : activated_(false),
+Processor::Processor(std::int32_t proc_period)
+    : proc_period_(std::move(proc_period)),
+      activated_(false),
       input_ready_(false),
       idle_(true),
       dropped_count_(0),
@@ -146,9 +149,33 @@ std::uint64_t Processor::GetDroppedCount() {
 
 void Processor::Run() {
   VLOG(2) << Name() << " thread start";
+
+  auto sleep = [this](const times::system_clock::time_point &time_beg) {
+    if (proc_period_ > 0) {
+      static times::system_clock::time_point time_prev = time_beg;
+      auto &&time_elapsed_ms =
+          times::count<times::milliseconds>(times::now() - time_prev);
+      time_prev = time_beg;
+
+      if (time_elapsed_ms < proc_period_) {
+        VLOG(2) << Name() << " process cost "
+                << times::count<times::milliseconds>(times::now() - time_beg)
+                << " ms, sleep " << (proc_period_ - time_elapsed_ms) << " ms";
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(proc_period_ - time_elapsed_ms));
+        return;
+      }
+    }
+    VLOG(2) << Name() << " process cost "
+            << times::count<times::milliseconds>(times::now() - time_beg)
+            << " ms";
+  };
+
   while (true) {
     std::unique_lock<std::mutex> lk(mtx_input_ready_);
     cond_input_ready_.wait(lk, [this] { return input_ready_; });
+
+    auto &&time_beg = times::now();
 
     if (!activated_) {
       SetIdle(true);
@@ -194,6 +221,8 @@ void Processor::Run() {
 
     SetIdle(true);
     input_ready_ = false;
+
+    sleep(time_beg);
   }
   VLOG(2) << Name() << " thread end";
 }

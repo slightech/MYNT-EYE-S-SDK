@@ -25,7 +25,7 @@ class DisparityNormalizedProcessor : public Processor {
  public:
   static constexpr auto &&NAME = "DisparityNormalizedProcessor";
 
-  DisparityNormalizedProcessor();
+  explicit DisparityNormalizedProcessor(std::int32_t proc_period = 0);
   virtual ~DisparityNormalizedProcessor();
 
   std::string Name() override;

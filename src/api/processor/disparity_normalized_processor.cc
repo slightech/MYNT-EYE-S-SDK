@@ -17,10 +17,14 @@
 
 #include <glog/logging.h>
 
+#include <utility>
+
 MYNTEYE_BEGIN_NAMESPACE
 
-DisparityNormalizedProcessor::DisparityNormalizedProcessor() : Processor() {
-  VLOG(2) << __func__;
+DisparityNormalizedProcessor::DisparityNormalizedProcessor(
+    std::int32_t proc_period)
+    : Processor(std::move(proc_period)) {
+  VLOG(2) << __func__ << ": proc_period=" << proc_period;
 }
 
 DisparityNormalizedProcessor::~DisparityNormalizedProcessor() {

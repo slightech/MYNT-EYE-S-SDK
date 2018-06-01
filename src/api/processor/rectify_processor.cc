@@ -18,13 +18,16 @@
 
 #include <glog/logging.h>
 
+#include <utility>
+
 #include "device/device.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
-RectifyProcessor::RectifyProcessor(std::shared_ptr<Device> device)
-    : Processor() {
-  VLOG(2) << __func__;
+RectifyProcessor::RectifyProcessor(
+    std::shared_ptr<Device> device, std::int32_t proc_period)
+    : Processor(std::move(proc_period)) {
+  VLOG(2) << __func__ << ": proc_period=" << proc_period;
   InitParams(
       device->GetIntrinsics(Stream::LEFT), device->GetIntrinsics(Stream::RIGHT),
       device->GetExtrinsics(Stream::LEFT, Stream::RIGHT));

@@ -21,8 +21,9 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
-PointsProcessor::PointsProcessor(cv::Mat Q) : Processor(), Q_(std::move(Q)) {
-  VLOG(2) << __func__;
+PointsProcessor::PointsProcessor(cv::Mat Q, std::int32_t proc_period)
+    : Processor(std::move(proc_period)), Q_(std::move(Q)) {
+  VLOG(2) << __func__ << ": proc_period=" << proc_period;
 }
 
 PointsProcessor::~PointsProcessor() {
