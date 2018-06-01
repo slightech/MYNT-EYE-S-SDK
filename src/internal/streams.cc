@@ -259,19 +259,25 @@ void Streams::AllocStreamData(
 void Streams::AllocStreamData(
     const Stream &stream, const StreamRequest &request, const Format &format) {
   stream_data_t data;
-  if (stream == Stream::LEFT || stream == Stream::RIGHT) {
-    data.img = std::make_shared<ImgData>();
-  } else {
-    data.img = nullptr;
-  }
+
   if (HasStreamDatas(stream)) {
     // If cached equal to limits_max, drop the oldest one.
     if (stream_datas_map_.at(stream).size() == GetStreamDataMaxSize(stream)) {
       auto &&datas = stream_datas_map_[stream];
-      data.frame = datas.front().frame;  // reuse this frame
+      // reuse the dropped data
+      data.img = datas.front().img;
+      data.frame = datas.front().frame;
       datas.erase(datas.begin());
       VLOG(2) << "Stream data of " << stream << " is dropped as out of limits";
     }
+  }
+
+  if (stream == Stream::LEFT || stream == Stream::RIGHT) {
+    if(!data.img) {
+      data.img = std::make_shared<ImgData>();
+    }
+  } else {
+    data.img = nullptr;
   }
   if (!data.frame) {
     data.frame = std::make_shared<frame_t>(

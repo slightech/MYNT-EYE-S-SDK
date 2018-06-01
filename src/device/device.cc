@@ -26,6 +26,7 @@
 #include "internal/motions.h"
 #include "internal/streams.h"
 #include "internal/strings.h"
+#include "internal/times.h"
 #include "internal/types.h"
 #include "uvc/uvc.h"
 
@@ -419,13 +420,18 @@ void Device::StartVideoStreaming() {
           static std::uint8_t drop_count = 1;
           if (drop_count > 0) {
             --drop_count;
+            continuation();
             return;
           }
+          // auto &&time_beg = times::now();
           if (streams_->PushStream(Capabilities::STEREO, data)) {
             CallbackPushedStreamData(Stream::LEFT);
             CallbackPushedStreamData(Stream::RIGHT);
           }
           continuation();
+          // VLOG(2) << "Stereo video callback cost "
+          //         << times::count<times::milliseconds>(times::now() - time_beg)
+          //         << " ms";
         });
   } else {
     LOG(FATAL) << "Not any stream capabilities are supported by this device";
