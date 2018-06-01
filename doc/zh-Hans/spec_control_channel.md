@@ -2,11 +2,11 @@
 
 | 名称 | 字段 | 地址 | 带宽 | 说明 |
 | :----- | :----- | :----- | :----- | :----- |
-| 相机控制通道 | XU_CAM_CTRL_CHANNEL | 0x0100 | 3 | |
-| 半双工通道 | XU_HALF_DUPLEX_CHANNEL | 0x0200 | 20 | |
-| IMU 请求通道 | XU_IMUDATA_WRITE_CHANNEL | 0x0300 | 5 | |
-| IMU 响应通道 | XU_IMUDATA_READ_CHANNEL | 0x0400 | 2000 | |
-| 文件通道 | XU_FILE_CHANNEL | 0x0500 | 2000 | |
+| 相机控制通道 | XU_CAM_CTRL_CHANNEL | 1 | 3 | |
+| 半双工通道 | XU_HALF_DUPLEX_CHANNEL | 2 | 20 | |
+| IMU 请求通道 | XU_IMUDATA_WRITE_CHANNEL | 3 | 5 | |
+| IMU 响应通道 | XU_IMUDATA_READ_CHANNEL | 4 | 2000 | |
+| 文件通道 | XU_FILE_CHANNEL | 5 | 2000 | |
 
 ## 相机控制通道
 
