@@ -351,12 +351,14 @@ void Device::WaitForStreams() {
 std::vector<device::StreamData> Device::GetStreamDatas(const Stream &stream) {
   CHECK(video_streaming_);
   CHECK_NOTNULL(streams_);
+  std::lock_guard<std::mutex> _(mtx_streams_);
   return streams_->GetStreamDatas(stream);
 }
 
 device::StreamData Device::GetLatestStreamData(const Stream &stream) {
   CHECK(video_streaming_);
   CHECK_NOTNULL(streams_);
+  std::lock_guard<std::mutex> _(mtx_streams_);
   return streams_->GetLatestStreamData(stream);
 }
 
@@ -424,14 +426,17 @@ void Device::StartVideoStreaming() {
             return;
           }
           // auto &&time_beg = times::now();
-          if (streams_->PushStream(Capabilities::STEREO, data)) {
-            CallbackPushedStreamData(Stream::LEFT);
-            CallbackPushedStreamData(Stream::RIGHT);
+          {
+            std::lock_guard<std::mutex> _(mtx_streams_);
+            if (streams_->PushStream(Capabilities::STEREO, data)) {
+              CallbackPushedStreamData(Stream::LEFT);
+              CallbackPushedStreamData(Stream::RIGHT);
+            }
           }
           continuation();
           // VLOG(2) << "Stereo video callback cost "
-          //         << times::count<times::milliseconds>(times::now() - time_beg)
-          //         << " ms";
+          //     << times::count<times::milliseconds>(times::now() - time_beg)
+          //     << " ms";
         });
   } else {
     LOG(FATAL) << "Not any stream capabilities are supported by this device";

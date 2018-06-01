@@ -18,6 +18,7 @@
 #include <limits>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -271,6 +272,8 @@ class MYNTEYE_API Device {
   std::shared_ptr<Streams> streams_;
 
   std::map<Capabilities, StreamRequest> stream_config_requests_;
+
+  std::mutex mtx_streams_;
 
   std::shared_ptr<Channels> channels_;
 
