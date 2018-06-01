@@ -29,7 +29,7 @@ struct glog_init {
     FLAGS_alsologtostderr = true;
     FLAGS_colorlogtostderr = true;
 
-    FLAGS_log_dir = ".";
+    // FLAGS_log_dir = ".";
     FLAGS_max_log_size = 1024;
     FLAGS_stop_logging_if_full_disk = true;
 
