@@ -115,6 +115,10 @@ int main(int argc, char *argv[]) {
         std::unique_lock<std::mutex> lock(mtx);
         if (frame == nullptr) {
           frame = std::make_shared<struct frame>();
+        } else {
+          if (frame->continuation) {
+            frame->continuation();
+          }
         }
         frame->data = data;  // not copy here
         frame->continuation = continuation;
