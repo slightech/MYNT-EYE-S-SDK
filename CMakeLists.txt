@@ -227,3 +227,15 @@ install(FILES
 install(EXPORT ${MYNTEYE_NAME}-targets
   DESTINATION ${MYNTEYE_CMAKE_INSTALLDIR}
 )
+
+find_package(CUDA QUIET)
+
+configure_file(
+  cmake/templates/build.info.in
+  build.info @ONLY
+)
+
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/build.info
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/share/mynteye
+)
