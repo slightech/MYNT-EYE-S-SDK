@@ -52,6 +52,15 @@ if(WITH_API)
   include(cmake/DetectOpenCV.cmake)
 endif()
 
+find_package(Boost COMPONENTS filesystem)
+if(Boost_FOUND)
+  set(WITH_BOOST_FILESYSTEM true)
+  add_definitions(-DWITH_FILESYSTEM)
+  add_definitions(-DWITH_BOOST_FILESYSTEM)
+  message(STATUS "Found boost filesystem: ${Boost_VERSION}")
+  #message(STATUS "  Boost_LIBRARIES: ${Boost_LIBRARIES}")
+endif()
+
 LIST(APPEND CMAKE_MODULE_PATH cmake)
 
 include(CMakePackageConfigHelpers)
@@ -62,6 +71,9 @@ set(MYNTEYE_NAME ${PROJECT_NAME})
 
 set(MYNTEYE_NAMESPACE "mynteye")
 message(STATUS "Namespace: ${MYNTEYE_NAMESPACE}")
+
+file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" MYNTEYE_SDK_ROOT_DIR)
+file(TO_NATIVE_PATH "${CMAKE_INSTALL_PREFIX}" MYNTEYE_SDK_INSTALL_DIR)
 
 configure_file(
   include/mynteye/mynteye.h.in
@@ -166,6 +178,9 @@ set(MYNTEYE_LINKLIBS
 )
 if(WITH_API)
   list(APPEND MYNTEYE_LINKLIBS ${OpenCV_LIBS})
+endif()
+if(WITH_BOOST_FILESYSTEM)
+  list(APPEND MYNTEYE_LINKLIBS ${Boost_LIBRARIES})
 endif()
 #message(STATUS "MYNTEYE_LINKLIBS: ${MYNTEYE_LINKLIBS}")
 

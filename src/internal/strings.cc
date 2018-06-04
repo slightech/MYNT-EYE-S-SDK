@@ -65,6 +65,13 @@ bool starts_with(const std::string &text, const std::string &prefix) {
   return text.compare(0, prefix.length(), prefix) == 0;
 }
 
+bool ends_with(const std::string &text, const std::string &suffix) {
+  if (suffix.length() > text.length())
+    return false;
+  return text.compare(
+             text.length() - suffix.length(), suffix.length(), suffix) == 0;
+}
+
 std::vector<std::string> split(
     const std::string &text, const std::string &delimiters) {
   std::vector<std::string> tokens;

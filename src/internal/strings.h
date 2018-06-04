@@ -42,6 +42,9 @@ MYNTEYE_API
 bool starts_with(const std::string &text, const std::string &prefix);
 
 MYNTEYE_API
+bool ends_with(const std::string &text, const std::string &suffix);
+
+MYNTEYE_API
 std::vector<std::string> split(
     const std::string &text, const std::string &delimiters);
 

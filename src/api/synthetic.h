@@ -62,6 +62,7 @@ class Synthetic {
   std::vector<api::StreamData> GetStreamDatas(const Stream &stream);
 
   void SetPlugin(std::shared_ptr<Plugin> plugin);
+  bool HasPlugin() const;
 
  private:
   void InitStreamSupports();

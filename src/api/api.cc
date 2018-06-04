@@ -13,8 +13,14 @@
 // limitations under the License.
 #include "api/api.h"
 
+#ifdef WITH_BOOST_FILESYSTEM
+#include <boost/filesystem.hpp>
+#include <boost/range/iterator_range.hpp>
+#endif
+
 #include <glog/logging.h>
 
+#include <algorithm>
 #include <thread>
 
 #include "mynteye/glog_init.h"
@@ -26,6 +32,143 @@
 #include "internal/dl.h"
 
 MYNTEYE_BEGIN_NAMESPACE
+
+namespace {
+
+#ifdef WITH_FILESYSTEM
+
+#ifdef WITH_BOOST_FILESYSTEM
+
+namespace fs = boost::filesystem;
+
+bool file_exists(const fs::path &p) {
+  try {
+    fs::file_status s = fs::status(p);
+    return fs::exists(s) && fs::is_regular_file(s);
+  } catch (fs::filesystem_error &e) {
+    LOG(ERROR) << e.what();
+    return false;
+  }
+}
+
+bool dir_exists(const fs::path &p) {
+  try {
+    fs::file_status s = fs::status(p);
+    return fs::exists(s) && fs::is_directory(s);
+  } catch (fs::filesystem_error &e) {
+    LOG(ERROR) << e.what();
+    return false;
+  }
+}
+
+#endif
+
+std::vector<std::string> get_plugin_paths() {
+  std::string info_path(MYNTEYE_SDK_INSTALL_DIR);
+  info_path.append(OS_SEP "share" OS_SEP "mynteye" OS_SEP "build.info");
+
+  cv::FileStorage fs(info_path, cv::FileStorage::READ);
+  if (!fs.isOpened()) {
+    // LOG(ERROR) << "build.info not found";
+    return {};
+  }
+
+  auto to_lower = [](std::string &s) {  // NOLINT
+    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+  };
+
+  std::string host_os = fs["HOST_OS"];
+  to_lower(host_os);
+  std::string host_name = fs["HOST_NAME"];
+  to_lower(host_name);
+  std::string host_arch = fs["HOST_ARCH"];
+  to_lower(host_arch);
+  // std::string gcc_version = fs["GCC_VERSION"];
+  int gcc_version_major = fs["GCC_VERSION_MAJOR"];
+  // int gcc_version_minor = fs["GCC_VERSION_MINOR"];
+  std::string cuda_version = fs["CUDA_VERSION"];
+  // int cuda_version_major = fs["CUDA_VERSION_MAJOR"];
+  // int cuda_version_minor = fs["CUDA_VERSION_MINOR"];
+  // std::string cuda_version_string = fs["CUDA_VERSION_STRING"];
+  std::string opencv_version = fs["OpenCV_VERSION"];
+  // int opencv_version_major = fs["OpenCV_VERSION_MAJOR"];
+  // int opencv_version_minor = fs["OpenCV_VERSION_MINOR"];
+  // int opencv_version_patch = fs["OpenCV_VERSION_PATCH"];
+  // int opencv_version_tweak = fs["OpenCV_VERSION_TWEAK"];
+  // std::string opencv_version_status = fs["OpenCV_VERSION_STATUS"];
+  std::string mynteye_version = fs["MYNTEYE_VERSION"];
+  // int mynteye_version_major = fs["MYNTEYE_VERSION_MAJOR"];
+  // int mynteye_version_minor = fs["MYNTEYE_VERSION_MINOR"];
+  // int mynteye_version_patch = fs["MYNTEYE_VERSION_PATCH"];
+  // int mynteye_version_tweak = fs["MYNTEYE_VERSION_TWEAK"];
+
+  fs.release();
+
+  std::string lib_prefix;
+  std::string lib_suffix;
+  if (host_os == "linux") {
+    if (gcc_version_major < 5)
+      return {};
+    lib_prefix = "lib";
+    lib_suffix = ".so";
+  } else if (host_os == "win") {
+    lib_prefix = "";
+    lib_suffix = ".dll";
+  } else if (host_os == "mac") {
+    lib_prefix = "lib";
+    lib_suffix = ".dylib";
+  } else {
+    return {};
+  }
+
+  std::vector<std::string> names;
+  {
+    std::vector<std::string> prefixes{
+        // lib_prefix + "plugin_b_ocl" + ocl_version,
+        lib_prefix + "plugin_g_cuda" + cuda_version,
+    };
+    for (auto &&prefix : prefixes) {
+      names.push_back(
+          prefix + "_opencv" + opencv_version + "_mynteye" + mynteye_version);
+      names.push_back(prefix + "_opencv" + opencv_version);
+      names.push_back(prefix);
+    }
+    for (auto &&name : names) {
+      name.append(lib_suffix);
+    }
+  }
+
+  std::vector<std::string> paths;
+
+  std::vector<std::string> plats;
+  if (host_name != host_os) {
+    plats.push_back(host_name + "-" + host_arch);
+  }
+  plats.push_back(host_os + "-" + host_arch);
+
+  std::vector<std::string> dirs{MYNTEYE_SDK_ROOT_DIR, MYNTEYE_SDK_INSTALL_DIR};
+  for (auto &&plat : plats) {
+    for (auto &&dir : dirs) {
+      auto &&plat_dir = dir + OS_SEP "plugins" + OS_SEP + plat;
+      // VLOG(2) << "plat_dir: " << plat_dir;
+      if (!dir_exists(plat_dir))
+        continue;
+      for (auto &&name : names) {
+        // VLOG(2) << "  name: " << name;
+        auto &&path = plat_dir + OS_SEP + name;
+        if (!file_exists(path))
+          continue;
+        paths.push_back(path);
+      }
+    }
+  }
+
+  return paths;
+}
+
+#endif
+
+}  // namespace
 
 API::API(std::shared_ptr<Device> device)
     : device_(device), synthetic_(new Synthetic(this)) {
@@ -156,6 +299,14 @@ bool API::HasMotionCallback() const {
 
 void API::Start(const Source &source) {
   if (source == Source::VIDEO_STREAMING) {
+#ifdef WITH_FILESYSTEM
+    if (!synthetic_->HasPlugin()) {
+      auto &&plugin_paths = get_plugin_paths();
+      if (plugin_paths.size() > 0) {
+        EnablePlugin(plugin_paths[0]);
+      }
+    }
+#endif
     synthetic_->StartVideoStreaming();
   } else if (source == Source::MOTION_TRACKING) {
     device_->StartMotionTracking();

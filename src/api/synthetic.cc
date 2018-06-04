@@ -235,6 +235,10 @@ void Synthetic::SetPlugin(std::shared_ptr<Plugin> plugin) {
   plugin_ = plugin;
 }
 
+bool Synthetic::HasPlugin() const {
+  return plugin_ != nullptr;
+}
+
 void Synthetic::InitStreamSupports() {
   auto &&device = api_->device();
   if (device->Supports(Stream::LEFT) && device->Supports(Stream::RIGHT)) {
