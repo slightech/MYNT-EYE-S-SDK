@@ -4,7 +4,31 @@
 
 MYNT® EYE SDK 2.0 is a cross-platform library for MYNT® EYE cameras.
 
+The following platforms have been tested:
+
+* Windows 10
+* Ubuntu 16.04 / 14.04
+* Jetson TX2
+
+Please follow the guide doc to install the SDK on different platforms.
+
+## Documentations
+
+* [API Doc](https://github.com/slightech/MYNT-EYE-SDK-2/releases): API reference, some guides and data spec.
+* [Guide Doc](https://github.com/slightech/MYNT-EYE-SDK-2-Guide/releases): How to install and start using the SDK.
+
+> Supported languages: `zh-Hans`.
+
+## Firmwares
+
+[Google Drive]: https://drive.google.com/drive/folders/1tdFCcTBMNcImEGZ39tdOZmlX2SHKCr2f
+[百度网盘]: https://pan.baidu.com/s/1yPQDp2r0x4jvNwn2UjlMUQ
+
+Get firmwares from our online disks: [Google Drive][], [百度网盘][]. The latest version is `2.0.0-rc2`.
+
 ## Usage
+
+In short,
 
 ```bash
 $ make
@@ -29,18 +53,6 @@ make init
 make samples
 ./samples/_output/bin/device/camera_d
 ```
-
-## Firmwares
-
-[Google Drive]: https://drive.google.com/drive/folders/1tdFCcTBMNcImEGZ39tdOZmlX2SHKCr2f
-[百度网盘]: https://pan.baidu.com/s/1yPQDp2r0x4jvNwn2UjlMUQ
-
-Get firmwares from our online disks: [Google Drive][], [百度网盘][].
-
-## Documentations
-
-* [API Doc](https://github.com/slightech/MYNT-EYE-SDK-2/releases)
-* [Guide Doc](https://github.com/slightech/MYNT-EYE-SDK-2-Guide/releases)
 
 ## Mirrors
 
