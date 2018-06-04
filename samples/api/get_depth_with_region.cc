@@ -152,6 +152,9 @@ int main(int argc, char *argv[]) {
   if (!api)
     return 1;
 
+  api->SetOptionValue(Option::IR_CONTROL, 80);
+
+  api->EnableStreamData(Stream::DISPARITY_NORMALIZED);
   api->EnableStreamData(Stream::DEPTH);
 
   api->Start(Source::VIDEO_STREAMING);
@@ -180,18 +183,26 @@ int main(int argc, char *argv[]) {
     cv::hconcat(left_data.frame, right_data.frame, img);
     cv::imshow("frame", img);
 
+    auto &&disp_data = api->GetStreamData(Stream::DISPARITY_NORMALIZED);
     auto &&depth_data = api->GetStreamData(Stream::DEPTH);
-    if (!depth_data.frame.empty()) {
-      auto &&depth_frame = depth_data.frame;
+    if (!disp_data.frame.empty() && !depth_data.frame.empty()) {
+      // Show disparity instead of depth, but show depth values in region.
+      auto &&depth_frame = disp_data.frame;
+
+#ifdef USE_OPENCV3
+      // ColormapTypes
+      //   http://docs.opencv.org/master/d3/d50/group__imgproc__colormap.html#ga9a805d8262bcbe273f16be9ea2055a65
+      cv::applyColorMap(depth_frame, depth_frame, cv::COLORMAP_JET);
+#endif
 
       cv::setMouseCallback("depth", OnDepthMouseCallback, &depth_region);
       // Note: DrawRect will change some depth values to show the rect.
       depth_region.DrawRect(depth_frame);
 
-      cv::imshow("depth", depth_frame);  // CV_16UC1
+      cv::imshow("depth", depth_frame);
 
       depth_region.ShowElems<ushort>(
-          depth_frame,
+          depth_data.frame,
           [](const ushort &elem) {
             if (elem >= 10000) {
               // Filter errors, or limit to valid range.
