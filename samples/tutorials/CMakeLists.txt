@@ -86,7 +86,9 @@ else()
   message(WARNING "PCL not found :(")
 endif()
 
-# data
+# beginner level
+
+## data
 
 make_executable2(get_device_info SRCS data/get_device_info.cc)
 make_executable2(get_img_params SRCS data/get_img_params.cc)
@@ -109,7 +111,7 @@ make_executable2(get_from_callbacks
 )
 make_executable2(get_with_plugin SRCS data/get_with_plugin.cc WITH_OPENCV)
 
-# control
+## control
 
 make_executable2(ctrl_framerate SRCS control/framerate.cc WITH_OPENCV)
 make_executable2(ctrl_auto_exposure
@@ -123,3 +125,20 @@ make_executable2(ctrl_manual_exposure
 make_executable2(ctrl_infrared SRCS control/infrared.cc WITH_OPENCV)
 
 endif()
+
+# intermediate level
+
+if(PCL_FOUND)
+
+if(OpenCV_VERSION VERSION_LESS 4.0)
+
+make_executable2(get_depth_and_points
+  SRCS intermediate/get_depth_and_points.cc util/cv_painter.cc util/pc_viewer.cc
+  WITH_OPENCV WITH_PCL
+)
+
+endif()
+
+endif()
+
+# advanced level
