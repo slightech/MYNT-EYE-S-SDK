@@ -30,8 +30,12 @@ make_executable(camera_a
 
 ## get_depth_with_region
 
+if(OpenCV_VERSION VERSION_LESS 4.0)
+
 make_executable(get_depth_with_region
   SRCS get_depth_with_region.cc
   LINK_LIBS mynteye ${OpenCV_LIBS}
   DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
 )
+
+endif()
