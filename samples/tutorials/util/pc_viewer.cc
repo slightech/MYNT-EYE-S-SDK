@@ -35,7 +35,7 @@ std::shared_ptr<pcl::visualization::PCLVisualizer> CustomColorVis(
   // viewer->addCoordinateSystem(1.0);
   viewer->addCoordinateSystem(1000.0);
   viewer->initCameraParameters();
-  viewer->setCameraPosition(0, 0, -150, 0, 1, 0);
+  viewer->setCameraPosition(0, 0, -150, 0, -1, 0);
   return (viewer);
 }
 
