@@ -46,7 +46,7 @@ cv::Mat frame2mat(const std::shared_ptr<device::Frame> &frame) {
 }
 
 api::StreamData data2api(const device::StreamData &data) {
-  return {data.img, frame2mat(data.frame)};
+  return {data.img, frame2mat(data.frame), data.frame};
 }
 
 }  // namespace
@@ -152,7 +152,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
         Object *out = processor->GetOutput();
         if (out != nullptr) {
           ObjMat2 *output = Object::Cast<ObjMat2>(out);
-          return {nullptr, output->first};
+          return {nullptr, output->first, nullptr};
         }
         VLOG(2) << "Rectify not ready now";
       } break;
@@ -161,7 +161,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
         Object *out = processor->GetOutput();
         if (out != nullptr) {
           ObjMat2 *output = Object::Cast<ObjMat2>(out);
-          return {nullptr, output->second};
+          return {nullptr, output->second, nullptr};
         }
         VLOG(2) << "Rectify not ready now";
       } break;
@@ -170,7 +170,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
         Object *out = processor->GetOutput();
         if (out != nullptr) {
           ObjMat *output = Object::Cast<ObjMat>(out);
-          return {nullptr, output->value};
+          return {nullptr, output->value, nullptr};
         }
         VLOG(2) << "Disparity not ready now";
       } break;
@@ -180,7 +180,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
         Object *out = processor->GetOutput();
         if (out != nullptr) {
           ObjMat *output = Object::Cast<ObjMat>(out);
-          return {nullptr, output->value};
+          return {nullptr, output->value, nullptr};
         }
         VLOG(2) << "Disparity normalized not ready now";
       } break;
@@ -189,7 +189,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
         Object *out = processor->GetOutput();
         if (out != nullptr) {
           ObjMat *output = Object::Cast<ObjMat>(out);
-          return {nullptr, output->value};
+          return {nullptr, output->value, nullptr};
         }
         VLOG(2) << "Points not ready now";
       } break;
@@ -198,7 +198,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
         Object *out = processor->GetOutput();
         if (out != nullptr) {
           ObjMat *output = Object::Cast<ObjMat>(out);
-          return {nullptr, output->value};
+          return {nullptr, output->value, nullptr};
         }
         VLOG(2) << "Depth not ready now";
       } break;
@@ -546,17 +546,19 @@ bool Synthetic::OnDepthProcess(
 void Synthetic::OnRectifyPostProcess(Object *const out) {
   const ObjMat2 *output = Object::Cast<ObjMat2>(out);
   if (HasStreamCallback(Stream::LEFT_RECTIFIED)) {
-    stream_callbacks_.at(Stream::LEFT_RECTIFIED)({nullptr, output->first});
+    stream_callbacks_.at(Stream::LEFT_RECTIFIED)(
+        {nullptr, output->first, nullptr});
   }
   if (HasStreamCallback(Stream::RIGHT_RECTIFIED)) {
-    stream_callbacks_.at(Stream::RIGHT_RECTIFIED)({nullptr, output->second});
+    stream_callbacks_.at(Stream::RIGHT_RECTIFIED)(
+        {nullptr, output->second, nullptr});
   }
 }
 
 void Synthetic::OnDisparityPostProcess(Object *const out) {
   const ObjMat *output = Object::Cast<ObjMat>(out);
   if (HasStreamCallback(Stream::DISPARITY)) {
-    stream_callbacks_.at(Stream::DISPARITY)({nullptr, output->value});
+    stream_callbacks_.at(Stream::DISPARITY)({nullptr, output->value, nullptr});
   }
 }
 
@@ -564,21 +566,21 @@ void Synthetic::OnDisparityNormalizedPostProcess(Object *const out) {
   const ObjMat *output = Object::Cast<ObjMat>(out);
   if (HasStreamCallback(Stream::DISPARITY_NORMALIZED)) {
     stream_callbacks_.at(Stream::DISPARITY_NORMALIZED)(
-        {nullptr, output->value});
+        {nullptr, output->value, nullptr});
   }
 }
 
 void Synthetic::OnPointsPostProcess(Object *const out) {
   const ObjMat *output = Object::Cast<ObjMat>(out);
   if (HasStreamCallback(Stream::POINTS)) {
-    stream_callbacks_.at(Stream::POINTS)({nullptr, output->value});
+    stream_callbacks_.at(Stream::POINTS)({nullptr, output->value, nullptr});
   }
 }
 
 void Synthetic::OnDepthPostProcess(Object *const out) {
   const ObjMat *output = Object::Cast<ObjMat>(out);
   if (HasStreamCallback(Stream::DEPTH)) {
-    stream_callbacks_.at(Stream::DEPTH)({nullptr, output->value});
+    stream_callbacks_.at(Stream::DEPTH)({nullptr, output->value, nullptr});
   }
 }
 

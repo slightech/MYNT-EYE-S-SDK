@@ -30,6 +30,12 @@ MYNTEYE_BEGIN_NAMESPACE
 class Device;
 class Synthetic;
 
+namespace device {
+
+class Frame;
+
+}  // namespace device
+
 namespace api {
 
 /**
@@ -41,6 +47,8 @@ struct MYNTEYE_API StreamData {
   std::shared_ptr<ImgData> img;
   /** Frame. */
   cv::Mat frame;
+  /** Raw frame. */
+  std::shared_ptr<device::Frame> frame_raw;
 
   bool operator==(const StreamData &other) const {
     if (img && other.img) {
