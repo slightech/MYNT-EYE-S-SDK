@@ -15,6 +15,8 @@
 
 #include <glog/logging.h>
 
+#include "internal/motions.h"
+
 MYNTEYE_BEGIN_NAMESPACE
 
 StandardDevice::StandardDevice(std::shared_ptr<uvc::device> device)
@@ -28,6 +30,13 @@ StandardDevice::~StandardDevice() {
 
 std::vector<Stream> StandardDevice::GetKeyStreams() const {
   return {Stream::LEFT, Stream::RIGHT};
+}
+
+void StandardDevice::OnStereoStreamUpdate() {
+  if (motion_tracking_) {
+    auto &&motions = this->motions();
+    motions->DoMotionTrack();
+  }
 }
 
 MYNTEYE_END_NAMESPACE

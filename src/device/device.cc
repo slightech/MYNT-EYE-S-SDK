@@ -434,6 +434,7 @@ void Device::StartVideoStreaming() {
             }
           }
           continuation();
+          OnStereoStreamUpdate();
           // VLOG(2) << "Stereo video callback cost "
           //     << times::count<times::milliseconds>(times::now() - time_beg)
           //     << " ms";
@@ -465,7 +466,7 @@ void Device::StartMotionTracking() {
   }
   motions_->SetMotionCallback(
       std::bind(&Device::CallbackMotionData, this, std::placeholders::_1));
-  motions_->StartMotionTracking();
+  // motions_->StartMotionTracking();
   motion_tracking_ = true;
 }
 
@@ -474,9 +475,11 @@ void Device::StopMotionTracking() {
     LOG(WARNING) << "Cannot stop motion tracking without first starting it";
     return;
   }
-  motions_->StopMotionTracking();
+  // motions_->StopMotionTracking();
   motion_tracking_ = false;
 }
+
+void Device::OnStereoStreamUpdate() {}
 
 void Device::ReadAllInfos() {
   device_info_ = std::make_shared<DeviceInfo>();

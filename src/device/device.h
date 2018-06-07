@@ -239,6 +239,18 @@ class MYNTEYE_API Device {
     return device_;
   }
 
+  std::shared_ptr<Streams> streams() const {
+    return streams_;
+  }
+
+  std::shared_ptr<Channels> channels() const {
+    return channels_;
+  }
+
+  std::shared_ptr<Motions> motions() const {
+    return motions_;
+  }
+
   const StreamRequest &GetStreamRequest(const Capabilities &capability);
 
   virtual void StartVideoStreaming();
@@ -246,6 +258,8 @@ class MYNTEYE_API Device {
 
   virtual void StartMotionTracking();
   virtual void StopMotionTracking();
+
+  virtual void OnStereoStreamUpdate();
 
   virtual std::vector<Stream> GetKeyStreams() const = 0;
 
@@ -283,10 +297,6 @@ class MYNTEYE_API Device {
 
   void CallbackPushedStreamData(const Stream &stream);
   void CallbackMotionData(const device::MotionData &data);
-
-  std::shared_ptr<Channels> channels() {
-    return channels_;
-  }
 
   friend API;
   friend tools::DeviceWriter;

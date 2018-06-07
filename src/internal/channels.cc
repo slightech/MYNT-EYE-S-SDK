@@ -31,7 +31,12 @@ MYNTEYE_BEGIN_NAMESPACE
 
 namespace {
 
-const uvc::xu mynteye_xu = {3, 2, {0x947a6d9f, 0x8a2f, 0x418d, {0x85, 0x9e, 0x6c, 0x9a, 0xa0, 0x38, 0x10, 0x14}}};
+const uvc::xu mynteye_xu = {3,
+                            2,
+                            {0x947a6d9f,
+                             0x8a2f,
+                             0x418d,
+                             {0x85, 0x9e, 0x6c, 0x9a, 0xa0, 0x38, 0x10, 0x14}}};
 
 int XuCamCtrlId(Option option) {
   switch (option) {
@@ -276,6 +281,47 @@ void Channels::SetImuCallback(imu_callback_t callback) {
   imu_callback_ = callback;
 }
 
+void Channels::DoImuTrack() {
+  static ImuReqPacket req_packet{0};
+  static ImuResPacket res_packet;
+
+  req_packet.serial_number = imu_sn_;
+  if (!XuImuWrite(req_packet)) {
+    return;
+  }
+
+  if (!XuImuRead(&res_packet)) {
+    return;
+  }
+
+  if (res_packet.packets.size() == 0) {
+    return;
+  }
+
+  VLOG(2) << "Imu req sn: " << imu_sn_ << ", res count: " << []() {
+    std::size_t n = 0;
+    for (auto &&packet : res_packet.packets) {
+      n += packet.count;
+    }
+    return n;
+  }();
+
+  auto &&sn = res_packet.packets.back().serial_number;
+  if (imu_sn_ == sn) {
+    VLOG(2) << "New imu not ready, dropped";
+    return;
+  }
+  imu_sn_ = sn;
+
+  if (imu_callback_) {
+    for (auto &&packet : res_packet.packets) {
+      imu_callback_(packet);
+    }
+  }
+
+  res_packet.packets.clear();
+}
+
 void Channels::StartImuTracking(imu_callback_t callback) {
   if (is_imu_tracking_) {
     LOG(WARNING) << "Start imu tracking failed, is tracking already";
@@ -287,8 +333,6 @@ void Channels::StartImuTracking(imu_callback_t callback) {
   is_imu_tracking_ = true;
   imu_track_thread_ = std::thread([this]() {
     imu_sn_ = 0;
-    ImuReqPacket req_packet{imu_sn_};
-    ImuResPacket res_packet;
     auto sleep = [](const times::system_clock::time_point &time_beg) {
       auto &&time_elapsed_ms =
           times::count<times::milliseconds>(times::now() - time_beg);
@@ -301,48 +345,7 @@ void Channels::StartImuTracking(imu_callback_t callback) {
     };
     while (!imu_track_stop_) {
       auto &&time_beg = times::now();
-
-      req_packet.serial_number = imu_sn_;
-      if (!XuImuWrite(req_packet)) {
-        sleep(time_beg);
-        continue;
-      }
-
-      if (!XuImuRead(&res_packet)) {
-        sleep(time_beg);
-        continue;
-      }
-
-      if (res_packet.packets.size() == 0) {
-        sleep(time_beg);
-        continue;
-      }
-
-      VLOG(2) << "Imu req sn: " << imu_sn_
-              << ", res count: " << [&res_packet]() {
-                   std::size_t n = 0;
-                   for (auto &&packet : res_packet.packets) {
-                     n += packet.count;
-                   }
-                   return n;
-                 }();
-
-      auto &&sn = res_packet.packets.back().serial_number;
-      if (imu_sn_ == sn) {
-        VLOG(2) << "New imu not ready, dropped";
-        sleep(time_beg);
-        continue;
-      }
-      imu_sn_ = sn;
-
-      if (imu_callback_) {
-        for (auto &&packet : res_packet.packets) {
-          imu_callback_(packet);
-        }
-      }
-
-      res_packet.packets.clear();
-
+      DoImuTrack();
       sleep(time_beg);
     }
   });
@@ -870,7 +873,8 @@ bool Channels::PuControlQuery(
 }
 
 bool Channels::XuControlRange(
-    channel_t channel, uint8_t id, int32_t *min, int32_t *max, int32_t *def) const {
+    channel_t channel, uint8_t id, int32_t *min, int32_t *max,
+    int32_t *def) const {
   return XuControlRange(mynteye_xu, channel, id, min, max, def);
 }
 
@@ -1016,7 +1020,8 @@ Channels::control_info_t Channels::XuControlInfo(Option option) const {
   int id = XuCamCtrlId(option);
 
   int32_t min = 0, max = 0, def = 0;
-  if (!XuControlRange(CHANNEL_CAM_CTRL, static_cast<std::uint8_t>(id), &min, &max, &def)) {
+  if (!XuControlRange(
+          CHANNEL_CAM_CTRL, static_cast<std::uint8_t>(id), &min, &max, &def)) {
     LOG(WARNING) << "Get XuControlInfo of " << option << " failed";
   }
   return {min, max, def};

@@ -34,11 +34,8 @@ Motions::~Motions() {
 
 void Motions::SetMotionCallback(motion_callback_t callback) {
   motion_callback_ = callback;
-}
-
-void Motions::StartMotionTracking() {
-  if (!is_imu_tracking) {
-    channels_->StartImuTracking([this](const ImuPacket &packet) {
+  if (motion_callback_) {
+    channels_->SetImuCallback([this](const ImuPacket &packet) {
       if (!motion_callback_ && !motion_datas_enabled_) {
         LOG(WARNING) << "";
         return;
@@ -62,11 +59,22 @@ void Motions::StartMotionTracking() {
         std::lock_guard<std::mutex> _(mtx_datas_);
         motion_data_t data = {imu};
         motion_datas_.push_back(data);
-        if (motion_callback_) {
-          motion_callback_(data);
-        }
+
+        motion_callback_(data);
       }
     });
+  } else {
+    channels_->SetImuCallback(nullptr);
+  }
+}
+
+void Motions::DoMotionTrack() {
+  channels_->DoImuTrack();
+}
+
+void Motions::StartMotionTracking() {
+  if (!is_imu_tracking) {
+    channels_->StartImuTracking();
     is_imu_tracking = true;
   } else {
     LOG(WARNING) << "Imu is tracking already";

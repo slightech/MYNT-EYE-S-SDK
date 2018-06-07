@@ -28,6 +28,8 @@ class StandardDevice : public Device {
   virtual ~StandardDevice();
 
   std::vector<Stream> GetKeyStreams() const override;
+
+  void OnStereoStreamUpdate() override;
 };
 
 MYNTEYE_END_NAMESPACE
