@@ -31,13 +31,19 @@
 #include "device/device.h"
 #include "internal/dl.h"
 
+#if defined(WITH_FILESYSTEM) && defined(WITH_NATIVE_FILESYSTEM)
+#if defined(OS_WIN)
+#include <windows.h>
+#endif
+#endif
+
 MYNTEYE_BEGIN_NAMESPACE
 
 namespace {
 
-#ifdef WITH_FILESYSTEM
+#if defined(WITH_FILESYSTEM)
 
-#ifdef WITH_BOOST_FILESYSTEM
+#if defined(WITH_BOOST_FILESYSTEM)
 
 namespace fs = boost::filesystem;
 
@@ -61,6 +67,24 @@ bool dir_exists(const fs::path &p) {
   }
 }
 
+#elif defined(WITH_NATIVE_FILESYSTEM)
+
+#if defined(OS_WIN)
+
+bool file_exists(const std::string &p) {
+  DWORD attrs = GetFileAttributes(p.c_str());
+  return (attrs != INVALID_FILE_ATTRIBUTES && !(attrs & FILE_ATTRIBUTE_DIRECTORY));
+}
+
+bool dir_exists(const std::string &p) {
+  DWORD attrs = GetFileAttributes(p.c_str());
+  return (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY));
+}
+
+#else
+#error "Unsupported native filesystem"
+#endif
+
 #endif
 
 std::vector<std::string> get_plugin_paths() {
@@ -69,7 +93,7 @@ std::vector<std::string> get_plugin_paths() {
 
   cv::FileStorage fs(info_path, cv::FileStorage::READ);
   if (!fs.isOpened()) {
-    // LOG(ERROR) << "build.info not found";
+    LOG(WARNING) << "build.info not found: " << info_path;
     return {};
   }
 
@@ -83,19 +107,27 @@ std::vector<std::string> get_plugin_paths() {
   to_lower(host_name);
   std::string host_arch = fs["HOST_ARCH"];
   to_lower(host_arch);
-  // std::string gcc_version = fs["GCC_VERSION"];
-  int gcc_version_major = fs["GCC_VERSION_MAJOR"];
-  // int gcc_version_minor = fs["GCC_VERSION_MINOR"];
+  std::string host_compiler = fs["HOST_COMPILER"];
+  to_lower(host_compiler);
+
+  // std::string compiler_version = fs["COMPILER_VERSION"];
+  int compiler_version_major = fs["COMPILER_VERSION_MAJOR"];
+  // int compiler_version_minor = fs["COMPILER_VERSION_MINOR"];
+  // int compiler_version_patch = fs["COMPILER_VERSION_PATCH"];
+  // int compiler_version_tweak = fs["COMPILER_VERSION_TWEAK"];
+
   std::string cuda_version = fs["CUDA_VERSION"];
   // int cuda_version_major = fs["CUDA_VERSION_MAJOR"];
   // int cuda_version_minor = fs["CUDA_VERSION_MINOR"];
   // std::string cuda_version_string = fs["CUDA_VERSION_STRING"];
+
   std::string opencv_version = fs["OpenCV_VERSION"];
   // int opencv_version_major = fs["OpenCV_VERSION_MAJOR"];
   // int opencv_version_minor = fs["OpenCV_VERSION_MINOR"];
   // int opencv_version_patch = fs["OpenCV_VERSION_PATCH"];
   // int opencv_version_tweak = fs["OpenCV_VERSION_TWEAK"];
   // std::string opencv_version_status = fs["OpenCV_VERSION_STATUS"];
+
   std::string mynteye_version = fs["MYNTEYE_VERSION"];
   // int mynteye_version_major = fs["MYNTEYE_VERSION_MAJOR"];
   // int mynteye_version_minor = fs["MYNTEYE_VERSION_MINOR"];
@@ -107,7 +139,7 @@ std::vector<std::string> get_plugin_paths() {
   std::string lib_prefix;
   std::string lib_suffix;
   if (host_os == "linux") {
-    if (gcc_version_major < 5)
+    if (host_compiler != "gnu" || compiler_version_major < 5)
       return {};
     lib_prefix = "lib";
     lib_suffix = ".so";

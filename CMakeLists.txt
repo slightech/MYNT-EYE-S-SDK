@@ -57,8 +57,12 @@ if(Boost_FOUND)
   set(WITH_BOOST_FILESYSTEM true)
   add_definitions(-DWITH_FILESYSTEM)
   add_definitions(-DWITH_BOOST_FILESYSTEM)
-  message(STATUS "Found boost filesystem: ${Boost_VERSION}")
+  message(STATUS "With boost filesystem: ${Boost_VERSION}")
   #message(STATUS "  Boost_LIBRARIES: ${Boost_LIBRARIES}")
+elseif(OS_WIN)
+  add_definitions(-DWITH_FILESYSTEM)
+  add_definitions(-DWITH_NATIVE_FILESYSTEM)
+  message(STATUS "With native filesystem")
 endif()
 
 LIST(APPEND CMAKE_MODULE_PATH cmake)
@@ -72,8 +76,13 @@ set(MYNTEYE_NAME ${PROJECT_NAME})
 set(MYNTEYE_NAMESPACE "mynteye")
 message(STATUS "Namespace: ${MYNTEYE_NAMESPACE}")
 
-file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" MYNTEYE_SDK_ROOT_DIR)
-file(TO_NATIVE_PATH "${CMAKE_INSTALL_PREFIX}" MYNTEYE_SDK_INSTALL_DIR)
+if(MSVC)
+  string(REPLACE "/" "\\\\" MYNTEYE_SDK_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+  string(REPLACE "/" "\\\\" MYNTEYE_SDK_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}")
+else()
+  file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" MYNTEYE_SDK_ROOT_DIR)
+  file(TO_NATIVE_PATH "${CMAKE_INSTALL_PREFIX}" MYNTEYE_SDK_INSTALL_DIR)
+endif()
 
 configure_file(
   include/mynteye/mynteye.h.in
@@ -243,7 +252,7 @@ install(EXPORT ${MYNTEYE_NAME}-targets
   DESTINATION ${MYNTEYE_CMAKE_INSTALLDIR}
 )
 
-find_package(CUDA QUIET)
+## build.info
 
 macro(set_default_value VARIABLE DEFAULT)
   if(NOT ${VARIABLE})
@@ -251,8 +260,18 @@ macro(set_default_value VARIABLE DEFAULT)
   endif()
 endmacro()
 
-set_default_value(GCC_VERSION_MAJOR 0)
-set_default_value(GCC_VERSION_MINOR 0)
+string(REPLACE "." ";" VERSION_LIST ${CMAKE_CXX_COMPILER_VERSION})
+list(GET VERSION_LIST 0 CXX_COMPILER_VERSION_MAJOR)
+list(GET VERSION_LIST 1 CXX_COMPILER_VERSION_MINOR)
+list(GET VERSION_LIST 2 CXX_COMPILER_VERSION_PATCH)
+list(GET VERSION_LIST 3 CXX_COMPILER_VERSION_TWEAK)
+
+find_package(CUDA QUIET)
+
+set_default_value(CXX_COMPILER_VERSION_MAJOR 0)
+set_default_value(CXX_COMPILER_VERSION_MINOR 0)
+set_default_value(CXX_COMPILER_VERSION_PATCH 0)
+set_default_value(CXX_COMPILER_VERSION_TWEAK 0)
 set_default_value(CUDA_VERSION_MAJOR 0)
 set_default_value(CUDA_VERSION_MINOR 0)
 set_default_value(OpenCV_VERSION_MAJOR 0)
