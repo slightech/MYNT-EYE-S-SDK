@@ -90,9 +90,9 @@ endif()
 
 ## data
 
-make_executable2(get_device_info SRCS data/get_device_info.cc)
-make_executable2(get_img_params SRCS data/get_img_params.cc)
-make_executable2(get_imu_params SRCS data/get_imu_params.cc)
+make_executable2(get_device_info SRCS data/get_device_info.cc WITH_OPENCV)
+make_executable2(get_img_params SRCS data/get_img_params.cc WITH_OPENCV)
+make_executable2(get_imu_params SRCS data/get_imu_params.cc WITH_OPENCV)
 
 make_executable2(get_stereo SRCS data/get_stereo.cc WITH_OPENCV)
 make_executable2(get_stereo_rectified SRCS data/get_stereo_rectified.cc WITH_OPENCV)
