@@ -7,7 +7,7 @@ if "%MY_PATH_SET_@__exe_name@%"=="" (
   set "PATH=@__dll_search_paths@;%PATH%"
 )
 
-cd "%MY_DIR%"
+::cd "%MY_DIR%"
 "%MY_DIR%@__exe_name@.exe" %*
-cd "%MY_PWD%"
+::cd "%MY_PWD%"
 ::pause >nul
