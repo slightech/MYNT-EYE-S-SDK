@@ -245,6 +245,25 @@ install(EXPORT ${MYNTEYE_NAME}-targets
 
 find_package(CUDA QUIET)
 
+macro(set_default_value VARIABLE DEFAULT)
+  if(NOT ${VARIABLE})
+    set(${VARIABLE} ${DEFAULT})
+  endif()
+endmacro()
+
+set_default_value(GCC_VERSION_MAJOR 0)
+set_default_value(GCC_VERSION_MINOR 0)
+set_default_value(CUDA_VERSION_MAJOR 0)
+set_default_value(CUDA_VERSION_MINOR 0)
+set_default_value(OpenCV_VERSION_MAJOR 0)
+set_default_value(OpenCV_VERSION_MINOR 0)
+set_default_value(OpenCV_VERSION_PATCH 0)
+set_default_value(OpenCV_VERSION_TWEAK 0)
+set_default_value(${PROJECT_NAME}_VERSION_MAJOR 0)
+set_default_value(${PROJECT_NAME}_VERSION_MINOR 0)
+set_default_value(${PROJECT_NAME}_VERSION_PATCH 0)
+set_default_value(${PROJECT_NAME}_VERSION_TWEAK 0)
+
 configure_file(
   cmake/templates/build.info.in
   build.info @ONLY

@@ -301,9 +301,13 @@ void API::Start(const Source &source) {
   if (source == Source::VIDEO_STREAMING) {
 #ifdef WITH_FILESYSTEM
     if (!synthetic_->HasPlugin()) {
-      auto &&plugin_paths = get_plugin_paths();
-      if (plugin_paths.size() > 0) {
-        EnablePlugin(plugin_paths[0]);
+      try {
+        auto &&plugin_paths = get_plugin_paths();
+        if (plugin_paths.size() > 0) {
+          EnablePlugin(plugin_paths[0]);
+        }
+      } catch (...) {
+        LOG(WARNING) << "Incorrect yaml format: build.info";
       }
     }
 #endif
