@@ -4,17 +4,17 @@
 
   <!-- node params -->
 
-  <arg name="left_topic" default="left" />
-  <arg name="right_topic" default="right" />
-  <arg name="left_rect_topic" default="left_rect" />
-  <arg name="right_rect_topic" default="right_rect" />
-  <arg name="disparity_topic" default="disparity" />
-  <arg name="disparity_norm_topic" default="disparity_norm" />
-  <arg name="points_topic" default="points" />
-  <arg name="depth_topic" default="depth" />
+  <arg name="left_topic" default="left/image_raw" />
+  <arg name="right_topic" default="right/image_raw" />
+  <arg name="left_rect_topic" default="left/image_rect" />
+  <arg name="right_rect_topic" default="right/image_rect" />
+  <arg name="disparity_topic" default="disparity/image_raw" />
+  <arg name="disparity_norm_topic" default="disparity/image_norm" />
+  <arg name="depth_topic" default="depth/image_raw" />
+  <arg name="points_topic" default="points/data_raw" />
 
-  <arg name="imu_topic" default="imu" />
-  <arg name="temp_topic" default="temp" />
+  <arg name="imu_topic" default="imu/data_raw" />
+  <arg name="temp_topic" default="temp/data_raw" />
 
   <arg name="base_frame_id" default="$(arg mynteye)_link" />
   <arg name="left_frame_id" default="$(arg mynteye)_left_frame" />

@@ -650,8 +650,8 @@ def _main():
     else:
       dataset = ROSBag(
           path,
-          topic_imu='/mynteye/imu',
-          topic_temp='/mynteye/temp')
+          topic_imu='/mynteye/imu/data_raw',
+          topic_temp='/mynteye/temp/data_raw')
     return dataset
 
   if args.binary:
