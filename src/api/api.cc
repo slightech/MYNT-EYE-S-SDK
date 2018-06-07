@@ -127,6 +127,8 @@ std::vector<std::string> get_plugin_paths() {
   // int opencv_version_patch = fs["OpenCV_VERSION_PATCH"];
   // int opencv_version_tweak = fs["OpenCV_VERSION_TWEAK"];
   // std::string opencv_version_status = fs["OpenCV_VERSION_STATUS"];
+  std::string opencv_with_world = fs["OpenCV_WITH_WORLD"];
+  to_lower(opencv_with_world);
 
   std::string mynteye_version = fs["MYNTEYE_VERSION"];
   // int mynteye_version_major = fs["MYNTEYE_VERSION_MAJOR"];
@@ -159,10 +161,13 @@ std::vector<std::string> get_plugin_paths() {
         // lib_prefix + "plugin_b_ocl" + ocl_version,
         lib_prefix + "plugin_g_cuda" + cuda_version,
     };
+    std::string opencv_name("_opencv" + opencv_version);
+    if (opencv_with_world == "true") {
+      opencv_name.append("-world");
+    }
     for (auto &&prefix : prefixes) {
-      names.push_back(
-          prefix + "_opencv" + opencv_version + "_mynteye" + mynteye_version);
-      names.push_back(prefix + "_opencv" + opencv_version);
+      names.push_back(prefix + opencv_name + "_mynteye" + mynteye_version);
+      names.push_back(prefix + opencv_name);
       names.push_back(prefix);
     }
     for (auto &&name : names) {

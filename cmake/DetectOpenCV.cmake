@@ -25,6 +25,11 @@ else()
   add_definitions(-DUSE_OPENCV4)
 endif()
 
+list(FIND OpenCV_LIBS "opencv_world" __index)
+if(${__index} GREATER -1)
+  set(WITH_OPENCV_WORLD TRUE)
+endif()
+
 if(MSVC OR MSYS OR MINGW)
   get_filename_component(OpenCV_LIB_SEARCH_PATH "${OpenCV_LIB_PATH}/../bin" ABSOLUTE)
 else()
