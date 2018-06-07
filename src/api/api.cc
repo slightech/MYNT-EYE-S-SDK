@@ -412,7 +412,9 @@ void API::EnablePlugin(const std::string &path) {
 
   plugin_version_code_t *plugin_version_code =
       dl.Sym<plugin_version_code_t>("plugin_version_code");
-  LOG(INFO) << "Enable plugin, version code: " << plugin_version_code();
+  LOG(INFO) << "Enable plugin success";
+  LOG(INFO) << "  version code: " << plugin_version_code();
+  LOG(INFO) << "  path: " << path;
 
   plugin_create_t *plugin_create = dl.Sym<plugin_create_t>("plugin_create");
   plugin_destroy_t *plugin_destroy = dl.Sym<plugin_destroy_t>("plugin_destroy");
