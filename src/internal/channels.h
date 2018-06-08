@@ -95,6 +95,8 @@ class MYNTEYE_API Channels {
   bool RunControlAction(const Option &option) const;
 
   void SetImuCallback(imu_callback_t callback);
+  void DoImuTrack();
+
   void StartImuTracking(imu_callback_t callback = nullptr);
   void StopImuTracking();
 
@@ -111,10 +113,11 @@ class MYNTEYE_API Channels {
   bool PuControlQuery(Option option, uvc::pu_query query, int32_t *value) const;
 
   bool XuControlRange(
-      channel_t channel, uint8_t id, int32_t *min, int32_t *max, int32_t *def) const;
-  bool XuControlRange(
-      const uvc::xu &xu, uint8_t selector, uint8_t id, int32_t *min, int32_t *max,
+      channel_t channel, uint8_t id, int32_t *min, int32_t *max,
       int32_t *def) const;
+  bool XuControlRange(
+      const uvc::xu &xu, uint8_t selector, uint8_t id, int32_t *min,
+      int32_t *max, int32_t *def) const;
 
   bool XuControlQuery(
       channel_t channel, uvc::xu_query query, uint16_t size,

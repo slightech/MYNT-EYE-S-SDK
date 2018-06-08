@@ -37,6 +37,7 @@ class Motions {
   ~Motions();
 
   void SetMotionCallback(motion_callback_t callback);
+  void DoMotionTrack();
 
   void StartMotionTracking();
   void StopMotionTracking();
