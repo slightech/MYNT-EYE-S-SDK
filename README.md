@@ -24,7 +24,7 @@ Please follow the guide doc to install the SDK on different platforms.
 [Google Drive]: https://drive.google.com/drive/folders/1tdFCcTBMNcImEGZ39tdOZmlX2SHKCr2f
 [百度网盘]: https://pan.baidu.com/s/1yPQDp2r0x4jvNwn2UjlMUQ
 
-Get firmwares from our online disks: [Google Drive][], [百度网盘][]. The latest version is `2.0.0-rc2`.
+Get firmwares from our online disks: [Google Drive][], [百度网盘][]. The latest version is `2.0.0-rc`.
 
 ## Usage
 
