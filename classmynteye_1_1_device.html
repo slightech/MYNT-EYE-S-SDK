@@ -1,0 +1,379 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.14"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>MYNT EYE SDK: mynteye::Device类 参考</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+  $(document).ready(initResizable);
+/* @license-end */</script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+  $(document).ready(function() { init_search(); });
+/* @license-end */
+</script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="custom.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectlogo"><img alt="Logo" src="icon.png"/></td>
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">MYNT EYE SDK
+   &#160;<span id="projectnumber">2.0.0-rc</span>
+   </div>
+   <div id="projectbrief">http://www.myntai.com/camera</div>
+  </td>
+   <td>        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="搜索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+</td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.8.14 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+var searchBox = new SearchBox("searchBox", "search",false,'搜索');
+/* @license-end */
+</script>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('classmynteye_1_1_device.html','');});
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#pub-types">Public 类型</a> &#124;
+<a href="#pub-methods">Public 成员函数</a> &#124;
+<a href="#pub-static-methods">静态 Public 成员函数</a> &#124;
+<a href="classmynteye_1_1_device-members.html">所有成员列表</a>  </div>
+  <div class="headertitle">
+<div class="title">mynteye::Device类 参考<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
+</div><!--header-->
+<div class="contents">
+
+<p>The <a class="el" href="classmynteye_1_1_device.html" title="The Device class to communicate with MYNT® EYE device. ">Device</a> class to communicate with MYNT® EYE device.  
+ <a href="classmynteye_1_1_device.html#details">更多...</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
+Public 类型</h2></td></tr>
+<tr class="memitem:af461797d9035989c4df99487dd673906"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#af461797d9035989c4df99487dd673906">stream_callback_t</a> = device::StreamCallback</td></tr>
+<tr class="memdesc:af461797d9035989c4df99487dd673906"><td class="mdescLeft">&#160;</td><td class="mdescRight">The <a class="el" href="structmynteye_1_1device_1_1_stream_data.html" title="Device stream data. ">device::StreamData</a> callback.  <a href="#af461797d9035989c4df99487dd673906">更多...</a><br /></td></tr>
+<tr class="separator:af461797d9035989c4df99487dd673906"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a790a13f71c45594cc4a57a7adf39081e"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a790a13f71c45594cc4a57a7adf39081e">motion_callback_t</a> = device::MotionCallback</td></tr>
+<tr class="memdesc:a790a13f71c45594cc4a57a7adf39081e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The <a class="el" href="structmynteye_1_1device_1_1_motion_data.html" title="Device motion data. ">device::MotionData</a> callback.  <a href="#a790a13f71c45594cc4a57a7adf39081e">更多...</a><br /></td></tr>
+<tr class="separator:a790a13f71c45594cc4a57a7adf39081e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public 成员函数</h2></td></tr>
+<tr class="memitem:a16025bfcc0eeb51ee21108d2367b6bf1"><td class="memItemLeft" align="right" valign="top"><a id="a16025bfcc0eeb51ee21108d2367b6bf1"></a>
+<a class="el" href="group__enumerations.html#ga3d88e0528ad84eed0e7915c7ed632087">Model</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a16025bfcc0eeb51ee21108d2367b6bf1">GetModel</a> () const</td></tr>
+<tr class="memdesc:a16025bfcc0eeb51ee21108d2367b6bf1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the model. <br /></td></tr>
+<tr class="separator:a16025bfcc0eeb51ee21108d2367b6bf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace7254bda1d1b08eb013bffbaf3f16e9"><td class="memItemLeft" align="right" valign="top"><a id="ace7254bda1d1b08eb013bffbaf3f16e9"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#ace7254bda1d1b08eb013bffbaf3f16e9">Supports</a> (const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;stream) const</td></tr>
+<tr class="memdesc:ace7254bda1d1b08eb013bffbaf3f16e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Supports the stream or not. <br /></td></tr>
+<tr class="separator:ace7254bda1d1b08eb013bffbaf3f16e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5113417ab6c082ae57c01897d71948ed"><td class="memItemLeft" align="right" valign="top"><a id="a5113417ab6c082ae57c01897d71948ed"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a5113417ab6c082ae57c01897d71948ed">Supports</a> (const <a class="el" href="group__enumerations.html#ga924c6892a17872477999697dfb5269c6">Capabilities</a> &amp;capability) const</td></tr>
+<tr class="memdesc:a5113417ab6c082ae57c01897d71948ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Supports the capability or not. <br /></td></tr>
+<tr class="separator:a5113417ab6c082ae57c01897d71948ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89d660802a38a8fe716ce5883376c574"><td class="memItemLeft" align="right" valign="top"><a id="a89d660802a38a8fe716ce5883376c574"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a89d660802a38a8fe716ce5883376c574">Supports</a> (const <a class="el" href="group__enumerations.html#ga31bb3da30332d5af00c1851cf0020fb6">Option</a> &amp;option) const</td></tr>
+<tr class="memdesc:a89d660802a38a8fe716ce5883376c574"><td class="mdescLeft">&#160;</td><td class="mdescRight">Supports the option or not. <br /></td></tr>
+<tr class="separator:a89d660802a38a8fe716ce5883376c574"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a310bcbb95bf7cbacf7691a69cf156721"><td class="memItemLeft" align="right" valign="top"><a id="a310bcbb95bf7cbacf7691a69cf156721"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a310bcbb95bf7cbacf7691a69cf156721">Supports</a> (const <a class="el" href="group__enumerations.html#gac5354b730c4500e6371a8b7048185a71">AddOns</a> &amp;addon) const</td></tr>
+<tr class="memdesc:a310bcbb95bf7cbacf7691a69cf156721"><td class="mdescLeft">&#160;</td><td class="mdescRight">Supports the addon or not. <br /></td></tr>
+<tr class="separator:a310bcbb95bf7cbacf7691a69cf156721"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbd712ab0e11fd24bcce9ef504be8a86"><td class="memItemLeft" align="right" valign="top"><a id="adbd712ab0e11fd24bcce9ef504be8a86"></a>
+const std::vector&lt; <a class="el" href="structmynteye_1_1_stream_request.html">StreamRequest</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#adbd712ab0e11fd24bcce9ef504be8a86">GetStreamRequests</a> (const <a class="el" href="group__enumerations.html#ga924c6892a17872477999697dfb5269c6">Capabilities</a> &amp;capability) const</td></tr>
+<tr class="memdesc:adbd712ab0e11fd24bcce9ef504be8a86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get all stream requests of the capability. <br /></td></tr>
+<tr class="separator:adbd712ab0e11fd24bcce9ef504be8a86"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb3612430320c1460bfc01b4a81c7da2"><td class="memItemLeft" align="right" valign="top"><a id="afb3612430320c1460bfc01b4a81c7da2"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#afb3612430320c1460bfc01b4a81c7da2">ConfigStreamRequest</a> (const <a class="el" href="group__enumerations.html#ga924c6892a17872477999697dfb5269c6">Capabilities</a> &amp;capability, const <a class="el" href="structmynteye_1_1_stream_request.html">StreamRequest</a> &amp;request)</td></tr>
+<tr class="memdesc:afb3612430320c1460bfc01b4a81c7da2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Config the stream request to the capability. <br /></td></tr>
+<tr class="separator:afb3612430320c1460bfc01b4a81c7da2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af139f1fb5344b01672db4024b563829c"><td class="memItemLeft" align="right" valign="top"><a id="af139f1fb5344b01672db4024b563829c"></a>
+std::shared_ptr&lt; DeviceInfo &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#af139f1fb5344b01672db4024b563829c">GetInfo</a> () const</td></tr>
+<tr class="memdesc:af139f1fb5344b01672db4024b563829c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the device info. <br /></td></tr>
+<tr class="separator:af139f1fb5344b01672db4024b563829c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03679fe952d18f663862dbeb9d9139ee"><td class="memItemLeft" align="right" valign="top"><a id="a03679fe952d18f663862dbeb9d9139ee"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a03679fe952d18f663862dbeb9d9139ee">GetInfo</a> (const <a class="el" href="group__enumerations.html#ga1176072d2ba347a194801362de7fc0eb">Info</a> &amp;info) const</td></tr>
+<tr class="memdesc:a03679fe952d18f663862dbeb9d9139ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the device info of a field. <br /></td></tr>
+<tr class="separator:a03679fe952d18f663862dbeb9d9139ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62195499de6779cad5bc790151d920d5"><td class="memItemLeft" align="right" valign="top"><a id="a62195499de6779cad5bc790151d920d5"></a>
+<a class="el" href="structmynteye_1_1_intrinsics.html">Intrinsics</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a62195499de6779cad5bc790151d920d5">GetIntrinsics</a> (const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;stream) const</td></tr>
+<tr class="memdesc:a62195499de6779cad5bc790151d920d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the intrinsics of stream. <br /></td></tr>
+<tr class="separator:a62195499de6779cad5bc790151d920d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a48bae469e7c334a7e3e0e7414adad3e0"><td class="memItemLeft" align="right" valign="top"><a id="a48bae469e7c334a7e3e0e7414adad3e0"></a>
+<a class="el" href="structmynteye_1_1_extrinsics.html">Extrinsics</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a48bae469e7c334a7e3e0e7414adad3e0">GetExtrinsics</a> (const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;from, const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;to) const</td></tr>
+<tr class="memdesc:a48bae469e7c334a7e3e0e7414adad3e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the extrinsics from one stream to another. <br /></td></tr>
+<tr class="separator:a48bae469e7c334a7e3e0e7414adad3e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb166d4194842c676a658a75c067325e"><td class="memItemLeft" align="right" valign="top"><a id="abb166d4194842c676a658a75c067325e"></a>
+<a class="el" href="structmynteye_1_1_motion_intrinsics.html">MotionIntrinsics</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#abb166d4194842c676a658a75c067325e">GetMotionIntrinsics</a> () const</td></tr>
+<tr class="memdesc:abb166d4194842c676a658a75c067325e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the intrinsics of motion. <br /></td></tr>
+<tr class="separator:abb166d4194842c676a658a75c067325e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3eb2e3d25009e8ca5a5d478ad1a901f"><td class="memItemLeft" align="right" valign="top"><a id="af3eb2e3d25009e8ca5a5d478ad1a901f"></a>
+<a class="el" href="structmynteye_1_1_extrinsics.html">Extrinsics</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#af3eb2e3d25009e8ca5a5d478ad1a901f">GetMotionExtrinsics</a> (const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;from) const</td></tr>
+<tr class="memdesc:af3eb2e3d25009e8ca5a5d478ad1a901f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the extrinsics from one stream to motion. <br /></td></tr>
+<tr class="separator:af3eb2e3d25009e8ca5a5d478ad1a901f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13cd24c47c8242d92b25585eea5ac2d1"><td class="memItemLeft" align="right" valign="top"><a id="a13cd24c47c8242d92b25585eea5ac2d1"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a13cd24c47c8242d92b25585eea5ac2d1">SetIntrinsics</a> (const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;stream, const <a class="el" href="structmynteye_1_1_intrinsics.html">Intrinsics</a> &amp;in)</td></tr>
+<tr class="memdesc:a13cd24c47c8242d92b25585eea5ac2d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the intrinsics of stream. <br /></td></tr>
+<tr class="separator:a13cd24c47c8242d92b25585eea5ac2d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2de0b3ed05490f678d8b8066d87ad4d3"><td class="memItemLeft" align="right" valign="top"><a id="a2de0b3ed05490f678d8b8066d87ad4d3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a2de0b3ed05490f678d8b8066d87ad4d3">SetExtrinsics</a> (const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;from, const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;to, const <a class="el" href="structmynteye_1_1_extrinsics.html">Extrinsics</a> &amp;ex)</td></tr>
+<tr class="memdesc:a2de0b3ed05490f678d8b8066d87ad4d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the extrinsics from one stream to another. <br /></td></tr>
+<tr class="separator:a2de0b3ed05490f678d8b8066d87ad4d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a05c8c6f3037a58b0fc101de3cf95e6aa"><td class="memItemLeft" align="right" valign="top"><a id="a05c8c6f3037a58b0fc101de3cf95e6aa"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a05c8c6f3037a58b0fc101de3cf95e6aa">SetMotionIntrinsics</a> (const <a class="el" href="structmynteye_1_1_motion_intrinsics.html">MotionIntrinsics</a> &amp;in)</td></tr>
+<tr class="memdesc:a05c8c6f3037a58b0fc101de3cf95e6aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the intrinsics of motion. <br /></td></tr>
+<tr class="separator:a05c8c6f3037a58b0fc101de3cf95e6aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1de8fab53524dab51725eb7436285023"><td class="memItemLeft" align="right" valign="top"><a id="a1de8fab53524dab51725eb7436285023"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a1de8fab53524dab51725eb7436285023">SetMotionExtrinsics</a> (const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;from, const <a class="el" href="structmynteye_1_1_extrinsics.html">Extrinsics</a> &amp;ex)</td></tr>
+<tr class="memdesc:a1de8fab53524dab51725eb7436285023"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the extrinsics from one stream to motion. <br /></td></tr>
+<tr class="separator:a1de8fab53524dab51725eb7436285023"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe1f0017b22a9dd9b3381c285c382c03"><td class="memItemLeft" align="right" valign="top"><a id="afe1f0017b22a9dd9b3381c285c382c03"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#afe1f0017b22a9dd9b3381c285c382c03">LogOptionInfos</a> () const</td></tr>
+<tr class="memdesc:afe1f0017b22a9dd9b3381c285c382c03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log all option infos. <br /></td></tr>
+<tr class="separator:afe1f0017b22a9dd9b3381c285c382c03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a193df32ddddecda93c36142e10e37e15"><td class="memItemLeft" align="right" valign="top"><a id="a193df32ddddecda93c36142e10e37e15"></a>
+<a class="el" href="structmynteye_1_1_option_info.html">OptionInfo</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a193df32ddddecda93c36142e10e37e15">GetOptionInfo</a> (const <a class="el" href="group__enumerations.html#ga31bb3da30332d5af00c1851cf0020fb6">Option</a> &amp;option) const</td></tr>
+<tr class="memdesc:a193df32ddddecda93c36142e10e37e15"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the option info. <br /></td></tr>
+<tr class="separator:a193df32ddddecda93c36142e10e37e15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae424a4e294e575f66b9ae1a85f110943"><td class="memItemLeft" align="right" valign="top"><a id="ae424a4e294e575f66b9ae1a85f110943"></a>
+std::int32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#ae424a4e294e575f66b9ae1a85f110943">GetOptionValue</a> (const <a class="el" href="group__enumerations.html#ga31bb3da30332d5af00c1851cf0020fb6">Option</a> &amp;option) const</td></tr>
+<tr class="memdesc:ae424a4e294e575f66b9ae1a85f110943"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the option value. <br /></td></tr>
+<tr class="separator:ae424a4e294e575f66b9ae1a85f110943"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a435700c5725c4b01163002aa1b7c2852"><td class="memItemLeft" align="right" valign="top"><a id="a435700c5725c4b01163002aa1b7c2852"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a435700c5725c4b01163002aa1b7c2852">SetOptionValue</a> (const <a class="el" href="group__enumerations.html#ga31bb3da30332d5af00c1851cf0020fb6">Option</a> &amp;option, std::int32_t value)</td></tr>
+<tr class="memdesc:a435700c5725c4b01163002aa1b7c2852"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the option value. <br /></td></tr>
+<tr class="separator:a435700c5725c4b01163002aa1b7c2852"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ca52202cdb51f565e880dabddc44811"><td class="memItemLeft" align="right" valign="top"><a id="a4ca52202cdb51f565e880dabddc44811"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a4ca52202cdb51f565e880dabddc44811">RunOptionAction</a> (const <a class="el" href="group__enumerations.html#ga31bb3da30332d5af00c1851cf0020fb6">Option</a> &amp;option) const</td></tr>
+<tr class="memdesc:a4ca52202cdb51f565e880dabddc44811"><td class="mdescLeft">&#160;</td><td class="mdescRight">Run the option action. <br /></td></tr>
+<tr class="separator:a4ca52202cdb51f565e880dabddc44811"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac50392a3f2aeb33191eb9d313e078e91"><td class="memItemLeft" align="right" valign="top"><a id="ac50392a3f2aeb33191eb9d313e078e91"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#ac50392a3f2aeb33191eb9d313e078e91">SetStreamCallback</a> (const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;stream, <a class="el" href="classmynteye_1_1_device.html#af461797d9035989c4df99487dd673906">stream_callback_t</a> callback, bool async=false)</td></tr>
+<tr class="memdesc:ac50392a3f2aeb33191eb9d313e078e91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the callback of stream. <br /></td></tr>
+<tr class="separator:ac50392a3f2aeb33191eb9d313e078e91"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66556f01d685a52fdd7143bc8a1c62e0"><td class="memItemLeft" align="right" valign="top"><a id="a66556f01d685a52fdd7143bc8a1c62e0"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a66556f01d685a52fdd7143bc8a1c62e0">SetMotionCallback</a> (<a class="el" href="classmynteye_1_1_device.html#a790a13f71c45594cc4a57a7adf39081e">motion_callback_t</a> callback, bool async=false)</td></tr>
+<tr class="memdesc:a66556f01d685a52fdd7143bc8a1c62e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the callback of motion. <br /></td></tr>
+<tr class="separator:a66556f01d685a52fdd7143bc8a1c62e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6600e9f307f5ba5965251b950010bdb"><td class="memItemLeft" align="right" valign="top"><a id="aa6600e9f307f5ba5965251b950010bdb"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#aa6600e9f307f5ba5965251b950010bdb">HasStreamCallback</a> (const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;stream) const</td></tr>
+<tr class="memdesc:aa6600e9f307f5ba5965251b950010bdb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Has the callback of stream. <br /></td></tr>
+<tr class="separator:aa6600e9f307f5ba5965251b950010bdb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39e3e5d977b184d8c678ee05090788c6"><td class="memItemLeft" align="right" valign="top"><a id="a39e3e5d977b184d8c678ee05090788c6"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a39e3e5d977b184d8c678ee05090788c6">HasMotionCallback</a> () const</td></tr>
+<tr class="memdesc:a39e3e5d977b184d8c678ee05090788c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Has the callback of motion. <br /></td></tr>
+<tr class="separator:a39e3e5d977b184d8c678ee05090788c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1517e89034f6a28e82fd55de65eef93"><td class="memItemLeft" align="right" valign="top"><a id="ac1517e89034f6a28e82fd55de65eef93"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#ac1517e89034f6a28e82fd55de65eef93">Start</a> (const <a class="el" href="group__enumerations.html#ga2d9ba6438b1f9ed91cff3587b491d0b3">Source</a> &amp;source)</td></tr>
+<tr class="memdesc:ac1517e89034f6a28e82fd55de65eef93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start capturing the source. <br /></td></tr>
+<tr class="separator:ac1517e89034f6a28e82fd55de65eef93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf77d52235ae69e0fae7fc7d4fbd18cd"><td class="memItemLeft" align="right" valign="top"><a id="abf77d52235ae69e0fae7fc7d4fbd18cd"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#abf77d52235ae69e0fae7fc7d4fbd18cd">Stop</a> (const <a class="el" href="group__enumerations.html#ga2d9ba6438b1f9ed91cff3587b491d0b3">Source</a> &amp;source)</td></tr>
+<tr class="memdesc:abf77d52235ae69e0fae7fc7d4fbd18cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop capturing the source. <br /></td></tr>
+<tr class="separator:abf77d52235ae69e0fae7fc7d4fbd18cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a51137b2c1fff95ccf45be74e4a42f809"><td class="memItemLeft" align="right" valign="top"><a id="a51137b2c1fff95ccf45be74e4a42f809"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a51137b2c1fff95ccf45be74e4a42f809">WaitForStreams</a> ()</td></tr>
+<tr class="memdesc:a51137b2c1fff95ccf45be74e4a42f809"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait the streams are ready. <br /></td></tr>
+<tr class="separator:a51137b2c1fff95ccf45be74e4a42f809"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1ce8fd9e9d164a7a547eac8d266d382"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="structmynteye_1_1device_1_1_stream_data.html">device::StreamData</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#ac1ce8fd9e9d164a7a547eac8d266d382">GetStreamDatas</a> (const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;stream)</td></tr>
+<tr class="memdesc:ac1ce8fd9e9d164a7a547eac8d266d382"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the datas of stream.  <a href="#ac1ce8fd9e9d164a7a547eac8d266d382">更多...</a><br /></td></tr>
+<tr class="separator:ac1ce8fd9e9d164a7a547eac8d266d382"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a397115352b5c7350ca5ee6a29c844f"><td class="memItemLeft" align="right" valign="top"><a id="a9a397115352b5c7350ca5ee6a29c844f"></a>
+<a class="el" href="structmynteye_1_1device_1_1_stream_data.html">device::StreamData</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#a9a397115352b5c7350ca5ee6a29c844f">GetLatestStreamData</a> (const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;stream)</td></tr>
+<tr class="memdesc:a9a397115352b5c7350ca5ee6a29c844f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the latest data of stream. <br /></td></tr>
+<tr class="separator:a9a397115352b5c7350ca5ee6a29c844f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9f5e74dbead19028efa308f94b8350f"><td class="memItemLeft" align="right" valign="top"><a id="ad9f5e74dbead19028efa308f94b8350f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#ad9f5e74dbead19028efa308f94b8350f">EnableMotionDatas</a> (std::size_t max_size=std::numeric_limits&lt; std::size_t &gt;::max())</td></tr>
+<tr class="memdesc:ad9f5e74dbead19028efa308f94b8350f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable cache motion datas. <br /></td></tr>
+<tr class="separator:ad9f5e74dbead19028efa308f94b8350f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af4518baf85dc42b8e3a9716bd7bd33a4"><td class="memItemLeft" align="right" valign="top"><a id="af4518baf85dc42b8e3a9716bd7bd33a4"></a>
+std::vector&lt; <a class="el" href="structmynteye_1_1device_1_1_motion_data.html">device::MotionData</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#af4518baf85dc42b8e3a9716bd7bd33a4">GetMotionDatas</a> ()</td></tr>
+<tr class="memdesc:af4518baf85dc42b8e3a9716bd7bd33a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the motion datas. <br /></td></tr>
+<tr class="separator:af4518baf85dc42b8e3a9716bd7bd33a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
+静态 Public 成员函数</h2></td></tr>
+<tr class="memitem:ab97c5f57f2dfa795cdbc5dcfb5f14edc"><td class="memItemLeft" align="right" valign="top">static std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_device.html">Device</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_device.html#ab97c5f57f2dfa795cdbc5dcfb5f14edc">Create</a> (const std::string &amp;name, std::shared_ptr&lt; uvc::device &gt; device)</td></tr>
+<tr class="memdesc:ab97c5f57f2dfa795cdbc5dcfb5f14edc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create the <a class="el" href="classmynteye_1_1_device.html" title="The Device class to communicate with MYNT® EYE device. ">Device</a> instance.  <a href="#ab97c5f57f2dfa795cdbc5dcfb5f14edc">更多...</a><br /></td></tr>
+<tr class="separator:ab97c5f57f2dfa795cdbc5dcfb5f14edc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">详细描述</h2>
+<div class="textblock"><p>The <a class="el" href="classmynteye_1_1_device.html" title="The Device class to communicate with MYNT® EYE device. ">Device</a> class to communicate with MYNT® EYE device. </p>
+</div><h2 class="groupheader">成员类型定义说明</h2>
+<a id="a790a13f71c45594cc4a57a7adf39081e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a790a13f71c45594cc4a57a7adf39081e">&#9670;&nbsp;</a></span>motion_callback_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="classmynteye_1_1_device.html#a790a13f71c45594cc4a57a7adf39081e">mynteye::Device::motion_callback_t</a> =  device::MotionCallback</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The <a class="el" href="structmynteye_1_1device_1_1_motion_data.html" title="Device motion data. ">device::MotionData</a> callback. </p>
+
+</div>
+</div>
+<a id="af461797d9035989c4df99487dd673906"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af461797d9035989c4df99487dd673906">&#9670;&nbsp;</a></span>stream_callback_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="classmynteye_1_1_device.html#af461797d9035989c4df99487dd673906">mynteye::Device::stream_callback_t</a> =  device::StreamCallback</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The <a class="el" href="structmynteye_1_1device_1_1_stream_data.html" title="Device stream data. ">device::StreamData</a> callback. </p>
+
+</div>
+</div>
+<h2 class="groupheader">成员函数说明</h2>
+<a id="ab97c5f57f2dfa795cdbc5dcfb5f14edc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab97c5f57f2dfa795cdbc5dcfb5f14edc">&#9670;&nbsp;</a></span>Create()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static std::shared_ptr&lt;<a class="el" href="classmynteye_1_1_device.html">Device</a>&gt; mynteye::Device::Create </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::shared_ptr&lt; uvc::device &gt;&#160;</td>
+          <td class="paramname"><em>device</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create the <a class="el" href="classmynteye_1_1_device.html" title="The Device class to communicate with MYNT® EYE device. ">Device</a> instance. </p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td>the device name. </td></tr>
+    <tr><td class="paramname">device</td><td>the device from uvc. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>the <a class="el" href="classmynteye_1_1_device.html" title="The Device class to communicate with MYNT® EYE device. ">Device</a> instance. </dd></dl>
+
+</div>
+</div>
+<a id="ac1ce8fd9e9d164a7a547eac8d266d382"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac1ce8fd9e9d164a7a547eac8d266d382">&#9670;&nbsp;</a></span>GetStreamDatas()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;<a class="el" href="structmynteye_1_1device_1_1_stream_data.html">device::StreamData</a>&gt; mynteye::Device::GetStreamDatas </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;&#160;</td>
+          <td class="paramname"><em>stream</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the datas of stream. </p>
+<dl class="section note"><dt>注解</dt><dd>default cache 4 datas at most. </dd></dl>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><b>mynteye</b></li><li class="navelem"><a class="el" href="classmynteye_1_1_device.html">Device</a></li>
+    <li class="footer">制作者
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.14 </li>
+  </ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.14"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>MYNT EYE SDK: mynteye::Plugin类 参考</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+  $(document).ready(initResizable);
+/* @license-end */</script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+  $(document).ready(function() { init_search(); });
+/* @license-end */
+</script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="custom.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectlogo"><img alt="Logo" src="icon.png"/></td>
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">MYNT EYE SDK
+   &#160;<span id="projectnumber">2.0.0-rc</span>
+   </div>
+   <div id="projectbrief">http://www.myntai.com/camera</div>
+  </td>
+   <td>        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="搜索" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+</td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.8.14 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+var searchBox = new SearchBox("searchBox", "search",false,'搜索');
+/* @license-end */
+</script>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('classmynteye_1_1_plugin.html','');});
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public 成员函数</a> &#124;
+<a href="classmynteye_1_1_plugin-members.html">所有成员列表</a>  </div>
+  <div class="headertitle">
+<div class="title">mynteye::Plugin类 参考<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
+</div><!--header-->
+<div class="contents">
+
+<p>The plugin which could implement processing by yourself.  
+ <a href="classmynteye_1_1_plugin.html#details">更多...</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public 成员函数</h2></td></tr>
+<tr class="memitem:ad508214536d9e6ccf74f40b5fb189896"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_plugin.html#ad508214536d9e6ccf74f40b5fb189896">OnCreate</a> (<a class="el" href="classmynteye_1_1_a_p_i.html">API</a> *api)</td></tr>
+<tr class="memdesc:ad508214536d9e6ccf74f40b5fb189896"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when plugin created.  <a href="#ad508214536d9e6ccf74f40b5fb189896">更多...</a><br /></td></tr>
+<tr class="separator:ad508214536d9e6ccf74f40b5fb189896"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa46245751a6833ce8e66cfed78f4cbde"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_plugin.html#aa46245751a6833ce8e66cfed78f4cbde">OnRectifyProcess</a> (<a class="el" href="structmynteye_1_1_object.html">Object</a> *const in, <a class="el" href="structmynteye_1_1_object.html">Object</a> *const out)</td></tr>
+<tr class="memdesc:aa46245751a6833ce8e66cfed78f4cbde"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when process rectify.  <a href="#aa46245751a6833ce8e66cfed78f4cbde">更多...</a><br /></td></tr>
+<tr class="separator:aa46245751a6833ce8e66cfed78f4cbde"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22559b22824f2c92b484d3a238c89b82"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_plugin.html#a22559b22824f2c92b484d3a238c89b82">OnDisparityProcess</a> (<a class="el" href="structmynteye_1_1_object.html">Object</a> *const in, <a class="el" href="structmynteye_1_1_object.html">Object</a> *const out)</td></tr>
+<tr class="memdesc:a22559b22824f2c92b484d3a238c89b82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when process disparity.  <a href="#a22559b22824f2c92b484d3a238c89b82">更多...</a><br /></td></tr>
+<tr class="separator:a22559b22824f2c92b484d3a238c89b82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aefd6e06fb0d266bdd5532bd03b97d7da"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_plugin.html#aefd6e06fb0d266bdd5532bd03b97d7da">OnDisparityNormalizedProcess</a> (<a class="el" href="structmynteye_1_1_object.html">Object</a> *const in, <a class="el" href="structmynteye_1_1_object.html">Object</a> *const out)</td></tr>
+<tr class="memdesc:aefd6e06fb0d266bdd5532bd03b97d7da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when process normalized disparity.  <a href="#aefd6e06fb0d266bdd5532bd03b97d7da">更多...</a><br /></td></tr>
+<tr class="separator:aefd6e06fb0d266bdd5532bd03b97d7da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1277cf5fd648cfaa513e6d93cf12ae2b"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_plugin.html#a1277cf5fd648cfaa513e6d93cf12ae2b">OnPointsProcess</a> (<a class="el" href="structmynteye_1_1_object.html">Object</a> *const in, <a class="el" href="structmynteye_1_1_object.html">Object</a> *const out)</td></tr>
+<tr class="memdesc:a1277cf5fd648cfaa513e6d93cf12ae2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when process points.  <a href="#a1277cf5fd648cfaa513e6d93cf12ae2b">更多...</a><br /></td></tr>
+<tr class="separator:a1277cf5fd648cfaa513e6d93cf12ae2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52319ef412d31ed174aa6ab9235d28cf"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_plugin.html#a52319ef412d31ed174aa6ab9235d28cf">OnDepthProcess</a> (<a class="el" href="structmynteye_1_1_object.html">Object</a> *const in, <a class="el" href="structmynteye_1_1_object.html">Object</a> *const out)</td></tr>
+<tr class="memdesc:a52319ef412d31ed174aa6ab9235d28cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called when process depth.  <a href="#a52319ef412d31ed174aa6ab9235d28cf">更多...</a><br /></td></tr>
+<tr class="separator:a52319ef412d31ed174aa6ab9235d28cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">详细描述</h2>
+<div class="textblock"><p>The plugin which could implement processing by yourself. </p>
+</div><h2 class="groupheader">成员函数说明</h2>
+<a id="ad508214536d9e6ccf74f40b5fb189896"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad508214536d9e6ccf74f40b5fb189896">&#9670;&nbsp;</a></span>OnCreate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void mynteye::Plugin::OnCreate </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classmynteye_1_1_a_p_i.html">API</a> *&#160;</td>
+          <td class="paramname"><em>api</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Called when plugin created. </p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">api</td><td>the <a class="el" href="classmynteye_1_1_a_p_i.html" title="The API class to communicate with MYNT® EYE device. ">API</a> instacne. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a52319ef412d31ed174aa6ab9235d28cf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a52319ef412d31ed174aa6ab9235d28cf">&#9670;&nbsp;</a></span>OnDepthProcess()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool mynteye::Plugin::OnDepthProcess </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structmynteye_1_1_object.html">Object</a> *const&#160;</td>
+          <td class="paramname"><em>in</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structmynteye_1_1_object.html">Object</a> *const&#160;</td>
+          <td class="paramname"><em>out</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Called when process depth. </p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">in</td><td>input object. </td></tr>
+    <tr><td class="paramname">out</td><td>output object. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd><code>true</code> if you process depth. </dd></dl>
+
+</div>
+</div>
+<a id="aefd6e06fb0d266bdd5532bd03b97d7da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aefd6e06fb0d266bdd5532bd03b97d7da">&#9670;&nbsp;</a></span>OnDisparityNormalizedProcess()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool mynteye::Plugin::OnDisparityNormalizedProcess </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structmynteye_1_1_object.html">Object</a> *const&#160;</td>
+          <td class="paramname"><em>in</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structmynteye_1_1_object.html">Object</a> *const&#160;</td>
+          <td class="paramname"><em>out</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Called when process normalized disparity. </p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">in</td><td>input object. </td></tr>
+    <tr><td class="paramname">out</td><td>output object. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd><code>true</code> if you process normalized disparity. </dd></dl>
+
+</div>
+</div>
+<a id="a22559b22824f2c92b484d3a238c89b82"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a22559b22824f2c92b484d3a238c89b82">&#9670;&nbsp;</a></span>OnDisparityProcess()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool mynteye::Plugin::OnDisparityProcess </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structmynteye_1_1_object.html">Object</a> *const&#160;</td>
+          <td class="paramname"><em>in</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structmynteye_1_1_object.html">Object</a> *const&#160;</td>
+          <td class="paramname"><em>out</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Called when process disparity. </p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">in</td><td>input object. </td></tr>
+    <tr><td class="paramname">out</td><td>output object. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd><code>true</code> if you process disparity. </dd></dl>
+
+</div>
+</div>
+<a id="a1277cf5fd648cfaa513e6d93cf12ae2b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1277cf5fd648cfaa513e6d93cf12ae2b">&#9670;&nbsp;</a></span>OnPointsProcess()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool mynteye::Plugin::OnPointsProcess </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structmynteye_1_1_object.html">Object</a> *const&#160;</td>
+          <td class="paramname"><em>in</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structmynteye_1_1_object.html">Object</a> *const&#160;</td>
+          <td class="paramname"><em>out</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Called when process points. </p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">in</td><td>input object. </td></tr>
+    <tr><td class="paramname">out</td><td>output object. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd><code>true</code> if you process points. </dd></dl>
+
+</div>
+</div>
+<a id="aa46245751a6833ce8e66cfed78f4cbde"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa46245751a6833ce8e66cfed78f4cbde">&#9670;&nbsp;</a></span>OnRectifyProcess()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool mynteye::Plugin::OnRectifyProcess </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structmynteye_1_1_object.html">Object</a> *const&#160;</td>
+          <td class="paramname"><em>in</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structmynteye_1_1_object.html">Object</a> *const&#160;</td>
+          <td class="paramname"><em>out</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Called when process rectify. </p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">in</td><td>input object. </td></tr>
+    <tr><td class="paramname">out</td><td>output object. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd><code>true</code> if you process rectify. </dd></dl>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><b>mynteye</b></li><li class="navelem"><a class="el" href="classmynteye_1_1_plugin.html">Plugin</a></li>
+    <li class="footer">制作者
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.14 </li>
+  </ul>
+</div>
+</body>
+</html>
