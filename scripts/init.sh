@@ -28,7 +28,12 @@ if [ "$HOST_OS" = "Win" ]; then
   PYTHON="python2"
 fi
 
-_detect $PYTHON
+_detect $PYTHON 1
+
+PYTHON_FOUND="${PYTHON}_FOUND"
+if [ -z "${!PYTHON_FOUND}" ]; then
+  _echo_en "$PYTHON not found"
+fi
 
 if [ "$HOST_OS" = "Linux" ]; then
   _detect_install() {
@@ -137,13 +142,21 @@ fi
 
 # detect pip
 if ! _detect_cmd pip; then
-  _echo_sn "Install pip"
-  [ -f "get-pip.py" ] || curl -O https://bootstrap.pypa.io/get-pip.py
-  $SUDO $PYTHON get-pip.py
+  if [ -n "${!PYTHON_FOUND}" ]; then
+    _echo_sn "Install pip"
+    [ -f "get-pip.py" ] || curl -O https://bootstrap.pypa.io/get-pip.py
+    $SUDO $PYTHON get-pip.py
+  else
+    _echo_en "Skipped install pip, as $PYTHON not found"
+  fi
 fi
 # pip install
-_echo_d "pip install --upgrade autopep8 cpplint pylint requests"
-$SUDO pip install --upgrade autopep8 cpplint pylint requests
+if _detect_cmd pip; then
+  _echo_d "pip install --upgrade autopep8 cpplint pylint requests"
+  $SUDO pip install --upgrade autopep8 cpplint pylint requests
+else
+  _echo_en "Skipped pip install packages, as pip not found"
+fi
 
 ## realpath
 
@@ -168,8 +181,12 @@ ROOT_DIR=$(realpath "$BASE_DIR/..")
 
 ## init
 
-_echo_s "Init git hooks"
-$PYTHON "$ROOT_DIR/tools/linter/init-git-hooks.py"
+if [ -n "${!PYTHON_FOUND}" ]; then
+  _echo_s "Init git hooks"
+  $PYTHON "$ROOT_DIR/tools/linter/init-git-hooks.py"
+else
+  _echo_en "Skipped init git hooks, as $PYTHON not found"
+fi
 
 ## cmake version
 
