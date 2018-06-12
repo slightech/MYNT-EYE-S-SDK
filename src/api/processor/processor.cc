@@ -15,8 +15,10 @@
 
 #include <glog/logging.h>
 
+#include <exception>
 #include <utility>
 
+#include "internal/strings.h"
 #include "internal/times.h"
 
 MYNTEYE_BEGIN_NAMESPACE
@@ -192,14 +194,21 @@ void Processor::Run() {
       pre_callback_(input_.get());
     }
     bool ok = false;
-    if (callback_) {
-      if (callback_(input_.get(), output_.get(), parent_)) {
-        ok = true;
+    try {
+      if (callback_) {
+        if (callback_(input_.get(), output_.get(), parent_)) {
+          ok = true;
+        } else {
+          ok = OnProcess(input_.get(), output_.get(), parent_);
+        }
       } else {
         ok = OnProcess(input_.get(), output_.get(), parent_);
       }
-    } else {
-      ok = OnProcess(input_.get(), output_.get(), parent_);
+      // CV_Assert(false);
+    } catch (const std::exception &e) {
+      std::string msg(e.what());
+      strings::rtrim(msg);
+      LOG(ERROR) << Name() << " process error \"" << msg << "\"";
     }
     if (!ok) {
       VLOG(2) << Name() << " process failed";
