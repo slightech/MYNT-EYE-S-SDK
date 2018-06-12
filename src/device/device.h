@@ -141,6 +141,24 @@ class MYNTEYE_API Device {
   Extrinsics GetMotionExtrinsics(const Stream &from) const;
 
   /**
+   * Get the intrinsics of stream.
+   */
+  Intrinsics GetIntrinsics(const Stream &stream, bool *ok) const;
+  /**
+   * Get the extrinsics from one stream to another.
+   */
+  Extrinsics GetExtrinsics(
+      const Stream &from, const Stream &to, bool *ok) const;
+  /**
+   * Get the intrinsics of motion.
+   */
+  MotionIntrinsics GetMotionIntrinsics(bool *ok) const;
+  /**
+   * Get the extrinsics from one stream to motion.
+   */
+  Extrinsics GetMotionExtrinsics(const Stream &from, bool *ok) const;
+
+  /**
    * Set the intrinsics of stream.
    */
   void SetIntrinsics(const Stream &stream, const Intrinsics &in);

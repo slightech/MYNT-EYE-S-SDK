@@ -29,6 +29,7 @@
 #include "api/plugin.h"
 #include "api/synthetic.h"
 #include "device/device.h"
+#include "device/device_s.h"
 #include "internal/dl.h"
 
 #if defined(WITH_FILESYSTEM) && defined(WITH_NATIVE_FILESYSTEM)
@@ -73,12 +74,14 @@ bool dir_exists(const fs::path &p) {
 
 bool file_exists(const std::string &p) {
   DWORD attrs = GetFileAttributes(p.c_str());
-  return (attrs != INVALID_FILE_ATTRIBUTES && !(attrs & FILE_ATTRIBUTE_DIRECTORY));
+  return (attrs != INVALID_FILE_ATTRIBUTES) &&
+         !(attrs & FILE_ATTRIBUTE_DIRECTORY);
 }
 
 bool dir_exists(const std::string &p) {
   DWORD attrs = GetFileAttributes(p.c_str());
-  return (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY));
+  return (attrs != INVALID_FILE_ATTRIBUTES) &&
+         (attrs & FILE_ATTRIBUTE_DIRECTORY);
 }
 
 #else
@@ -207,9 +210,24 @@ std::vector<std::string> get_plugin_paths() {
 
 }  // namespace
 
-API::API(std::shared_ptr<Device> device)
-    : device_(device), synthetic_(new Synthetic(this)) {
+API::API(std::shared_ptr<Device> device) : device_(device) {
   VLOG(2) << __func__;
+  if (std::dynamic_pointer_cast<StandardDevice>(device_) != nullptr) {
+    bool in_l_ok, in_r_ok, ex_l2r_ok;
+    device_->GetIntrinsics(Stream::LEFT, &in_l_ok);
+    device_->GetIntrinsics(Stream::RIGHT, &in_r_ok);
+    device_->GetExtrinsics(Stream::LEFT, Stream::RIGHT, &ex_l2r_ok);
+    if (!in_l_ok || !in_r_ok || !ex_l2r_ok) {
+      LOG(FATAL) << "Image params not found, but we need it to process the "
+                    "images. Please `make tools` and use `img_params_writer` "
+                    "to write the image params. If you update the SDK from "
+                    "1.x, the `SN*.conf` is the file contains them. Besides, "
+                    "you could also calibrate them by yourself. Read the guide "
+                    "doc (https://github.com/slightech/MYNT-EYE-SDK-2-Guide) "
+                    "to learn more.";
+    }
+  }
+  synthetic_.reset(new Synthetic(this));
 }
 
 API::~API() {

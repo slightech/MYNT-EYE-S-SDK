@@ -198,21 +198,47 @@ std::string Device::GetInfo(const Info &info) const {
 }
 
 Intrinsics Device::GetIntrinsics(const Stream &stream) const {
+  bool ok;
+  return GetIntrinsics(stream, &ok);
+}
+
+Extrinsics Device::GetExtrinsics(const Stream &from, const Stream &to) const {
+  bool ok;
+  return GetExtrinsics(from, to, &ok);
+}
+
+MotionIntrinsics Device::GetMotionIntrinsics() const {
+  bool ok;
+  return GetMotionIntrinsics(&ok);
+}
+
+Extrinsics Device::GetMotionExtrinsics(const Stream &from) const {
+  bool ok;
+  return GetMotionExtrinsics(from, &ok);
+}
+
+Intrinsics Device::GetIntrinsics(const Stream &stream, bool *ok) const {
   try {
+    *ok = true;
     return stream_intrinsics_.at(stream);
   } catch (const std::out_of_range &e) {
+    *ok = false;
     LOG(WARNING) << "Intrinsics of " << stream << " not found";
     return {};
   }
 }
 
-Extrinsics Device::GetExtrinsics(const Stream &from, const Stream &to) const {
+Extrinsics Device::GetExtrinsics(
+    const Stream &from, const Stream &to, bool *ok) const {
   try {
+    *ok = true;
     return stream_from_extrinsics_.at(from).at(to);
   } catch (const std::out_of_range &e) {
     try {
+      *ok = true;
       return stream_from_extrinsics_.at(to).at(from).Inverse();
     } catch (const std::out_of_range &e) {
+      *ok = false;
       LOG(WARNING) << "Extrinsics from " << from << " to " << to
                    << " not found";
       return {};
@@ -220,19 +246,23 @@ Extrinsics Device::GetExtrinsics(const Stream &from, const Stream &to) const {
   }
 }
 
-MotionIntrinsics Device::GetMotionIntrinsics() const {
+MotionIntrinsics Device::GetMotionIntrinsics(bool *ok) const {
   if (motion_intrinsics_) {
+    *ok = true;
     return *motion_intrinsics_;
   } else {
+    *ok = false;
     LOG(WARNING) << "Motion intrinsics not found";
     return {};
   }
 }
 
-Extrinsics Device::GetMotionExtrinsics(const Stream &from) const {
+Extrinsics Device::GetMotionExtrinsics(const Stream &from, bool *ok) const {
   try {
+    *ok = true;
     return motion_from_extrinsics_.at(from);
   } catch (const std::out_of_range &e) {
+    *ok = false;
     LOG(WARNING) << "Motion extrinsics from " << from << " not found";
     return {};
   }
