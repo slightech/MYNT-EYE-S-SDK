@@ -24,8 +24,9 @@ source "$BASE_DIR/common/host.sh"
 
 PYTHON="python"
 if [ "$HOST_OS" = "Win" ]; then
-  # default python on MSYS
-  PYTHON="python2"
+  if ! _detect_cmd $PYTHON; then
+    PYTHON="python2"  # try python2 on MSYS
+  fi
 fi
 
 _detect $PYTHON 1
