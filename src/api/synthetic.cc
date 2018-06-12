@@ -49,6 +49,15 @@ api::StreamData data2api(const device::StreamData &data) {
   return {data.img, frame2mat(data.frame), data.frame};
 }
 
+void process_childs(
+    const std::shared_ptr<Processor> &proc, const std::string &name,
+    const Object &obj) {
+  auto &&processor = find_processor<Processor>(proc, name);
+  for (auto child : processor->GetChilds()) {
+    child->Process(obj);
+  }
+}
+
 }  // namespace
 
 Synthetic::Synthetic(API *api) : api_(api), plugin_(nullptr) {
@@ -437,60 +446,50 @@ void Synthetic::InitProcessors() {
 
 void Synthetic::ProcessNativeStream(
     const Stream &stream, const api::StreamData &data) {
-  bool done = false;
-  static api::StreamData left_data, right_data;
-  if (stream == Stream::LEFT) {
-    left_data = data;
-    done = true;
-  } else if (stream == Stream::RIGHT) {
-    right_data = data;
-    done = true;
-  }
-  if (done && left_data.img && right_data.img &&
-      left_data.img->frame_id == right_data.img->frame_id) {
-    auto &&processor = find_processor<RectifyProcessor>(processor_);
-    processor->Process(ObjMat2{left_data.frame, right_data.frame});
-  }
-  if (done)
-    return;
-
-  auto &&process_childs = [this, &stream](
-      const std::string &name, const Object &obj) {
-    auto &&processor = find_processor<Processor>(processor_, name);
-    for (auto child : processor->GetChilds()) {
-      child->Process(obj);
+  if (stream == Stream::LEFT || stream == Stream::RIGHT) {
+    static api::StreamData left_data, right_data;
+    if (stream == Stream::LEFT) {
+      left_data = data;
+    } else if (stream == Stream::RIGHT) {
+      right_data = data;
     }
-  };
-
-  static api::StreamData left_rect_data, right_rect_data;
-  if (stream == Stream::LEFT_RECTIFIED) {
-    left_rect_data = data;
-    done = true;
-  } else if (stream == Stream::RIGHT_RECTIFIED) {
-    right_rect_data = data;
-    done = true;
-  }
-  if (done && left_rect_data.img && right_rect_data.img &&
-      left_rect_data.img->frame_id == right_rect_data.img->frame_id) {
-    process_childs(
-        RectifyProcessor::NAME,
-        ObjMat2{left_rect_data.frame, right_rect_data.frame});
-  }
-  if (done)
+    if (left_data.img && right_data.img &&
+        left_data.img->frame_id == right_data.img->frame_id) {
+      auto &&processor = find_processor<RectifyProcessor>(processor_);
+      processor->Process(ObjMat2{left_data.frame, right_data.frame});
+    }
     return;
+  }
+
+  if (stream == Stream::LEFT_RECTIFIED || stream == Stream::RIGHT_RECTIFIED) {
+    static api::StreamData left_rect_data, right_rect_data;
+    if (stream == Stream::LEFT_RECTIFIED) {
+      left_rect_data = data;
+    } else if (stream == Stream::RIGHT_RECTIFIED) {
+      right_rect_data = data;
+    }
+    if (left_rect_data.img && right_rect_data.img &&
+        left_rect_data.img->frame_id == right_rect_data.img->frame_id) {
+      process_childs(
+          processor_, RectifyProcessor::NAME,
+          ObjMat2{left_rect_data.frame, right_rect_data.frame});
+    }
+    return;
+  }
 
   switch (stream) {
     case Stream::DISPARITY: {
-      process_childs(DisparityProcessor::NAME, ObjMat{data.frame});
+      process_childs(processor_, DisparityProcessor::NAME, ObjMat{data.frame});
     } break;
     case Stream::DISPARITY_NORMALIZED: {
-      process_childs(DisparityNormalizedProcessor::NAME, ObjMat{data.frame});
+      process_childs(
+          processor_, DisparityNormalizedProcessor::NAME, ObjMat{data.frame});
     } break;
     case Stream::POINTS: {
-      process_childs(PointsProcessor::NAME, ObjMat{data.frame});
+      process_childs(processor_, PointsProcessor::NAME, ObjMat{data.frame});
     } break;
     case Stream::DEPTH: {
-      process_childs(DepthProcessor::NAME, ObjMat{data.frame});
+      process_childs(processor_, DepthProcessor::NAME, ObjMat{data.frame});
     } break;
     default:
       break;
