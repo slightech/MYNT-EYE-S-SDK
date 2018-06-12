@@ -246,12 +246,12 @@ class MYNTEYE_API API {
   void DisableStreamData(const Stream &stream);
 
   /**
-   * Get the datas of stream.
-   * @note default cache 4 datas at most.
+   * Get the latest data of stream.
    */
   api::StreamData GetStreamData(const Stream &stream);
   /**
-   * Get the latest data of stream.
+   * Get the datas of stream.
+   * @note default cache 4 datas at most.
    */
   std::vector<api::StreamData> GetStreamDatas(const Stream &stream);
 
