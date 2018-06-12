@@ -16,6 +16,7 @@
 #include <glog/logging.h>
 
 #include <algorithm>
+#include <iterator>
 #include <stdexcept>
 #include <utility>
 
@@ -53,6 +54,27 @@ struct DeviceModel {
     ir_fixed = (model.size() == 8) && model.substr(5) == "-IR";
   }
 };
+
+bool CheckSupports(
+    const Device *const device, const Stream &stream, bool fatal = true) {
+  if (device->Supports(stream)) {
+    return true;
+  } else {
+    auto &&supports = stream_supports_map.at(device->GetModel());
+    std::ostringstream ss;
+    std::copy(
+        supports.begin(), supports.end(),
+        std::ostream_iterator<Stream>(ss, ", "));
+    if (fatal) {
+      LOG(FATAL) << "Unsupported stream: " << stream
+                 << ". Please use these: " << ss.str();
+    } else {
+      LOG(WARNING) << "Unsupported stream: " << stream
+                   << ". Please use these: " << ss.str();
+    }
+    return false;
+  }
+}
 
 }  // namespace
 
@@ -275,8 +297,7 @@ bool Device::RunOptionAction(const Option &option) const {
 
 void Device::SetStreamCallback(
     const Stream &stream, stream_callback_t callback, bool async) {
-  if (!Supports(stream)) {
-    LOG(WARNING) << "Unsupported stream: " << stream;
+  if (!CheckSupports(this, stream, false)) {
     return;
   }
   if (callback) {
@@ -351,6 +372,7 @@ void Device::WaitForStreams() {
 std::vector<device::StreamData> Device::GetStreamDatas(const Stream &stream) {
   CHECK(video_streaming_);
   CHECK_NOTNULL(streams_);
+  CheckSupports(this, stream);
   std::lock_guard<std::mutex> _(mtx_streams_);
   return streams_->GetStreamDatas(stream);
 }
@@ -358,6 +380,7 @@ std::vector<device::StreamData> Device::GetStreamDatas(const Stream &stream) {
 device::StreamData Device::GetLatestStreamData(const Stream &stream) {
   CHECK(video_streaming_);
   CHECK_NOTNULL(streams_);
+  CheckSupports(this, stream);
   std::lock_guard<std::mutex> _(mtx_streams_);
   return streams_->GetLatestStreamData(stream);
 }
