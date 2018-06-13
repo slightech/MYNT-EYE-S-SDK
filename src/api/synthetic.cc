@@ -155,30 +155,30 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
     auto &&device = api_->device();
     return data2api(device->GetLatestStreamData(stream));
   } else if (mode == MODE_SYNTHETIC) {
-    switch (stream) {
-      case Stream::LEFT_RECTIFIED: {
-        auto &&processor = find_processor<RectifyProcessor>(processor_);
-        Object *out = processor->GetOutput();
-        if (out != nullptr) {
-          ObjMat2 *output = Object::Cast<ObjMat2>(out);
+    if (stream == Stream::LEFT_RECTIFIED || stream == Stream::RIGHT_RECTIFIED) {
+      static std::shared_ptr<ObjMat2> output = nullptr;
+      auto &&processor = find_processor<RectifyProcessor>(processor_);
+      auto &&out = processor->GetOutput();
+      if (out != nullptr) {
+        // Obtain the output, out will be nullptr if get again immediately.
+        output = Object::Cast<ObjMat2>(out);
+      }
+      if (output != nullptr) {
+        if (stream == Stream::LEFT_RECTIFIED) {
           return {nullptr, output->first, nullptr};
-        }
-        VLOG(2) << "Rectify not ready now";
-      } break;
-      case Stream::RIGHT_RECTIFIED: {
-        auto &&processor = find_processor<RectifyProcessor>(processor_);
-        Object *out = processor->GetOutput();
-        if (out != nullptr) {
-          ObjMat2 *output = Object::Cast<ObjMat2>(out);
+        } else {
           return {nullptr, output->second, nullptr};
         }
-        VLOG(2) << "Rectify not ready now";
-      } break;
+      }
+      VLOG(2) << "Rectify not ready now";
+      return {};
+    }
+    switch (stream) {
       case Stream::DISPARITY: {
         auto &&processor = find_processor<DisparityProcessor>(processor_);
-        Object *out = processor->GetOutput();
+        auto &&out = processor->GetOutput();
         if (out != nullptr) {
-          ObjMat *output = Object::Cast<ObjMat>(out);
+          auto &&output = Object::Cast<ObjMat>(out);
           return {nullptr, output->value, nullptr};
         }
         VLOG(2) << "Disparity not ready now";
@@ -186,27 +186,27 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
       case Stream::DISPARITY_NORMALIZED: {
         auto &&processor =
             find_processor<DisparityNormalizedProcessor>(processor_);
-        Object *out = processor->GetOutput();
+        auto &&out = processor->GetOutput();
         if (out != nullptr) {
-          ObjMat *output = Object::Cast<ObjMat>(out);
+          auto &&output = Object::Cast<ObjMat>(out);
           return {nullptr, output->value, nullptr};
         }
         VLOG(2) << "Disparity normalized not ready now";
       } break;
       case Stream::POINTS: {
         auto &&processor = find_processor<PointsProcessor>(processor_);
-        Object *out = processor->GetOutput();
+        auto &&out = processor->GetOutput();
         if (out != nullptr) {
-          ObjMat *output = Object::Cast<ObjMat>(out);
+          auto &&output = Object::Cast<ObjMat>(out);
           return {nullptr, output->value, nullptr};
         }
         VLOG(2) << "Points not ready now";
       } break;
       case Stream::DEPTH: {
         auto &&processor = find_processor<DepthProcessor>(processor_);
-        Object *out = processor->GetOutput();
+        auto &&out = processor->GetOutput();
         if (out != nullptr) {
-          ObjMat *output = Object::Cast<ObjMat>(out);
+          auto &&output = Object::Cast<ObjMat>(out);
           return {nullptr, output->value, nullptr};
         }
         VLOG(2) << "Depth not ready now";

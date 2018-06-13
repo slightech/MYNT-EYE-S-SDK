@@ -65,7 +65,7 @@ class Processor /*: public std::enable_shared_from_this<Processor>*/ {
    * Returns the last output.
    * @note Returns null if not output now.
    */
-  Object *GetOutput();
+  std::shared_ptr<Object> GetOutput();
 
   std::uint64_t GetDroppedCount();
 

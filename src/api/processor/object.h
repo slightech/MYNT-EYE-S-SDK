@@ -17,6 +17,8 @@
 
 #include <opencv2/core/core.hpp>
 
+#include <memory>
+
 #include "mynteye/mynteye.h"
 
 MYNTEYE_BEGIN_NAMESPACE
@@ -40,6 +42,11 @@ struct MYNTEYE_API Object {
   template <typename T>
   static const T *Cast(const Object *obj) {
     return dynamic_cast<const T *>(obj);
+  }
+
+  template <typename T>
+  static std::shared_ptr<T> Cast(const std::shared_ptr<Object> &obj) {
+    return std::dynamic_pointer_cast<T>(obj);
   }
 };
 

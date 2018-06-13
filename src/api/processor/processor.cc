@@ -139,9 +139,9 @@ bool Processor::Process(const Object &in) {
   return true;
 }
 
-Object *Processor::GetOutput() {
+std::shared_ptr<Object> Processor::GetOutput() {
   std::lock_guard<std::mutex> lk(mtx_result_);
-  return output_result_.get();
+  return std::shared_ptr<Object>(std::move(output_result_));
 }
 
 std::uint64_t Processor::GetDroppedCount() {
