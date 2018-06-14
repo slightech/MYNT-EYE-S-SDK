@@ -128,6 +128,8 @@ endif()
 
 # intermediate level
 
+make_executable2(get_all_device_info SRCS intermediate/get_all_device_info.cc WITH_OPENCV)
+
 if(PCL_FOUND)
 
 if(OpenCV_VERSION VERSION_LESS 4.0)
