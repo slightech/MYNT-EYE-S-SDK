@@ -44,6 +44,19 @@ MYNTEYE_BEGIN_NAMESPACE
 
 namespace enc = sensor_msgs::image_encodings;
 
+ros::Time HardTime2SoftTime(double _hard_time) {
+  static bool isInited = false;
+  static double soft_time_begin(0), hard_time_begin(0);
+
+  if (false == isInited) {
+    soft_time_begin = ros::Time::now().toSec();
+    hard_time_begin = _hard_time;
+    isInited = true;
+  }
+
+  return ros::Time(soft_time_begin + (_hard_time - hard_time_begin) * 0.00001f);
+}
+
 class ROSWrapperNodelet : public nodelet::Nodelet {
  public:
   ROSWrapperNodelet() {}
@@ -242,10 +255,11 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   void publishTopics() {
     api_->SetStreamCallback(
         Stream::LEFT, [this](const api::StreamData &data) {
-          static double ros_time_beg = ros::Time::now().toSec();
-          static double img_time_beg = data.img->timestamp;
-          ros::Time stamp(
-              ros_time_beg + (data.img->timestamp - img_time_beg) * 0.00001f);
+          ros::Time stamp = HardTime2SoftTime(data.img->timestamp);
+          // static double ros_time_beg = ros::Time::now().toSec();
+          // static double img_time_beg = data.img->timestamp;
+          // ros::Time stamp(
+          //    ros_time_beg + (data.img->timestamp - img_time_beg) * 0.00001f);
 
           // static double img_time_prev = -1;
           // NODELET_INFO_STREAM("ros_time_beg: " << FULL_PRECISION <<
@@ -268,10 +282,11 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     api_->SetStreamCallback(
         Stream::RIGHT, [this](const api::StreamData &data) {
-          static double ros_time_beg = ros::Time::now().toSec();
-          static double img_time_beg = data.img->timestamp;
-          ros::Time stamp(
-              ros_time_beg + (data.img->timestamp - img_time_beg) * 0.00001f);
+          ros::Time stamp = HardTime2SoftTime(data.img->timestamp);
+          // static double ros_time_beg = ros::Time::now().toSec();
+          // static double img_time_beg = data.img->timestamp;
+          // ros::Time stamp(
+          //    ros_time_beg + (data.img->timestamp - img_time_beg) * 0.00001f);
 
           ++right_count_;
           publishCamera(Stream::RIGHT, data, right_count_, stamp);
@@ -303,10 +318,11 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         });
 
     api_->SetMotionCallback([this](const api::MotionData &data) {
-      static double ros_time_beg = ros::Time::now().toSec();
-      static double imu_time_beg = data.imu->timestamp;
-      ros::Time stamp(
-          ros_time_beg + (data.imu->timestamp - imu_time_beg) * 0.00001f);
+      ros::Time stamp = HardTime2SoftTime(data.imu->timestamp);
+      // static double ros_time_beg = ros::Time::now().toSec();
+      // static double imu_time_beg = data.imu->timestamp;
+      // ros::Time stamp(
+      //     ros_time_beg + (data.imu->timestamp - imu_time_beg) * 0.00001f);
 
       // static double imu_time_prev = -1;
       // NODELET_INFO_STREAM("ros_time_beg: " << FULL_PRECISION << ros_time_beg
