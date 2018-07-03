@@ -44,19 +44,6 @@ MYNTEYE_BEGIN_NAMESPACE
 
 namespace enc = sensor_msgs::image_encodings;
 
-ros::Time hardTimeToSoftTime(double _hard_time) {
-  static bool isInited = false;
-  static double soft_time_begin(0), hard_time_begin(0);
-
-  if (false == isInited) {
-    soft_time_begin = ros::Time::now().toSec();
-    hard_time_begin = _hard_time;
-    isInited = true;
-  }
-
-  return ros::Time(soft_time_begin + (_hard_time - hard_time_begin) * 0.00001f);
-}
-
 class ROSWrapperNodelet : public nodelet::Nodelet {
  public:
   ROSWrapperNodelet() {}
@@ -82,6 +69,20 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       // ros::Duration(1).sleep();  // 1s
       // https://answers.ros.org/question/35163/how-to-perform-an-action-at-nodelet-unload-shutdown/
     }
+  }
+
+  ros::Time hardTimeToSoftTime(double _hard_time) {
+    static bool isInited = false;
+    static double soft_time_begin(0), hard_time_begin(0);
+
+    if (false == isInited) {
+      soft_time_begin = ros::Time::now().toSec();
+      hard_time_begin = _hard_time;
+      isInited = true;
+    }
+
+    return ros::Time(
+        soft_time_begin + (_hard_time - hard_time_begin) * 0.00001f);
   }
 
   void onInit() override {
