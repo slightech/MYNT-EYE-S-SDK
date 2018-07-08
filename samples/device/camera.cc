@@ -46,8 +46,7 @@ int main(int argc, char *argv[]) {
   device->SetOptionValue(Option::FRAME_RATE, 25);
   device->SetOptionValue(Option::IMU_FREQUENCY, 500);
   */
-  device->LogOptionInfos();
-
+  // device->LogOptionInfos();
   // device->RunOptionAction(Option::ZERO_DRIFT_CALIBRATION);
 
   std::size_t left_count = 0;
@@ -72,6 +71,7 @@ int main(int argc, char *argv[]) {
       });
 
   std::size_t imu_count = 0;
+/*
   device->SetMotionCallback([&imu_count](const device::MotionData &data) {
     CHECK_NOTNULL(data.imu);
     ++imu_count;
@@ -86,11 +86,10 @@ int main(int argc, char *argv[]) {
             << ", gyro_z: " << data.imu->gyro[2]
             << ", temperature: " << data.imu->temperature;
   });
-
+*/
   // Enable this will cache the motion datas until you get them.
-  device->EnableMotionDatas();
-  device->Start(Source::ALL);
-
+  // device->EnableMotionDatas();
+  device->Start(Source::VIDEO_STREAMING);
   cv::namedWindow("frame");
 
   std::size_t motion_count = 0;
@@ -100,7 +99,7 @@ int main(int argc, char *argv[]) {
 
     device::StreamData left_data = device->GetLatestStreamData(Stream::LEFT);
     device::StreamData right_data = device->GetLatestStreamData(Stream::RIGHT);
-
+/*
     auto &&motion_datas = device->GetMotionDatas();
     motion_count += motion_datas.size();
     for (auto &&data : motion_datas) {
@@ -114,16 +113,17 @@ int main(int argc, char *argv[]) {
                 << ", gyro_z: " << data.imu->gyro[2]
                 << ", temperature: " << data.imu->temperature;
     }
-
+*/
     cv::Mat left_img(
-        left_data.frame->height(), left_data.frame->width(), CV_8UC1,
+        left_data.frame->height(), left_data.frame->width(), CV_8UC2,
         left_data.frame->data());
     cv::Mat right_img(
-        right_data.frame->height(), right_data.frame->width(), CV_8UC1,
+        right_data.frame->height(), right_data.frame->width(), CV_8UC2,
         right_data.frame->data());
 
     cv::Mat img;
     cv::hconcat(left_img, right_img, img);
+    cv::cvtColor(img, img, cv::COLOR_YUV2BGR_YUY2);
     cv::imshow("frame", img);
 
     char key = static_cast<char>(cv::waitKey(1));

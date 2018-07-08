@@ -32,7 +32,7 @@ std::shared_ptr<Device> select() {
     LOG(ERROR) << "No MYNT EYE devices :(";
     return nullptr;
   }
-
+/*
   LOG(INFO) << "MYNT EYE devices:";
   for (size_t i = 0; i < n; i++) {
     auto &&device = devices[i];
@@ -40,7 +40,7 @@ std::shared_ptr<Device> select() {
               << ", name: " << device->GetInfo(Info::DEVICE_NAME)
               << ", sn: " << device->GetInfo(Info::SERIAL_NUMBER);
   }
-
+*/
   std::shared_ptr<Device> device = nullptr;
   if (n <= 1) {
     device = devices[0];

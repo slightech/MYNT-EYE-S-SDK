@@ -31,6 +31,6 @@ const std::map<Model, OptionSupports> option_supports_map = {
 const std::map<Model, std::map<Capabilities, StreamRequests>>
     stream_requests_map = {
         {Model::STANDARD,
-         {{Capabilities::STEREO, {{752, 480, Format::YUYV, 25}}}}}};
+         {{Capabilities::STEREO, {{1280, 480, Format::YUYV, 25}}}}}};
 
 MYNTEYE_END_NAMESPACE
