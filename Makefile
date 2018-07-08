@@ -54,7 +54,10 @@ opendoc: apidoc
 		[ -f "$$html" ] && $(SH) ./scripts/open.sh $$html; \
 	done
 
-.PHONY: apidoc opendoc
+cleandoc:
+	@$(call rm,./doc/_output/)
+
+.PHONY: apidoc opendoc cleandoc
 
 # deps
 
@@ -225,8 +228,7 @@ cleanlog:
 	@$(call rm_f,*ERROR*)
 	@$(call rm_f,*FATAL*)
 
-cleanall: clean
-	@$(call rm,./doc/_output/)
+cleanall: clean cleandoc
 	@$(call rm,./test/gtest/_build/)
 	@$(call rm,./third_party/glog/_build/)
 	@$(FIND) . -type f -name ".DS_Store" -print0 | xargs -0 rm -f
