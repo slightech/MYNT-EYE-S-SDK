@@ -5,7 +5,7 @@
 | VID | vid | 0x04B4 | √ | × | 2 | |
 | PID | pid | 0x00F9 | √ | × | 2 | |
 | 设备名称 | name | MYNT-EYE-? | √ | √ Get | 16 | MYNT-EYE-S1000 |
-| 序列号  | serial_number | - | √ | √ Get | 16 | |
+| 序列号 | serial_number | - | √ | √ Get | 16 | |
 | 固件版本 | firmware_version | - | √ | √ Get | 2 | major,minor |
 | 硬件版本 | hardware_version | - | × | √ Get | 3 | major,minor,flag |
 | 协议版本 | spec_version | - | × | √ Get | 2 | major,minor |

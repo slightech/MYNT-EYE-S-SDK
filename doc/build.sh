@@ -56,7 +56,7 @@ for lang in "${LANGS[@]}"; do
       _echo_in "doxygen make latex"
       version=`cat $DOXYFILE | grep -m1 "^PROJECT_NUMBER\s*=" | \
         sed -E "s/^.*=[[:space:]]*(.*)[[:space:]]*$/\1/g"`
-      filename="mynteye-apidoc"; \
+      filename="mynt-eye-sdk-apidoc"; \
         [ -n "$version" ] && filename="$filename-$version"; \
         filename="$filename-$lang.pdf"
       cd "$OUTPUT/$lang/latex" && _texcjk refman.tex && make
