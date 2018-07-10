@@ -31,6 +31,7 @@ struct MYNTEYE_API Object {
   virtual ~Object() = default;
 
   virtual Object *Clone() const = 0;
+  virtual bool DecValidity() const = 0;
 
   /** Cast the obj to T pointer */
   template <typename T>
@@ -65,6 +66,10 @@ struct MYNTEYE_API ObjMat : public Object {
     mat->value = value.clone();
     return mat;
   }
+
+  bool DecValidity() const {
+    return !value.empty();
+  }
 };
 
 /**
@@ -86,6 +91,10 @@ struct MYNTEYE_API ObjMat2 : public Object {
     mat2->first = first.clone();
     mat2->second = second.clone();
     return mat2;
+  }
+
+  bool DecValidity() const {
+    return !first.empty() && !second.empty();
   }
 };
 
