@@ -130,8 +130,8 @@ bool Processor::Process(const Object &in) {
       return false;
     }
   }
-  if (!in.DecValidity()){
-    LOG(WARNING) << "Input is invalid";
+  if (!in.DecValidity()) {
+    LOG(WARNING) << Name() << " process with invalid input";
     return false;
   }
   {
