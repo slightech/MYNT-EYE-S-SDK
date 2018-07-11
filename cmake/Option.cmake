@@ -22,6 +22,8 @@ include(${CMAKE_CURRENT_LIST_DIR}/Utils.cmake)
 
 option(WITH_API "Build with API layer, need OpenCV" ON)
 
+option(WITH_DEVICE_INFO_REQUIRED "Build with device info required" ON)
+
 # 3rdparty components
 
 option(WITH_BOOST "Include Boost support" ON)
@@ -31,6 +33,10 @@ option(WITH_BOOST "Include Boost support" ON)
 
 if(WITH_API)
   include(${CMAKE_CURRENT_LIST_DIR}/DetectOpenCV.cmake)
+endif()
+
+if(WITH_DEVICE_INFO_REQUIRED)
+  add_definitions(-DWITH_DEVICE_INFO_REQUIRED)
 endif()
 
 if(WITH_BOOST)
@@ -114,6 +120,8 @@ if(WITH_API)
     status("    OpenCV: NO")
   endif()
 endif()
+
+status("  WITH_DEVICE_INFO_REQUIRED: ${WITH_DEVICE_INFO_REQUIRED}")
 
 status("  WITH_BOOST: ${WITH_BOOST}")
 if(WITH_BOOST)

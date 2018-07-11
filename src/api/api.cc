@@ -218,13 +218,18 @@ API::API(std::shared_ptr<Device> device) : device_(device) {
     device_->GetIntrinsics(Stream::RIGHT, &in_r_ok);
     device_->GetExtrinsics(Stream::LEFT, Stream::RIGHT, &ex_l2r_ok);
     if (!in_l_ok || !in_r_ok || !ex_l2r_ok) {
-      LOG(FATAL) << "Image params not found, but we need it to process the "
-                    "images. Please `make tools` and use `img_params_writer` "
-                    "to write the image params. If you update the SDK from "
-                    "1.x, the `SN*.conf` is the file contains them. Besides, "
-                    "you could also calibrate them by yourself. Read the guide "
-                    "doc (https://github.com/slightech/MYNT-EYE-SDK-2-Guide) "
-                    "to learn more.";
+#if defined(WITH_DEVICE_INFO_REQUIRED)
+      LOG(FATAL)
+#else
+      LOG(WARNING)
+#endif
+          << "Image params not found, but we need it to process the "
+             "images. Please `make tools` and use `img_params_writer` "
+             "to write the image params. If you update the SDK from "
+             "1.x, the `SN*.conf` is the file contains them. Besides, "
+             "you could also calibrate them by yourself. Read the guide "
+             "doc (https://github.com/slightech/MYNT-EYE-SDK-2-Guide) "
+             "to learn more.";
     }
   }
   synthetic_.reset(new Synthetic(this));

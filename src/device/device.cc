@@ -541,8 +541,13 @@ void Device::ReadAllInfos() {
   Channels::img_params_t img_params;
   Channels::imu_params_t imu_params;
   if (!channels_->GetFiles(device_info_.get(), &img_params, &imu_params)) {
-    LOG(FATAL) << "Read device infos failed. Please upgrade your firmware to "
-                  "the latest version.";
+#if defined(WITH_DEVICE_INFO_REQUIRED)
+    LOG(FATAL)
+#else
+    LOG(WARNING)
+#endif
+        << "Read device infos failed. Please upgrade your firmware to the "
+           "latest version.";
   }
   VLOG(2) << "Device info: {name: " << device_info_->name
           << ", serial_number: " << device_info_->serial_number
