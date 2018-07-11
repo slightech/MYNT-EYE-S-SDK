@@ -31,7 +31,8 @@ class AsyncCallback {
  public:
   using callback_t = std::function<void(Data data)>;
 
-  AsyncCallback(std::string name, callback_t callback, bool concat = false);
+  AsyncCallback(
+      std::string name, callback_t callback, std::size_t max_data_size = 0);
   ~AsyncCallback();
 
   void PushData(Data data);
@@ -50,8 +51,8 @@ class AsyncCallback {
   std::thread thread_;
 
   std::uint32_t count_;
-  bool concat_;
   std::vector<Data> datas_;
+  std::size_t max_data_size_;
 };
 
 MYNTEYE_END_NAMESPACE

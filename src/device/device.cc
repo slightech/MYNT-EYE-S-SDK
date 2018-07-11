@@ -335,7 +335,7 @@ void Device::SetStreamCallback(
     if (async)
       stream_async_callbacks_[stream] =
           std::make_shared<stream_async_callback_t>(
-              to_string(stream), callback);
+              to_string(stream), callback);  // max_data_size = 1
   } else {
     stream_callbacks_.erase(stream);
     stream_async_callbacks_.erase(stream);
@@ -347,7 +347,8 @@ void Device::SetMotionCallback(motion_callback_t callback, bool async) {
   if (callback) {
     if (async)
       motion_async_callback_ =
-          std::make_shared<motion_async_callback_t>("motion", callback, true);
+          std::make_shared<motion_async_callback_t>("motion", callback, 1000);
+    // will drop old motion datas after callback cost > 2 s (1000 / 500 Hz)
   } else {
     motion_async_callback_ = nullptr;
   }

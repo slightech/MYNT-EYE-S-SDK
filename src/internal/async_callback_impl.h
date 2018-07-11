@@ -24,11 +24,11 @@ MYNTEYE_BEGIN_NAMESPACE
 
 template <class Data>
 AsyncCallback<Data>::AsyncCallback(
-    std::string name, callback_t callback, bool concat)
+    std::string name, callback_t callback, std::size_t max_data_size)
     : name_(std::move(name)),
       callback_(std::move(callback)),
       count_(0),
-      concat_(concat) {
+      max_data_size_(max_data_size) {
   VLOG(2) << __func__;
   running_ = true;
   thread_ = std::thread(&AsyncCallback<Data>::Run, this);
@@ -51,8 +51,10 @@ AsyncCallback<Data>::~AsyncCallback() {
 template <class Data>
 void AsyncCallback<Data>::PushData(Data data) {
   std::lock_guard<std::mutex> _(mtx_);
-  if (!concat_) {
+  if (max_data_size_ <= 0) {
     datas_.clear();
+  } else if (max_data_size_ == datas_.size()) {  // >= 1
+    datas_.erase(datas_.begin());
   }
   datas_.push_back(data);
   ++count_;
