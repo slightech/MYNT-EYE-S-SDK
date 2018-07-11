@@ -237,6 +237,22 @@ install(EXPORT ${MYNTEYE_NAME}-targets
 
 ## build.info
 
+# set default int values for yaml file (build.info)
+set_default_value(CMAKE_CXX_COMPILER_VERSION_MAJOR 0)
+set_default_value(CMAKE_CXX_COMPILER_VERSION_MINOR 0)
+set_default_value(CMAKE_CXX_COMPILER_VERSION_PATCH 0)
+set_default_value(CMAKE_CXX_COMPILER_VERSION_TWEAK 0)
+set_default_value(CUDA_VERSION_MAJOR 0)
+set_default_value(CUDA_VERSION_MINOR 0)
+set_default_value(OpenCV_VERSION_MAJOR 0)
+set_default_value(OpenCV_VERSION_MINOR 0)
+set_default_value(OpenCV_VERSION_PATCH 0)
+set_default_value(OpenCV_VERSION_TWEAK 0)
+set_default_value(${PROJECT_NAME}_VERSION_MAJOR 0)
+set_default_value(${PROJECT_NAME}_VERSION_MINOR 0)
+set_default_value(${PROJECT_NAME}_VERSION_PATCH 0)
+set_default_value(${PROJECT_NAME}_VERSION_TWEAK 0)
+
 configure_file(
   cmake/templates/build.info.in
   build.info @ONLY

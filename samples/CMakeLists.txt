@@ -79,4 +79,6 @@ add_subdirectory(uvc)
 
 # tutorials
 
-add_subdirectory(tutorials)
+if(WITH_API)
+  add_subdirectory(tutorials)
+endif()
