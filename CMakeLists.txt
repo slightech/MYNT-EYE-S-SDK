@@ -48,23 +48,6 @@ LIST(APPEND CMAKE_PREFIX_PATH third_party/glog/_build)
 find_package(glog REQUIRED)
 message(STATUS "Found glog: ${glog_VERSION}")
 
-if(WITH_API)
-  include(cmake/DetectOpenCV.cmake)
-endif()
-
-find_package(Boost COMPONENTS filesystem)
-if(Boost_FOUND)
-  set(WITH_BOOST_FILESYSTEM true)
-  add_definitions(-DWITH_FILESYSTEM)
-  add_definitions(-DWITH_BOOST_FILESYSTEM)
-  message(STATUS "With boost filesystem: ${Boost_VERSION}")
-  #message(STATUS "  Boost_LIBRARIES: ${Boost_LIBRARIES}")
-elseif(OS_WIN)
-  add_definitions(-DWITH_FILESYSTEM)
-  add_definitions(-DWITH_NATIVE_FILESYSTEM)
-  message(STATUS "With native filesystem")
-endif()
-
 LIST(APPEND CMAKE_MODULE_PATH cmake)
 
 include(CMakePackageConfigHelpers)
@@ -253,47 +236,6 @@ install(EXPORT ${MYNTEYE_NAME}-targets
 )
 
 ## build.info
-
-macro(set_default_value VARIABLE DEFAULT)
-  if(NOT ${VARIABLE})
-    set(${VARIABLE} ${DEFAULT})
-  endif()
-endmacro()
-
-macro(set_version_values VARIABLE)
-  string(REPLACE "." ";" __version_list "${${VARIABLE}}")
-  list(LENGTH __version_list __len)
-  if(${__len} GREATER 0)
-    list(GET __version_list 0 ${VARIABLE}_MAJOR)
-  endif()
-  if(${__len} GREATER 1)
-    list(GET __version_list 1 ${VARIABLE}_MINOR)
-  endif()
-  if(${__len} GREATER 2)
-    list(GET __version_list 2 ${VARIABLE}_PATCH)
-  endif()
-  if(${__len} GREATER 3)
-    list(GET __version_list 3 ${VARIABLE}_TWEAK)
-  endif()
-endmacro()
-
-find_package(CUDA QUIET)
-
-set_version_values(CMAKE_CXX_COMPILER_VERSION)
-set_default_value(CMAKE_CXX_COMPILER_VERSION_MAJOR 0)
-set_default_value(CMAKE_CXX_COMPILER_VERSION_MINOR 0)
-set_default_value(CMAKE_CXX_COMPILER_VERSION_PATCH 0)
-set_default_value(CMAKE_CXX_COMPILER_VERSION_TWEAK 0)
-set_default_value(CUDA_VERSION_MAJOR 0)
-set_default_value(CUDA_VERSION_MINOR 0)
-set_default_value(OpenCV_VERSION_MAJOR 0)
-set_default_value(OpenCV_VERSION_MINOR 0)
-set_default_value(OpenCV_VERSION_PATCH 0)
-set_default_value(OpenCV_VERSION_TWEAK 0)
-set_default_value(${PROJECT_NAME}_VERSION_MAJOR 0)
-set_default_value(${PROJECT_NAME}_VERSION_MINOR 0)
-set_default_value(${PROJECT_NAME}_VERSION_PATCH 0)
-set_default_value(${PROJECT_NAME}_VERSION_TWEAK 0)
 
 configure_file(
   cmake/templates/build.info.in
