@@ -100,14 +100,20 @@ std::shared_ptr<Device> Device::Create(
     return std::make_shared<StandardDevice>(device);
   } else if (strings::starts_with(name, "MYNT-EYE-")) {
     // TODO(JohnZhao): Create different device by name, such as MYNT-EYE-S1000
-    std::string model_s = name.substr(9);
+    std::string model_s = name.substr(9,5);
     VLOG(2) << "MYNE EYE Model: " << model_s;
     DeviceModel model(model_s);
-    switch (model.type) {
-      case 'S':
-        return std::make_shared<StandardDevice>(device);
-      default:
-        LOG(FATAL) << "MYNT EYE model is not supported now";
+    if(model.type == 's') {
+      switch (model.custom_code) {
+        case '0':
+          return std::make_shared<StandardDevice>(device);
+        case 'A':
+          return std::make_shared<StandardDevice>(device);
+        default:
+          LOG(FATAL) << "No such custom code now"
+      }
+    } else {
+      LOG(FATAL) << "MYNT EYE model is not supported now";
     }
   }
   return nullptr;
