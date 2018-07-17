@@ -18,13 +18,6 @@
 
 #include "mynteye/api.h"
 
-#ifdef USE_OPENCV3
-#define WIN_FLAGS \
-  cv::WINDOW_AUTOSIZE | cv::WINDOW_KEEPRATIO | cv::WINDOW_GUI_NORMAL
-#else
-#define WIN_FLAGS cv::WINDOW_AUTOSIZE
-#endif
-
 namespace {
 
 class DepthRegion {
@@ -163,9 +156,9 @@ int main(int argc, char *argv[]) {
 
   api->Start(Source::VIDEO_STREAMING);
 
-  cv::namedWindow("frame", WIN_FLAGS);
-  cv::namedWindow("depth", WIN_FLAGS);
-  cv::namedWindow("region", WIN_FLAGS);
+  cv::namedWindow("frame");
+  cv::namedWindow("depth");
+  cv::namedWindow("region");
 
   DepthRegion depth_region(3);
   auto depth_info = [](
