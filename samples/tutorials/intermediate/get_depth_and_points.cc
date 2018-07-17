@@ -21,8 +21,12 @@
 #include "util/cv_painter.h"
 #include "util/pc_viewer.h"
 
+#ifdef USE_OPENCV3
 #define WIN_FLAGS \
   cv::WINDOW_AUTOSIZE | cv::WINDOW_KEEPRATIO | cv::WINDOW_GUI_NORMAL
+#else
+#define WIN_FLAGS cv::WINDOW_AUTOSIZE
+#endif
 
 namespace {
 
