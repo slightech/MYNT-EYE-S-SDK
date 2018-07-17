@@ -14,6 +14,8 @@ var searchData=
   ['intrinsics',['Intrinsics',['../structmynteye_1_1_intrinsics.html',1,'mynteye']]],
   ['inverse',['Inverse',['../structmynteye_1_1_extrinsics.html#a59bc28f3c4f09416706bf415084d7db6',1,'mynteye::Extrinsics']]],
   ['ir_5fcontrol',['IR_CONTROL',['../group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6a0249a4200b93b75c1c37618a790d4b4d',1,'mynteye']]],
-  ['imu_20数据说明',['IMU 数据说明',['../spec_imu_data.html',1,'specs_data']]],
-  ['imu_20参数说明',['IMU 参数说明',['../spec_imu_params.html',1,'specs_data']]]
+  ['image_20data',['Image Data',['../spec_image_data.html',1,'specs_data']]],
+  ['image_20params',['Image Params',['../spec_image_params.html',1,'specs_data']]],
+  ['imu_20data',['IMU Data',['../spec_imu_data.html',1,'specs_data']]],
+  ['imu_20params',['IMU Params',['../spec_imu_params.html',1,'specs_data']]]
 ];

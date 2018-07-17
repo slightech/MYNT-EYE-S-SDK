@@ -10,5 +10,7 @@ var searchData=
   ['contrast',['CONTRAST',['../group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6af5d3a63fb203b01cb2bf903ead0e3866',1,'mynteye']]],
   ['create',['Create',['../classmynteye_1_1_a_p_i.html#abcebda97943377b33851af3216ea4a41',1,'mynteye::API::Create()'],['../classmynteye_1_1_a_p_i.html#a0a64d0ef79706d2e7978ae0a0ff7c64c',1,'mynteye::API::Create(std::shared_ptr&lt; Device &gt; device)'],['../classmynteye_1_1_a_p_i.html#a7e70df58b46483307f9ab45cfc5f7c01',1,'mynteye::API::Create(int argc, char *argv[])'],['../classmynteye_1_1_a_p_i.html#adc4e3bb87487025fdcae5ed558f22c1f',1,'mynteye::API::Create(int argc, char *argv[], std::shared_ptr&lt; Device &gt; device)'],['../classmynteye_1_1_device.html#ab97c5f57f2dfa795cdbc5dcfb5f14edc',1,'mynteye::Device::Create()']]],
   ['cx',['cx',['../structmynteye_1_1_intrinsics.html#a3ffda656667dfddc5f31be9e808f053e',1,'mynteye::Intrinsics']]],
-  ['cy',['cy',['../structmynteye_1_1_intrinsics.html#aa0ba21a8258a33bfde5236e341c46366',1,'mynteye::Intrinsics']]]
+  ['cy',['cy',['../structmynteye_1_1_intrinsics.html#aa0ba21a8258a33bfde5236e341c46366',1,'mynteye::Intrinsics']]],
+  ['control_20protocols',['Control Protocols',['../spec_control_api.html',1,'specs_ctrl']]],
+  ['control_20channels',['Control Channels',['../spec_control_channel.html',1,'specs_ctrl']]]
 ];

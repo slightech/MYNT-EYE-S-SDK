@@ -1,6 +1,6 @@
 var indexSectionsWithContent =
 {
-  0: "abcdefghilmnoprstuvwyzåæçè",
+  0: "abcdefghilmnoprstuvwyz",
   1: "acdefgimops",
   2: "cdefghilorsw",
   3: "abcdefghimnrstvw",
@@ -8,7 +8,7 @@ var indexSectionsWithContent =
   5: "acfimos",
   6: "abcdefghilmnprsvyz",
   7: "deiu",
-  8: "imorsåæçè"
+  8: "cdim"
 };
 
 var indexSectionNames =
@@ -26,14 +26,14 @@ var indexSectionNames =
 
 var indexSectionLabels =
 {
-  0: "全部",
-  1: "类",
-  2: "函数",
-  3: "变量",
-  4: "类型定义",
-  5: "枚举",
-  6: "枚举值",
-  7: "组",
-  8: "页"
+  0: "All",
+  1: "Classes",
+  2: "Functions",
+  3: "Variables",
+  4: "Typedefs",
+  5: "Enumerations",
+  6: "Enumerator",
+  7: "Modules",
+  8: "Pages"
 };
 

@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['opencv_20依赖',['OpenCV 依赖',['../guide_opencv.html',1,'guides']]],
   ['object',['Object',['../structmynteye_1_1_object.html',1,'mynteye']]],
   ['objmat',['ObjMat',['../structmynteye_1_1_obj_mat.html',1,'mynteye']]],
   ['objmat2',['ObjMat2',['../structmynteye_1_1_obj_mat2.html',1,'mynteye']]],

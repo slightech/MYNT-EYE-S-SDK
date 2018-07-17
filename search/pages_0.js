@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['imu_20数据说明',['IMU 数据说明',['../spec_imu_data.html',1,'specs_data']]],
-  ['imu_20参数说明',['IMU 参数说明',['../spec_imu_params.html',1,'specs_data']]]
+  ['control_20protocols',['Control Protocols',['../spec_control_api.html',1,'specs_ctrl']]],
+  ['control_20channels',['Control Channels',['../spec_control_channel.html',1,'specs_ctrl']]]
 ];

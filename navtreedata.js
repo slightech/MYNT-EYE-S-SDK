@@ -24,19 +24,18 @@ for the JavaScript code in this file
 var NAVTREE =
 [
   [ "MYNT EYE SDK", "index.html", [
-    [ "设备数据说明", "specs_data.html", "specs_data" ],
-    [ "设备控制说明", "specs_ctrl.html", "specs_ctrl" ],
-    [ "SDK 指导", "guides.html", "guides" ],
-    [ "模块", "modules.html", "modules" ],
-    [ "类", "annotated.html", [
-      [ "类列表", "annotated.html", "annotated_dup" ],
-      [ "类索引", "classes.html", null ],
-      [ "类继承关系", "hierarchy.html", "hierarchy" ],
-      [ "类成员", "functions.html", [
-        [ "全部", "functions.html", null ],
-        [ "函数", "functions_func.html", null ],
-        [ "变量", "functions_vars.html", null ],
-        [ "类型定义", "functions_type.html", null ]
+    [ "Device Data Specification", "specs_data.html", "specs_data" ],
+    [ "Device Control Specification", "specs_ctrl.html", "specs_ctrl" ],
+    [ "Modules", "modules.html", "modules" ],
+    [ "Classes", "annotated.html", [
+      [ "Class List", "annotated.html", "annotated_dup" ],
+      [ "Class Index", "classes.html", null ],
+      [ "Class Hierarchy", "hierarchy.html", "hierarchy" ],
+      [ "Class Members", "functions.html", [
+        [ "All", "functions.html", null ],
+        [ "Functions", "functions_func.html", null ],
+        [ "Variables", "functions_vars.html", null ],
+        [ "Typedefs", "functions_type.html", null ]
       ] ]
     ] ]
   ] ]
@@ -47,5 +46,5 @@ var NAVTREEINDEX =
 ".html"
 ];
 
-var SYNCONMSG = '点击 关闭 面板同步';
-var SYNCOFFMSG = '点击 开启 面板同步';
+var SYNCONMSG = 'click to disable panel synchronisation';
+var SYNCOFFMSG = 'click to enable panel synchronisation';

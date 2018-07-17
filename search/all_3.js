@@ -10,5 +10,8 @@ var searchData=
   ['devices',['devices',['../classmynteye_1_1_context.html#a7eea7878d29bdfcdfaa4b6d9fdfb861f',1,'mynteye::Context']]],
   ['disablestreamdata',['DisableStreamData',['../classmynteye_1_1_a_p_i.html#af384a098983e9cf2c72d53637d5cd45e',1,'mynteye::API']]],
   ['disparity',['DISPARITY',['../group__enumerations.html#gga8fb1bf5d859ee1a5b321cbae0b422280a8814a16ee6fd71ab0305a1c425b45a4d',1,'mynteye']]],
-  ['disparity_5fnormalized',['DISPARITY_NORMALIZED',['../group__enumerations.html#gga8fb1bf5d859ee1a5b321cbae0b422280a725b233267136b31bb4267f7f3e2afd5',1,'mynteye']]]
+  ['disparity_5fnormalized',['DISPARITY_NORMALIZED',['../group__enumerations.html#gga8fb1bf5d859ee1a5b321cbae0b422280a725b233267136b31bb4267f7f3e2afd5',1,'mynteye']]],
+  ['device_20information',['Device Information',['../spec_hardware_info.html',1,'specs_data']]],
+  ['device_20control_20specification',['Device Control Specification',['../specs_ctrl.html',1,'index']]],
+  ['device_20data_20specification',['Device Data Specification',['../specs_data.html',1,'index']]]
 ];
