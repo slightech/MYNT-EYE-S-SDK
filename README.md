@@ -1,6 +1,6 @@
 # MYNT® EYE SDK
 
-[![](https://img.shields.io/badge/MYNT%20EYE%20SDK-2.0.0--rc-brightgreen.svg?style=flat)](https://github.com/slightech/MYNT-EYE-SDK-2)
+[![](https://img.shields.io/badge/MYNT%20EYE%20SDK-2.0.1--rc0-brightgreen.svg?style=flat)](https://github.com/slightech/MYNT-EYE-SDK-2)
 
 ## Overview
 
@@ -17,18 +17,20 @@ Please follow the guide doc to install the SDK on different platforms.
 ## Documentations
 
 * [API Doc](https://github.com/slightech/MYNT-EYE-SDK-2/releases): API reference, some guides and data spec.
-  * zh-Hans: [![](https://img.shields.io/badge/Download-PDF-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-SDK-2/files/2083629/mynt-eye-sdk-apidoc-2.0.0-rc-zh-Hans.pdf) [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-SDK-2/files/2083631/mynt-eye-sdk-apidoc-2.0.0-rc-html-zh-Hans.zip) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](https://slightech.github.io/MYNT-EYE-SDK-2/)
+  * en: [![](https://img.shields.io/badge/Download-PDF-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-SDK-2/files/2203869/mynt-eye-sdk-apidoc-2.0.1-rc0-en.pdf) [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-SDK-2/files/2203870/mynt-eye-sdk-apidoc-2.0.1-rc0-html-en.zip) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](https://slightech.github.io/MYNT-EYE-SDK-2/)
+  * zh-Hans: [![](https://img.shields.io/badge/Download-PDF-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-SDK-2/files/2203872/mynt-eye-sdk-apidoc-2.0.1-rc0-zh-Hans.pdf) [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-SDK-2/files/2203874/mynt-eye-sdk-apidoc-2.0.1-rc0-html-zh-Hans.zip) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](http://doc.myntai.com/resource/api/mynt-eye-sdk-apidoc-2.0.1-rc0-html-zh-Hans/mynt-eye-sdk-apidoc-2.0.1-rc0-html-zh-Hans/index.html)
 * [Guide Doc](https://github.com/slightech/MYNT-EYE-SDK-2-Guide/releases): How to install and start using the SDK.
-  * zh-Hans: [![](https://img.shields.io/badge/Download-PDF-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-SDK-2-Guide/files/2083740/mynt-eye-sdk-guide-2.0.0-rc-zh-Hans.pdf) [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-SDK-2-Guide/files/2083745/mynt-eye-sdk-guide-2.0.0-rc-html-zh-Hans.zip) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](https://slightech.github.io/MYNT-EYE-SDK-2-Guide/)
+  * en: [![](https://img.shields.io/badge/Download-PDF-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-SDK-2-Guide/files/2203877/mynt-eye-sdk-guide-2.0.1-rc0-en.pdf) [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-SDK-2-Guide/files/2203879/mynt-eye-sdk-guide-2.0.1-rc0-html-en.zip) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](https://slightech.github.io/MYNT-EYE-SDK-2-Guide/)
+  * zh-Hans: [![](https://img.shields.io/badge/Download-PDF-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-SDK-2-Guide/files/2203880/mynt-eye-sdk-guide-2.0.1-rc0-zh-Hans.pdf) [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-SDK-2-Guide/files/2203881/mynt-eye-sdk-guide-2.0.1-rc0-html-zh-Hans.zip) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](http://doc.myntai.com/resource/sdk/mynt-eye-sdk-guide-2.0.1-rc0-html-zh-Hans/mynt-eye-sdk-guide-2.0.1-rc0-html-zh-Hans/index.html	)
 
-> Supported languages: `zh-Hans`.
+> Supported languages: `en`, `zh-Hans`.
 
 ## Firmwares
 
 [Google Drive]: https://drive.google.com/drive/folders/1tdFCcTBMNcImEGZ39tdOZmlX2SHKCr2f
 [百度网盘]: https://pan.baidu.com/s/1yPQDp2r0x4jvNwn2UjlMUQ
 
-Get firmwares from our online disks: [Google Drive][], [百度网盘][]. The latest version is `2.0.0-rc`.
+Get firmwares from our online disks: [Google Drive][], [百度网盘][]. The latest version is `2.0.1-rc0`.
 
 ## Usage
 
