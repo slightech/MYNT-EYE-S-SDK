@@ -25,14 +25,30 @@ struct glog_init {
   glog_init(int argc, char *argv[]) {
     (void)argc;
 
-    // FLAGS_logtostderr = true;
-    FLAGS_alsologtostderr = true;
+    // Set whether log messages go to stderr instead of logfiles
+    FLAGS_logtostderr = true;
+
+    // Set whether log messages go to stderr in addition to logfiles.
+    // FLAGS_alsologtostderr = true;
+
+    // Set color messages logged to stderr (if supported by terminal).
     FLAGS_colorlogtostderr = true;
 
-    // FLAGS_log_dir = ".";
+    // Log suppression level: messages logged at a lower level than this
+    // are suppressed.
+    FLAGS_minloglevel = google::INFO;
+
+    // If specified, logfiles are written into this directory instead of the
+    // default logging directory.
+    FLAGS_log_dir = ".";
+
+    // Sets the maximum log file size (in MB).
     FLAGS_max_log_size = 1024;
+
+    // Sets whether to avoid logging to the disk if the disk is full.
     FLAGS_stop_logging_if_full_disk = true;
 
+    // Show all VLOG(m) messages for m <= this.
     // FLAGS_v = 2;
 
     google::InitGoogleLogging(argv[0]);
