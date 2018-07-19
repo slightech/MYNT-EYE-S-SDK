@@ -61,7 +61,7 @@ Visualization Manager:
           Min Value: 0
           Name: Left
           Normalize Range: true
-          Queue Size: 2
+          Queue Size: 1
           Transport Hint: raw
           Unreliable: false
           Value: true
@@ -73,7 +73,7 @@ Visualization Manager:
           Min Value: 0
           Name: Right
           Normalize Range: true
-          Queue Size: 2
+          Queue Size: 1
           Transport Hint: raw
           Unreliable: false
           Value: true
@@ -87,7 +87,7 @@ Visualization Manager:
               Min Value: 0
               Name: LeftRect
               Normalize Range: true
-              Queue Size: 2
+              Queue Size: 1
               Transport Hint: raw
               Unreliable: false
               Value: true
@@ -99,7 +99,7 @@ Visualization Manager:
               Min Value: 0
               Name: RightRect
               Normalize Range: true
-              Queue Size: 2
+              Queue Size: 1
               Transport Hint: raw
               Unreliable: false
               Value: true
@@ -117,7 +117,7 @@ Visualization Manager:
           Min Value: 0
           Name: Disparity
           Normalize Range: true
-          Queue Size: 2
+          Queue Size: 1
           Transport Hint: raw
           Unreliable: false
           Value: true
@@ -129,7 +129,7 @@ Visualization Manager:
           Min Value: 0
           Name: DisparityNorm
           Normalize Range: true
-          Queue Size: 2
+          Queue Size: 1
           Transport Hint: raw
           Unreliable: false
           Value: true
@@ -143,7 +143,7 @@ Visualization Manager:
       Min Value: 0
       Name: Depth
       Normalize Range: true
-      Queue Size: 2
+      Queue Size: 1
       Transport Hint: raw
       Unreliable: false
       Value: true
@@ -167,7 +167,7 @@ Visualization Manager:
       Min Intensity: 0
       Name: Points
       Position Transformer: XYZ
-      Queue Size: 10
+      Queue Size: 1
       Selectable: true
       Size (Pixels): 3
       Size (m): 0.00999999978
