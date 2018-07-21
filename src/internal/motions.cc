@@ -51,15 +51,22 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
         imu->flag = seg.flag;
         imu->temperature = seg.temperature / 326.8f + 25;
 
-        if((imu->flag) & 0x01 != 0) {
+        if(imu->flag == 1) {
           imu->accel[0] = seg.aceel_or_gyro[0] * 8.f / 0x10000;
           imu->accel[1] = seg.aceel_or_gyro[1] * 8.f / 0x10000;
           imu->accel[2] = seg.aceel_or_gyro[2] * 8.f / 0x10000;
-        } 
-        if((imu->flag) & 0x02 != 0) {
+          imu->gyro[0] = 0;
+          imu->gyro[1] = 0;
+          imu->gyro[2] = 0;
+        } else if(imu->flag == 2) {
+          imu->accel[0] = 0;
+          imu->accel[1] = 0;
+          imu->accel[2] = 0;
           imu->gyro[0] = seg.aceel_or_gyro[0] * 1000.f / 0x10000;
           imu->gyro[1] = seg.aceel_or_gyro[1] * 1000.f / 0x10000;
           imu->gyro[2] = seg.aceel_or_gyro[2] * 1000.f / 0x10000;
+        } else {
+          imu->Reset();
         }
         
         std::lock_guard<std::mutex> _(mtx_datas_);

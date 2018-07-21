@@ -298,6 +298,10 @@ void Channels::DoImuTrack() {
     return;
   }
 
+  if (res_packet.packets.back().count == 0) {
+    return;
+  }
+
   VLOG(2) << "Imu req sn: " << imu_sn_ << ", res count: " << []() {
     std::size_t n = 0;
     for (auto &&packet : res_packet.packets) {

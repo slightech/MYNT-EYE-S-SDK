@@ -79,12 +79,11 @@ void Dataset::SaveStreamData(
 void Dataset::SaveMotionData(const device::MotionData &data) {
   auto &&writer = GetMotionWriter();
   auto seq = motion_count_;
-  writer->ofs << seq << ", " << data.imu->frame_id << ", "
-              << data.imu->timestamp << ", " << data.imu->accel[0] << ", "
-              << data.imu->accel[1] << ", " << data.imu->accel[2] << ", "
-              << data.imu->gyro[0] << ", " << data.imu->gyro[1] << ", "
-              << data.imu->gyro[2] << ", " << data.imu->temperature
-              << std::endl;
+  writer->ofs << seq << ", " << data.imu->timestamp << ", "
+              << data.imu->accel[0] << ", " << data.imu->accel[1] << ", "
+              << data.imu->accel[2] << ", " << data.imu->gyro[0] << ", "
+              << data.imu->gyro[1] << ", " <<  data.imu->gyro[2] << ", "
+              << data.imu->temperature << std::endl;           
   ++motion_count_;
 }
 
