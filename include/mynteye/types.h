@@ -441,10 +441,10 @@ struct MYNTEYE_API ImgData {
  * IMU data.
  */
 struct MYNTEYE_API ImuData {
-  /** Image frame id */
-  std::uint16_t frame_id;
+  /** accel or gyro flag:1 for accel,2 for gyro,3 for both */
+  std::uint8_t flag;
   /** IMU timestamp in 0.01ms */
-  std::uint32_t timestamp;
+  std::uint64_t timestamp;
   /** IMU accelerometer data for 3-axis: X, Y, Z. */
   double accel[3];
   /** IMU gyroscope data for 3-axis: X, Y, Z. */
@@ -453,7 +453,7 @@ struct MYNTEYE_API ImuData {
   double temperature;
 
   void Reset() {
-    frame_id = 0;
+    flag = 0;
     timestamp = 0;
     std::fill(accel, accel + 3, 0);
     std::fill(gyro, gyro + 3, 0);

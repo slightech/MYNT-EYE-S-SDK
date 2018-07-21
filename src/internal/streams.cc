@@ -48,7 +48,7 @@ bool unpack_stereo_img_data(
   //   << ", timestamp="<< std::dec << img_packet.timestamp
   //   << ", exposure_time="<< std::dec << img_packet.exposure_time
   //   << ", checksum=0x" << std::hex << static_cast<int>(img_packet.checksum);
-/*
+
   if (img_packet.header != 0x3B) {
     LOG(WARNING) << "Image packet header must be 0x3B, but 0x" << std::hex
                  << std::uppercase << std::setw(2) << std::setfill('0')
@@ -60,6 +60,7 @@ bool unpack_stereo_img_data(
   for (std::size_t i = 2, n = packet_n - 2; i <= n; i++) {  // content: [2,9]
     checksum = (checksum ^ packet[i]);
   }
+  /*
   if (img_packet.checksum != checksum) {
     LOG(WARNING) << "Image packet checksum should be 0x" << std::hex
                  << std::uppercase << std::setw(2) << std::setfill('0')
@@ -68,7 +69,8 @@ bool unpack_stereo_img_data(
                  << static_cast<int>(checksum) << " now";
     return false;
   }
-*/
+  */
+
   img->frame_id = img_packet.frame_id;
   img->timestamp = img_packet.timestamp;
   img->exposure_time = img_packet.exposure_time;

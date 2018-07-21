@@ -325,9 +325,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       ++imu_count_;
       publishImu(data, imu_count_, stamp);
       publishTemp(data.imu->temperature, imu_count_, stamp);
-      NODELET_DEBUG_STREAM(
-          "Imu count: " << imu_count_ << ", frame_id: " << data.imu->frame_id
-                        << ", timestamp: " << data.imu->timestamp
+      NODELET_DEBUG_STREAM(          
+          "Imu count: " << imu_count_<< ", timestamp: " << data.imu->timestamp
                         << ", accel_x: " << data.imu->accel[0]
                         << ", accel_y: " << data.imu->accel[1]
                         << ", accel_z: " << data.imu->accel[2]

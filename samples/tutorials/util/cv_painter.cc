@@ -118,7 +118,7 @@ cv::Rect CVPainter::DrawImuData(
   if (gravity == BOTTOM_LEFT || gravity == BOTTOM_RIGHT)
     sign = -1;
 
-  Clear(ss) << "frame_id: " << data.frame_id << ", stamp: " << data.timestamp
+  Clear(ss) << "stamp: " << data.timestamp
             << ", temp: " << fmt_temp << data.temperature;
   cv::Rect rect_i = DrawText(img, ss.str(), gravity, 5);
 

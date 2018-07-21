@@ -306,7 +306,7 @@ void Channels::DoImuTrack() {
     return n;
   }();
 
-  auto &&sn = res_packet.packets.back().serial_number;
+  auto &&sn = res_packet.packets.back().segments.back().serial_number;
   if (imu_sn_ == sn) {
     VLOG(2) << "New imu not ready, dropped";
     return;

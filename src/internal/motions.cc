@@ -42,20 +42,26 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
       }
       for (auto &&seg : packet.segments) {
         auto &&imu = std::make_shared<ImuData>();
-        imu->frame_id = seg.frame_id;
+        // imu->frame_id = seg.frame_id;
         // if (seg.offset < 0 &&
         //     static_cast<uint32_t>(-seg.offset) > packet.timestamp) {
         //   LOG(WARNING) << "Imu timestamp offset is incorrect";
         // }
-        imu->timestamp = packet.timestamp + seg.offset;
-        imu->accel[0] = seg.accel[0] * 8.f / 0x10000;
-        imu->accel[1] = seg.accel[1] * 8.f / 0x10000;
-        imu->accel[2] = seg.accel[2] * 8.f / 0x10000;
-        imu->gyro[0] = seg.gyro[0] * 1000.f / 0x10000;
-        imu->gyro[1] = seg.gyro[1] * 1000.f / 0x10000;
-        imu->gyro[2] = seg.gyro[2] * 1000.f / 0x10000;
+        imu->timestamp = seg.timestamp;
+        imu->flag = seg.flag;
         imu->temperature = seg.temperature / 326.8f + 25;
 
+        if((imu->flag) & 0x01 != 0) {
+          imu->accel[0] = seg.aceel_or_gyro[0] * 8.f / 0x10000;
+          imu->accel[1] = seg.aceel_or_gyro[1] * 8.f / 0x10000;
+          imu->accel[2] = seg.aceel_or_gyro[2] * 8.f / 0x10000;
+        } 
+        if((imu->flag) & 0x02 != 0) {
+          imu->gyro[0] = seg.aceel_or_gyro[0] * 1000.f / 0x10000;
+          imu->gyro[1] = seg.aceel_or_gyro[1] * 1000.f / 0x10000;
+          imu->gyro[2] = seg.aceel_or_gyro[2] * 1000.f / 0x10000;
+        }
+        
         std::lock_guard<std::mutex> _(mtx_datas_);
         motion_data_t data = {imu};
         motion_datas_.push_back(data);

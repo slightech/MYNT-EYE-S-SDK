@@ -56,8 +56,7 @@ int main(int argc, char *argv[]) {
     CHECK_NOTNULL(data.imu);
     ++imu_count;
     VLOG(2) << "Imu count: " << imu_count;
-    VLOG(2) << "  frame_id: " << data.imu->frame_id
-            << ", timestamp: " << data.imu->timestamp
+    VLOG(2) << ", timestamp: " << data.imu->timestamp
             << ", accel_x: " << data.imu->accel[0]
             << ", accel_y: " << data.imu->accel[1]
             << ", accel_z: " << data.imu->accel[2]
@@ -106,9 +105,8 @@ int main(int argc, char *argv[]) {
 
     auto &&motion_datas = api->GetMotionDatas();
     motion_count += motion_datas.size();
-    for (auto &&data : motion_datas) {
-      LOG(INFO) << "Imu frame_id: " << data.imu->frame_id
-                << ", timestamp: " << data.imu->timestamp
+    for (auto &&data : motion_datas) {       
+      LOG(INFO) << ", timestamp: " << data.imu->timestamp
                 << ", accel_x: " << data.imu->accel[0]
                 << ", accel_y: " << data.imu->accel[1]
                 << ", accel_z: " << data.imu->accel[2]

@@ -69,8 +69,7 @@ struct MYNTEYE_API MotionData {
 
   bool operator==(const MotionData &other) const {
     if (imu && other.imu) {
-      return imu->frame_id == other.imu->frame_id &&
-             imu->timestamp == other.imu->timestamp;
+      return imu->timestamp == other.imu->timestamp;            
     }
     return false;
   }

@@ -26,7 +26,6 @@
   <arg name="points_frame_id" default="$(arg mynteye)_points_frame" />
   <arg name="depth_frame_id" default="$(arg mynteye)_depth_frame" />
 
-  <arg name="imu_frame_id" default="$(arg mynteye)_imu_frame" />
   <arg name="temp_frame_id" default="$(arg mynteye)_temp_frame" />
 
   <arg name="gravity" default="9.8" />
@@ -116,7 +115,6 @@
       <param name="points_frame_id" value="$(arg points_frame_id)" />
       <param name="depth_frame_id" value="$(arg depth_frame_id)" />
 
-      <param name="imu_frame_id" value="$(arg imu_frame_id)" />
       <param name="temp_frame_id" value="$(arg temp_frame_id)" />
 
       <param name="gravity" value="$(arg gravity)" />

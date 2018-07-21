@@ -103,14 +103,14 @@ std::shared_ptr<Device> Device::Create(
     std::string model_s = name.substr(9,5);
     VLOG(2) << "MYNE EYE Model: " << model_s;
     DeviceModel model(model_s);
-    if(model.type == 's') {
+    if(model.type == 'S') {
       switch (model.custom_code) {
         case '0':
           return std::make_shared<StandardDevice>(device);
         case 'A':
           return std::make_shared<StandardDevice>(device);
         default:
-          LOG(FATAL) << "No such custom code now"
+          LOG(FATAL) << "No such custom code now";
       }
     } else {
       LOG(FATAL) << "MYNT EYE model is not supported now";
