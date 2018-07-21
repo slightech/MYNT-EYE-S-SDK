@@ -87,8 +87,8 @@ int main(int argc, char *argv[]) {
   });
 
   // Enable this will cache the motion datas until you get them.
-  // device->EnableMotionDatas();
-  device->Start(Source::VIDEO_STREAMING);
+  device->EnableMotionDatas();
+  device->Start(Source::ALL);
   cv::namedWindow("frame");
 
   std::size_t motion_count = 0;
