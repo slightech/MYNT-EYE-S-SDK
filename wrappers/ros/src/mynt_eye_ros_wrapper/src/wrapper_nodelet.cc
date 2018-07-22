@@ -166,24 +166,21 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     for (auto &&it = stream_names.begin(); it != stream_names.end(); ++it) {
       auto &&topic = stream_topics[it->first];
-      if (it->first == Stream::LEFT || it->first == Stream::RIGHT) {  // camera
-        camera_publishers_[it->first] = it_mynteye.advertiseCamera(topic, 1);
-      } else if (it->first == Stream::POINTS) {  // pointcloud
+      if (it->first == Stream::POINTS) {  // pointcloud
         points_publisher_ = nh_.advertise<sensor_msgs::PointCloud2>(topic, 1);
-      } else {  // image
-        image_publishers_[it->first] = it_mynteye.advertise(topic, 1);
+      } else {  // camera
+        camera_publishers_[it->first] = it_mynteye.advertiseCamera(topic, 1);
       }
       NODELET_INFO_STREAM("Advertized on topic " << topic);
     }
 
     camera_encodings_ = {{Stream::LEFT, enc::MONO8},
-                         {Stream::RIGHT, enc::MONO8}};
-
-    image_encodings_ = {{Stream::LEFT_RECTIFIED, enc::MONO8},
-                        {Stream::RIGHT_RECTIFIED, enc::MONO8},
-                        {Stream::DISPARITY, enc::MONO8},  // float
-                        {Stream::DISPARITY_NORMALIZED, enc::MONO8},
-                        {Stream::DEPTH, enc::MONO16}};
+                         {Stream::RIGHT, enc::MONO8},
+                         {Stream::LEFT_RECTIFIED, enc::MONO8},
+                         {Stream::RIGHT_RECTIFIED, enc::MONO8},
+                         {Stream::DISPARITY, enc::MONO8},  // float
+                         {Stream::DISPARITY_NORMALIZED, enc::MONO8},
+                         {Stream::DEPTH, enc::MONO16}};
 
     pub_imu_ = nh_.advertise<sensor_msgs::Imu>(imu_topic, 1);
     NODELET_INFO_STREAM("Advertized on topic " << imu_topic);
@@ -194,9 +191,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     // stream toggles
 
     for (auto &&it = stream_names.begin(); it != stream_names.end(); ++it) {
-      if (it->first == Stream::LEFT || it->first == Stream::RIGHT) {  // camera
-        continue;
-      } else {  // image, pointcloud
+      if (it->first == Stream::LEFT || it->first == Stream::RIGHT) {
+        continue;  // native streams
+      } else {
         if (!api_->Supports(it->first))
           continue;
         bool enabled = false;
@@ -292,16 +289,17 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                             << ", exposure_time: " << data.img->exposure_time);
         });
 
-    std::vector<Stream> image_streams{
+    std::vector<Stream> other_streams{
         Stream::LEFT_RECTIFIED, Stream::RIGHT_RECTIFIED, Stream::DISPARITY,
         Stream::DISPARITY_NORMALIZED, Stream::DEPTH};
 
-    for (auto &&stream : image_streams) {
+    for (auto &&stream : other_streams) {
       api_->SetStreamCallback(
           stream, [this, stream](const api::StreamData &data) {
+            // data.img is null, not hard timestamp
             static std::size_t count = 0;
             ++count;
-            publishImage(stream, data, count, ros::Time::now());
+            publishCamera(stream, data, count, ros::Time::now());
           });
     }
 
@@ -365,6 +363,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     camera_publishers_[stream].publish(msg, info);
   }
 
+  /*
   void publishImage(
       const Stream &stream, const api::StreamData &data, std::uint32_t seq,
       ros::Time stamp) {
@@ -382,6 +381,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         cv_bridge::CvImage(header, image_encodings_[stream], img).toImageMsg();
     image_publishers_[stream].publish(msg);
   }
+  */
 
   void publishPoints(
       const api::StreamData &data, std::uint32_t seq, ros::Time stamp) {
@@ -584,7 +584,12 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     sensor_msgs::CameraInfo *camera_info = new sensor_msgs::CameraInfo();
     camera_info_ptrs_[stream] = sensor_msgs::CameraInfoPtr(camera_info);
 
-    auto &&in = api_->GetIntrinsics(stream);
+    Intrinsics in;
+    if (stream == Stream::RIGHT || stream == Stream::RIGHT_RECTIFIED) {
+      in = api_->GetIntrinsics(Stream::RIGHT);
+    } else {
+      in = api_->GetIntrinsics(Stream::LEFT);
+    }
 
     camera_info->header.frame_id = frame_ids_[stream];
     camera_info->width = in.width;
@@ -603,7 +608,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     // P = [ 0  fy' cy' Ty]
     //     [ 0   0   1   0]
     cv::Mat p = left_p_;
-    if (stream == Stream::RIGHT) {
+    if (stream == Stream::RIGHT || stream == Stream::RIGHT_RECTIFIED) {
       p = right_p_;
     }
     for (int i = 0; i < p.rows; i++) {
@@ -787,15 +792,13 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;
 
-  // camera: LEFT, RIGHT
+  // camera:
+  //   LEFT, RIGHT, LEFT_RECTIFIED, RIGHT_RECTIFIED,
+  //   DISPARITY, DISPARITY_NORMALIZED,
+  //   DEPTH
   std::map<Stream, image_transport::CameraPublisher> camera_publishers_;
   std::map<Stream, sensor_msgs::CameraInfoPtr> camera_info_ptrs_;
   std::map<Stream, std::string> camera_encodings_;
-
-  // image: LEFT_RECTIFIED, RIGHT_RECTIFIED, DISPARITY, DISPARITY_NORMALIZED,
-  // DEPTH
-  std::map<Stream, image_transport::Publisher> image_publishers_;
-  std::map<Stream, std::string> image_encodings_;
 
   // pointcloud: POINTS
   ros::Publisher points_publisher_;
