@@ -565,11 +565,11 @@ void Device::ReadAllInfos() {
   if (img_params.ok) {
     SetIntrinsics(Stream::LEFT, img_params.in_left);
     SetIntrinsics(Stream::RIGHT, img_params.in_right);
-    SetExtrinsics(Stream::LEFT, Stream::RIGHT, img_params.ex_left_to_right);
+    SetExtrinsics(Stream::RIGHT, Stream::LEFT, img_params.ex_right_to_left);
     VLOG(2) << "Intrinsics left: {" << GetIntrinsics(Stream::LEFT) << "}";
     VLOG(2) << "Intrinsics right: {" << GetIntrinsics(Stream::RIGHT) << "}";
-    VLOG(2) << "Extrinsics left to right: {"
-            << GetExtrinsics(Stream::LEFT, Stream::RIGHT) << "}";
+    VLOG(2) << "Extrinsics right to left: {"
+            << GetExtrinsics(Stream::RIGHT, Stream::LEFT) << "}";
   } else {
     LOG(WARNING) << "Intrinsics & extrinsics not exist";
   }

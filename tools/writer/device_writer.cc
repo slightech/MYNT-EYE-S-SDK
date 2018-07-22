@@ -72,7 +72,7 @@ bool DeviceWriter::WriteImgParams(const img_params_t &params) {
     LOG(INFO) << "Write img params success";
     LOG(INFO) << "Intrinsics left: {" << params.in_left << "}";
     LOG(INFO) << "Intrinsics right: {" << params.in_right << "}";
-    LOG(INFO) << "Extrinsics left to right: {" << params.ex_left_to_right
+    LOG(INFO) << "Extrinsics right to left: {" << params.ex_right_to_left
               << "}";
     return true;
   } else {
@@ -185,8 +185,8 @@ bool DeviceWriter::SaveImgParams(
     return false;
   }
   fs << "in_left" << std::vector<Intrinsics>{params.in_left} << "in_right"
-     << std::vector<Intrinsics>{params.in_right} << "ex_left_to_right"
-     << params.ex_left_to_right;
+     << std::vector<Intrinsics>{params.in_right} << "ex_right_to_left"
+     << params.ex_right_to_left;
   fs.release();
   return true;
 }
@@ -213,7 +213,7 @@ void DeviceWriter::SaveAllInfos(const std::string &dir) {
   SaveImgParams(
       {false, device_->GetIntrinsics(Stream::LEFT),
        device_->GetIntrinsics(Stream::RIGHT),
-       device_->GetExtrinsics(Stream::LEFT, Stream::RIGHT)},
+       device_->GetExtrinsics(Stream::RIGHT, Stream::LEFT)},
       dir + OS_SEP "img.params");
   auto &&m_in = device_->GetMotionIntrinsics();
   SaveImuParams(
@@ -348,11 +348,11 @@ DeviceWriter::img_params_t DeviceWriter::LoadImgParams(
 
     to_intrinsics(w, h, m, M1, D1, &params.in_left);
     to_intrinsics(w, h, m, M2, D2, &params.in_right);
-    to_extrinsics(R, T, &params.ex_left_to_right);
+    to_extrinsics(R, T, &params.ex_right_to_left);
   } else {
     fs["in_left"][0] >> params.in_left;
     fs["in_right"][0] >> params.in_right;
-    fs["ex_left_to_right"] >> params.ex_left_to_right;
+    fs["ex_right_to_left"] >> params.ex_right_to_left;
   }
 
   fs.release();

@@ -47,7 +47,7 @@ class RectifyProcessor : public Processor {
 
  private:
   void InitParams(
-      Intrinsics in_left, Intrinsics in_right, Extrinsics ex_left_to_right);
+      Intrinsics in_left, Intrinsics in_right, Extrinsics ex_right_to_left);
 };
 
 MYNTEYE_END_NAMESPACE

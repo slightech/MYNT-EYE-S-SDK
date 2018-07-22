@@ -72,7 +72,7 @@ class MYNTEYE_API Channels {
     bool ok;
     Intrinsics in_left;
     Intrinsics in_right;
-    Extrinsics ex_left_to_right;
+    Extrinsics ex_right_to_left;
   } img_params_t;
 
   typedef struct ImuParams {

@@ -515,7 +515,7 @@ std::size_t from_data(
   std::size_t i = 0;
   i += from_data(&img_params->in_left, data + i, spec_version);
   i += from_data(&img_params->in_right, data + i, spec_version);
-  i += from_data(&img_params->ex_left_to_right, data + i, spec_version);
+  i += from_data(&img_params->ex_right_to_left, data + i, spec_version);
   return i;
 }
 
@@ -787,7 +787,7 @@ std::size_t to_data(
   std::size_t i = 3;  // skip id, size
   i += to_data(&img_params->in_left, data + i, spec_version);
   i += to_data(&img_params->in_right, data + i, spec_version);
-  i += to_data(&img_params->ex_left_to_right, data + i, spec_version);
+  i += to_data(&img_params->ex_right_to_left, data + i, spec_version);
   // others
   std::size_t size = i - 3;
   data[0] = Channels::FID_IMG_PARAMS;

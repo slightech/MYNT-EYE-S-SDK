@@ -213,11 +213,11 @@ std::vector<std::string> get_plugin_paths() {
 API::API(std::shared_ptr<Device> device) : device_(device) {
   VLOG(2) << __func__;
   if (std::dynamic_pointer_cast<StandardDevice>(device_) != nullptr) {
-    bool in_l_ok, in_r_ok, ex_l2r_ok;
+    bool in_l_ok, in_r_ok, ex_r2l_ok;
     device_->GetIntrinsics(Stream::LEFT, &in_l_ok);
     device_->GetIntrinsics(Stream::RIGHT, &in_r_ok);
-    device_->GetExtrinsics(Stream::LEFT, Stream::RIGHT, &ex_l2r_ok);
-    if (!in_l_ok || !in_r_ok || !ex_l2r_ok) {
+    device_->GetExtrinsics(Stream::RIGHT, Stream::LEFT, &ex_r2l_ok);
+    if (!in_l_ok || !in_r_ok || !ex_r2l_ok) {
 #if defined(WITH_DEVICE_INFO_REQUIRED)
       LOG(FATAL)
 #else

@@ -30,7 +30,7 @@ RectifyProcessor::RectifyProcessor(
   VLOG(2) << __func__ << ": proc_period=" << proc_period;
   InitParams(
       device->GetIntrinsics(Stream::LEFT), device->GetIntrinsics(Stream::RIGHT),
-      device->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
+      device->GetExtrinsics(Stream::RIGHT, Stream::LEFT));
 }
 
 RectifyProcessor::~RectifyProcessor() {
@@ -56,7 +56,7 @@ bool RectifyProcessor::OnProcess(
 }
 
 void RectifyProcessor::InitParams(
-    Intrinsics in_left, Intrinsics in_right, Extrinsics ex_left_to_right) {
+    Intrinsics in_left, Intrinsics in_right, Extrinsics ex_right_to_left) {
   cv::Size size{in_left.width, in_left.height};
 
   cv::Mat M1 =
@@ -68,12 +68,12 @@ void RectifyProcessor::InitParams(
   cv::Mat D1(1, 5, CV_64F, in_left.coeffs);
   cv::Mat D2(1, 5, CV_64F, in_right.coeffs);
   cv::Mat R =
-      (cv::Mat_<double>(3, 3) << ex_left_to_right.rotation[0][0],
-       ex_left_to_right.rotation[0][1], ex_left_to_right.rotation[0][2],
-       ex_left_to_right.rotation[1][0], ex_left_to_right.rotation[1][1],
-       ex_left_to_right.rotation[1][2], ex_left_to_right.rotation[2][0],
-       ex_left_to_right.rotation[2][1], ex_left_to_right.rotation[2][2]);
-  cv::Mat T(3, 1, CV_64F, ex_left_to_right.translation);
+      (cv::Mat_<double>(3, 3) << ex_right_to_left.rotation[0][0],
+       ex_right_to_left.rotation[0][1], ex_right_to_left.rotation[0][2],
+       ex_right_to_left.rotation[1][0], ex_right_to_left.rotation[1][1],
+       ex_right_to_left.rotation[1][2], ex_right_to_left.rotation[2][0],
+       ex_right_to_left.rotation[2][1], ex_right_to_left.rotation[2][2]);
+  cv::Mat T(3, 1, CV_64F, ex_right_to_left.translation);
 
   VLOG(2) << "InitParams size: " << size;
   VLOG(2) << "M1: " << M1;

@@ -25,8 +25,8 @@ int main(int argc, char *argv[]) {
   LOG(INFO) << "Intrinsics left: {" << api->GetIntrinsics(Stream::LEFT) << "}";
   LOG(INFO) << "Intrinsics right: {" << api->GetIntrinsics(Stream::RIGHT)
             << "}";
-  LOG(INFO) << "Extrinsics left to right: {"
-            << api->GetExtrinsics(Stream::LEFT, Stream::RIGHT) << "}";
+  LOG(INFO) << "Extrinsics right to left: {"
+            << api->GetExtrinsics(Stream::RIGHT, Stream::LEFT) << "}";
 
   return 0;
 }
