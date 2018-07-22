@@ -23,6 +23,8 @@
 #include <tf/tf.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 
+#include <opencv2/calib3d/calib3d.hpp>
+
 #include <mynt_eye_ros_wrapper/GetInfo.h>
 #include <mynt_eye_ros_wrapper/Temp.h>
 
@@ -534,6 +536,43 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
 
     api_ = API::Create(device);
+
+    computeRectTransforms();
+  }
+
+  void computeRectTransforms() {
+    ROS_ASSERT(api_);
+    auto &&in_left = api_->GetIntrinsics(Stream::LEFT);
+    auto &&in_right = api_->GetIntrinsics(Stream::RIGHT);
+    auto &&ex_right_to_left = api_->GetExtrinsics(Stream::RIGHT, Stream::LEFT);
+
+    cv::Size size{in_left.width, in_left.height};
+
+    cv::Mat M1 =
+        (cv::Mat_<double>(3, 3) << in_left.fx, 0, in_left.cx, 0, in_left.fy,
+         in_left.cy, 0, 0, 1);
+    cv::Mat M2 =
+        (cv::Mat_<double>(3, 3) << in_right.fx, 0, in_right.cx, 0, in_right.fy,
+         in_right.cy, 0, 0, 1);
+    cv::Mat D1(1, 5, CV_64F, in_left.coeffs);
+    cv::Mat D2(1, 5, CV_64F, in_right.coeffs);
+    cv::Mat R =
+        (cv::Mat_<double>(3, 3) << ex_right_to_left.rotation[0][0],
+         ex_right_to_left.rotation[0][1], ex_right_to_left.rotation[0][2],
+         ex_right_to_left.rotation[1][0], ex_right_to_left.rotation[1][1],
+         ex_right_to_left.rotation[1][2], ex_right_to_left.rotation[2][0],
+         ex_right_to_left.rotation[2][1], ex_right_to_left.rotation[2][2]);
+    cv::Mat T(3, 1, CV_64F, ex_right_to_left.translation);
+
+    cv::stereoRectify(
+        M1, D1, M2, D2, size, R, T, left_r_, right_r_, left_p_, right_p_, q_,
+        cv::CALIB_ZERO_DISPARITY, 0, size, &left_roi_, &right_roi_);
+
+    NODELET_DEBUG_STREAM("left_r: " << left_r_);
+    NODELET_DEBUG_STREAM("right_r: " << right_r_);
+    NODELET_DEBUG_STREAM("left_p: " << left_p_);
+    NODELET_DEBUG_STREAM("right_p: " << right_p_);
+    NODELET_DEBUG_STREAM("q: " << q_);
   }
 
   sensor_msgs::CameraInfoPtr getCameraInfo(const Stream &stream) {
@@ -541,6 +580,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       return camera_info_ptrs_[stream];
     }
 
+    // http://docs.ros.org/kinetic/api/sensor_msgs/html/msg/CameraInfo.html
     sensor_msgs::CameraInfo *camera_info = new sensor_msgs::CameraInfo();
     camera_info_ptrs_[stream] = sensor_msgs::CameraInfoPtr(camera_info);
 
@@ -562,26 +602,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     //     [fx'  0  cx' Tx]
     // P = [ 0  fy' cy' Ty]
     //     [ 0   0   1   0]
-    camera_info->P.at(0) = camera_info->K.at(0);
-    camera_info->P.at(1) = 0;
-    camera_info->P.at(2) = camera_info->K.at(2);
-    camera_info->P.at(3) = 0;
-
-    camera_info->P.at(4) = 0;
-    camera_info->P.at(5) = camera_info->K.at(4);
-    camera_info->P.at(6) = camera_info->K.at(5);
-    camera_info->P.at(7) = 0;
-
-    camera_info->P.at(8) = 0;
-    camera_info->P.at(9) = 0;
-    camera_info->P.at(10) = 1;
-    camera_info->P.at(11) = 0;
-
+    cv::Mat p = left_p_;
     if (stream == Stream::RIGHT) {
-      auto &&ex = api_->GetExtrinsics(stream, Stream::LEFT);
-      camera_info->P.at(3) = ex.translation[0];
-      camera_info->P.at(7) = ex.translation[1];
-      camera_info->P.at(11) = ex.translation[2];
+      p = right_p_;
+    }
+    for (int i = 0; i < p.rows; i++) {
+      for (int j = 0; j < p.cols; j++) {
+        camera_info->P.at(i * p.cols + j) = p.at<double>(i, j);
+      }
     }
 
     camera_info->distortion_model = "plumb_bob";
@@ -791,6 +819,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   // api
 
   std::shared_ptr<API> api_;
+
+  // rectification transforms
+  cv::Mat left_r_, right_r_, left_p_, right_p_, q_;
+  cv::Rect left_roi_, right_roi_;
 
   double time_beg_ = -1;
   std::size_t left_count_ = 0;
