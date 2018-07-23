@@ -274,7 +274,7 @@ struct ImuResPacket {
     size = (*(data + 2) << 8) | *(data + 3);
 
     std::size_t seg_n = sizeof(ImuSegment);  // 21
-    std::uint8_t seg_count = (size - 4) / seg_n;
+    std::uint8_t seg_count = size / seg_n;
     ImuPacket packet(seg_count,data + 4);
     packets.push_back(packet);
     //packet(2);
