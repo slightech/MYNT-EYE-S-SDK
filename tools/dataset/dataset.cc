@@ -70,7 +70,8 @@ void Dataset::SaveStreamData(
     ss << writer->outdir << OS_SEP << std::dec
        << std::setw(IMAGE_FILENAME_WIDTH) << std::setfill('0') << seq << ".png";
     cv::Mat img(
-        data.frame->height(), data.frame->width(), CV_8UC1, data.frame->data());
+        data.frame->height(), data.frame->width(), CV_8UC2, data.frame->data());
+    cv::cvtColor(img, img, cv::COLOR_YUV2BGR_YUY2);
     cv::imwrite(ss.str(), img);
   }
   ++stream_counts_[stream];

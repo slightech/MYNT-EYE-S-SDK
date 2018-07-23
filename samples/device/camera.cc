@@ -120,8 +120,9 @@ int main(int argc, char *argv[]) {
         right_data.frame->data());
 
     cv::Mat img;
+    cv::cvtColor(left_img, left_img, cv::COLOR_YUV2BGR_YUY2);
+    cv::cvtColor(right_img, right_img, cv::COLOR_YUV2BGR_YUY2);
     cv::hconcat(left_img, right_img, img);
-    cv::cvtColor(img, img, cv::COLOR_YUV2BGR_YUY2);
     cv::imshow("frame", img);
 
     char key = static_cast<char>(cv::waitKey(1));
