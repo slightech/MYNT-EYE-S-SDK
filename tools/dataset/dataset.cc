@@ -12,13 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "dataset/dataset.h"
-
-#ifdef USE_OPENCV2
 #include <opencv2/highgui/highgui.hpp>
-#else
-#include <opencv2/imgcodecs/imgcodecs.hpp>
-#endif
-
+#include <opencv2/imgproc/imgproc.hpp>
 #include <glog/logging.h>
 
 #include <iomanip>
