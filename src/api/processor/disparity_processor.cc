@@ -21,6 +21,8 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
+const char DisparityProcessor::NAME[] = "DisparityProcessor";
+
 DisparityProcessor::DisparityProcessor(std::int32_t proc_period)
     : Processor(std::move(proc_period)) {
   VLOG(2) << __func__ << ": proc_period=" << proc_period;

@@ -23,7 +23,7 @@ MYNTEYE_BEGIN_NAMESPACE
 
 class DepthProcessor : public Processor {
  public:
-  static constexpr auto &&NAME = "DepthProcessor";
+  static const char NAME[];
 
   explicit DepthProcessor(std::int32_t proc_period = 0);
   virtual ~DepthProcessor();

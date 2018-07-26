@@ -29,7 +29,7 @@ class Device;
 
 class RectifyProcessor : public Processor {
  public:
-  static constexpr auto &&NAME = "RectifyProcessor";
+  static const char NAME[];
 
   RectifyProcessor(
       std::shared_ptr<Device> device, std::int32_t proc_period = 0);

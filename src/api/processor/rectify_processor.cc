@@ -24,6 +24,8 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
+const char RectifyProcessor::NAME[] = "RectifyProcessor";
+
 RectifyProcessor::RectifyProcessor(
     std::shared_ptr<Device> device, std::int32_t proc_period)
     : Processor(std::move(proc_period)) {

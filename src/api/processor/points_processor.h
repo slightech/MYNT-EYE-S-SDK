@@ -25,7 +25,7 @@ MYNTEYE_BEGIN_NAMESPACE
 
 class PointsProcessor : public Processor {
  public:
-  static constexpr auto &&NAME = "PointsProcessor";
+  static const char NAME[];
 
   explicit PointsProcessor(cv::Mat Q, std::int32_t proc_period = 0);
   virtual ~PointsProcessor();
