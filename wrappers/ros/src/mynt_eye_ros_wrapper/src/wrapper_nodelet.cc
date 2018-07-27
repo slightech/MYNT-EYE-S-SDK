@@ -174,11 +174,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       NODELET_INFO_STREAM("Advertized on topic " << topic);
     }
 
-    camera_encodings_ = {{Stream::LEFT, enc::MONO8},
-                         {Stream::RIGHT, enc::MONO8}};
+    camera_encodings_ = {{Stream::LEFT, enc::BGR8}, {Stream::RIGHT, enc::BGR8}};
 
-    image_encodings_ = {{Stream::LEFT_RECTIFIED, enc::MONO8},
-                        {Stream::RIGHT_RECTIFIED, enc::MONO8},
+    image_encodings_ = {{Stream::LEFT_RECTIFIED, enc::BGR8},
+                        {Stream::RIGHT_RECTIFIED, enc::BGR8},
                         {Stream::DISPARITY, enc::MONO8},  // float
                         {Stream::DISPARITY_NORMALIZED, enc::MONO8},
                         {Stream::DEPTH, enc::MONO16}};
@@ -325,8 +324,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       ++imu_count_;
       publishImu(data, imu_count_, stamp);
       publishTemp(data.imu->temperature, imu_count_, stamp);
-      NODELET_DEBUG_STREAM(          
-          "Imu count: " << imu_count_<< ", timestamp: " << data.imu->timestamp
+      NODELET_DEBUG_STREAM(
+          "Imu count: " << imu_count_ << ", timestamp: " << data.imu->timestamp
                         << ", accel_x: " << data.imu->accel[0]
                         << ", accel_y: " << data.imu->accel[1]
                         << ", accel_z: " << data.imu->accel[2]
