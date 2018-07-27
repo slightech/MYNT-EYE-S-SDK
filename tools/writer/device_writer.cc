@@ -311,8 +311,8 @@ DeviceWriter::dev_info_t DeviceWriter::LoadDeviceInfo(
     LOG(FATAL) << "Failed to load file: " << filepath;
   }
   DeviceInfo info;
-  info.lens_type = Type(fs["lens_type"].string());
-  info.imu_type = Type(fs["imu_type"].string());
+  info.lens_type = Type(std::string(fs["lens_type"]));
+  info.imu_type = Type(std::string(fs["imu_type"]));
   fs["nominal_baseline"] >> info.nominal_baseline;
   fs.release();
   return info;
