@@ -130,14 +130,14 @@ void Channels::LogControlInfos() const {
 void Channels::UpdateControlInfos() {
   for (auto &&option : std::vector<Option>{Option::GAIN, Option::BRIGHTNESS,
                                            Option::CONTRAST}) {
-    control_infos_[option] = PuControlInfo(option);
+    // control_infos_[option] = PuControlInfo(option);
   }
 
   for (auto &&option : std::vector<Option>{
            Option::FRAME_RATE, Option::IMU_FREQUENCY, Option::EXPOSURE_MODE,
            Option::MAX_GAIN, Option::MAX_EXPOSURE_TIME,
            Option::DESIRED_BRIGHTNESS, Option::IR_CONTROL, Option::HDR_MODE}) {
-    control_infos_[option] = XuControlInfo(option);
+    // control_infos_[option] = XuControlInfo(option);
   }
 
   if (VLOG_IS_ON(2)) {
