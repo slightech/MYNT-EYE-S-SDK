@@ -36,7 +36,7 @@ struct glog_init {
 
     // Log suppression level: messages logged at a lower level than this
     // are suppressed.
-    FLAGS_minloglevel = google::INFO;
+    FLAGS_minloglevel = google::GLOG_INFO;
 
     // If specified, logfiles are written into this directory instead of the
     // default logging directory.
