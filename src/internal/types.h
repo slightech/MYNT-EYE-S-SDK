@@ -16,7 +16,6 @@
 #pragma once
 
 #include <cstdint>
-
 #include <array>
 #include <bitset>
 #include <string>
@@ -158,12 +157,17 @@ struct ImagePacket {
   }
 
   void from_data(std::uint8_t *data) {
+    std::uint32_t timestamp_l;
+    std::uint32_t timestamp_h;
+
     header = *data;
     size = *(data + 1);
     frame_id = (*(data + 2) << 8) | *(data + 3);
-    timestamp = (*(data + 4) << 56) | (*(data + 5) << 48) | (*(data + 6) << 40) |
-                (*(data + 7) << 32) | (*(data + 8) << 24) | (*(data + 9) << 16) |
-                (*(data + 10) << 8) | *(data + 11);
+    timestamp_h = (*(data + 4) << 24) | (*(data + 5) << 16) |
+                  (*(data + 6) << 8) | *(data + 7);
+    timestamp_l = (*(data + 8) << 24) | (*(data + 9) << 16) |
+                  (*(data + 10) << 8) | *(data + 11);
+    timestamp = (static_cast<std::uint64_t>(timestamp_h) << 32) | timestamp_l;
     exposure_time = (*(data + 12) << 8) | *(data + 13);
     checksum = *(data + 14);
   }
@@ -212,11 +216,16 @@ struct ImuSegment {
   }
 
   void from_data(std::uint8_t *data) {
+    std::uint32_t timestamp_l;
+    std::uint32_t timestamp_h;
+
     serial_number = (*(data) << 24) | (*(data + 1) << 16) | (*(data + 2) << 8) |
                     *(data + 3);
-    timestamp = (*(data + 4) << 56) | (*(data + 5) << 48) | (*(data + 6) << 40) |
-                (*(data + 7) << 32) | (*(data + 8) << 24) | (*(data + 9) << 16) |
-                (*(data + 10) << 8) | *(data + 11);
+    timestamp_h = (*(data + 4) << 24) | (*(data + 5) << 16) |
+                  (*(data + 6) << 8) | *(data + 7);
+    timestamp_l = (*(data + 8) << 24) | (*(data + 9) << 16) |
+                  (*(data + 10) << 8) | *(data + 11);
+    timestamp = (static_cast<std::uint64_t>(timestamp_h) << 32) | timestamp_l;
     flag = *(data + 12);
     temperature = (*(data + 13) << 8) | *(data + 14);
     aceel_or_gyro[0] = (*(data + 15) << 8) | *(data + 16);
@@ -236,15 +245,13 @@ struct ImuPacket {
   std::vector<ImuSegment> segments;
 
   ImuPacket() = default;
-  
-  explicit ImuPacket(std::uint8_t seg_count,std::uint8_t *data) {
+  explicit ImuPacket(std::uint8_t seg_count, std::uint8_t *data) {
     count = seg_count;
     from_data(data);
   }
-  
   void from_data(std::uint8_t *data) {
         std::size_t seg_n = sizeof(ImuSegment);  // 21
-        for(std::size_t i = 0; i < count; i++) {
+        for (std::size_t i = 0; i < count; i++) {
           segments.push_back(ImuSegment(data + seg_n * i));
         }
   }
@@ -275,9 +282,9 @@ struct ImuResPacket {
 
     std::size_t seg_n = sizeof(ImuSegment);  // 21
     std::uint8_t seg_count = size / seg_n;
-    ImuPacket packet(seg_count,data + 4);
+    ImuPacket packet(seg_count, data + 4);
     packets.push_back(packet);
-    //packet(2);
+    // packet(2);
     checksum = *(data + 4 + size);
   }
 };

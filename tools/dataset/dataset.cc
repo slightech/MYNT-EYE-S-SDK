@@ -75,12 +75,14 @@ void Dataset::SaveStreamData(
 void Dataset::SaveMotionData(const device::MotionData &data) {
   auto &&writer = GetMotionWriter();
   auto seq = motion_count_;
-  writer->ofs << seq << ", " << data.imu->timestamp << ", "
-              << data.imu->accel[0] << ", " << data.imu->accel[1] << ", "
-              << data.imu->accel[2] << ", " << data.imu->gyro[0] << ", "
-              << data.imu->gyro[1] << ", " <<  data.imu->gyro[2] << ", "
-              << data.imu->temperature << std::endl;           
-  ++motion_count_;
+  if (data.imu->flag == 1 || data.imu->flag == 2) {
+    writer->ofs << seq << ", " << data.imu->timestamp << ", "
+                << data.imu->accel[0] << ", " << data.imu->accel[1] << ", "
+                << data.imu->accel[2] << ", " << data.imu->gyro[0] << ", "
+                << data.imu->gyro[1] << ", " << data.imu->gyro[2] << ", "
+                << data.imu->temperature << std::endl;
+    ++motion_count_;
+  }
 }
 
 Dataset::writer_t Dataset::GetStreamWriter(const Stream &stream) {
@@ -102,7 +104,7 @@ Dataset::writer_t Dataset::GetStreamWriter(const Stream &stream) {
 
     files::mkdir(writer->outdir);
     writer->ofs.open(writer->outfile, std::ofstream::out);
-    writer->ofs << "seq, timestamp, exposure_time" << std::endl;
+    writer->ofs << "seq, frame_id, timestamp, exposure_time" << std::endl;
     writer->ofs << FULL_PRECISION;
 
     stream_writers_[stream] = writer;
@@ -126,6 +128,8 @@ Dataset::writer_t Dataset::GetMotionWriter() {
 
     motion_writer_ = writer;
     motion_count_ = 0;
+    accel_count_ = 0;
+    gyro_count_ = 0;
   }
   return motion_writer_;
 }

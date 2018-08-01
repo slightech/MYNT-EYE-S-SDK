@@ -288,14 +288,14 @@ def _parse_args():
       '--rate-img',
       dest='rate_img',
       metavar='RATE',
-      default=25,
+      default=60,
       type=int,
       help='the img rate (default: %(default)s)')
   parser.add_argument(
       '--rate-imu',
       dest='rate_imu',
       metavar='RATE',
-      default=500,
+      default=200,
       type=int,
       help='the imu rate (default: %(default)s)')
   return parser.parse_args()

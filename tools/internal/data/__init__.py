@@ -339,9 +339,9 @@ class MYNTEYE(Dataset):
       if index == -1:
         sys.exit('Error: Dataset is unexpected format, timestamp not found')
 
-      # unit from 0.01ms to 1s
-      info.timebeg = float(first.split(',')[index].strip()) * 0.00001
-      info.timeend = float(last.split(',')[index].strip()) * 0.00001
+      # unit from 1us to 1s
+      info.timebeg = float(first.split(',')[index].strip()) * 0.000001
+      info.timeend = float(last.split(',')[index].strip()) * 0.000001
       # print('time: [{}, {}]'.format(info.timebeg, info.timeend))
 
     return info
@@ -364,7 +364,7 @@ class MYNTEYE(Dataset):
         for line in f:
           values = [_.strip() for _ in line.split(',')]
           img = Image()
-          img.timestamp = float(values[fields['timestamp']]) * 0.00001
+          img.timestamp = float(values[fields['timestamp']]) * 0.000001
           yield {What.img_left: img}
     if hit_img_right and self._info.has_img_right:
       with open(self._info.img_right_txt) as f:
@@ -372,7 +372,7 @@ class MYNTEYE(Dataset):
         for line in f:
           values = [_.strip() for _ in line.split(',')]
           img = Image()
-          img.timestamp = float(values[fields['timestamp']]) * 0.00001
+          img.timestamp = float(values[fields['timestamp']]) * 0.000001
           yield {What.img_right: img}
     if (hit_imu or hit_temp) and self._info.has_imu:
       with open(self._info.imu_txt) as f:
@@ -380,7 +380,7 @@ class MYNTEYE(Dataset):
         for line in f:
           values = [_.strip() for _ in line.split(',')]
           imu = IMU()
-          imu.timestamp = float(values[fields['timestamp']]) * 0.00001
+          imu.timestamp = float(values[fields['timestamp']]) * 0.000001
           imu.accel_x = float(values[fields['accel_x']])
           imu.accel_y = float(values[fields['accel_y']])
           imu.accel_z = float(values[fields['accel_z']])
