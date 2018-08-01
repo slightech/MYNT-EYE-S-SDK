@@ -102,7 +102,7 @@ Dataset::writer_t Dataset::GetStreamWriter(const Stream &stream) {
 
     files::mkdir(writer->outdir);
     writer->ofs.open(writer->outfile, std::ofstream::out);
-    writer->ofs << "seq, frame_id, timestamp, exposure_time" << std::endl;
+    writer->ofs << "seq, timestamp, exposure_time" << std::endl;
     writer->ofs << FULL_PRECISION;
 
     stream_writers_[stream] = writer;
@@ -119,7 +119,7 @@ Dataset::writer_t Dataset::GetMotionWriter() {
 
     files::mkdir(writer->outdir);
     writer->ofs.open(writer->outfile, std::ofstream::out);
-    writer->ofs << "seq, frame_id, timestamp, accel_x, accel_y, accel_z, "
+    writer->ofs << "seq, timestamp, accel_x, accel_y, accel_z, "
                    "gyro_x, gyro_y, gyro_z, temperature"
                 << std::endl;
     writer->ofs << FULL_PRECISION;
