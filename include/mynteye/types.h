@@ -441,9 +441,11 @@ struct MYNTEYE_API ImgData {
  * IMU data.
  */
 struct MYNTEYE_API ImuData {
+  /** Imu serial number */
+  std::uint32_t serial_number;
   /** accel or gyro flag:1 for accel,2 for gyro,3 for both */
   std::uint8_t flag;
-  /** IMU timestamp in 0.01ms */
+  /** IMU timestamp in 1us */
   std::uint64_t timestamp;
   /** IMU accelerometer data for 3-axis: X, Y, Z. */
   double accel[3];
