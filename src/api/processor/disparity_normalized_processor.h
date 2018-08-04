@@ -23,7 +23,7 @@ MYNTEYE_BEGIN_NAMESPACE
 
 class DisparityNormalizedProcessor : public Processor {
  public:
-  static constexpr auto &&NAME = "DisparityNormalizedProcessor";
+  static const char NAME[];
 
   explicit DisparityNormalizedProcessor(std::int32_t proc_period = 0);
   virtual ~DisparityNormalizedProcessor();

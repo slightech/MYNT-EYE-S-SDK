@@ -21,6 +21,9 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
+const char DisparityNormalizedProcessor::NAME[] =
+    "DisparityNormalizedProcessor";
+
 DisparityNormalizedProcessor::DisparityNormalizedProcessor(
     std::int32_t proc_period)
     : Processor(std::move(proc_period)) {
