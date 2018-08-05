@@ -50,6 +50,8 @@ int main(int argc, char *argv[]) {
   // device->RunOptionAction(Option::ZERO_DRIFT_CALIBRATION);
 
   std::size_t left_count = 0;
+  device->SetStreamRequest(
+      Resolution::RES_2560x800, Format::YUYV, FrameRate::RATE_30_FPS);
   device->SetStreamCallback(
       Stream::LEFT, [&left_count](const device::StreamData &data) {
         CHECK_NOTNULL(data.img);
@@ -75,7 +77,7 @@ int main(int argc, char *argv[]) {
   device->SetMotionCallback([&imu_count](const device::MotionData &data) {
     CHECK_NOTNULL(data.imu);
     ++imu_count;
-    VLOG(2) << "Imu count: " << imu_count; 
+    VLOG(2) << "Imu count: " << imu_count;
     VLOG(2) << ", timestamp: " << data.imu->timestamp
             << ", accel_x: " << data.imu->accel[0]
             << ", accel_y: " << data.imu->accel[1]
@@ -101,7 +103,7 @@ int main(int argc, char *argv[]) {
 
     auto &&motion_datas = device->GetMotionDatas();
     motion_count += motion_datas.size();
-    for (auto &&data : motion_datas) {       
+    for (auto &&data : motion_datas) {
       LOG(INFO) << ", timestamp: " << data.imu->timestamp
                 << ", accel_x: " << data.imu->accel[0]
                 << ", accel_y: " << data.imu->accel[1]

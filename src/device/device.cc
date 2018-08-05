@@ -100,10 +100,10 @@ std::shared_ptr<Device> Device::Create(
     return std::make_shared<StandardDevice>(device);
   } else if (strings::starts_with(name, "MYNT-EYE-")) {
     // TODO(JohnZhao): Create different device by name, such as MYNT-EYE-S1000
-    std::string model_s = name.substr(9,5);
+    std::string model_s = name.substr(9, 5);
     VLOG(2) << "MYNE EYE Model: " << model_s;
     DeviceModel model(model_s);
-    if(model.type == 'S') {
+    if (model.type == 'S') {
       switch (model.custom_code) {
         case '0':
           return std::make_shared<StandardDevice>(device);
@@ -432,13 +432,22 @@ std::vector<device::MotionData> Device::GetMotionDatas() {
   return motions_->GetMotionDatas();
 }
 
+void Device::SetStreamRequest(
+    const Resolution &res, const Format &format, const FrameRate &rate) {
+  StreamRequest request(res, format, rate);
+  request_ = request;
+}
+
 const StreamRequest &Device::GetStreamRequest(const Capabilities &capability) {
   try {
     return stream_config_requests_.at(capability);
   } catch (const std::out_of_range &e) {
     auto &&requests = GetStreamRequests(capability);
     if (requests.size() >= 1) {
-      VLOG(2) << "Select the first one stream request of " << capability;
+      for (auto &&request : requests) {
+        if (request == request_)
+          return request;
+      }
       return requests[0];
     } else {
       LOG(FATAL) << "Please config the stream request of " << capability;
@@ -455,53 +464,48 @@ void Device::StartVideoStreaming() {
   streams_ = std::make_shared<Streams>(GetKeyStreams());
 
   // if stream capabilities are supported with subdevices of device_
-  /*
   Capabilities stream_capabilities[] = {
-    Capabilities::STEREO,
-    Capabilities::COLOR,
-    Capabilities::DEPTH,
-    Capabilities::POINTS,
-    Capabilities::FISHEYE,
-    Capabilities::INFRARED,
-    Capabilities::INFRARED2
-  };
+      Capabilities::STEREO,       Capabilities::COLOR,
+      Capabilities::STEREO_COLOR, Capabilities::DEPTH,
+      Capabilities::POINTS,       Capabilities::FISHEYE,
+      Capabilities::INFRARED,     Capabilities::INFRARED2};
   for (auto &&capability : stream_capabilities) {
-  }
-  */
-  if (Supports(Capabilities::STEREO)) {
-    // do stream request selection if more than one request of each stream
-    auto &&stream_request = GetStreamRequest(Capabilities::STEREO);
+    if (Supports(capability)) {
+      // do stream request selection if more than one request of each stream
+      auto &&stream_request = GetStreamRequest(capability);
 
-    streams_->ConfigStream(Capabilities::STEREO, stream_request);
-    uvc::set_device_mode(
-        *device_, stream_request.width, stream_request.height,
-        static_cast<int>(stream_request.format), stream_request.fps,
-        [this](const void *data, std::function<void()> continuation) {
-          // drop the first stereo stream data
-          static std::uint8_t drop_count = 1;
-          if (drop_count > 0) {
-            --drop_count;
-            continuation();
-            return;
-          }
-          // auto &&time_beg = times::now();
-          {
-            std::lock_guard<std::mutex> _(mtx_streams_);
-            if (streams_->PushStream(Capabilities::STEREO, data)) {
-              CallbackPushedStreamData(Stream::LEFT);
-              CallbackPushedStreamData(Stream::RIGHT);
+      streams_->ConfigStream(capability, stream_request);
+      uvc::set_device_mode(
+          *device_, stream_request.width, stream_request.height,
+          static_cast<int>(stream_request.format), stream_request.fps,
+          [this, capability](
+              const void *data, std::function<void()> continuation) {
+            // drop the first stereo stream data
+            static std::uint8_t drop_count = 1;
+            if (drop_count > 0) {
+              --drop_count;
+              continuation();
+              return;
             }
-          }
-          continuation();
-          OnStereoStreamUpdate();
-          // VLOG(2) << "Stereo video callback cost "
-          //     << times::count<times::milliseconds>(times::now() - time_beg)
-          //     << " ms";
-        });
-  } else {
-    LOG(FATAL) << "Not any stream capabilities are supported by this device";
+            // auto &&time_beg = times::now();
+            {
+              std::lock_guard<std::mutex> _(mtx_streams_);
+              if (streams_->PushStream(capability, data)) {
+                CallbackPushedStreamData(Stream::LEFT);
+                CallbackPushedStreamData(Stream::RIGHT);
+              }
+            }
+            continuation();
+            OnStereoStreamUpdate();
+            // VLOG(2) << "Stereo video callback cost "
+            //     << times::count<times::milliseconds>(times::now() - time_beg)
+            //     << " ms";
+          });
+    } else {
+      // LOG(FATAL) << "Not any stream capabilities are supported by this
+      // device";
+    }
   }
-
   uvc::start_streaming(*device_, 0);
   video_streaming_ = true;
 }

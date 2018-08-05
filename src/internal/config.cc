@@ -19,7 +19,7 @@ const std::map<Model, StreamSupports> stream_supports_map = {
     {Model::STANDARD, {Stream::LEFT, Stream::RIGHT}}};
 
 const std::map<Model, CapabilitiesSupports> capabilities_supports_map = {
-    {Model::STANDARD, {Capabilities::STEREO, Capabilities::IMU}}};
+    {Model::STANDARD, {Capabilities::STEREO_COLOR, Capabilities::IMU}}};
 
 const std::map<Model, OptionSupports> option_supports_map = {
     {Model::STANDARD,
@@ -31,6 +31,19 @@ const std::map<Model, OptionSupports> option_supports_map = {
 const std::map<Model, std::map<Capabilities, StreamRequests>>
     stream_requests_map = {
         {Model::STANDARD,
-         {{Capabilities::STEREO, {{1280, 480, Format::YUYV, 25}}}}}};
+         {{Capabilities::STEREO, {{480, 752, Format::YUYV, 25}}},
+          {Capabilities::STEREO_COLOR,
+           {{1280, 400, Format::YUYV, 20},
+            {1280, 400, Format::YUYV, 30},
+            {1280, 400, Format::YUYV, 60},
+            {2560, 800, Format::YUYV, 10},
+            {2560, 800, Format::YUYV, 20},
+            {2560, 800, Format::YUYV, 30},
+            {1280, 400, Format::RGB888, 20},
+            {1280, 400, Format::RGB888, 30},
+            {1280, 400, Format::RGB888, 60},
+            {2560, 800, Format::RGB888, 10},
+            {2560, 800, Format::RGB888, 20},
+            {2560, 800, Format::RGB888, 30}}}}}};
 
 MYNTEYE_END_NAMESPACE

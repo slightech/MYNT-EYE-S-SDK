@@ -11,14 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "api/synthetic.h"
-
-#include <glog/logging.h>
-
 #include <algorithm>
 #include <functional>
 #include <stdexcept>
-#include <opencv2/imgproc/imgproc.hpp>
+
 #include "api/plugin.h"
 #include "api/processor/depth_processor.h"
 #include "api/processor/disparity_normalized_processor.h"
@@ -27,6 +23,7 @@
 #include "api/processor/points_processor.h"
 #include "api/processor/processor.h"
 #include "api/processor/rectify_processor.h"
+#include "api/synthetic.h"
 #include "device/device.h"
 
 #define RECTIFY_PROC_PERIOD 0
@@ -42,9 +39,15 @@ namespace {
 cv::Mat frame2mat(const std::shared_ptr<device::Frame> &frame) {
   // TODO(JohnZhao) Support different format frame to cv::Mat
   CHECK_EQ(frame->format(), Format::YUYV);
-  cv::Mat img(frame->height(), frame->width(), CV_8UC2,frame->data());
-  cv::cvtColor(img, img, cv::COLOR_YUV2BGR_YUY2);
-  return img;
+  if (frame->format() == Format::YUYV) {
+    cv::Mat img(frame->height(), frame->width(), CV_8UC2, frame->data());
+    cv::cvtColor(img, img, cv::COLOR_YUV2BGR_YUY2);
+    return img;
+  } else if (frame->format() == Format::RGB888) {
+    return cv::Mat(frame->height(), frame->width(), CV_8UC3, frame->data());
+  } else {
+    return cv::Mat(frame->height(), frame->width(), CV_8UC1, frame->data());
+  }
 }
 
 api::StreamData data2api(const device::StreamData &data) {

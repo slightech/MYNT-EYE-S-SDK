@@ -69,7 +69,7 @@ struct MYNTEYE_API MotionData {
 
   bool operator==(const MotionData &other) const {
     if (imu && other.imu) {
-      return imu->timestamp == other.imu->timestamp;            
+      return imu->timestamp == other.imu->timestamp;
     }
     return false;
   }
@@ -144,6 +144,11 @@ class MYNTEYE_API API {
    */
   bool Supports(const AddOns &addon) const;
 
+  /**
+   * set the stream request.
+   */
+  void SetStreamRequest(
+      const Resolution &res, const Format &format, const FrameRate &rate);
   /**
    * Get all stream requests of the capability.
    */

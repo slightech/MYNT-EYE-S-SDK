@@ -104,6 +104,11 @@ class MYNTEYE_API Device {
   bool Supports(const AddOns &addon) const;
 
   /**
+   * set the stream request.
+   */
+  void SetStreamRequest(
+      const Resolution &res, const Format &format, const FrameRate &rate);
+  /**
    * Get all stream requests of the capability.
    */
   const std::vector<StreamRequest> &GetStreamRequests(
@@ -286,6 +291,7 @@ class MYNTEYE_API Device {
 
  private:
   Model model_;
+  StreamRequest request_;
   std::shared_ptr<uvc::device> device_;
   std::shared_ptr<DeviceInfo> device_info_;
 

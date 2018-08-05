@@ -24,7 +24,8 @@ int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
   if (!api)
     return 1;
-
+  api->SetStreamRequest(
+      Resolution::RES_2560x800, Format::YUYV, FrameRate::RATE_20_FPS);
   // api->SetOptionValue(Option::FRAME_RATE, 25);
   // api->SetOptionValue(Option::IMU_FREQUENCY, 500);
   api->SetOptionValue(Option::IR_CONTROL, 80);
@@ -105,7 +106,7 @@ int main(int argc, char *argv[]) {
 
     auto &&motion_datas = api->GetMotionDatas();
     motion_count += motion_datas.size();
-    for (auto &&data : motion_datas) {       
+    for (auto &&data : motion_datas) {
       LOG(INFO) << ", timestamp: " << data.imu->timestamp
                 << ", accel_x: " << data.imu->accel[0]
                 << ", accel_y: " << data.imu->accel[1]

@@ -27,12 +27,17 @@ MYNTEYE_BEGIN_NAMESPACE
 using StreamSupports = std::set<Stream>;
 using CapabilitiesSupports = std::set<Capabilities>;
 using OptionSupports = std::set<Option>;
-
+using ResolutionSupports = std::set<Resolution>;
+using FrameRateSupports = std::set<FrameRate>;
 extern const std::map<Model, StreamSupports> stream_supports_map;
 extern const std::map<Model, CapabilitiesSupports> capabilities_supports_map;
 extern const std::map<Model, OptionSupports> option_supports_map;
+extern const std::map<Model, ResolutionSupports> resolution_supports_map;
 
 using StreamRequests = std::vector<StreamRequest>;
+
+extern const std::map<Model, std::map<Resolution, FrameRateSupports>>
+    framerate_Supports_supports_map;
 
 extern const std::map<Model, std::map<Capabilities, StreamRequests>>
     stream_requests_map;

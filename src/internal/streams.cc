@@ -85,8 +85,8 @@ bool unpack_left_img_pixels(
   auto data_new = reinterpret_cast<const std::uint8_t *>(data);
   std::size_t w = frame->width() * 2;
   std::size_t h = frame->height();
-  for(std::size_t i = 0; i < h; i++) {
-    for(std::size_t j = 0; j < w; j++) {
+  for (std::size_t i = 0; i < h; i++) {
+    for (std::size_t j = 0; j < w; j++) {
       frame->data()[i * w + j] = *(data_new + 2 * i * w + j);
     }
   }
@@ -101,8 +101,8 @@ bool unpack_right_img_pixels(
   auto data_new = reinterpret_cast<const std::uint8_t *>(data);
   std::size_t w = frame->width() * 2;
   std::size_t h = frame->height();
-  for(std::size_t i = 0; i < h; i++) {
-    for(std::size_t j = 0; j < w; j++) {
+  for (std::size_t i = 0; i < h; i++) {
+    for (std::size_t j = 0; j < w; j++) {
       frame->data()[i * w + j] = *(data_new + (2 * i + 1) * w + j);
     }
   }
@@ -116,7 +116,7 @@ Streams::Streams(const std::vector<Stream> key_streams)
       stream_capabilities_(
           {Capabilities::STEREO, Capabilities::COLOR, Capabilities::DEPTH,
            Capabilities::POINTS, Capabilities::FISHEYE, Capabilities::INFRARED,
-           Capabilities::INFRARED2}),
+           Capabilities::INFRARED2, Capabilities::STEREO_COLOR}),
       unpack_img_data_map_(
           {{Stream::LEFT, unpack_stereo_img_data},
            {Stream::RIGHT, unpack_stereo_img_data}}),
@@ -148,7 +148,7 @@ bool Streams::PushStream(const Capabilities &capability, const void *data) {
   auto &&request = GetStreamConfigRequest(capability);
   bool pushed = false;
   switch (capability) {
-    case Capabilities::STEREO: {
+    case Capabilities::STEREO_COLOR: {
       // alloc left
       AllocStreamData(Stream::LEFT, request, Format::YUYV);
       auto &&left_data = stream_datas_map_[Stream::LEFT].back();
@@ -281,7 +281,7 @@ void Streams::AllocStreamData(
   }
 
   if (stream == Stream::LEFT || stream == Stream::RIGHT) {
-    if(!data.img) {
+    if (!data.img) {
       data.img = std::make_shared<ImgData>();
     }
   } else {

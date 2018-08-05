@@ -76,6 +76,8 @@ enum class Capabilities : std::uint8_t {
   STEREO,
   /** Provides color stream */
   COLOR,
+  /** Provide stereo color  stream */
+  STEREO_COLOR,
   /** Provides depth stream */
   DEPTH,
   /** Provides point cloud stream */
@@ -227,6 +229,40 @@ enum class AddOns : std::uint8_t {
   LAST
 };
 
+/**
+ * @ingroup enumerations
+ * @brief Camera supported resolution.
+ */
+enum class Resolution : std::uint8_t {
+  /** 480x752 */
+  RES_480x752,
+  /** 1280x400 */
+  RES_1280x400,
+  /** 2560x800 */
+  RES_2560x800,
+  /** Last guard */
+  LAST
+};
+
+/**
+ * @ingroup enumerations
+ * @brief Camera supported frame rate.
+ */
+enum class FrameRate : std::uint8_t {
+  /** 10 fps */
+  RATE_10_FPS,
+  /** 20 fps */
+  RATE_20_FPS,
+  /** 20 fps */
+  RATE_25_FPS,
+  /** 30 fps */
+  RATE_30_FPS,
+  /** 60 fps */
+  RATE_60_FPS,
+  /** Last guard */
+  LAST
+};
+
 #define MYNTEYE_ENUM_HELPERS(TYPE)                                       \
   MYNTEYE_API const char *to_string(const TYPE &value);                  \
   inline bool is_valid(const TYPE &value) {                              \
@@ -250,6 +286,8 @@ MYNTEYE_ENUM_HELPERS(Info)
 MYNTEYE_ENUM_HELPERS(Option)
 MYNTEYE_ENUM_HELPERS(Source)
 MYNTEYE_ENUM_HELPERS(AddOns)
+MYNTEYE_ENUM_HELPERS(Resolution)
+MYNTEYE_ENUM_HELPERS(FrameRate)
 
 #undef MYNTEYE_ENUM_HELPERS
 
@@ -266,6 +304,8 @@ enum class Format : std::uint32_t {
   GREY = MYNTEYE_FOURCC('G', 'R', 'E', 'Y'),
   /** YUV 4:2:2, 16 bits per pixel */
   YUYV = MYNTEYE_FOURCC('Y', 'U', 'Y', 'V'),
+  /** RGB 8:8:8, 24 bits per pixel */
+  RGB888 = MYNTEYE_FOURCC('R', 'G', 'B', '3'),
   /** Last guard */
   LAST
 };
@@ -292,6 +332,52 @@ struct MYNTEYE_API StreamRequest {
   Format format;
   /** Stream frames per second (unused) */
   std::uint16_t fps;
+
+  StreamRequest() {}
+
+  StreamRequest(
+      std::uint16_t width, std::uint16_t height, Format format,
+      std::uint16_t fps)
+      : width(width), height(height), format(format), fps(fps) {}
+
+  StreamRequest(Resolution res, Format format, FrameRate rate)
+      : format(format) {
+    switch (res) {
+      case Resolution::RES_480x752:
+        width = 480, height = 752;
+        break;
+      case Resolution::RES_1280x400:
+        width = 1280, height = 400;
+        break;
+      case Resolution::RES_2560x800:
+        width = 2560, height = 800;
+        break;
+      default:
+        width = 480, height = 752;
+        break;
+    }
+
+    switch (rate) {
+      case FrameRate::RATE_10_FPS:
+        fps = 10;
+        break;
+      case FrameRate::RATE_20_FPS:
+        fps = 20;
+        break;
+      case FrameRate::RATE_25_FPS:
+        fps = 25;
+        break;
+      case FrameRate::RATE_30_FPS:
+        fps = 30;
+        break;
+      case FrameRate::RATE_60_FPS:
+        fps = 60;
+        break;
+      default:
+        fps = 25;
+        break;
+    }
+  }
 
   bool operator==(const StreamRequest &other) const {
     return width == other.width && height == other.height &&
