@@ -29,8 +29,6 @@ namespace {
 bool unpack_stereo_img_data(
     const void *data, const StreamRequest &request, ImgData *img) {
   CHECK_NOTNULL(img);
-  CHECK_EQ(request.format, Format::YUYV);
-
   auto data_new = reinterpret_cast<const std::uint8_t *>(data);
   std::size_t data_n =
       request.width * request.height * bytes_per_pixel(request.format);
@@ -60,7 +58,7 @@ bool unpack_stereo_img_data(
   for (std::size_t i = 2, n = packet_n - 2; i <= n; i++) {  // content: [2,9]
     checksum = (checksum ^ packet[i]);
   }
-  /*
+
   if (img_packet.checksum != checksum) {
     LOG(WARNING) << "Image packet checksum should be 0x" << std::hex
                  << std::uppercase << std::setw(2) << std::setfill('0')
@@ -69,7 +67,6 @@ bool unpack_stereo_img_data(
                  << static_cast<int>(checksum) << " now";
     return false;
   }
-  */
 
   img->frame_id = img_packet.frame_id;
   img->timestamp = img_packet.timestamp;
@@ -80,32 +77,52 @@ bool unpack_stereo_img_data(
 bool unpack_left_img_pixels(
     const void *data, const StreamRequest &request, Streams::frame_t *frame) {
   CHECK_NOTNULL(frame);
-  CHECK_EQ(request.format, Format::YUYV);
-  CHECK_EQ(frame->format(), Format::YUYV);
+  CHECK_EQ(request.format, frame->format());
   auto data_new = reinterpret_cast<const std::uint8_t *>(data);
-  std::size_t w = frame->width() * 2;
-  std::size_t h = frame->height();
-  for (std::size_t i = 0; i < h; i++) {
-    for (std::size_t j = 0; j < w; j++) {
-      frame->data()[i * w + j] = *(data_new + 2 * i * w + j);
+  if (request.format == Format::YUYV || request.format == Format::RGB888) {
+    std::size_t n = request.format == Format::YUYV ? 2 : 3;
+    std::size_t w = frame->width() * n;
+    std::size_t h = frame->height();
+    for (std::size_t i = 0; i < h; i++) {
+      for (std::size_t j = 0; j < w; j++) {
+        frame->data()[i * w + j] = *(data_new + 2 * i * w + j);
+      }
     }
+  } else if (request.format == Format::GREY) {
+    std::size_t n = frame->width() * frame->height();
+    for (std::size_t i = 0; i < n; i++) {
+      frame->data()[i] = *(data_new + (i * 2));
+    }
+  } else {
+    return false;
   }
+
   return true;
 }
 
 bool unpack_right_img_pixels(
     const void *data, const StreamRequest &request, Streams::frame_t *frame) {
   CHECK_NOTNULL(frame);
-  CHECK_EQ(request.format, Format::YUYV);
-  CHECK_EQ(frame->format(), Format::YUYV);
+  CHECK_EQ(request.format, frame->format());
   auto data_new = reinterpret_cast<const std::uint8_t *>(data);
-  std::size_t w = frame->width() * 2;
-  std::size_t h = frame->height();
-  for (std::size_t i = 0; i < h; i++) {
-    for (std::size_t j = 0; j < w; j++) {
-      frame->data()[i * w + j] = *(data_new + (2 * i + 1) * w + j);
+  if (request.format == Format::YUYV || request.format == Format::RGB888) {
+    std::size_t n = request.format == Format::YUYV ? 2 : 3;
+    std::size_t w = frame->width() * n;
+    std::size_t h = frame->height();
+    for (std::size_t i = 0; i < h; i++) {
+      for (std::size_t j = 0; j < w; j++) {
+        frame->data()[i * w + j] = *(data_new + (2 * i + 1) * w + j);
+      }
     }
+  } else if (request.format == Format::GREY) {
+    std::size_t n = frame->width() * frame->height();
+    for (std::size_t i = 0; i < n; i++) {
+      frame->data()[i] = *(data_new + (i * 2 + 1));
+    }
+  } else {
+    return false;
   }
+
   return true;
 }
 
@@ -150,13 +167,13 @@ bool Streams::PushStream(const Capabilities &capability, const void *data) {
   switch (capability) {
     case Capabilities::STEREO_COLOR: {
       // alloc left
-      AllocStreamData(Stream::LEFT, request, Format::YUYV);
+      AllocStreamData(Stream::LEFT, request);
       auto &&left_data = stream_datas_map_[Stream::LEFT].back();
       // unpack img data
       if (unpack_img_data_map_[Stream::LEFT](
               data, request, left_data.img.get())) {
         // alloc right
-        AllocStreamData(Stream::RIGHT, request, Format::YUYV);
+        AllocStreamData(Stream::RIGHT, request);
         auto &&right_data = stream_datas_map_[Stream::RIGHT].back();
         *right_data.img = *left_data.img;
         // unpack frame
@@ -288,8 +305,11 @@ void Streams::AllocStreamData(
     data.img = nullptr;
   }
   if (!data.frame) {
-    data.frame = std::make_shared<frame_t>(
-        request.width / 2, request.height, format, nullptr);
+    int width = request.width;
+    if (format != Format::GREY)
+      width /= 2;
+    data.frame =
+        std::make_shared<frame_t>(width, request.height, format, nullptr);
   }
   stream_datas_map_[stream].push_back(data);
 }

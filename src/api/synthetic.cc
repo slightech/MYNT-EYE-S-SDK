@@ -41,8 +41,6 @@ MYNTEYE_BEGIN_NAMESPACE
 namespace {
 
 cv::Mat frame2mat(const std::shared_ptr<device::Frame> &frame) {
-  // TODO(JohnZhao) Support different format frame to cv::Mat
-  CHECK_EQ(frame->format(), Format::YUYV);
   if (frame->format() == Format::YUYV) {
     cv::Mat img(frame->height(), frame->width(), CV_8UC2, frame->data());
     cv::cvtColor(img, img, cv::COLOR_YUV2BGR_YUY2);

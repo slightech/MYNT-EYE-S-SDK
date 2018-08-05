@@ -48,10 +48,11 @@ int main(int argc, char *argv[]) {
   */
   // device->LogOptionInfos();
   // device->RunOptionAction(Option::ZERO_DRIFT_CALIBRATION);
+  // device->RunOptionAction(Option::ERASE_CHIP);
 
   std::size_t left_count = 0;
   device->SetStreamRequest(
-      Resolution::RES_2560x800, Format::YUYV, FrameRate::RATE_30_FPS);
+      Resolution::RES_1280x400, Format::RGB888, FrameRate::RATE_30_FPS);
   device->SetStreamCallback(
       Stream::LEFT, [&left_count](const device::StreamData &data) {
         CHECK_NOTNULL(data.img);
@@ -114,17 +115,38 @@ int main(int argc, char *argv[]) {
                 << ", temperature: " << data.imu->temperature;
     }
 
-    cv::Mat left_img(
-        left_data.frame->height(), left_data.frame->width(), CV_8UC2,
-        left_data.frame->data());
-    cv::Mat right_img(
-        right_data.frame->height(), right_data.frame->width(), CV_8UC2,
-        right_data.frame->data());
-
     cv::Mat img;
-    cv::cvtColor(left_img, left_img, cv::COLOR_YUV2BGR_YUY2);
-    cv::cvtColor(right_img, right_img, cv::COLOR_YUV2BGR_YUY2);
-    cv::hconcat(left_img, right_img, img);
+
+    if (left_data.frame->format() == Format::GREY) {
+      cv::Mat left_img(
+          left_data.frame->height(), left_data.frame->width(), CV_8UC1,
+          left_data.frame->data());
+      cv::Mat right_img(
+          right_data.frame->height(), right_data.frame->width(), CV_8UC1,
+          right_data.frame->data());
+      cv::hconcat(left_img, right_img, img);
+    } else if (left_data.frame->format() == Format::YUYV) {
+      cv::Mat left_img(
+          left_data.frame->height(), left_data.frame->width(), CV_8UC2,
+          left_data.frame->data());
+      cv::Mat right_img(
+          right_data.frame->height(), right_data.frame->width(), CV_8UC2,
+          right_data.frame->data());
+      cv::cvtColor(left_img, left_img, cv::COLOR_YUV2BGR_YUY2);
+      cv::cvtColor(right_img, right_img, cv::COLOR_YUV2BGR_YUY2);
+      cv::hconcat(left_img, right_img, img);
+    } else if (left_data.frame->format() == Format::RGB888) {
+      cv::Mat left_img(
+          left_data.frame->height(), left_data.frame->width(), CV_8UC3,
+          left_data.frame->data());
+      cv::Mat right_img(
+          right_data.frame->height(), right_data.frame->width(), CV_8UC3,
+          right_data.frame->data());
+      cv::hconcat(left_img, right_img, img);
+    } else {
+      return -1;
+    }
+
     cv::imshow("frame", img);
 
     char key = static_cast<char>(cv::waitKey(1));

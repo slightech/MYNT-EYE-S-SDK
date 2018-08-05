@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
   if (!api)
     return 1;
   api->SetStreamRequest(
-      Resolution::RES_2560x800, Format::YUYV, FrameRate::RATE_20_FPS);
+      Resolution::RES_1280x400, Format::RGB888, FrameRate::RATE_20_FPS);
   // api->SetOptionValue(Option::FRAME_RATE, 25);
   // api->SetOptionValue(Option::IMU_FREQUENCY, 500);
   api->SetOptionValue(Option::IR_CONTROL, 80);

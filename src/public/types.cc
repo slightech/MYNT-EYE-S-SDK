@@ -167,6 +167,8 @@ std::size_t bytes_per_pixel(const Format &value) {
       return 1;
     case Format::YUYV:
       return 2;
+    case Format::RGB888:
+      return 3;
     default:
       LOG(FATAL) << "Unknown format";
   }
