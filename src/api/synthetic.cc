@@ -11,6 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include "api/synthetic.h"
+
+#include <glog/logging.h>
+#include <opencv2/imgproc/imgproc.hpp>
+
 #include <algorithm>
 #include <functional>
 #include <stdexcept>
@@ -23,7 +28,6 @@
 #include "api/processor/points_processor.h"
 #include "api/processor/processor.h"
 #include "api/processor/rectify_processor.h"
-#include "api/synthetic.h"
 #include "device/device.h"
 
 #define RECTIFY_PROC_PERIOD 0
