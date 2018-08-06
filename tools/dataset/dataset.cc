@@ -64,16 +64,36 @@ void Dataset::SaveStreamData(
     std::stringstream ss;
     ss << writer->outdir << OS_SEP << std::dec
        << std::setw(IMAGE_FILENAME_WIDTH) << std::setfill('0') << seq << ".png";
-    cv::Mat img(
-        data.frame->height(), data.frame->width(), CV_8UC2, data.frame->data());
-    cv::cvtColor(img, img, cv::COLOR_YUV2BGR_YUY2);
-    cv::imwrite(ss.str(), img);
+    if (data.frame->format() == Format::GREY) {
+      cv::Mat img(
+          data.frame->height(), data.frame->width(), CV_8UC1,
+          data.frame->data());
+      cv::imwrite(ss.str(), img);
+    } else if (data.frame->format() == Format::YUYV) {
+      cv::Mat img(
+          data.frame->height(), data.frame->width(), CV_8UC2,
+          data.frame->data());
+      cv::cvtColor(img, img, cv::COLOR_YUV2BGR_YUY2);
+      cv::imwrite(ss.str(), img);
+    } else if (data.frame->format() == Format::BGR888) {
+      cv::Mat img(
+          data.frame->height(), data.frame->width(), CV_8UC3,
+          data.frame->data());
+      cv::cvtColor(img, img, CV_BGRA2RGBA);
+      cv::imwrite(ss.str(), img);
+    } else {
+      cv::Mat img(
+          data.frame->height(), data.frame->width(), CV_8UC1,
+          data.frame->data());
+      cv::imwrite(ss.str(), img);
+    }
   }
   ++stream_counts_[stream];
 }
 
 void Dataset::SaveMotionData(const device::MotionData &data) {
   auto &&writer = GetMotionWriter();
+  // auto seq = data.imu->serial_number;
   auto seq = motion_count_;
   if (data.imu->flag == 1 || data.imu->flag == 2) {
     writer->ofs << seq << ", " << data.imu->timestamp << ", "
@@ -83,6 +103,13 @@ void Dataset::SaveMotionData(const device::MotionData &data) {
                 << data.imu->temperature << std::endl;
     ++motion_count_;
   }
+  /*
+  if(motion_count_ != seq) {
+    LOG(INFO) << "motion_count_ != seq !" << " motion_count_: " << motion_count_
+  << " seq: " << seq;
+    motion_count_ = seq;
+  }
+  */
 }
 
 Dataset::writer_t Dataset::GetStreamWriter(const Stream &stream) {

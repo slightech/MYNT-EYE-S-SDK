@@ -79,7 +79,7 @@ bool unpack_left_img_pixels(
   CHECK_NOTNULL(frame);
   CHECK_EQ(request.format, frame->format());
   auto data_new = reinterpret_cast<const std::uint8_t *>(data);
-  if (request.format == Format::YUYV || request.format == Format::RGB888) {
+  if (request.format == Format::YUYV || request.format == Format::BGR888) {
     std::size_t n = request.format == Format::YUYV ? 2 : 3;
     std::size_t w = frame->width() * n;
     std::size_t h = frame->height();
@@ -105,7 +105,7 @@ bool unpack_right_img_pixels(
   CHECK_NOTNULL(frame);
   CHECK_EQ(request.format, frame->format());
   auto data_new = reinterpret_cast<const std::uint8_t *>(data);
-  if (request.format == Format::YUYV || request.format == Format::RGB888) {
+  if (request.format == Format::YUYV || request.format == Format::BGR888) {
     std::size_t n = request.format == Format::YUYV ? 2 : 3;
     std::size_t w = frame->width() * n;
     std::size_t h = frame->height();

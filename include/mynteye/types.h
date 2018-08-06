@@ -304,8 +304,8 @@ enum class Format : std::uint32_t {
   GREY = MYNTEYE_FOURCC('G', 'R', 'E', 'Y'),
   /** YUV 4:2:2, 16 bits per pixel */
   YUYV = MYNTEYE_FOURCC('Y', 'U', 'Y', 'V'),
-  /** RGB 8:8:8, 24 bits per pixel */
-  RGB888 = MYNTEYE_FOURCC('R', 'G', 'B', '3'),
+  /** BGR 8:8:8, 24 bits per pixel */
+  BGR888 = MYNTEYE_FOURCC('B', 'G', 'R', '3'),
   /** Last guard */
   LAST
 };

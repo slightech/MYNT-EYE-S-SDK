@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
 
   std::size_t left_count = 0;
   device->SetStreamRequest(
-      Resolution::RES_1280x400, Format::RGB888, FrameRate::RATE_30_FPS);
+      Resolution::RES_1280x400, Format::BGR888, FrameRate::RATE_30_FPS);
   device->SetStreamCallback(
       Stream::LEFT, [&left_count](const device::StreamData &data) {
         CHECK_NOTNULL(data.img);
@@ -135,13 +135,15 @@ int main(int argc, char *argv[]) {
       cv::cvtColor(left_img, left_img, cv::COLOR_YUV2BGR_YUY2);
       cv::cvtColor(right_img, right_img, cv::COLOR_YUV2BGR_YUY2);
       cv::hconcat(left_img, right_img, img);
-    } else if (left_data.frame->format() == Format::RGB888) {
+    } else if (left_data.frame->format() == Format::BGR888) {
       cv::Mat left_img(
           left_data.frame->height(), left_data.frame->width(), CV_8UC3,
           left_data.frame->data());
       cv::Mat right_img(
           right_data.frame->height(), right_data.frame->width(), CV_8UC3,
           right_data.frame->data());
+      cv::cvtColor(left_img, left_img, CV_BGRA2RGBA);
+      cv::cvtColor(right_img, right_img, CV_BGRA2RGBA);
       cv::hconcat(left_img, right_img, img);
     } else {
       return -1;

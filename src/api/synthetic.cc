@@ -45,8 +45,10 @@ cv::Mat frame2mat(const std::shared_ptr<device::Frame> &frame) {
     cv::Mat img(frame->height(), frame->width(), CV_8UC2, frame->data());
     cv::cvtColor(img, img, cv::COLOR_YUV2BGR_YUY2);
     return img;
-  } else if (frame->format() == Format::RGB888) {
-    return cv::Mat(frame->height(), frame->width(), CV_8UC3, frame->data());
+  } else if (frame->format() == Format::BGR888) {
+    cv::Mat img(frame->height(), frame->width(), CV_8UC3, frame->data());
+    cv::cvtColor(img, img, CV_BGRA2RGBA);
+    return img;
   } else {
     return cv::Mat(frame->height(), frame->width(), CV_8UC1, frame->data());
   }

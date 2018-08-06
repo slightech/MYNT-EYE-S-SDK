@@ -31,6 +31,8 @@ int main(int argc, char *argv[]) {
   auto &&device = device::select();
   if (!device)
     return 1;
+  device->SetStreamRequest(
+      Resolution::RES_1280x400, Format::BGR888, FrameRate::RATE_30_FPS);
   /*
   {  // auto-exposure
     device->SetOptionValue(Option::EXPOSURE_MODE, 0);
@@ -79,16 +81,40 @@ int main(int argc, char *argv[]) {
 
     auto &&left_frame = left_datas.back().frame;
     auto &&right_frame = right_datas.back().frame;
-    cv::Mat left_img(
-        left_frame->height(), left_frame->width(), CV_8UC2, left_frame->data());
-    cv::Mat right_img(
-        right_frame->height(), right_frame->width(), CV_8UC2,
-        right_frame->data());
 
     cv::Mat img;
-    cv::cvtColor(left_img, left_img, cv::COLOR_YUV2BGR_YUY2);
-    cv::cvtColor(right_img, right_img, cv::COLOR_YUV2BGR_YUY2);
-    cv::hconcat(left_img, right_img, img);
+
+    if (left_frame->format() == Format::GREY) {
+      cv::Mat left_img(
+          left_frame->height(), left_frame->width(), CV_8UC1,
+          left_frame->data());
+      cv::Mat right_img(
+          right_frame->height(), right_frame->width(), CV_8UC1,
+          right_frame->data());
+      cv::hconcat(left_img, right_img, img);
+    } else if (left_frame->format() == Format::YUYV) {
+      cv::Mat left_img(
+          left_frame->height(), left_frame->width(), CV_8UC2,
+          left_frame->data());
+      cv::Mat right_img(
+          right_frame->height(), right_frame->width(), CV_8UC2,
+          right_frame->data());
+      cv::cvtColor(left_img, left_img, cv::COLOR_YUV2BGR_YUY2);
+      cv::cvtColor(right_img, right_img, cv::COLOR_YUV2BGR_YUY2);
+      cv::hconcat(left_img, right_img, img);
+    } else if (left_frame->format() == Format::BGR888) {
+      cv::Mat left_img(
+          left_frame->height(), left_frame->width(), CV_8UC3,
+          left_frame->data());
+      cv::cvtColor(left_img, left_img, CV_BGRA2RGBA);
+      cv::Mat right_img(
+          right_frame->height(), right_frame->width(), CV_8UC3,
+          right_frame->data());
+      cv::cvtColor(right_img, right_img, CV_BGRA2RGBA);
+      cv::hconcat(left_img, right_img, img);
+    } else {
+      return -1;
+    }
     cv::imshow("frame", img);
 
     {  // save
