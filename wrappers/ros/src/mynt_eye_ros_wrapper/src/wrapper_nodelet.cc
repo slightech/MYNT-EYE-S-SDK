@@ -110,7 +110,12 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     for (auto &&it = stream_names.begin(); it != stream_names.end(); ++it) {
       stream_topics[it->first] = it->second;
       private_nh_.getParam(it->second + "_topic", stream_topics[it->first]);
+
+      // if published init
+      is_published_[it->first] = false;
     }
+    is_motion_published_ = false;
+    is_started_ = false;
 
     std::string imu_topic = "imu";
     std::string temp_topic = "temp";
@@ -213,7 +218,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     NODELET_INFO_STREAM("Advertized service " << DEVICE_INFO_SERVICE);
 
     publishStaticTransforms();
-    publishTopics();
+    while (private_nh_.ok()) {
+      publishTopics();
+    }
   }
 
   bool getInfo(
@@ -253,47 +260,60 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
   void publishTopics() {
-    api_->SetStreamCallback(
-        Stream::LEFT, [this](const api::StreamData &data) {
-          ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
+    if (camera_publishers_[Stream::LEFT].getNumSubscribers() > 0 &&
+        !is_published_[Stream::LEFT]) {
+      api_->SetStreamCallback(
+          Stream::LEFT, [this](const api::StreamData &data) {
+            ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
 
-          // static double img_time_prev = -1;
-          // NODELET_INFO_STREAM("ros_time_beg: " << FULL_PRECISION <<
-          // ros_time_beg
-          //     << ", img_time_elapsed: " << FULL_PRECISION
-          //     << ((data.img->timestamp - img_time_beg) * 0.00001f)
-          //     << ", img_time_diff: " << FULL_PRECISION
-          //     << ((img_time_prev < 0) ? 0
-          //         : (data.img->timestamp - img_time_prev) * 0.01f) << " ms");
-          // img_time_prev = data.img->timestamp;
+            // static double img_time_prev = -1;
+            // NODELET_INFO_STREAM("ros_time_beg: " << FULL_PRECISION <<
+            // ros_time_beg
+            //     << ", img_time_elapsed: " << FULL_PRECISION
+            //     << ((data.img->timestamp - img_time_beg) * 0.00001f)
+            //     << ", img_time_diff: " << FULL_PRECISION
+            //     << ((img_time_prev < 0) ? 0
+            //         : (data.img->timestamp - img_time_prev) * 0.01f) << "
+            //         ms");
+            // img_time_prev = data.img->timestamp;
 
-          ++left_count_;
-          publishCamera(Stream::LEFT, data, left_count_, stamp);
-          NODELET_DEBUG_STREAM(
-              Stream::LEFT << ", count: " << left_count_
-                           << ", frame_id: " << data.img->frame_id
-                           << ", timestamp: " << data.img->timestamp
-                           << ", exposure_time: " << data.img->exposure_time);
-        });
+            ++left_count_;
+            publishCamera(Stream::LEFT, data, left_count_, stamp);
+            NODELET_DEBUG_STREAM(
+                Stream::LEFT << ", count: " << left_count_
+                             << ", frame_id: " << data.img->frame_id
+                             << ", timestamp: " << data.img->timestamp
+                             << ", exposure_time: " << data.img->exposure_time);
+          });
+      is_published_[Stream::LEFT] = true;
+    }
 
-    api_->SetStreamCallback(
-        Stream::RIGHT, [this](const api::StreamData &data) {
-          ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
+    if (camera_publishers_[Stream::RIGHT].getNumSubscribers() > 0 &&
+        !is_published_[Stream::RIGHT]) {
+      api_->SetStreamCallback(
+          Stream::RIGHT, [this](const api::StreamData &data) {
+            ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
 
-          ++right_count_;
-          publishCamera(Stream::RIGHT, data, right_count_, stamp);
-          NODELET_DEBUG_STREAM(
-              Stream::RIGHT << ", count: " << right_count_
-                            << ", frame_id: " << data.img->frame_id
-                            << ", timestamp: " << data.img->timestamp
-                            << ", exposure_time: " << data.img->exposure_time);
-        });
+            ++right_count_;
+            publishCamera(Stream::RIGHT, data, right_count_, stamp);
+            NODELET_DEBUG_STREAM(
+                Stream::RIGHT
+                << ", count: " << right_count_ << ", frame_id: "
+                << data.img->frame_id << ", timestamp: " << data.img->timestamp
+                << ", exposure_time: " << data.img->exposure_time);
+          });
+      is_published_[Stream::RIGHT] = true;
+    }
 
     std::vector<Stream> other_streams{
         Stream::LEFT_RECTIFIED, Stream::RIGHT_RECTIFIED, Stream::DISPARITY,
         Stream::DISPARITY_NORMALIZED, Stream::DEPTH};
 
     for (auto &&stream : other_streams) {
+      if (camera_publishers_[stream].getNumSubscribers() == 0 &&
+          is_published_[stream]) {
+        continue;
+      }
       api_->SetStreamCallback(
           stream, [this, stream](const api::StreamData &data) {
             // data.img is null, not hard timestamp
@@ -301,53 +321,67 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
             ++count;
             publishCamera(stream, data, count, ros::Time::now());
           });
+      is_published_[stream] = true;
     }
 
-    api_->SetStreamCallback(
-        Stream::POINTS, [this](const api::StreamData &data) {
-          static std::size_t count = 0;
-          ++count;
-          publishPoints(data, count, ros::Time::now());
-        });
+    if (camera_publishers_[Stream::POINTS].getNumSubscribers() > 0 &&
+        !is_published_[Stream::POINTS]) {
+      api_->SetStreamCallback(
+          Stream::POINTS, [this](const api::StreamData &data) {
+            static std::size_t count = 0;
+            ++count;
+            publishPoints(data, count, ros::Time::now());
+          });
+      is_published_[Stream::POINTS] = true;
+    }
 
-    api_->SetMotionCallback([this](const api::MotionData &data) {
-      ros::Time stamp = hardTimeToSoftTime(data.imu->timestamp);
+    if (!is_motion_published_) {
+      api_->SetMotionCallback([this](const api::MotionData &data) {
+        ros::Time stamp = hardTimeToSoftTime(data.imu->timestamp);
 
-      // static double imu_time_prev = -1;
-      // NODELET_INFO_STREAM("ros_time_beg: " << FULL_PRECISION << ros_time_beg
-      //     << ", imu_time_elapsed: " << FULL_PRECISION
-      //     << ((data.imu->timestamp - imu_time_beg) * 0.00001f)
-      //     << ", imu_time_diff: " << FULL_PRECISION
-      //     << ((imu_time_prev < 0) ? 0
-      //         : (data.imu->timestamp - imu_time_prev) * 0.01f) << " ms");
-      // imu_time_prev = data.imu->timestamp;
+        // static double imu_time_prev = -1;
+        // NODELET_INFO_STREAM("ros_time_beg: " << FULL_PRECISION <<
+        // ros_time_beg
+        //     << ", imu_time_elapsed: " << FULL_PRECISION
+        //     << ((data.imu->timestamp - imu_time_beg) * 0.00001f)
+        //     << ", imu_time_diff: " << FULL_PRECISION
+        //     << ((imu_time_prev < 0) ? 0
+        //         : (data.imu->timestamp - imu_time_prev) * 0.01f) << " ms");
+        // imu_time_prev = data.imu->timestamp;
 
-      ++imu_count_;
-      publishImu(data, imu_count_, stamp);
-      publishTemp(data.imu->temperature, imu_count_, stamp);
-      NODELET_DEBUG_STREAM(
-          "Imu count: " << imu_count_ << ", frame_id: " << data.imu->frame_id
-                        << ", timestamp: " << data.imu->timestamp
-                        << ", accel_x: " << data.imu->accel[0]
-                        << ", accel_y: " << data.imu->accel[1]
-                        << ", accel_z: " << data.imu->accel[2]
-                        << ", gyro_x: " << data.imu->gyro[0]
-                        << ", gyro_y: " << data.imu->gyro[1]
-                        << ", gyro_z: " << data.imu->gyro[2]
-                        << ", temperature: " << data.imu->temperature);
-      // Sleep 1ms, otherwise publish may drop some datas.
-      ros::Duration(0.001).sleep();
-    });
+        ++imu_count_;
+        publishImu(data, imu_count_, stamp);
+        publishTemp(data.imu->temperature, imu_count_, stamp);
+        NODELET_DEBUG_STREAM(
+            "Imu count: " << imu_count_ << ", frame_id: " << data.imu->frame_id
+                          << ", timestamp: " << data.imu->timestamp
+                          << ", accel_x: " << data.imu->accel[0]
+                          << ", accel_y: " << data.imu->accel[1]
+                          << ", accel_z: " << data.imu->accel[2]
+                          << ", gyro_x: " << data.imu->gyro[0]
+                          << ", gyro_y: " << data.imu->gyro[1]
+                          << ", gyro_z: " << data.imu->gyro[2]
+                          << ", temperature: " << data.imu->temperature);
+        // Sleep 1ms, otherwise publish may drop some datas.
+        ros::Duration(0.001).sleep();
+      });
+      is_motion_published_ = true;
+    }
 
     time_beg_ = ros::Time::now().toSec();
-    api_->Start(Source::ALL);
+    if (!is_started_) {
+      api_->Start(Source::ALL);
+      is_started_ = true;
+    }
   }
 
   void publishCamera(
       const Stream &stream, const api::StreamData &data, std::uint32_t seq,
       ros::Time stamp) {
-    if (camera_publishers_[stream].getNumSubscribers() == 0)
-      return;
+    /*
+if (camera_publishers_[stream].getNumSubscribers() == 0)
+return;
+            */
     std_msgs::Header header;
     header.seq = seq;
     header.stamp = stamp;
@@ -385,8 +419,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
   void publishPoints(
       const api::StreamData &data, std::uint32_t seq, ros::Time stamp) {
-    if (points_publisher_.getNumSubscribers() == 0)
-      return;
+    /*
+if (points_publisher_.getNumSubscribers() == 0)
+return;
+            */
 
     auto &&in = api_->GetIntrinsics(Stream::LEFT);
 
@@ -831,6 +867,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   std::size_t left_count_ = 0;
   std::size_t right_count_ = 0;
   std::size_t imu_count_ = 0;
+
+  std::map<Stream, bool> is_published_;
+  bool is_motion_published_;
+  bool is_started_;
 };
 
 MYNTEYE_END_NAMESPACE
