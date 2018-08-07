@@ -106,11 +106,11 @@ int main(int argc, char *argv[]) {
       cv::Mat left_img(
           left_frame->height(), left_frame->width(), CV_8UC3,
           left_frame->data());
-      cv::cvtColor(left_img, left_img, CV_BGRA2RGBA);
+      cv::cvtColor(left_img, left_img, CV_BGR2RGB);
       cv::Mat right_img(
           right_frame->height(), right_frame->width(), CV_8UC3,
           right_frame->data());
-      cv::cvtColor(right_img, right_img, CV_BGRA2RGBA);
+      cv::cvtColor(right_img, right_img, CV_BGR2RGB);
       cv::hconcat(left_img, right_img, img);
     } else {
       return -1;

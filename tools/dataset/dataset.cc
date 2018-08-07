@@ -79,7 +79,7 @@ void Dataset::SaveStreamData(
       cv::Mat img(
           data.frame->height(), data.frame->width(), CV_8UC3,
           data.frame->data());
-      cv::cvtColor(img, img, CV_BGRA2RGBA);
+      cv::cvtColor(img, img, CV_BGR2RGB);
       cv::imwrite(ss.str(), img);
     } else {
       cv::Mat img(
