@@ -54,7 +54,7 @@
   <arg name="contrast" default="-1" />
   <!-- <arg name="contrast" default="127" /> -->
 
-  <!-- frame_rate range: {10,15,20,25,30,35,40,45,50,55,60} -->
+  <!-- frame_rate range: {10,15,20,25,30,35,40,45,50,55} -->
   <arg name="frame_rate" default="-1" />
   <!-- <arg name="frame_rate" default="25" /> -->
 
