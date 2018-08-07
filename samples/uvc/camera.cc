@@ -144,7 +144,7 @@ int main(int argc, char *argv[]) {
 
     // only lastest frame is valid
     cv::Mat img(400, 1280, CV_8UC3, const_cast<void *>(frame->data));
-    cv::cvtColor(img, img, CV_BGRA2RGBA);
+    cv::cvtColor(img, img, CV_BGR2RGB);
     cv::imshow("frame", img);
 
     frame = nullptr;
