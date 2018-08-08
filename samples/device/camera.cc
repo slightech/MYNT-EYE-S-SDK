@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
       Stream::LEFT, [&left_count](const device::StreamData &data) {
         CHECK_NOTNULL(data.img);
         ++left_count;
-        VLOG(2) << Stream::LEFT << ", count: " << left_count;
+        VLOG(2) << Stream::LEFT << "count: " << left_count;
         VLOG(2) << "  frame_id: " << data.img->frame_id
                 << ", timestamp: " << data.img->timestamp
                 << ", exposure_time: " << data.img->exposure_time;
@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
       Stream::RIGHT, [&right_count](const device::StreamData &data) {
         CHECK_NOTNULL(data.img);
         ++right_count;
-        VLOG(2) << Stream::RIGHT << ", count: " << right_count;
+        VLOG(2) << Stream::RIGHT << "count: " << right_count;
         VLOG(2) << "  frame_id: " << data.img->frame_id
                 << ", timestamp: " << data.img->timestamp
                 << ", exposure_time: " << data.img->exposure_time;
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
     auto &&motion_datas = device->GetMotionDatas();
     motion_count += motion_datas.size();
     for (auto &&data : motion_datas) {
-      LOG(INFO) << ", timestamp: " << data.imu->timestamp
+      LOG(INFO) << "timestamp: " << data.imu->timestamp
                 << ", accel_x: " << data.imu->accel[0]
                 << ", accel_y: " << data.imu->accel[1]
                 << ", accel_z: " << data.imu->accel[2]
