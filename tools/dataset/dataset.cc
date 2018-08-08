@@ -96,11 +96,12 @@ void Dataset::SaveMotionData(const device::MotionData &data) {
   // auto seq = data.imu->serial_number;
   auto seq = motion_count_;
   if (data.imu->flag == 1 || data.imu->flag == 2) {
-    writer->ofs << seq << ", " << data.imu->timestamp << ", "
-                << data.imu->accel[0] << ", " << data.imu->accel[1] << ", "
-                << data.imu->accel[2] << ", " << data.imu->gyro[0] << ", "
-                << data.imu->gyro[1] << ", " << data.imu->gyro[2] << ", "
-                << data.imu->temperature << std::endl;
+    writer->ofs << seq << ", " << static_cast<int>(data.imu->flag) << ", "
+                << data.imu->timestamp << ", " << data.imu->accel[0] << ", "
+                << data.imu->accel[1] << ", " << data.imu->accel[2] << ", "
+                << data.imu->gyro[0] << ", " << data.imu->gyro[1] << ", "
+                << data.imu->gyro[2] << ", " << data.imu->temperature
+                << std::endl;
     ++motion_count_;
   }
   /*
@@ -148,7 +149,7 @@ Dataset::writer_t Dataset::GetMotionWriter() {
 
     files::mkdir(writer->outdir);
     writer->ofs.open(writer->outfile, std::ofstream::out);
-    writer->ofs << "seq, timestamp, accel_x, accel_y, accel_z, "
+    writer->ofs << "seq, flag, timestamp, accel_x, accel_y, accel_z, "
                    "gyro_x, gyro_y, gyro_z, temperature"
                 << std::endl;
     writer->ofs << FULL_PRECISION;
