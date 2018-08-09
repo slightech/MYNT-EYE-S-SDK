@@ -17,13 +17,17 @@
 
 #include <string>
 
+#include <opencv2/calib3d/calib3d.hpp>
+
 #include "api/processor/processor.h"
 
+#if 0
 namespace cv {
 
 class StereoSGBM;
 
 }  // namespace cv
+#endif
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -42,7 +46,7 @@ class DisparityProcessor : public Processor {
       Object *const in, Object *const out, Processor *const parent) override;
 
  private:
-  cv::Ptr<cv::StereoSGBM> sgbm_;
+  cv::Ptr<cv::StereoBM> bm_;
 };
 
 MYNTEYE_END_NAMESPACE
