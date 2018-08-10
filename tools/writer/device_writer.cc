@@ -328,8 +328,8 @@ DeviceWriter::img_params_t DeviceWriter::LoadImgParams(
 
   img_params_t params;
   if (fs["in_left"].isNone()) {
-    std::uint16_t w = 752;
-    std::uint16_t h = 480;
+    std::uint16_t w = 640;
+    std::uint16_t h = 400;
     std::uint8_t m = 0;
     if (!fs["width"].isNone())
       w = static_cast<int>(fs["width"]);
