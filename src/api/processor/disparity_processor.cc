@@ -26,6 +26,7 @@ const char DisparityProcessor::NAME[] = "DisparityProcessor";
 DisparityProcessor::DisparityProcessor(std::int32_t proc_period)
     : Processor(std::move(proc_period)) {
   VLOG(2) << __func__ << ": proc_period=" << proc_period;
+
 	int blockSize_ = 15;           // 15
 	int minDisparity_ = 0;         // 0
 	int numDisparities_ = 64;      // 64
@@ -68,7 +69,7 @@ bool DisparityProcessor::OnProcess(
 
   cv::Mat disparity;
   bm_->compute(input->first, input->second, disparity);
-  output->value = disparity;
+	disparity.convertTo(output->value, CV_32F, 1./16);
   return true;
 }
 
