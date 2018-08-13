@@ -28,8 +28,16 @@ DisparityProcessor::DisparityProcessor(std::int32_t proc_period)
   VLOG(2) << __func__ << ": proc_period=" << proc_period;
 
 	int blockSize_ = 15;           // 15
-	int minDisparity_ = 0;         // 0
 	int numDisparities_ = 64;      // 64
+
+#ifdef USE_OPENCV2
+	bm_ = cv::Ptr<cv::StereoBM>(
+			new cv::StereoBM(
+				cv::StereoBM::BASIC_PRESET,
+				numDisparities_,
+				blockSize_));
+#else
+	int minDisparity_ = 0;         // 0
 	int preFilterSize_ = 9;        // 9
 	int preFilterCap_ = 31;        // 31
 	int uniquenessRatio_ = 15;     // 15
@@ -37,7 +45,7 @@ DisparityProcessor::DisparityProcessor(std::int32_t proc_period)
 	int speckleWindowSize_ = 100;  // 100
 	int speckleRange_ = 4;         // 4
 
-	bm_ = cv::StereoBM::create();
+	bm_ = cv::StereoBM::create(16, 9);
 	bm_->setBlockSize(blockSize_);
 	bm_->setMinDisparity(minDisparity_);
 	bm_->setNumDisparities(numDisparities_);
@@ -47,6 +55,7 @@ DisparityProcessor::DisparityProcessor(std::int32_t proc_period)
 	bm_->setTextureThreshold(textureThreshold_);
 	bm_->setSpeckleWindowSize(speckleWindowSize_);
 	bm_->setSpeckleRange(speckleRange_);
+#endif
 }
 
 DisparityProcessor::~DisparityProcessor() {
@@ -68,7 +77,11 @@ bool DisparityProcessor::OnProcess(
   ObjMat *output = Object::Cast<ObjMat>(out);
 
   cv::Mat disparity;
+#ifdef USE_OPENCV2
+	(*bm_)(input->first, input->second, disparity);
+#else
   bm_->compute(input->first, input->second, disparity);
+#endif
 	disparity.convertTo(output->value, CV_32F, 1./16);
   return true;
 }

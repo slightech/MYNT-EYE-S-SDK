@@ -21,13 +21,11 @@
 
 #include "api/processor/processor.h"
 
-#if 0
 namespace cv {
 
-class StereoSGBM;
+class StereoBM;
 
 }  // namespace cv
-#endif
 
 MYNTEYE_BEGIN_NAMESPACE
 

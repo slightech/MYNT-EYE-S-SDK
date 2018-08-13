@@ -45,8 +45,7 @@ bool PointsProcessor::OnProcess(
   UNUSED(parent)
   const ObjMat *input = Object::Cast<ObjMat>(in);
   ObjMat *output = Object::Cast<ObjMat>(out);
-  // cv::reprojectImageTo3D(input->value, output->value, Q_, true, -1);
-	bool handleMissingValues = true;
+
 	cv::Mat disparity = input->value;
 	output->value.create(disparity.size(), CV_MAKETYPE(CV_32FC3, 3));
 	cv::Mat _3dImage = output->value;
@@ -60,12 +59,9 @@ bool PointsProcessor::OnProcess(
 
 	double minDisparity = FLT_MAX;
 
-	if (handleMissingValues) {
-		cv::minMaxIdx(disparity, &minDisparity, 0, 0, 0);
-	}
+	cv::minMaxIdx(disparity, &minDisparity, 0, 0, 0);
 
 	for (int y = 0; y <	disparity.rows; y++) {
-
 		float *sptr = disparity.ptr<float>(y);
 		cv::Vec3f *dptr = _3dImage.ptr<cv::Vec3f>(y);
 
@@ -81,6 +77,7 @@ bool PointsProcessor::OnProcess(
 			}
 		}
 	}
+
   return true;
 }
 
