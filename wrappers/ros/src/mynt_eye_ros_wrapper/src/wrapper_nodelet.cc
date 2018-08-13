@@ -378,10 +378,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   void publishCamera(
       const Stream &stream, const api::StreamData &data, std::uint32_t seq,
       ros::Time stamp) {
-    /*
-if (camera_publishers_[stream].getNumSubscribers() == 0)
-return;
-            */
+    // if (camera_publishers_[stream].getNumSubscribers() == 0)
+    //   return;
     std_msgs::Header header;
     header.seq = seq;
     header.stamp = stamp;
@@ -419,10 +417,8 @@ return;
 
   void publishPoints(
       const api::StreamData &data, std::uint32_t seq, ros::Time stamp) {
-    /*
-if (points_publisher_.getNumSubscribers() == 0)
-return;
-            */
+    // if (points_publisher_.getNumSubscribers() == 0)
+    //   return;
 
     auto &&in = api_->GetIntrinsics(Stream::LEFT);
 
