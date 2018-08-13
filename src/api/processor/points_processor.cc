@@ -46,37 +46,36 @@ bool PointsProcessor::OnProcess(
   const ObjMat *input = Object::Cast<ObjMat>(in);
   ObjMat *output = Object::Cast<ObjMat>(out);
 
-	cv::Mat disparity = input->value;
-	output->value.create(disparity.size(), CV_MAKETYPE(CV_32FC3, 3));
-	cv::Mat _3dImage = output->value;
+  cv::Mat disparity = input->value;
+  output->value.create(disparity.size(), CV_MAKETYPE(CV_32FC3, 3));
+  cv::Mat _3dImage = output->value;
 
-	const float bigZ = 10000.f;
-	cv::Matx44d Q;
-	Q_.convertTo(Q, CV_64F);
+  const float bigZ = 10000.f;
+  cv::Matx44d Q;
+  Q_.convertTo(Q, CV_64F);
 
-	int x, cols = disparity.cols;
-	CV_Assert(cols >= 0);
+  int x, cols = disparity.cols;
+  CV_Assert(cols >= 0);
 
-	double minDisparity = FLT_MAX;
+  double minDisparity = FLT_MAX;
 
-	cv::minMaxIdx(disparity, &minDisparity, 0, 0, 0);
+  cv::minMaxIdx(disparity, &minDisparity, 0, 0, 0);
 
-	for (int y = 0; y <	disparity.rows; y++) {
-		float *sptr = disparity.ptr<float>(y);
-		cv::Vec3f *dptr = _3dImage.ptr<cv::Vec3f>(y);
+  for (int y = 0; y < disparity.rows; y++) {
+    float *sptr = disparity.ptr<float>(y);
+    cv::Vec3f *dptr = _3dImage.ptr<cv::Vec3f>(y);
 
-		for( x = 0; x < cols; x++)
-		{
-			double d = sptr[x];
-			cv::Vec4d homg_pt = Q*cv::Vec4d(x, y, d, 1.0);
-			dptr[x] = cv::Vec3d(homg_pt.val);
-			dptr[x] /= homg_pt[3];
+    for (x = 0; x < cols; x++) {
+      double d = sptr[x];
+      cv::Vec4d homg_pt = Q * cv::Vec4d(x, y, d, 1.0);
+      dptr[x] = cv::Vec3d(homg_pt.val);
+      dptr[x] /= homg_pt[3];
 
-			if( fabs(d-minDisparity) <= FLT_EPSILON ) {
-				dptr[x][2] = bigZ;
-			}
-		}
-	}
+      if (fabs(d - minDisparity) <= FLT_EPSILON) {
+        dptr[x][2] = bigZ;
+      }
+    }
+  }
 
   return true;
 }
