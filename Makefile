@@ -16,6 +16,12 @@ include CommonDefs.mk
 MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 MKFILE_DIR := $(patsubst %/,%,$(dir $(MKFILE_PATH)))
 
+# CMAKE_INSTALL_PREFIX:
+#   https://cmake.org/cmake/help/latest/variable/CMAKE_INSTALL_PREFIX.html
+#
+#   UNIX: /usr/local
+#   Windows: c:/Program Files/${PROJECT_NAME}
+
 .DEFAULT_GOAL := help
 
 help:
@@ -83,7 +89,8 @@ init: submodules
 
 build: third_party
 	@$(call echo,Make $@)
-	@$(call cmake_build,./_build,..,-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/_install)
+	@$(call cmake_build,./_build,..)
+	@# @$(call cmake_build,./_build,..,-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/_install)
 
 .PHONY: build
 
@@ -115,10 +122,10 @@ ifeq ($(HOST_OS),Win)
 ifneq ($(HOST_NAME),MinGW)
 	@cd ./_build; msbuild.exe INSTALL.vcxproj /property:Configuration=Release
 else
-	@cd ./_build; make install
+	@cd ./_build; sudo make install
 endif
 else
-	@cd ./_build; make install
+	@cd ./_build; sudo make install
 endif
 
 .PHONY: install
