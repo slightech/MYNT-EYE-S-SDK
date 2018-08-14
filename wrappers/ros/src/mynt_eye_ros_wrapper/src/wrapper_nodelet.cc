@@ -324,7 +324,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       is_published_[stream] = true;
     }
 
-    if (camera_publishers_[Stream::POINTS].getNumSubscribers() > 0 &&
+    if (points_publisher_.getNumSubscribers() > 0 &&
         !is_published_[Stream::POINTS]) {
       api_->SetStreamCallback(
           Stream::POINTS, [this](const api::StreamData &data) {
