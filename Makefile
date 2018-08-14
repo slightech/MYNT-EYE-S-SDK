@@ -89,8 +89,11 @@ init: submodules
 
 build: third_party
 	@$(call echo,Make $@)
+ifeq ($(HOST_OS),Win)
+	@$(call cmake_build,./_build,..,-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/_install)
+else
 	@$(call cmake_build,./_build,..)
-	@# @$(call cmake_build,./_build,..,-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/_install)
+endif
 
 .PHONY: build
 
@@ -122,7 +125,7 @@ ifeq ($(HOST_OS),Win)
 ifneq ($(HOST_NAME),MinGW)
 	@cd ./_build; msbuild.exe INSTALL.vcxproj /property:Configuration=Release
 else
-	@cd ./_build; sudo make install
+	@cd ./_build; make install
 endif
 else
 	@cd ./_build; sudo make install
