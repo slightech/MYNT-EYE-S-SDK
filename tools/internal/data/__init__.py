@@ -81,12 +81,21 @@ class IMU(Data):
 
   def __init__(self):
     super(IMU, self).__init__()
+    self._flag = 0
     self._accel_x = 0
     self._accel_y = 0
     self._accel_z = 0
     self._gyro_x = 0
     self._gyro_y = 0
     self._gyro_z = 0
+
+  @property
+  def flag(self):
+    return self._flag
+
+  @flag.setter
+  def flag(self, flag):
+    self._flag = flag
 
   @property
   def accel(self):
@@ -381,6 +390,7 @@ class MYNTEYE(Dataset):
           values = [_.strip() for _ in line.split(',')]
           imu = IMU()
           imu.timestamp = float(values[fields['timestamp']]) * 0.000001
+          imu.flag = values[fields['flag']]
           imu.accel_x = float(values[fields['accel_x']])
           imu.accel_y = float(values[fields['accel_y']])
           imu.accel_z = float(values[fields['accel_z']])

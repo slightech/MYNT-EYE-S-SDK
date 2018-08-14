@@ -97,10 +97,10 @@ class BinDataset(object):
         if What.imu in result:
           imu = result[What.imu]
           np.array([(
-              imu.timestamp,
+              imu.timestamp, imu.flag,
               imu.accel_x, imu.accel_y, imu.accel_z,
               imu.gyro_x, imu.gyro_y, imu.gyro_z
-          )], dtype="f8, f8, f8, f8, f8, f8, f8").tofile(f_imu)
+          )], dtype="f8, i4, f8, f8, f8, f8, f8, f8").tofile(f_imu)
           imu_count = imu_count + 1
           has_imu = True
         sys.stdout.write('\r  img: {}, imu: {}'.format(img_count, imu_count))
@@ -130,7 +130,7 @@ class BinDataset(object):
 
     if self.has_imu:
       imus = np.memmap(self._binimu, dtype=[
-          ('t', 'f8'),
+          ('t', 'f8'), ('flag', 'i4'),
           ('accel_x', 'f8'), ('accel_y', 'f8'), ('accel_z', 'f8'),
           ('gyro_x', 'f8'), ('gyro_y', 'f8'), ('gyro_z', 'f8'),
       ], mode='r')
@@ -145,92 +145,111 @@ class BinDataset(object):
     print('  img: {}, imu: {}'.format(period_img, period_imu))
 
     imgs_t_diff = np.diff(imgs['t'])
-    imus_t_diff = np.diff(imus['t'])
+    # imus_t_diff = np.diff(imus['t'])
 
+    accel = imus[imus['flag'] == 1]
+    accel_t_diff = np.diff(accel['t'])
+    gyro = imus[imus['flag'] == 2]
+    gyro_t_diff = np.diff(gyro['t'])
+
+    print('\ncount')
+    print('  imgs: {}, imus: {}, accel: {}, gyro: {}'.format(
+        imgs.size, imus.size, accel.size, gyro.size))
     print('\ndiff count')
-    print('  imgs: {}, imus: {}'.format(imgs['t'].size, imus['t'].size))
-    print('  imgs_t_diff: {}, imus_t_diff: {}'
-          .format(imgs_t_diff.size, imus_t_diff.size))
+    print('  imgs_t_diff: {}, accel_t_diff: {}, gyro_t_diff: {}'.format(
+        imgs_t_diff.size, accel_t_diff.size, gyro_t_diff.size))
 
     print('\ndiff where (factor={})'.format(args.factor))
-
-    where = np.argwhere(imgs_t_diff > period_img * (1 + args.factor))
-    print('  imgs where diff > {}*{} ({})'.format(period_img,
-                                                  1 + args.factor, where.size))
-    for x in where:
-      print('  {:8d}: {:.16f}'.format(x[0], imgs_t_diff[x][0]))
-
-    where = np.argwhere(imgs_t_diff < period_img * (1 - args.factor))
-    print('  imgs where diff < {}*{} ({})'.format(period_img,
-                                                  1 - args.factor, where.size))
-    for x in where:
-      print('  {:8d}: {:.16f}'.format(x[0], imgs_t_diff[x][0]))
-
-    where = np.argwhere(imus_t_diff > period_imu * (1 + args.factor))
-    print('  imus where diff > {}*{} ({})'.format(period_imu,
-                                                  1 + args.factor, where.size))
-    for x in where:
-      print('  {:8d}: {:.16f}'.format(x[0], imus_t_diff[x][0]))
-
-    where = np.argwhere(imus_t_diff < period_imu * (1 - args.factor))
-    print('  imus where diff < {}*{} ({})'.format(period_imu,
-                                                  1 - args.factor, where.size))
-    for x in where:
-      print('  {:8d}: {:.16f}'.format(x[0], imus_t_diff[x][0]))
+    self._print_t_diff_where('imgs', imgs_t_diff, period_img, args.factor)
+    # self._print_t_diff_where('imus', imus_t_diff, period_imu, args.factor)
+    self._print_t_diff_where('accel', accel_t_diff, period_imu, args.factor)
+    self._print_t_diff_where('gyro', gyro_t_diff, period_imu, args.factor)
 
     import pandas as pd
     bins = imgs['t']
     bins_n = imgs['t'].size
     bins = pd.Series(data=bins).drop_duplicates(keep='first')
-    cats = pd.cut(imus['t'], bins)
 
     print('\nimage timestamp duplicates: {}'.format(bins_n - bins.size))
 
-    self._plot(outdir, imgs_t_diff, imus_t_diff, cats.value_counts())
+    def _cut_by_imgs_t(imus_t):
+      cats = pd.cut(imus_t, bins)
+      return cats.value_counts()
 
-  def _plot(self, outdir, imgs_t_diff, imus_t_diff, imgs_t_imus):
+    self._plot(
+        outdir,
+        imgs_t_diff,
+        accel_t_diff,
+        _cut_by_imgs_t(
+            accel['t']),
+        gyro_t_diff,
+        _cut_by_imgs_t(
+            gyro['t']))
+
+  def _print_t_diff_where(self, name, t_diff, period, factor):
+    import numpy as np
+
+    where = np.argwhere(t_diff > period * (1 + factor))
+    print('  {} where diff > {}*{} ({})'.format(
+        name, period, 1 + factor, where.size))
+    for x in where:
+      print('  {:8d}: {:.16f}'.format(x[0], t_diff[x][0]))
+
+    where = np.argwhere(t_diff < period * (1 - factor))
+    print('  {} where diff < {}*{} ({})'.format(
+        name, period, 1 - factor, where.size))
+    for x in where:
+      print('  {:8d}: {:.16f}'.format(x[0], t_diff[x][0]))
+
+  def _plot(self, outdir, imgs_t_diff,
+            accel_t_diff, accel_counts, gyro_t_diff, gyro_counts):
     import matplotlib.pyplot as plt
     import numpy as np
 
-    fig_1 = plt.figure(1, [16, 6])
+    fig_1 = plt.figure(1, [16, 12])
     fig_1.suptitle('Stamp Analytics')
     fig_1.subplots_adjust(
         left=0.1,
         right=0.95,
         top=0.85,
         bottom=0.15,
-        wspace=0.4)
+        wspace=0.4,
+        hspace=0.4)
 
-    ax_imgs_t_diff = fig_1.add_subplot(131)
+    ax_imgs_t_diff = fig_1.add_subplot(231)
     ax_imgs_t_diff.set_title('Image Timestamp Diff')
     ax_imgs_t_diff.set_xlabel('diff index')
     ax_imgs_t_diff.set_ylabel('diff (s)')
     ax_imgs_t_diff.axis('auto')
 
-    ax_imus_t_diff = fig_1.add_subplot(132)
-    ax_imus_t_diff.set_title('Imu Timestamp Diff')
-    ax_imus_t_diff.set_xlabel('diff index')
-    ax_imus_t_diff.set_ylabel('diff (s)')
-    ax_imus_t_diff.axis('auto')
-
-    ax_imgs_t_imus = fig_1.add_subplot(133)
-    ax_imgs_t_imus.set_title('Imu Count Per Image Intervel')
-    ax_imgs_t_imus.set_xlabel('intervel index')
-    ax_imgs_t_imus.set_ylabel('imu count')
-    ax_imgs_t_imus.axis('auto')
-
     ax_imgs_t_diff.set_xlim([0, imgs_t_diff.size])
     ax_imgs_t_diff.plot(imgs_t_diff)
 
-    ax_imus_t_diff.set_xlim([0, imus_t_diff.size])
-    ax_imus_t_diff.plot(imus_t_diff)
+    def _plot_imus(name, t_diff, counts, pos_offset=0):
+      ax_imus_t_diff = fig_1.add_subplot(232 + pos_offset)
+      ax_imus_t_diff.set_title('{} Timestamp Diff'.format(name))
+      ax_imus_t_diff.set_xlabel('diff index')
+      ax_imus_t_diff.set_ylabel('diff (s)')
+      ax_imus_t_diff.axis('auto')
 
-    # print(imgs_t_imus.values)
-    # imgs_t_imus.plot(kind='line', ax=ax_imgs_t_imus)
-    data = imgs_t_imus.values
-    ax_imgs_t_imus.set_xlim([0, data.size])
-    ax_imgs_t_imus.set_ylim([np.min(data) - 1, np.max(data) + 1])
-    ax_imgs_t_imus.plot(data)
+      ax_imus_t_diff.set_xlim([0, t_diff.size - 1])
+      ax_imus_t_diff.plot(t_diff)
+
+      ax_imus_counts = fig_1.add_subplot(233 + pos_offset)
+      ax_imus_counts.set_title('{} Count Per Image Intervel'.format(name))
+      ax_imus_counts.set_xlabel('intervel index')
+      ax_imus_counts.set_ylabel('imu count')
+      ax_imus_counts.axis('auto')
+
+      # print(counts.values)
+      # counts.plot(kind='line', ax=ax_imus_counts)
+      data = counts.values
+      ax_imus_counts.set_xlim([0, data.size])
+      ax_imus_counts.set_ylim([np.min(data) - 1, np.max(data) + 1])
+      ax_imus_counts.plot(data)
+
+    _plot_imus('Accel', accel_t_diff, accel_counts)
+    _plot_imus('Gyro', gyro_t_diff, gyro_counts, 3)
 
     if outdir:
       figpath = os.path.join(outdir, RESULT_FIGURE)
