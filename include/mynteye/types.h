@@ -197,6 +197,36 @@ enum class Option : std::uint8_t {
   ZERO_DRIFT_CALIBRATION,
   /** Erase chip */
   ERASE_CHIP,
+  /**
+   * min exposure time, valid if auto-exposure
+   *
+   *   range: [0,?], default: ?
+   */
+  MIN_EXPOSURE_TIME,
+  /**
+   * The range of accelerometer
+   *
+   *   values: {?}, default: ?
+   */
+  ACCELEROMETER_RANGE,
+  /**
+   * The range of gyroscope
+   *
+   *   values: {?}, default: ?
+   */
+  GYROSCOPE_RANGE,
+  /**
+   * The parameter of accelerometer low pass filter
+   *
+   *   values: {?}, default: ?
+   */
+  ACCELEROMETER_LOW_PASS_FILTER,
+  /**
+   * The parameter of gyroscope low pass filter
+   *
+   *   values: {?}, default: ?
+   */
+  GYROSCOPE_LOW_PASS_FILTER,
   /** Last guard */
   LAST
 };

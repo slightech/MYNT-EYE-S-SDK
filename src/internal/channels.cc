@@ -64,6 +64,21 @@ int XuCamCtrlId(Option option) {
     case Option::FRAME_RATE:
       return 7;
       break;
+    case Option::MIN_EXPOSURE_TIME:
+      return 8;
+      break;
+    case Option::ACCELEROMETER_RANGE:
+      return 9;
+      break;
+    case Option::GYROSCOPE_RANGE:
+      return 10;
+      break;
+    case Option::ACCELEROMETER_LOW_PASS_FILTER:
+      return 11;
+      break;
+    case Option::GYROSCOPE_LOW_PASS_FILTER:
+      return 12;
+      break;
     default:
       LOG(FATAL) << "No cam ctrl id for " << option;
   }
@@ -137,7 +152,10 @@ void Channels::UpdateControlInfos() {
     for (auto &&option : std::vector<Option>{
              Option::FRAME_RATE, Option::IMU_FREQUENCY, Option::EXPOSURE_MODE,
              Option::MAX_GAIN, Option::MAX_EXPOSURE_TIME,
-             Option::DESIRED_BRIGHTNESS, Option::IR_CONTROL, Option::HDR_MODE})
+             Option::DESIRED_BRIGHTNESS, Option::IR_CONTROL, Option::HDR_MODE
+             Option::MIN_EXPOSURE_TIME, Option::ACCELEROMETER_RANGE,
+             Option::GYROSCOPE_RANGE, Option::ACCELEROMETER_LOW_PASS_FILTER,
+             Option::GYROSCOPE_LOW_PASS_FILTER})
     {
        control_infos_[option] = XuControlInfo(option);
     }
@@ -182,6 +200,11 @@ std::int32_t Channels::GetControlValue(const Option &option) const {
     case Option::DESIRED_BRIGHTNESS:
     case Option::IR_CONTROL:
     case Option::HDR_MODE:
+    case Option::MIN_EXPOSURE_TIME:
+    case Option::ACCELEROMETER_RANGE:
+    case Option::GYROSCOPE_RANGE:
+    case Option::ACCELEROMETER_LOW_PASS_FILTER:
+    case Option::GYROSCOPE_LOW_PASS_FILTER:
       return XuCamCtrlGet(option);
     case Option::ZERO_DRIFT_CALIBRATION:
     case Option::ERASE_CHIP:
@@ -242,7 +265,12 @@ void Channels::SetControlValue(const Option &option, std::int32_t value) {
     case Option::MAX_EXPOSURE_TIME:
     case Option::DESIRED_BRIGHTNESS:
     case Option::IR_CONTROL:
-    case Option::HDR_MODE: {
+    case Option::HDR_MODE:
+    case Option::MIN_EXPOSURE_TIME:
+    case Option::ACCELEROMETER_RANGE:
+    case Option::GYROSCOPE_RANGE:
+    case Option::ACCELEROMETER_LOW_PASS_FILTER:
+    case Option::GYROSCOPE_LOW_PASS_FILTER: {
       if (!in_range())
         break;
       XuCamCtrlSet(option, value);
@@ -273,6 +301,11 @@ bool Channels::RunControlAction(const Option &option) const {
     case Option::DESIRED_BRIGHTNESS:
     case Option::IR_CONTROL:
     case Option::HDR_MODE:
+    case Option::MIN_EXPOSURE_TIME:
+    case Option::ACCELEROMETER_RANGE:
+    case Option::GYROSCOPE_RANGE:
+    case Option::ACCELEROMETER_LOW_PASS_FILTER:
+    case Option::GYROSCOPE_LOW_PASS_FILTER:
       LOG(WARNING) << option << " run action useless";
       return false;
     default:

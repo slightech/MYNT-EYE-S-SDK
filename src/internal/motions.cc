@@ -35,6 +35,8 @@ Motions::~Motions() {
 void Motions::SetMotionCallback(motion_callback_t callback) {
   motion_callback_ = callback;
   if (motion_callback_) {
+    accel_range = channels_->GetControlValue(Option::ACCELEROMETER_RANGE);
+    gyro_range = channels_->GetControlValue(Option::GYROSCOPE_RANGE);
     channels_->SetImuCallback([this](const ImuPacket &packet) {
       if (!motion_callback_ && !motion_datas_enabled_) {
         LOG(WARNING) << "";
@@ -53,9 +55,9 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
         imu->temperature = seg.temperature / 326.8f + 25;
 
         if (imu->flag == 1) {
-          imu->accel[0] = seg.aceel_or_gyro[0] * 12.f / 0x10000;
-          imu->accel[1] = seg.aceel_or_gyro[1] * 12.f / 0x10000;
-          imu->accel[2] = seg.aceel_or_gyro[2] * 12.f / 0x10000;
+          imu->accel[0] = seg.aceel_or_gyro[0] * 1.f * accel_range / 0x10000;
+          imu->accel[1] = seg.aceel_or_gyro[1] * 1.f * accel_range / 0x10000;
+          imu->accel[2] = seg.aceel_or_gyro[2] * 1.f * accel_range / 0x10000;
           imu->gyro[0] = 0;
           imu->gyro[1] = 0;
           imu->gyro[2] = 0;
@@ -63,9 +65,9 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
           imu->accel[0] = 0;
           imu->accel[1] = 0;
           imu->accel[2] = 0;
-          imu->gyro[0] = seg.aceel_or_gyro[0] * 1000.f / 0x10000;
-          imu->gyro[1] = seg.aceel_or_gyro[1] * 1000.f / 0x10000;
-          imu->gyro[2] = seg.aceel_or_gyro[2] * 1000.f / 0x10000;
+          imu->gyro[0] = seg.aceel_or_gyro[0] * 1.f * gyro_range / 0x10000;
+          imu->gyro[1] = seg.aceel_or_gyro[1] * 1.f * gyro_range / 0x10000;
+          imu->gyro[2] = seg.aceel_or_gyro[2] * 1.f * gyro_range / 0x10000;
         } else {
           imu->Reset();
         }

@@ -22,7 +22,12 @@ const std::map<Model, CapabilitiesSupports> capabilities_supports_map = {
     {Model::STANDARD, {Capabilities::STEREO_COLOR, Capabilities::IMU}}};
 
 const std::map<Model, OptionSupports> option_supports_map = {
-    {Model::STANDARD, {Option::ERASE_CHIP}}};
+    {Model::STANDARD,
+     {Option::GAIN, Option::BRIGHTNESS, Option::CONTRAST, Option::EXPOSURE_MODE,
+      Option::MAX_EXPOSURE_TIME, Option::ERASE_CHIP, Option::MIN_EXPOSURE_TIME,
+      Option::ACCELEROMETER_RANGE, Option::GYROSCOPE_RANGE,
+      Option::ACCELEROMETER_LOW_PASS_FILTER,
+      Option::GYROSCOPE_LOW_PASS_FILTER}}};
 
 const std::map<Model, std::map<Capabilities, StreamRequests>>
     stream_requests_map = {

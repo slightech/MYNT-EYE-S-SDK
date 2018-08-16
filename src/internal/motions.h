@@ -57,6 +57,9 @@ class Motions {
   bool is_imu_tracking;
 
   std::mutex mtx_datas_;
+
+  int accel_range = 12;
+  int gyro_range = 1000;
 };
 
 MYNTEYE_END_NAMESPACE
