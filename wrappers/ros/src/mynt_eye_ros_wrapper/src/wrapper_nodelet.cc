@@ -45,6 +45,9 @@
 MYNTEYE_BEGIN_NAMESPACE
 
 namespace enc = sensor_msgs::image_encodings;
+inline double compute_time(const double end, const double start) {
+  return end - start;
+}
 
 class ROSWrapperNodelet : public nodelet::Nodelet {
  public:
@@ -57,15 +60,21 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
     if (time_beg_ != -1) {
       double time_end = ros::Time::now().toSec();
-      double time_elapsed = time_end - time_beg_;
 
-      LOG(INFO) << "Time elapsed: " << time_elapsed << " s";
-      LOG(INFO) << "Left count: " << left_count_
-                << ", fps: " << (left_count_ / time_elapsed);
-      LOG(INFO) << "Right count: " << right_count_
-                << ", fps: " << (right_count_ / time_elapsed);
-      LOG(INFO) << "Imu count: " << imu_count_
-                << ", hz: " << (imu_count_ / time_elapsed);
+      LOG(INFO) << "Time elapsed: " << compute_time(time_end, time_beg_)
+                << " s";
+      if (left_time_beg_ != -1) {
+        LOG(INFO) << "Left count: " << left_count_ << ", fps: "
+                  << (left_count_ / compute_time(time_end, left_time_beg_));
+      }
+      if (right_time_beg_ != -1) {
+        LOG(INFO) << "Right count: " << right_count_ << ", fps: "
+                  << (right_count_ / compute_time(time_end, right_time_beg_));
+      }
+      if (imu_time_beg_ != -1) {
+        LOG(INFO) << "Imu count: " << imu_count_ << ", hz: "
+                  << (imu_count_ / compute_time(time_end, imu_time_beg_));
+      }
 
       // ROS messages could not be reliably printed here, using glog instead :(
       // ros::Duration(1).sleep();  // 1s
@@ -285,6 +294,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                              << ", timestamp: " << data.img->timestamp
                              << ", exposure_time: " << data.img->exposure_time);
           });
+      left_time_beg_ = ros::Time::now().toSec();
       is_published_[Stream::LEFT] = true;
     }
 
@@ -302,6 +312,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                 << data.img->frame_id << ", timestamp: " << data.img->timestamp
                 << ", exposure_time: " << data.img->exposure_time);
           });
+      right_time_beg_ = ros::Time::now().toSec();
       is_published_[Stream::RIGHT] = true;
     }
 
@@ -365,11 +376,12 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         // Sleep 1ms, otherwise publish may drop some datas.
         ros::Duration(0.001).sleep();
       });
+      imu_time_beg_ = ros::Time::now().toSec();
       is_motion_published_ = true;
     }
 
-    time_beg_ = ros::Time::now().toSec();
     if (!is_started_) {
+      time_beg_ = ros::Time::now().toSec();
       api_->Start(Source::ALL);
       is_started_ = true;
     }
@@ -860,6 +872,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   cv::Rect left_roi_, right_roi_;
 
   double time_beg_ = -1;
+  double left_time_beg_ = -1;
+  double right_time_beg_ = -1;
+  double imu_time_beg_ = -1;
   std::size_t left_count_ = 0;
   std::size_t right_count_ = 0;
   std::size_t imu_count_ = 0;
