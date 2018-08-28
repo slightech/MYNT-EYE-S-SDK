@@ -173,6 +173,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       }
       NODELET_INFO_STREAM(it->first << ": " << api_->GetOptionValue(it->first));
     }
+    frame_rate_ = api_->GetOptionValue(Option::FRAME_RATE);
 
     // publishers
 
@@ -227,8 +228,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     NODELET_INFO_STREAM("Advertized service " << DEVICE_INFO_SERVICE);
 
     publishStaticTransforms();
+    ros::Rate loop_rate(frame_rate_);
     while (private_nh_.ok()) {
       publishTopics();
+      loop_rate.sleep();
     }
   }
 
@@ -266,6 +269,84 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         return false;
     }
     return true;
+  }
+
+  void SetIsPublished(const Stream &stream) {
+    is_published_[stream] = false;
+    switch (stream) {
+      case Stream::LEFT_RECTIFIED: {
+        if (is_published_[Stream::RIGHT_RECTIFIED]) {
+          SetIsPublished(Stream::RIGHT_RECTIFIED);
+        }
+        if (is_published_[Stream::DISPARITY]) {
+          SetIsPublished(Stream::DISPARITY);
+        }
+      } break;
+      case Stream::RIGHT_RECTIFIED: {
+        if (is_published_[Stream::LEFT_RECTIFIED]) {
+          SetIsPublished(Stream::RIGHT_RECTIFIED);
+        }
+        if (is_published_[Stream::DISPARITY]) {
+          SetIsPublished(Stream::DISPARITY);
+        }
+      } break;
+      case Stream::DISPARITY: {
+        if (is_published_[Stream::DISPARITY_NORMALIZED]) {
+          SetIsPublished(Stream::DISPARITY_NORMALIZED);
+        }
+        if (is_published_[Stream::POINTS]) {
+          SetIsPublished(Stream::POINTS);
+        }
+      } break;
+      case Stream::DISPARITY_NORMALIZED: {
+      } break;
+      case Stream::POINTS: {
+        if (is_published_[Stream::DEPTH]) {
+          SetIsPublished(Stream::DEPTH);
+        }
+      } break;
+      case Stream::DEPTH: {
+      } break;
+      default:
+        return;
+    }
+  }
+
+  void publishPoint(const Stream &stream) {
+    auto &&points_num = points_publisher_.getNumSubscribers();
+    if (points_num == 0 && is_published_[stream]) {
+      SetIsPublished(stream);
+      api_->DisableStreamData(stream);
+    } else if (points_num > 0 && !is_published_[Stream::POINTS]) {
+      api_->EnableStreamData(Stream::POINTS);
+      api_->SetStreamCallback(
+          Stream::POINTS, [this](const api::StreamData &data) {
+            static std::size_t count = 0;
+            ++count;
+            publishPoints(data, count, ros::Time::now());
+          });
+      is_published_[Stream::POINTS] = true;
+    }
+  }
+
+  void publishOthers(const Stream &stream) {
+    auto stream_num = camera_publishers_[stream].getNumSubscribers();
+    if (stream_num == 0 && is_published_[stream]) {
+      // Stop computing when was not subcribed
+      SetIsPublished(stream);
+      api_->DisableStreamData(stream);
+    } else if (stream_num > 0 && !is_published_[stream]) {
+      // Start computing and publishing when was subcribed
+      api_->EnableStreamData(stream);
+      api_->SetStreamCallback(
+          stream, [this, stream](const api::StreamData &data) {
+            // data.img is null, not hard timestamp
+            static std::size_t count = 0;
+            ++count;
+            publishCamera(stream, data, count, ros::Time::now());
+          });
+      is_published_[stream] = true;
+    }
   }
 
   void publishTopics() {
@@ -317,33 +398,16 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
 
     std::vector<Stream> other_streams{
-        Stream::LEFT_RECTIFIED, Stream::RIGHT_RECTIFIED, Stream::DISPARITY,
-        Stream::DISPARITY_NORMALIZED, Stream::DEPTH};
+        Stream::LEFT_RECTIFIED, Stream::RIGHT_RECTIFIED,
+        Stream::DISPARITY,      Stream::DISPARITY_NORMALIZED,
+        Stream::POINTS,         Stream::DEPTH};
 
     for (auto &&stream : other_streams) {
-      if (camera_publishers_[stream].getNumSubscribers() == 0 &&
-          is_published_[stream]) {
-        continue;
+      if (stream != Stream::POINTS) {
+        publishOthers(stream);
+      } else {
+        publishPoint(stream);
       }
-      api_->SetStreamCallback(
-          stream, [this, stream](const api::StreamData &data) {
-            // data.img is null, not hard timestamp
-            static std::size_t count = 0;
-            ++count;
-            publishCamera(stream, data, count, ros::Time::now());
-          });
-      is_published_[stream] = true;
-    }
-
-    if (points_publisher_.getNumSubscribers() > 0 &&
-        !is_published_[Stream::POINTS]) {
-      api_->SetStreamCallback(
-          Stream::POINTS, [this](const api::StreamData &data) {
-            static std::size_t count = 0;
-            ++count;
-            publishPoints(data, count, ros::Time::now());
-          });
-      is_published_[Stream::POINTS] = true;
     }
 
     if (!is_motion_published_) {
@@ -882,6 +946,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   std::map<Stream, bool> is_published_;
   bool is_motion_published_;
   bool is_started_;
+  int frame_rate_;
 };
 
 MYNTEYE_END_NAMESPACE

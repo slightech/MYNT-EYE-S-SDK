@@ -38,7 +38,7 @@
   <arg name="enable_disparity" default="false" />
   <arg name="enable_disparity_norm" default="false" />
   <arg name="enable_points" default="false" />
-  <arg name="enable_depth" default="true" />
+  <arg name="enable_depth" default="false" />
 
   <!-- device options, -1 will not set the value -->
 
