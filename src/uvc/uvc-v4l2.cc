@@ -44,6 +44,7 @@ namespace uvc {
 #define NO_DATA_MAX_COUNT 200
 
 int no_data_count = 0;
+
 /*
 class device_error : public std::exception {
  public:
