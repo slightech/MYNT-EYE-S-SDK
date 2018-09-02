@@ -252,7 +252,7 @@ MotionIntrinsics Device::GetMotionIntrinsics(bool *ok) const {
     return *motion_intrinsics_;
   } else {
     *ok = false;
-    LOG(WARNING) << "Motion intrinsics not found";
+    VLOG(2) << "Motion intrinsics not found";
     return {};
   }
 }
@@ -263,7 +263,7 @@ Extrinsics Device::GetMotionExtrinsics(const Stream &from, bool *ok) const {
     return motion_from_extrinsics_.at(from);
   } catch (const std::out_of_range &e) {
     *ok = false;
-    LOG(WARNING) << "Motion extrinsics from " << from << " not found";
+    VLOG(2) << "Motion extrinsics from " << from << " not found";
     return {};
   }
 }
@@ -580,7 +580,7 @@ void Device::ReadAllInfos() {
     VLOG(2) << "Motion extrinsics left to imu: {"
             << GetMotionExtrinsics(Stream::LEFT) << "}";
   } else {
-    LOG(WARNING) << "Motion intrinsics & extrinsics not exist";
+    VLOG(2) << "Motion intrinsics & extrinsics not exist";
   }
 }
 
