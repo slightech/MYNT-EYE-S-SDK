@@ -50,9 +50,9 @@ bool unpack_stereo_img_data(
   //   << ", checksum=0x" << std::hex << static_cast<int>(img_packet.checksum);
 
   if (img_packet.header != 0x3B) {
-    LOG(WARNING) << "Image packet header must be 0x3B, but 0x" << std::hex
-                 << std::uppercase << std::setw(2) << std::setfill('0')
-                 << static_cast<int>(img_packet.header) << " now";
+    VLOG(2) << "Image packet header must be 0x3B, but 0x" << std::hex
+            << std::uppercase << std::setw(2) << std::setfill('0')
+            << static_cast<int>(img_packet.header) << " now";
     return false;
   }
 
@@ -61,11 +61,11 @@ bool unpack_stereo_img_data(
     checksum = (checksum ^ packet[i]);
   }
   if (img_packet.checksum != checksum) {
-    LOG(WARNING) << "Image packet checksum should be 0x" << std::hex
-                 << std::uppercase << std::setw(2) << std::setfill('0')
-                 << static_cast<int>(img_packet.checksum) << ", but 0x"
-                 << std::setw(2) << std::setfill('0')
-                 << static_cast<int>(checksum) << " now";
+    VLOG(2) << "Image packet checksum should be 0x" << std::hex
+            << std::uppercase << std::setw(2) << std::setfill('0')
+            << static_cast<int>(img_packet.checksum) << ", but 0x"
+            << std::setw(2) << std::setfill('0') << static_cast<int>(checksum)
+            << " now";
     return false;
   }
 
@@ -160,7 +160,7 @@ bool Streams::PushStream(const Capabilities &capability, const void *data) {
       } else {
         // discard left
         DiscardStreamData(Stream::LEFT);
-        LOG(WARNING) << "Image packet is unaccepted, frame dropped";
+        VLOG(2) << "Image packet is unaccepted, frame dropped";
         pushed = false;
       }
     } break;
