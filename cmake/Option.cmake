@@ -28,6 +28,9 @@ option(WITH_DEVICE_INFO_REQUIRED "Build with device info required" ON)
 
 option(WITH_BOOST "Include Boost support" ON)
 
+# `make 3rdparty` could build glog submodule
+option(WITH_GLOG "Include glog support" ON)
+
 
 # packages
 
@@ -57,6 +60,10 @@ if(NOT WITH_FILESYSTEM)
     add_definitions(-DWITH_FILESYSTEM)
     add_definitions(-DWITH_NATIVE_FILESYSTEM)
   endif()
+endif()
+
+if(WITH_GLOG)
+  include(${CMAKE_CURRENT_LIST_DIR}/DetectGLog.cmake)
 endif()
 
 find_package(CUDA QUIET)
@@ -122,6 +129,16 @@ if(WITH_BOOST)
     #status("    Boost_LIBRARIES: ${Boost_LIBRARIES}")
   else()
     status("    Boost: NO")
+  endif()
+endif()
+
+status("  WITH_GLOG: ${WITH_GLOG}")
+if(WITH_GLOG)
+  if(glog_FOUND)
+    status("    glog: YES")
+    status("    glog_VERSION: ${glog_VERSION}")
+  else()
+    status("    glog: NO")
   endif()
 endif()
 

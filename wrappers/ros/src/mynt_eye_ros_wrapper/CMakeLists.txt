@@ -56,9 +56,6 @@ checkPackage("sensor_msgs" "")
 checkPackage("std_msgs" "")
 checkPackage("tf" "")
 
-find_package(OpenCV REQUIRED)
-message(STATUS "Found OpenCV: ${OpenCV_VERSION}")
-
 ## messages
 
 add_message_files(
@@ -82,13 +79,15 @@ catkin_package(
 
 get_filename_component(SDK_DIR "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
 
-LIST(APPEND CMAKE_PREFIX_PATH ${SDK_DIR}/third_party/glog/_build)
-find_package(glog REQUIRED)
-message(STATUS "Found glog: ${glog_VERSION}")
-
 LIST(APPEND CMAKE_PREFIX_PATH ${SDK_DIR}/_install/lib/cmake)
 find_package(mynteye REQUIRED)
 message(STATUS "Found mynteye: ${mynteye_VERSION}")
+
+include(${SDK_DIR}/cmake/DetectOpenCV.cmake)
+
+if(mynteye_WITH_GLOG)
+  include(${SDK_DIR}/cmake/DetectGLog.cmake)
+endif()
 
 # targets
 

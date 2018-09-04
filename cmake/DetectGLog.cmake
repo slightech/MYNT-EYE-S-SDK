@@ -12,9 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-@PACKAGE_INIT@
+include(${CMAKE_CURRENT_LIST_DIR}/IncludeGuard.cmake)
+cmake_include_guard()
 
-set(mynteye_WITH_API @WITH_API@)
-set(mynteye_WITH_GLOG @WITH_GLOG@)
+get_filename_component(__pro_dir ${CMAKE_CURRENT_LIST_DIR} DIRECTORY)
+LIST(APPEND CMAKE_PREFIX_PATH ${__pro_dir}/third_party/glog/_build)
 
-include("${CMAKE_CURRENT_LIST_DIR}/mynteye-targets.cmake")
+find_package(glog REQUIRED)
+if(glog_FOUND)
+  add_definitions(-DWITH_GLOG)
+endif()
+
+unset(__pro_dir)

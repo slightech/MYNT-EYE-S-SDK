@@ -44,10 +44,6 @@ message(STATUS "CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
 # packages
 
-LIST(APPEND CMAKE_PREFIX_PATH third_party/glog/_build)
-find_package(glog REQUIRED)
-message(STATUS "Found glog: ${glog_VERSION}")
-
 LIST(APPEND CMAKE_MODULE_PATH cmake)
 
 include(CMakePackageConfigHelpers)
@@ -90,12 +86,14 @@ set(MYNTEYE_CMAKE_INSTALLDIR "${MYNTEYE_CMAKE_LIBDIR}/cmake/${MYNTEYE_NAME}")
 
 ## main
 
-add_executable(main src/main.cc)
-target_link_libraries(main glog::glog)
-target_include_directories(main PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_BINARY_DIR}/include
-)
+if(WITH_GLOG)
+  add_executable(main src/main.cc)
+  target_link_libraries(main glog::glog)
+  target_include_directories(main PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_BINARY_DIR}/include
+  )
+endif()
 
 ## libmynteye
 
@@ -164,15 +162,15 @@ if(WITH_API)
   )
 endif()
 
-set(MYNTEYE_LINKLIBS
-  glog::glog
-  ${UVC_LIB}
-)
+set(MYNTEYE_LINKLIBS ${UVC_LIB})
 if(WITH_API)
   list(APPEND MYNTEYE_LINKLIBS ${OpenCV_LIBS})
 endif()
 if(WITH_BOOST_FILESYSTEM)
   list(APPEND MYNTEYE_LINKLIBS ${Boost_LIBRARIES})
+endif()
+if(WITH_GLOG)
+  list(APPEND MYNTEYE_LINKLIBS glog::glog)
 endif()
 #message(STATUS "MYNTEYE_LINKLIBS: ${MYNTEYE_LINKLIBS}")
 
