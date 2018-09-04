@@ -45,7 +45,7 @@ struct glog_init {
     FLAGS_log_dir = ".";
 
     // Sets the maximum log file size (in MB).
-    FLAGS_max_log_size = 1024;
+    FLAGS_max_log_size = 8;
 
     // Sets whether to avoid logging to the disk if the disk is full.
     FLAGS_stop_logging_if_full_disk = true;
