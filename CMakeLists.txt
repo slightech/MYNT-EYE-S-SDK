@@ -108,6 +108,13 @@ endif()
 
 ## libmynteye
 
+if(NOT WITH_GLOG)
+  set(__MINIGLOG_FLAGS "-Wno-unused-parameter -Wno-format -Wno-return-type")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${__MINIGLOG_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${__MINIGLOG_FLAGS}")
+  unset(__MINIGLOG_FLAGS)
+endif()
+
 set(MYNTEYE_PUBLIC_H
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/callbacks.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/global.h
@@ -126,6 +133,11 @@ if(WITH_API)
     ${CMAKE_CURRENT_SOURCE_DIR}/src/api/api.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/api/plugin.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/api/processor/object.h
+  )
+endif()
+if(NOT WITH_GLOG)
+  list(APPEND MYNTEYE_PUBLIC_H
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/miniglog.h
   )
 endif()
 
@@ -171,6 +183,9 @@ if(WITH_API)
     src/api/processor/depth_processor.cc
     src/api/processor/points_processor.cc
   )
+endif()
+if(NOT WITH_GLOG)
+  list(APPEND MYNTEYE_SRCS src/public/miniglog.cc)
 endif()
 
 set(MYNTEYE_LINKLIBS ${UVC_LIB})
