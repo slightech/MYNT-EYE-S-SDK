@@ -13,14 +13,14 @@
 // limitations under the License.
 #include "internal/channels.h"
 
-#include <glog/logging.h>
-
 #include <bitset>
 #include <chrono>
 #include <iomanip>
 #include <iterator>
 #include <sstream>
 #include <stdexcept>
+
+#include "mynteye/logger.h"
 
 #include "internal/strings.h"
 #include "internal/times.h"

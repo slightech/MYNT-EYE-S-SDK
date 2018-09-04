@@ -25,12 +25,12 @@
 #include <linux/uvcvideo.h>
 #include <linux/videodev2.h>
 
-#include <glog/logging.h>
-
 #include <chrono>
 #include <fstream>
 #include <string>
 #include <thread>
+
+#include "mynteye/logger.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 

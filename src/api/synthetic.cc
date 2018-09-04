@@ -13,11 +13,11 @@
 // limitations under the License.
 #include "api/synthetic.h"
 
-#include <glog/logging.h>
-
 #include <algorithm>
 #include <functional>
 #include <stdexcept>
+
+#include "mynteye/logger.h"
 
 #include "api/plugin.h"
 #include "api/processor/depth_processor.h"

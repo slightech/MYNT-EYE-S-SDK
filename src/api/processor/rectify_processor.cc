@@ -16,9 +16,9 @@
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include <glog/logging.h>
-
 #include <utility>
+
+#include "mynteye/logger.h"
 
 #include "device/device.h"
 

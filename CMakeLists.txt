@@ -100,7 +100,7 @@ endif()
 set(MYNTEYE_PUBLIC_H
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/callbacks.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/global.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/glog_init.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/logger.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/mynteye/mynteye.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/types.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/utils.h

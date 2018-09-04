@@ -18,12 +18,10 @@
 #include <boost/range/iterator_range.hpp>
 #endif
 
-#include <glog/logging.h>
-
 #include <algorithm>
 #include <thread>
 
-#include "mynteye/glog_init.h"
+#include "mynteye/logger.h"
 #include "mynteye/utils.h"
 
 #include "api/plugin.h"
