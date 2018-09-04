@@ -16,6 +16,9 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <string.h>
+#include <unistd.h>
+
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -27,6 +30,7 @@
 
 #include <chrono>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <thread>
 

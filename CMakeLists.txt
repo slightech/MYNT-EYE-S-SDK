@@ -44,6 +44,17 @@ message(STATUS "CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
 # packages
 
+find_package(Threads QUIET)
+
+macro(target_link_threads NAME)
+  if(THREADS_HAVE_PTHREAD_ARG)
+    target_compile_options(PUBLIC ${NAME} "-pthread")
+  endif()
+  if(CMAKE_THREAD_LIBS_INIT)
+    target_link_libraries(${NAME} "${CMAKE_THREAD_LIBS_INIT}")
+  endif()
+endmacro()
+
 LIST(APPEND CMAKE_MODULE_PATH cmake)
 
 include(CMakePackageConfigHelpers)
@@ -176,6 +187,7 @@ endif()
 
 add_library(${MYNTEYE_NAME} SHARED ${MYNTEYE_SRCS})
 target_link_libraries(${MYNTEYE_NAME} ${MYNTEYE_LINKLIBS})
+target_link_threads(${MYNTEYE_NAME})
 
 if(OS_WIN)
   target_compile_definitions(${MYNTEYE_NAME}

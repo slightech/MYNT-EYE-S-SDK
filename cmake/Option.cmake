@@ -29,7 +29,7 @@ option(WITH_DEVICE_INFO_REQUIRED "Build with device info required" ON)
 option(WITH_BOOST "Include Boost support" ON)
 
 # `make 3rdparty` could build glog submodule
-option(WITH_GLOG "Include glog support" ON)
+option(WITH_GLOG "Include glog support" OFF)
 
 
 # packages

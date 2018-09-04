@@ -15,6 +15,8 @@
 #define MYNTEYE_LOGGER_H_
 #pragma once
 
+#ifdef WITH_GLOG
+
 #include <glog/logging.h>
 
 /** Helper to init glog with args. */
@@ -61,5 +63,35 @@ struct glog_init {
     google::ShutdownGoogleLogging();
   }
 };
+
+#else
+
+#include <iostream>
+
+struct glog_init {
+  glog_init(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
+  }
+};
+
+#define LOG(severity) std::cout
+#define LOG_IF(severity, condition) std::cout
+
+#define VLOG(verboselevel) std::cout
+#define VLOG_IS_ON(verboselevel) false
+
+#define CHECK(val) std::cout
+
+#define CHECK_EQ(val1, val2) std::cout
+#define CHECK_NE(val1, val2)
+#define CHECK_LE(val1, val2)
+#define CHECK_LT(val1, val2)
+#define CHECK_GE(val1, val2)
+#define CHECK_GT(val1, val2)
+
+#define CHECK_NOTNULL(val)
+
+#endif
 
 #endif  // MYNTEYE_LOGGER_H_
