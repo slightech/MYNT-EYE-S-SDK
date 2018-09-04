@@ -28,7 +28,8 @@ option(WITH_DEVICE_INFO_REQUIRED "Build with device info required" ON)
 
 option(WITH_BOOST "Include Boost support" ON)
 
-# `make 3rdparty` could build glog submodule
+# How to install glog?
+#   Ubuntu: `sudo apt-get install libgoogle-glog-dev`
 option(WITH_GLOG "Include glog support" OFF)
 
 

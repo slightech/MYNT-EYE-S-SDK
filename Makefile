@@ -30,7 +30,6 @@ help:
 	@echo "  make apidoc          make api doc"
 	@echo "  make opendoc         open api doc (html)"
 	@echo "  make init            init project"
-	@echo "  make 3rdparty        build 3rdparty: glog"
 	@echo "  make build           build project"
 	@echo "  make install         install project"
 	@echo "  make test            build test and run"
@@ -71,14 +70,7 @@ cleandoc:
 submodules:
 	@git submodule update --init
 
-third_party: submodules
-	@$(call echo,Make $@)
-	@$(call echo,Make glog,33)
-	@$(call cmake_build,./third_party/glog/_build)
-
-3rdparty: third_party
-
-.PHONY: submodules third_party 3rdparty
+.PHONY: submodules
 
 # init
 
