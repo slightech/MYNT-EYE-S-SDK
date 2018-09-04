@@ -83,6 +83,10 @@ LIST(APPEND CMAKE_PREFIX_PATH ${SDK_DIR}/_install/lib/cmake)
 find_package(mynteye REQUIRED)
 message(STATUS "Found mynteye: ${mynteye_VERSION}")
 
+if(NOT mynteye_WITH_API)
+  message(FATAL_ERROR "Must with API layer :(")
+endif()
+
 include(${SDK_DIR}/cmake/DetectOpenCV.cmake)
 
 if(mynteye_WITH_GLOG)
