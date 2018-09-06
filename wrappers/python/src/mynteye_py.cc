@@ -26,7 +26,7 @@
 #include <vector>
 
 #include "mynteye/api.h"
-#include "mynteye/glog_init.h"
+#include "mynteye/logger.h"
 #include "mynteye/utils.h"
 
 #include "array_indexing_suite.hpp"
@@ -451,7 +451,7 @@ BOOST_PYTHON_MODULE(mynteye_py) {
 
   bp::register_ptr_to_python<std::shared_ptr<APIWrap>>();
 
-  // glog_init.h - glog_init
+  // logger.h - glog_init
 
   bp::class_<glog_init, boost::noncopyable>("glog_init", bp::no_init)
       .def("create", &glog_init_create)

@@ -13,7 +13,7 @@
 // limitations under the License.
 #include "internal/files.h"
 
-#include <glog/logging.h>
+#include "mynteye/logger.h"
 
 #if defined(OS_WIN) && !defined(OS_MINGW) && !defined(OS_CYGWIN)
 #include <direct.h>

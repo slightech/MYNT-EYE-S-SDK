@@ -13,10 +13,10 @@
 // limitations under the License.
 #include "api/processor/processor.h"
 
-#include <glog/logging.h>
-
 #include <exception>
 #include <utility>
+
+#include "mynteye/logger.h"
 
 #include "internal/strings.h"
 #include "internal/times.h"

@@ -53,7 +53,7 @@
 
 #include <strsafe.h>
 
-#include <glog/logging.h>
+#include "mynteye/logger.h"
 
 #define VLOG_INFO VLOG(2)
 // #define VLOG_INFO LOG(INFO)

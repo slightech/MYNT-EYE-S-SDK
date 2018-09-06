@@ -16,6 +16,9 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <string.h>
+#include <unistd.h>
+
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -25,12 +28,13 @@
 #include <linux/uvcvideo.h>
 #include <linux/videodev2.h>
 
-#include <glog/logging.h>
-
 #include <chrono>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <thread>
+
+#include "mynteye/logger.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
