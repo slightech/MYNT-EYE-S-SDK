@@ -6,8 +6,8 @@
 
   <arg name="left_topic" default="left/image_raw" />
   <arg name="right_topic" default="right/image_raw" />
-  <arg name="left_rect_topic" default="left/image_rect" />
-  <arg name="right_rect_topic" default="right/image_rect" />
+  <arg name="left_rect_topic" default="left_rect/image_rect" />
+  <arg name="right_rect_topic" default="right_rect/image_rect" />
   <arg name="disparity_topic" default="disparity/image_raw" />
   <arg name="disparity_norm_topic" default="disparity/image_norm" />
   <arg name="depth_topic" default="depth/image_raw" />
