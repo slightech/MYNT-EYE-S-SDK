@@ -15,10 +15,10 @@
 #define MYNTEYE_INTERNAL_ASYNC_CALLBACK_IMPL_H_
 #pragma once
 
-#include <glog/logging.h>
-
 #include <string>
 #include <utility>
+
+#include "mynteye/logger.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 

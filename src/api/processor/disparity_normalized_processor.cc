@@ -15,9 +15,9 @@
 
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include <glog/logging.h>
-
 #include <utility>
+
+#include "mynteye/logger.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 

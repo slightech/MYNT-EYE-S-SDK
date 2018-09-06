@@ -13,12 +13,12 @@
 // limitations under the License.
 #include "device/device.h"
 
-#include <glog/logging.h>
-
 #include <algorithm>
 #include <iterator>
 #include <stdexcept>
 #include <utility>
+
+#include "mynteye/logger.h"
 
 #include "device/device_s.h"
 #include "internal/async_callback.h"

@@ -11,9 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef MYNTEYE_GLOG_INIT_H_  // NOLINT
-#define MYNTEYE_GLOG_INIT_H_
+#ifndef MYNTEYE_LOGGER_H_
+#define MYNTEYE_LOGGER_H_
 #pragma once
+
+#ifdef WITH_GLOG
 
 #include <glog/logging.h>
 
@@ -43,7 +45,7 @@ struct glog_init {
     FLAGS_log_dir = ".";
 
     // Sets the maximum log file size (in MB).
-    FLAGS_max_log_size = 1024;
+    FLAGS_max_log_size = 8;
 
     // Sets whether to avoid logging to the disk if the disk is full.
     FLAGS_stop_logging_if_full_disk = true;
@@ -62,4 +64,20 @@ struct glog_init {
   }
 };
 
-#endif  // MYNTEYE_GLOG_INIT_H_ NOLINT
+#else
+
+struct glog_init {
+  glog_init(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
+    // Do nothing.
+  }
+};
+
+#define MAX_LOG_LEVEL google::INFO
+
+#include "mynteye/miniglog.h"
+
+#endif
+
+#endif  // MYNTEYE_LOGGER_H_

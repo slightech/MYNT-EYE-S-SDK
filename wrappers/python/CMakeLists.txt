@@ -47,14 +47,6 @@ if(OS_MAC)
   endif()
 endif()
 
-# options
-
-include(${PRO_DIR}/cmake/Option.cmake)
-
-if(NOT WITH_API)
-  message(FATAL_ERROR "Must with API layer :(")
-endif()
-
 # flags
 
 if(OS_WIN)
@@ -77,13 +69,21 @@ message(STATUS "CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
 # packages
 
-LIST(APPEND CMAKE_PREFIX_PATH ${PRO_DIR}/third_party/glog/_build)
-find_package(glog REQUIRED)
-message(STATUS "Found glog: ${glog_VERSION}")
-
 LIST(APPEND CMAKE_PREFIX_PATH ${PRO_DIR}/_install/lib/cmake)
 find_package(mynteye REQUIRED)
 message(STATUS "Found mynteye: ${mynteye_VERSION}")
+
+if(NOT mynteye_WITH_API)
+  message(FATAL_ERROR "Must with API layer :(")
+endif()
+
+include(${PRO_DIR}/cmake/DetectOpenCV.cmake)
+
+if(mynteye_WITH_GLOG)
+  include(${PRO_DIR}/cmake/DetectGLog.cmake)
+endif()
+
+## boost & python
 
 if(CMAKE_VERSION VERSION_LESS "3.10" OR CMAKE_VERSION VERSION_EQUAL "3.10")
   find_package(Boost ${BOOST_FIND_VERSION} REQUIRED
@@ -102,8 +102,6 @@ find_package(PythonLibs ${PYTHON_FIND_VERSION} REQUIRED)
 message(STATUS "Found PythonLibs: ${PYTHONLIBS_VERSION_STRING}")
 message(STATUS "  PYTHON_INCLUDE_DIRS: ${PYTHON_INCLUDE_DIRS}")
 message(STATUS "  PYTHON_LIBRARIES: ${PYTHON_LIBRARIES}")
-
-include(${PRO_DIR}/cmake/DetectOpenCV.cmake)
 
 #LIST(APPEND CMAKE_MODULE_PATH ${PRO_DIR}/cmake)
 

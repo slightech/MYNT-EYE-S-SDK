@@ -31,8 +31,8 @@ help:
 	@echo "  make opendoc         open api doc (html)"
 	@echo "  make init            init project"
 	@echo "  make build           build project"
-	@echo "  make test            build test and run"
 	@echo "  make install         install project"
+	@echo "  make test            build test and run"
 	@echo "  make samples         build samples"
 	@echo "  make tools           build tools"
 	@echo "  make ros             build ros wrapper"
@@ -41,7 +41,7 @@ help:
 
 .PHONY: help
 
-all: test tools samples
+all: test samples tools
 
 .PHONY: all
 
@@ -70,12 +70,7 @@ cleandoc:
 submodules:
 	@git submodule update --init
 
-third_party: submodules
-	@$(call echo,Make $@)
-	@$(call echo,Make glog,33)
-	@$(call cmake_build,./third_party/glog/_build)
-
-.PHONY: submodules third_party
+.PHONY: submodules
 
 # init
 
@@ -87,7 +82,7 @@ init: submodules
 
 # build
 
-build: third_party
+build: submodules
 	@$(call echo,Make $@)
 ifeq ($(HOST_OS),Win)
 	@$(call cmake_build,./_build,..,-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/_install)

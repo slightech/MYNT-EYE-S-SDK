@@ -13,8 +13,9 @@
 // limitations under the License.
 #include "uvc/uvc.h"  // NOLINT
 
-#include <glog/logging.h>
 #include <libuvc/libuvc.h>
+
+#include "mynteye/logger.h"
 
 // #define ENABLE_DEBUG_SPAM
 

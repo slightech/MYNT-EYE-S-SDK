@@ -13,7 +13,7 @@
 // limitations under the License.
 #include "mynteye/utils.h"
 
-#include <glog/logging.h>
+#include "mynteye/logger.h"
 
 #include "device/context.h"
 #include "device/device.h"

@@ -13,14 +13,13 @@
 // limitations under the License.
 #include <opencv2/highgui/highgui.hpp>
 
-#include <glog/logging.h>
-
 #include <atomic>
 #include <memory>
 #include <mutex>
 #include <sstream>
 
 #include "mynteye/api.h"
+#include "mynteye/logger.h"
 
 #include "util/cv_painter.h"
 
