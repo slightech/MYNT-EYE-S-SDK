@@ -1,6 +1,6 @@
 // Ceres Solver - A fast non-linear least squares minimizer
-// Copyright 2015 Google Inc. All rights reserved.
-// http://ceres-solver.org/
+// Copyright 2013 Google Inc. All rights reserved.
+// http://code.google.com/p/ceres-solver/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -100,46 +100,42 @@
 #include <string>
 #include <vector>
 
-#include "mynteye/global.h"
+#include "mynteye/mynteye.h"
 
-#if defined(MYNTEYE_OS_ANDROID)
-#include <android/log.h>
-#elif defined(MYNTEYE_OS_WIN)
-#include <Windows.h>
-#else
-#include <pthread.h>
-#include <sys/time.h>
-#include <unistd.h>
+#ifdef MYNTEYE_OS_ANDROID
+#  include <android/log.h>
 #endif  // ANDROID
 
-// For appropriate definition of CERES_EXPORT macro.
-// Modified from ceres miniglog version [begin] -------------------------------
-//#include "ceres/internal/port.h"
-//#include "ceres/internal/disable_warnings.h"
-#define CERES_EXPORT
-// Modified from ceres miniglog version [end] ---------------------------------
-
 // Log severity level constants.
+#ifndef ERROR  // NOT windows.h
 const int FATAL   = -3;
 const int ERROR   = -2;
 const int WARNING = -1;
 const int INFO    =  0;
+#else
+const int FATAL   = -1;
+// const int ERROR   = 0;
+const int WARNING = 1;
+const int INFO    = 2;
+#endif
 
 // ------------------------- Glog compatibility ------------------------------
 
 namespace google {
 
 typedef int LogSeverity;
-const int INFO    = ::INFO;
-const int WARNING = ::WARNING;
-const int ERROR   = ::ERROR;
 const int FATAL   = ::FATAL;
+#ifndef ERROR  // NOT windows.h
+const int ERROR   = ::ERROR;
+#endif
+const int WARNING = ::WARNING;
+const int INFO    = ::INFO;
 
 // Sink class used for integration with mock and test functions. If sinks are
 // added, all log output is also sent to each sink through the send function.
 // In this implementation, WaitTillSent() is called immediately after the send.
 // This implementation is not thread safe.
-class CERES_EXPORT LogSink {
+class MYNTEYE_API LogSink {
  public:
   virtual ~LogSink() {}
   virtual void send(LogSeverity severity,
@@ -153,9 +149,12 @@ class CERES_EXPORT LogSink {
 };
 
 // Global set of log sinks. The actual object is defined in logging.cc.
-extern CERES_EXPORT std::set<LogSink *> log_sinks_global;
+MYNTEYE_API extern std::set<LogSink *> log_sinks_global;
 
-inline void InitGoogleLogging(char *argv) {
+// Added by chachi - a runtime global maximum log level. Defined in logging.cc
+MYNTEYE_API extern int log_severity_global;
+
+inline void InitGoogleLogging(char */*argv*/) {
   // Do nothing; this is ignored.
 }
 
@@ -178,20 +177,20 @@ inline void RemoveLogSink(LogSink *sink) {
 // defined, output is directed to std::cerr.  This class should not
 // be directly instantiated in code, rather it should be invoked through the
 // use of the log macros LG, LOG, or VLOG.
-class CERES_EXPORT MessageLogger {
+class MYNTEYE_API MessageLogger {
  public:
   MessageLogger(const char *file, int line, const char *tag, int severity)
     : file_(file), line_(line), tag_(tag), severity_(severity) {
     // Pre-pend the stream with the file and line number.
     StripBasename(std::string(file), &filename_only_);
-    stream_ << filename_only_ << ":" << line << " ";
+    stream_ << SeverityLabel() << "/" << filename_only_ << ":" << line << " ";
   }
 
   // Output the contents of the stream to the proper channel on destruction.
   ~MessageLogger() {
     stream_ << "\n";
 
-#if defined(MYNTEYE_OS_ANDROID)
+#ifdef MYNTEYE_OS_ANDROID
     static const int android_log_levels[] = {
         ANDROID_LOG_FATAL,    // LOG(FATAL)
         ANDROID_LOG_ERROR,    // LOG(ERROR)
@@ -217,34 +216,9 @@ class CERES_EXPORT MessageLogger {
                           "terminating.\n");
     }
 #else
-    // For Ubuntu/Mac/Windows
     // If not building on Android, log all output to std::cerr.
-    // Get timestamp
-    timeval curTime;
-    gettimeofday(&curTime, NULL);
-    int milli = curTime.tv_usec / 1000;
-    char buffer [20];
-    strftime(buffer, 80, "%m-%d %H:%M:%S", localtime(&curTime.tv_sec));
-    char time_cstr[24] = "";
-    sprintf(time_cstr, "%s:%d ", buffer, milli);
-    // Get pid & tid
-    char tid_cstr[24] = "";
-    pid_t  pid = getpid();
-    pthread_t tid = pthread_self();
-    sprintf(tid_cstr, "%d/%u ", pid, tid);
-    if (severity_ == FATAL) {
-        // Magenta color if fatal
-        std::cerr << "\033[1;35m"<< tid_cstr << time_cstr << SeverityLabelStr() << stream_.str() << "\033[0m";
-    } else if (severity_ == ERROR) {
-        // Red color if error
-        std::cerr << "\033[1;31m"<< tid_cstr << time_cstr << SeverityLabelStr() << stream_.str() << "\033[0m";
-    } else if (severity_ == WARNING) {
-        // Yellow color if warning
-        std::cerr << "\033[1;33m"<< tid_cstr << time_cstr << SeverityLabelStr() << stream_.str() << "\033[0m";
-    } else {
-        std::cerr << tid_cstr << time_cstr << SeverityLabelStr() << stream_.str();
-    }
-#endif
+    std::cerr << stream_.str();
+#endif  // ANDROID
 
     LogToSinks(severity_);
     WaitForSinks();
@@ -262,23 +236,16 @@ class CERES_EXPORT MessageLogger {
  private:
   void LogToSinks(int severity) {
     time_t rawtime;
+    struct tm* timeinfo;
+
     time (&rawtime);
-
-    struct tm timeinfo;
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
-    // On Windows, use secure localtime_s not localtime.
-    localtime_s(&timeinfo, &rawtime);
-#else
-    // On non-Windows systems, use threadsafe localtime_r not localtime.
-    localtime_r(&rawtime, &timeinfo);
-#endif
-
+    timeinfo = localtime(&rawtime);
     std::set<google::LogSink*>::iterator iter;
     // Send the log message to all sinks.
     for (iter = google::log_sinks_global.begin();
          iter != google::log_sinks_global.end(); ++iter) {
       (*iter)->send(severity, file_.c_str(), filename_only_.c_str(), line_,
-                    &timeinfo, stream_.str().c_str(), stream_.str().size());
+                    timeinfo, stream_.str().c_str(), stream_.str().size());
     }
   }
 
@@ -306,31 +273,16 @@ class CERES_EXPORT MessageLogger {
 
   char SeverityLabel() {
     switch (severity_) {
-      case FATAL:
-        return 'F';
-      case ERROR:
-        return 'E';
-      case WARNING:
-        return 'W';
       case INFO:
         return 'I';
+      case WARNING:
+        return 'W';
+      case ERROR:
+        return 'E';
+      case FATAL:
+        return 'F';
       default:
         return 'V';
-    }
-  }
-
-  std::string SeverityLabelStr() {
-    switch (severity_) {
-      case FATAL:
-        return "FATAL   ";
-      case ERROR:
-        return "ERROR   ";
-      case WARNING:
-        return "WARNING ";
-      case INFO:
-        return "INFO    ";
-      default:
-        return "VERBOSE ";
     }
   }
 
@@ -347,18 +299,19 @@ class CERES_EXPORT MessageLogger {
 // This class is used to explicitly ignore values in the conditional
 // logging macros.  This avoids compiler warnings like "value computed
 // is not used" and "statement has no effect".
-class CERES_EXPORT LoggerVoidify {
+class MYNTEYE_API LoggerVoidify {
  public:
   LoggerVoidify() { }
   // This has to be an operator with a precedence lower than << but
   // higher than ?:
-  void operator&(const std::ostream &s) { }
+  void operator&(const std::ostream &/*s*/) { }
 };
 
 // Log only if condition is met.  Otherwise evaluates to void.
 #define LOG_IF(severity, condition) \
-    !(condition) ? (void) 0 : LoggerVoidify() & \
-      MessageLogger((char *)__FILE__, __LINE__, "native", severity).stream()
+  (static_cast<int>(severity) > google::log_severity_global || !(condition)) ? \
+  (void) 0 : LoggerVoidify() &                                          \
+  MessageLogger((char *)__FILE__, __LINE__, "native", severity).stream()
 
 // Log only if condition is NOT met.  Otherwise evaluates to void.
 #define LOG_IF_FALSE(severity, condition) LOG_IF(severity, !(condition))
@@ -367,14 +320,15 @@ class CERES_EXPORT LoggerVoidify {
 // google3 code is discouraged and the following shortcut exists for
 // backward compatibility with existing code.
 #ifdef MYNTEYE_MAX_LOG_LEVEL
-#  define LOG(n)  LOG_IF(n, n <= MYNTEYE_MAX_LOG_LEVEL)
-#  define VLOG(n) LOG_IF(n, n <= MYNTEYE_MAX_LOG_LEVEL)
-#  define LG      LOG_IF(INFO, INFO <= MYNTEYE_MAX_LOG_LEVEL)
-#  define VLOG_IF(n, condition) LOG_IF(n, (n <= MYNTEYE_MAX_LOG_LEVEL) && condition)
+#  define LOG(n)  LOG_IF(n, (n <= MYNTEYE_MAX_LOG_LEVEL))
+#  define VLOG(n) LOG_IF(n, (n <= MYNTEYE_MAX_LOG_LEVEL))
+#  define LG      LOG_IF(INFO, (INFO <= MYNTEYE_MAX_LOG_LEVEL))
+#  define VLOG_IF(n, condition)                                         \
+    LOG_IF(n, (n <= MYNTEYE_MAX_LOG_LEVEL) && condition)
 #else
-#  define LOG(n)  MessageLogger((char *)__FILE__, __LINE__, "native", n).stream()    // NOLINT
-#  define VLOG(n) MessageLogger((char *)__FILE__, __LINE__, "native", n).stream()    // NOLINT
-#  define LG      MessageLogger((char *)__FILE__, __LINE__, "native", INFO).stream() // NOLINT
+#  define LOG(n)  LOG_IF(n, true)
+#  define VLOG(n) LOG_IF(n, true)
+#  define LG      LOG_IF(INFO, true)
 #  define VLOG_IF(n, condition) LOG_IF(n, condition)
 #endif
 
@@ -396,8 +350,7 @@ class CERES_EXPORT LoggerVoidify {
 // Log a message and terminate.
 template<class T>
 void LogMessageFatal(const char *file, int line, const T &message) {
-  MessageLogger((char *)__FILE__, __LINE__, "native", FATAL).stream()
-      << message;
+  MessageLogger(file, line, "native", FATAL).stream() << message;
 }
 
 // ---------------------------- CHECK macros ---------------------------------
@@ -420,7 +373,7 @@ void LogMessageFatal(const char *file, int line, const T &message) {
 
 // Generic binary operator check macro. This should not be directly invoked,
 // instead use the binary comparison macros defined below.
-#define CHECK_OP(val1, val2, op) LOG_IF_FALSE(FATAL, ((val1) op (val2))) \
+#define CHECK_OP(val1, val2, op) LOG_IF_FALSE(FATAL, (val1 op val2)) \
   << "Check failed: " #val1 " " #op " " #val2 " "
 
 // Check_op macro definitions
@@ -431,15 +384,6 @@ void LogMessageFatal(const char *file, int line, const T &message) {
 #define CHECK_GE(val1, val2) CHECK_OP(val1, val2, >=)
 #define CHECK_GT(val1, val2) CHECK_OP(val1, val2, >)
 
-// qiao.helloworld@gmail.com /tzu.ta.lin@gmail.com add
-// Add logging macros which are missing in glog or are not accessible for
-// whatever reason.
-#define CHECK_NEAR(val1, val2, margin)           \
-  do {                                           \
-    CHECK_LE((val1), (val2)+(margin));           \
-    CHECK_GE((val1), (val2)-(margin));           \
-  } while (0)
-
 #ifndef NDEBUG
 // Debug only versions of CHECK_OP macros.
 #  define DCHECK_EQ(val1, val2) CHECK_OP(val1, val2, ==)
@@ -448,8 +392,6 @@ void LogMessageFatal(const char *file, int line, const T &message) {
 #  define DCHECK_LT(val1, val2) CHECK_OP(val1, val2, <)
 #  define DCHECK_GE(val1, val2) CHECK_OP(val1, val2, >=)
 #  define DCHECK_GT(val1, val2) CHECK_OP(val1, val2, >)
-// qiao.helloworld@gmail.com /tzu.ta.lin@gmail.com add
-#  define DCHECK_NEAR(val1, val2, margin) CHECK_NEAR(val1, val2, margin)
 #else
 // These versions generate no code in optimized mode.
 #  define DCHECK_EQ(val1, val2) if (false) CHECK_OP(val1, val2, ==)
@@ -458,8 +400,6 @@ void LogMessageFatal(const char *file, int line, const T &message) {
 #  define DCHECK_LT(val1, val2) if (false) CHECK_OP(val1, val2, <)
 #  define DCHECK_GE(val1, val2) if (false) CHECK_OP(val1, val2, >=)
 #  define DCHECK_GT(val1, val2) if (false) CHECK_OP(val1, val2, >)
-// qiao.helloworld@gmail.com /tzu.ta.lin@gmail.com add
-#  define DCHECK_NEAR(val1, val2, margin) if (false) CHECK_NEAR(val1, val2, margin)
 #endif  // NDEBUG
 
 // ---------------------------CHECK_NOTNULL macros ---------------------------
@@ -497,43 +437,5 @@ T& CheckNotNull(const char *file, int line, const char *names, T& t) {
 #define DCHECK_NOTNULL(val) if (false)\
   CheckNotNull(__FILE__, __LINE__, "'" #val "' Must be non NULL", (val))
 #endif  // NDEBUG
-
-// Modified from ceres miniglog version [begin] -------------------------------
-//#include "ceres/internal/reenable_warnings.h"
-// Modified from ceres miniglog version [end] ---------------------------------
-
-
-// ---------------------------TRACE macros ---------------------------
-// qiao.helloworld@gmail.com /tzu.ta.lin@gmail.com add
-#define __FILENAME__ \
-  (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-
-#define DEXEC(fn)                                                      \
-  do {                                                                 \
-    DLOG(INFO) << "[EXEC " << #fn << " START]";                        \
-    std::chrono::steady_clock::time_point begin =                      \
-      std::chrono::steady_clock::now();                                \
-    fn;                                                                \
-    std::chrono::steady_clock::time_point end =                        \
-      std::chrono::steady_clock::now();                                \
-    DLOG(INFO) << "[EXEC " << #fn << " FINISHED in "                   \
-             << std::chrono::duration_cast<std::chrono::microseconds>  \
-               (end - begin).count() << " ms]";                        \
-  } while (0);
-// DEXEC(fn)
-//
-// Usage:
-// DEXEC(foo());
-// -- output --
-// foo.cpp: 123 [EXEC foo() START]
-// foo.cpp: 123 [EXEC foo() FINISHED in 456 ms]
-
-#define DTRACE  DLOG(INFO) << "of [" << __func__ << "]";
-// Usage:
-// void foo() {
-//   DTRACE
-// }
-// -- output --
-// foo.cpp: 123 of [void foo(void)]
 
 #endif  // MYNTEYE_MINIGLOG_H_
