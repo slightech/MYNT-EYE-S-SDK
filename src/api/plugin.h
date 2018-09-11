@@ -53,8 +53,8 @@ class MYNTEYE_API Plugin {
    * @return `true` if you process rectify.
    */
   virtual bool OnRectifyProcess(Object *const in, Object *const out) {
-    UNUSED(in)
-    UNUSED(out)
+    MYNTEYE_UNUSED(in)
+    MYNTEYE_UNUSED(out)
     return false;
   }
 
@@ -65,8 +65,8 @@ class MYNTEYE_API Plugin {
    * @return `true` if you process disparity.
    */
   virtual bool OnDisparityProcess(Object *const in, Object *const out) {
-    UNUSED(in)
-    UNUSED(out)
+    MYNTEYE_UNUSED(in)
+    MYNTEYE_UNUSED(out)
     return false;
   }
 
@@ -78,8 +78,8 @@ class MYNTEYE_API Plugin {
    */
   virtual bool OnDisparityNormalizedProcess(
       Object *const in, Object *const out) {
-    UNUSED(in)
-    UNUSED(out)
+    MYNTEYE_UNUSED(in)
+    MYNTEYE_UNUSED(out)
     return false;
   }
 
@@ -90,8 +90,8 @@ class MYNTEYE_API Plugin {
    * @return `true` if you process points.
    */
   virtual bool OnPointsProcess(Object *const in, Object *const out) {
-    UNUSED(in)
-    UNUSED(out)
+    MYNTEYE_UNUSED(in)
+    MYNTEYE_UNUSED(out)
     return false;
   }
 
@@ -102,8 +102,8 @@ class MYNTEYE_API Plugin {
    * @return `true` if you process depth.
    */
   virtual bool OnDepthProcess(Object *const in, Object *const out) {
-    UNUSED(in)
-    UNUSED(out)
+    MYNTEYE_UNUSED(in)
+    MYNTEYE_UNUSED(out)
     return false;
   }
 

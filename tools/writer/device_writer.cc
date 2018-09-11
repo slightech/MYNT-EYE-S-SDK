@@ -208,19 +208,19 @@ void DeviceWriter::SaveAllInfos(const std::string &dir) {
   if (!files::mkdir(dir)) {
     LOG(FATAL) << "Create directory failed: " << dir;
   }
-  SaveDeviceInfo(*device_->GetInfo(), dir + OS_SEP "device.info");
+  SaveDeviceInfo(*device_->GetInfo(), dir + MYNTEYE_OS_SEP "device.info");
   SaveImgParams(
       {false, device_->GetIntrinsics(Stream::LEFT),
        device_->GetIntrinsics(Stream::RIGHT),
        device_->GetExtrinsics(Stream::RIGHT, Stream::LEFT)},
-      dir + OS_SEP "img.params");
+      dir + MYNTEYE_OS_SEP "img.params");
   auto &&m_in = device_->GetMotionIntrinsics();
   SaveImuParams(
       {
           false, m_in.accel, m_in.gyro,
           device_->GetMotionExtrinsics(Stream::LEFT),
       },
-      dir + OS_SEP "imu.params");
+      dir + MYNTEYE_OS_SEP "imu.params");
 }
 
 namespace {

@@ -42,7 +42,7 @@ Object *PointsProcessor::OnCreateOutput() {
 
 bool PointsProcessor::OnProcess(
     Object *const in, Object *const out, Processor *const parent) {
-  UNUSED(parent)
+  MYNTEYE_UNUSED(parent)
   const ObjMat *input = Object::Cast<ObjMat>(in);
   ObjMat *output = Object::Cast<ObjMat>(out);
   cv::reprojectImageTo3D(input->value, output->value, Q_, true);

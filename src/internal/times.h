@@ -186,7 +186,7 @@ inline std::string to_string(
     const system_clock::time_point &t, const std::tm *tm,
     const char *fmt = "%F %T", std::int32_t precision = 6) {
   std::stringstream ss;
-#if defined(OS_ANDROID) || defined(OS_LINUX)
+#if defined(MYNTEYE_OS_ANDROID) || defined(MYNTEYE_OS_LINUX)
   char foo[20];
   strftime(foo, sizeof(foo), fmt, tm);
   ss << foo;

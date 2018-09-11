@@ -17,7 +17,8 @@
 
 #include "mynteye/mynteye.h"
 
-#if defined(OS_WIN) && !defined(OS_MINGW) && !defined(OS_CYGWIN)
+#if defined(MYNTEYE_OS_WIN) && !defined(MYNTEYE_OS_MINGW) && \
+    !defined(MYNTEYE_OS_CYGWIN)
 #include <Windows.h>
 #else
 #include <dlfcn.h>
@@ -25,7 +26,8 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
-#if defined(OS_WIN) && !defined(OS_MINGW) && !defined(OS_CYGWIN)
+#if defined(MYNTEYE_OS_WIN) && !defined(MYNTEYE_OS_MINGW) && \
+    !defined(MYNTEYE_OS_CYGWIN)
 using DLLIB = HMODULE;
 #else
 using DLLIB = void *;

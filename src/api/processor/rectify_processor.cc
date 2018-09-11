@@ -49,7 +49,7 @@ Object *RectifyProcessor::OnCreateOutput() {
 
 bool RectifyProcessor::OnProcess(
     Object *const in, Object *const out, Processor *const parent) {
-  UNUSED(parent)
+  MYNTEYE_UNUSED(parent)
   const ObjMat2 *input = Object::Cast<ObjMat2>(in);
   ObjMat2 *output = Object::Cast<ObjMat2>(out);
   cv::remap(input->first, output->first, map11, map12, cv::INTER_LINEAR);

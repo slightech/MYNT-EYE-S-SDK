@@ -74,7 +74,7 @@ Object *DisparityProcessor::OnCreateOutput() {
 
 bool DisparityProcessor::OnProcess(
     Object *const in, Object *const out, Processor *const parent) {
-  UNUSED(parent)
+  MYNTEYE_UNUSED(parent)
   const ObjMat2 *input = Object::Cast<ObjMat2>(in);
   ObjMat *output = Object::Cast<ObjMat>(out);
 

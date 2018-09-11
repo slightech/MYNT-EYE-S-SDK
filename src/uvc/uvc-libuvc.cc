@@ -113,13 +113,13 @@ int get_product_id(const device &device) {
 
 std::string get_name(const device &device) {
   // TODO(JohnZhao)
-  UNUSED(device)
+  MYNTEYE_UNUSED(device)
   return "";
 }
 
 std::string get_video_name(const device &device) {
   // TODO(JohnZhao)
-  UNUSED(device)
+  MYNTEYE_UNUSED(device)
   return "";
 }
 
@@ -127,21 +127,21 @@ bool pu_control_range(
     const device &device, Option option, int32_t *min, int32_t *max,
     int32_t *def) {
   // TODO(JohnZhao)
-  UNUSED(device)
-  UNUSED(option)
-  UNUSED(min)
-  UNUSED(max)
-  UNUSED(def)
+  MYNTEYE_UNUSED(device)
+  MYNTEYE_UNUSED(option)
+  MYNTEYE_UNUSED(min)
+  MYNTEYE_UNUSED(max)
+  MYNTEYE_UNUSED(def)
   return false;
 }
 
 bool pu_control_query(
     const device &device, Option option, pu_query query, int32_t *value) {
   // TODO(JohnZhao)
-  UNUSED(device)
-  UNUSED(option)
-  UNUSED(query)
-  UNUSED(value)
+  MYNTEYE_UNUSED(device)
+  MYNTEYE_UNUSED(option)
+  MYNTEYE_UNUSED(query)
+  MYNTEYE_UNUSED(value)
   return false;
 }
 
@@ -149,13 +149,13 @@ bool xu_control_range(
     const device &device, const xu &xu, uint8_t selector, uint8_t id, int32_t *min,
     int32_t *max, int32_t *def) {
   // TODO(JohnZhao)
-  UNUSED(device)
-  UNUSED(xu)
-  UNUSED(selector)
-  UNUSED(id)
-  UNUSED(min)
-  UNUSED(max)
-  UNUSED(def)
+  MYNTEYE_UNUSED(device)
+  MYNTEYE_UNUSED(xu)
+  MYNTEYE_UNUSED(selector)
+  MYNTEYE_UNUSED(id)
+  MYNTEYE_UNUSED(min)
+  MYNTEYE_UNUSED(max)
+  MYNTEYE_UNUSED(def)
   return false;
 }
 
@@ -163,12 +163,12 @@ bool xu_control_query(
     const device &device, const xu &xu, uint8_t selector, xu_query query,
     uint16_t size, uint8_t *data) {
   // TODO(JohnZhao)
-  UNUSED(device)
-  UNUSED(xu)
-  UNUSED(selector)
-  UNUSED(query)
-  UNUSED(size)
-  UNUSED(data)
+  MYNTEYE_UNUSED(device)
+  MYNTEYE_UNUSED(xu)
+  MYNTEYE_UNUSED(selector)
+  MYNTEYE_UNUSED(query)
+  MYNTEYE_UNUSED(size)
+  MYNTEYE_UNUSED(data)
   return false;
 }
 
@@ -176,23 +176,23 @@ void set_device_mode(
     device &device, int width, int height, int fourcc, int fps,  // NOLINT
     video_channel_callback callback) {
   // TODO(JohnZhao)
-  UNUSED(device)
-  UNUSED(width)
-  UNUSED(height)
-  UNUSED(fourcc)
-  UNUSED(fps)
-  UNUSED(callback)
+  MYNTEYE_UNUSED(device)
+  MYNTEYE_UNUSED(width)
+  MYNTEYE_UNUSED(height)
+  MYNTEYE_UNUSED(fourcc)
+  MYNTEYE_UNUSED(fps)
+  MYNTEYE_UNUSED(callback)
 }
 
 void start_streaming(device &device, int num_transfer_bufs) {  // NOLINT
   // TODO(JohnZhao)
-  UNUSED(device)
-  UNUSED(num_transfer_bufs)
+  MYNTEYE_UNUSED(device)
+  MYNTEYE_UNUSED(num_transfer_bufs)
 }
 
 void stop_streaming(device &device) {  // NOLINT
   // TODO(JohnZhao)
-  UNUSED(device)
+  MYNTEYE_UNUSED(device)
 }
 
 }  // namespace uvc

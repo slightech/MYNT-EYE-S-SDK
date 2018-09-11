@@ -31,7 +31,7 @@
 #include "internal/dl.h"
 
 #if defined(WITH_FILESYSTEM) && defined(WITH_NATIVE_FILESYSTEM)
-#if defined(OS_WIN)
+#if defined(MYNTEYE_OS_WIN)
 #include <windows.h>
 #endif
 #endif
@@ -68,7 +68,7 @@ bool dir_exists(const fs::path &p) {
 
 #elif defined(WITH_NATIVE_FILESYSTEM)
 
-#if defined(OS_WIN)
+#if defined(MYNTEYE_OS_WIN)
 
 bool file_exists(const std::string &p) {
   DWORD attrs = GetFileAttributes(p.c_str());
@@ -90,7 +90,7 @@ bool dir_exists(const std::string &p) {
 
 std::vector<std::string> get_plugin_paths() {
   std::string info_path(MYNTEYE_SDK_INSTALL_DIR);
-  info_path.append(OS_SEP "share" OS_SEP "mynteye" OS_SEP "build.info");
+  info_path.append(MYNTEYE_OS_SEP "share" MYNTEYE_OS_SEP "mynteye" MYNTEYE_OS_SEP "build.info");
 
   cv::FileStorage fs(info_path, cv::FileStorage::READ);
   if (!fs.isOpened()) {
@@ -187,13 +187,13 @@ std::vector<std::string> get_plugin_paths() {
   std::vector<std::string> dirs{MYNTEYE_SDK_ROOT_DIR, MYNTEYE_SDK_INSTALL_DIR};
   for (auto &&plat : plats) {
     for (auto &&dir : dirs) {
-      auto &&plat_dir = dir + OS_SEP "plugins" + OS_SEP + plat;
+      auto &&plat_dir = dir + MYNTEYE_OS_SEP "plugins" + MYNTEYE_OS_SEP + plat;
       // VLOG(2) << "plat_dir: " << plat_dir;
       if (!dir_exists(plat_dir))
         continue;
       for (auto &&name : names) {
         // VLOG(2) << "  name: " << name;
-        auto &&path = plat_dir + OS_SEP + name;
+        auto &&path = plat_dir + MYNTEYE_OS_SEP + name;
         if (!file_exists(path))
           continue;
         paths.push_back(path);

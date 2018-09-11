@@ -91,14 +91,6 @@
 #ifndef MYNTEYE_MINIGLOG_H_
 #define MYNTEYE_MINIGLOG_H_
 
-#ifdef ANDROID
-#  include <android/log.h>
-#else
-#include <pthread.h>
-#include <sys/time.h>
-#include <unistd.h>
-#endif  // ANDROID
-
 #include <algorithm>
 #include <ctime>
 #include <fstream>
@@ -107,6 +99,18 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
+#include "mynteye/global.h"
+
+#if defined(MYNTEYE_OS_ANDROID)
+#include <android/log.h>
+#elif defined(MYNTEYE_OS_WIN)
+#include <Windows.h>
+#else
+#include <pthread.h>
+#include <sys/time.h>
+#include <unistd.h>
+#endif  // ANDROID
 
 // For appropriate definition of CERES_EXPORT macro.
 // Modified from ceres miniglog version [begin] -------------------------------
@@ -187,7 +191,7 @@ class CERES_EXPORT MessageLogger {
   ~MessageLogger() {
     stream_ << "\n";
 
-#ifdef ANDROID
+#if defined(MYNTEYE_OS_ANDROID)
     static const int android_log_levels[] = {
         ANDROID_LOG_FATAL,    // LOG(FATAL)
         ANDROID_LOG_ERROR,    // LOG(ERROR)
@@ -362,11 +366,11 @@ class CERES_EXPORT LoggerVoidify {
 // LG is a convenient shortcut for LOG(INFO). Its use is in new
 // google3 code is discouraged and the following shortcut exists for
 // backward compatibility with existing code.
-#ifdef MAX_LOG_LEVEL
-#  define LOG(n)  LOG_IF(n, n <= MAX_LOG_LEVEL)
-#  define VLOG(n) LOG_IF(n, n <= MAX_LOG_LEVEL)
-#  define LG      LOG_IF(INFO, INFO <= MAX_LOG_LEVEL)
-#  define VLOG_IF(n, condition) LOG_IF(n, (n <= MAX_LOG_LEVEL) && condition)
+#ifdef MYNTEYE_MAX_LOG_LEVEL
+#  define LOG(n)  LOG_IF(n, n <= MYNTEYE_MAX_LOG_LEVEL)
+#  define VLOG(n) LOG_IF(n, n <= MYNTEYE_MAX_LOG_LEVEL)
+#  define LG      LOG_IF(INFO, INFO <= MYNTEYE_MAX_LOG_LEVEL)
+#  define VLOG_IF(n, condition) LOG_IF(n, (n <= MYNTEYE_MAX_LOG_LEVEL) && condition)
 #else
 #  define LOG(n)  MessageLogger((char *)__FILE__, __LINE__, "native", n).stream()    // NOLINT
 #  define VLOG(n) MessageLogger((char *)__FILE__, __LINE__, "native", n).stream()    // NOLINT
@@ -374,11 +378,11 @@ class CERES_EXPORT LoggerVoidify {
 #  define VLOG_IF(n, condition) LOG_IF(n, condition)
 #endif
 
-// Currently, VLOG is always on for levels below MAX_LOG_LEVEL.
-#ifndef MAX_LOG_LEVEL
+// Currently, VLOG is always on for levels below MYNTEYE_MAX_LOG_LEVEL.
+#ifndef MYNTEYE_MAX_LOG_LEVEL
 #  define VLOG_IS_ON(x) (1)
 #else
-#  define VLOG_IS_ON(x) (x <= MAX_LOG_LEVEL)
+#  define VLOG_IS_ON(x) (x <= MYNTEYE_MAX_LOG_LEVEL)
 #endif
 
 #ifndef NDEBUG

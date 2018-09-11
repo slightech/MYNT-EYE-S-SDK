@@ -453,7 +453,7 @@ std::size_t from_data(
   }
   i += 40;
 
-  UNUSED(spec_version)
+  MYNTEYE_UNUSED(spec_version)
   return i;
 }
 
@@ -484,7 +484,7 @@ std::size_t from_data(
   }
   i += 24;
 
-  UNUSED(spec_version)
+  MYNTEYE_UNUSED(spec_version)
   return i;
 }
 
@@ -505,7 +505,7 @@ std::size_t from_data(
   }
   i += 24;
 
-  UNUSED(spec_version)
+  MYNTEYE_UNUSED(spec_version)
   return i;
 }
 
@@ -684,7 +684,7 @@ std::size_t to_data(
   _to_data(info->nominal_baseline, data + i);
   i += 2;
 
-  UNUSED(spec_version)
+  MYNTEYE_UNUSED(spec_version)
 
   // others
   std::size_t size = i - 3;
@@ -725,7 +725,7 @@ std::size_t to_data(
   }
   i += 40;
 
-  UNUSED(spec_version)
+  MYNTEYE_UNUSED(spec_version)
   return i;
 }
 
@@ -756,7 +756,7 @@ std::size_t to_data(
   }
   i += 24;
 
-  UNUSED(spec_version)
+  MYNTEYE_UNUSED(spec_version)
   return i;
 }
 
@@ -777,7 +777,7 @@ std::size_t to_data(
   }
   i += 24;
 
-  UNUSED(spec_version)
+  MYNTEYE_UNUSED(spec_version)
   return i;
 }
 

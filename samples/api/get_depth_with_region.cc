@@ -29,7 +29,7 @@ class DepthRegion {
    * 鼠标事件：默认不选中区域，随鼠标移动而显示。单击后，则会选中区域来显示。你可以再单击已选中区域或双击未选中区域，取消选中。
    */
   void OnMouse(const int &event, const int &x, const int &y, const int &flags) {
-    UNUSED(flags)
+    MYNTEYE_UNUSED(flags)
     if (event != CV_EVENT_MOUSEMOVE && event != CV_EVENT_LBUTTONDOWN) {
       return;
     }
@@ -161,7 +161,7 @@ int main(int argc, char *argv[]) {
   DepthRegion depth_region(3);
   auto depth_info = [](
       const cv::Mat &depth, const cv::Point &point, const std::uint32_t &n) {
-    UNUSED(depth)
+    MYNTEYE_UNUSED(depth)
     std::ostringstream os;
     os << "depth pos: [" << point.y << ", " << point.x << "]"
        << "±" << n << ", unit: mm";

@@ -17,7 +17,8 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
-#if defined(OS_WIN) && !defined(OS_MINGW) && !defined(OS_CYGWIN)
+#if defined(MYNTEYE_OS_WIN) && !defined(MYNTEYE_OS_MINGW) && \
+    !defined(MYNTEYE_OS_CYGWIN)
 
 namespace {
 
@@ -62,7 +63,8 @@ bool DL::Open(const char *filename) {
     // Close();
     return false;
   }
-#if defined(OS_WIN) && !defined(OS_MINGW) && !defined(OS_CYGWIN)
+#if defined(MYNTEYE_OS_WIN) && !defined(MYNTEYE_OS_MINGW) && \
+    !defined(MYNTEYE_OS_CYGWIN)
   handle = LoadLibraryEx(filename, nullptr, 0);
 #else
   handle = dlopen(filename, RTLD_LAZY);
@@ -84,7 +86,7 @@ void *DL::Sym(const char *symbol) {
     VLOG(2) << "Not opened, do nothing";
     return nullptr;
   }
-#if defined(OS_WIN) && !defined(OS_MINGW) && !defined(OS_CYGWIN)
+#if defined(MYNTEYE_OS_WIN) && !defined(MYNTEYE_OS_MINGW) && !defined(MYNTEYE_OS_CYGWIN)
   void *f = GetProcAddress(handle, symbol);
   if (f == nullptr) {
     VLOG(2) << "Load symbol failed: " << symbol;
@@ -106,7 +108,7 @@ int DL::Close() {
   if (handle == nullptr) {
     VLOG(2) << "Not opened, do nothing";
   } else {
-#if defined(OS_WIN) && !defined(OS_MINGW) && !defined(OS_CYGWIN)
+#if defined(MYNTEYE_OS_WIN) && !defined(MYNTEYE_OS_MINGW) && !defined(MYNTEYE_OS_CYGWIN)
     ret = FreeLibrary(handle) ? 0 : 1;
 #else
     ret = dlclose(handle);
@@ -117,7 +119,7 @@ int DL::Close() {
 }
 
 const char *DL::Error() {
-#if defined(OS_WIN) && !defined(OS_MINGW) && !defined(OS_CYGWIN)
+#if defined(MYNTEYE_OS_WIN) && !defined(MYNTEYE_OS_MINGW) && !defined(MYNTEYE_OS_CYGWIN)
   return GetLastErrorAsString().c_str();
 #else
   return dlerror();

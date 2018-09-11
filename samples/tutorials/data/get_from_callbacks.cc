@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
   api->SetStreamCallback(
       Stream::DEPTH,
       [&depth_count, &depth, &depth_mtx](const api::StreamData &data) {
-        UNUSED(data)
+        MYNTEYE_UNUSED(data)
         ++depth_count;
         {
           std::lock_guard<std::mutex> _(depth_mtx);

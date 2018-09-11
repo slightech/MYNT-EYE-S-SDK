@@ -157,7 +157,7 @@ int main(int argc, char *argv[]) {
     t = static_cast<double>(cv::getTickCount() - t);
     fps = cv::getTickFrequency() / t;
   }
-  UNUSED(fps)
+  MYNTEYE_UNUSED(fps)
 
   uvc::stop_streaming(*device);
   // cv::destroyAllWindows();

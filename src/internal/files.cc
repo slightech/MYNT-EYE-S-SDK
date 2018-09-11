@@ -15,7 +15,8 @@
 
 #include "mynteye/logger.h"
 
-#if defined(OS_WIN) && !defined(OS_MINGW) && !defined(OS_CYGWIN)
+#if defined(MYNTEYE_OS_WIN) && !defined(MYNTEYE_OS_MINGW) && \
+    !defined(MYNTEYE_OS_CYGWIN)
 #include <direct.h>
 #else
 #include <sys/stat.h>
@@ -28,9 +29,9 @@ MYNTEYE_BEGIN_NAMESPACE
 namespace files {
 
 bool _mkdir(const std::string &path) {
-#if defined(OS_MINGW) || defined(OS_CYGWIN)
+#if defined(MYNTEYE_OS_MINGW) || defined(MYNTEYE_OS_CYGWIN)
   const int status = ::mkdir(path.c_str());
-#elif defined(OS_WIN)
+#elif defined(MYNTEYE_OS_WIN)
   const int status = ::_mkdir(path.c_str());
 #else
   const int status =
@@ -51,7 +52,7 @@ bool _mkdir(const std::string &path) {
 }
 
 bool mkdir(const std::string &path) {
-  auto &&dirs = strings::split(path, OS_SEP);
+  auto &&dirs = strings::split(path, MYNTEYE_OS_SEP);
   auto &&size = dirs.size();
   if (size <= 0)
     return false;
@@ -59,7 +60,7 @@ bool mkdir(const std::string &path) {
   if (!_mkdir(p))
     return false;
   for (std::size_t i = 1; i < size; i++) {
-    p.append(OS_SEP).append(dirs[i]);
+    p.append(MYNTEYE_OS_SEP).append(dirs[i]);
     if (!_mkdir(p))
       return false;
   }
