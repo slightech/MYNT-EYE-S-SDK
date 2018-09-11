@@ -107,16 +107,22 @@
 #endif  // ANDROID
 
 // Log severity level constants.
+#ifdef MYNTEYE_OS_WIN
+
+const int FATAL   = -1;
 #ifndef ERROR  // NOT windows.h
+const int ERROR   = 0;
+#endif
+const int WARNING = 1;
+const int INFO    = 2;
+
+#else
+
 const int FATAL   = -3;
 const int ERROR   = -2;
 const int WARNING = -1;
 const int INFO    =  0;
-#else
-const int FATAL   = -1;
-// const int ERROR   = 0;
-const int WARNING = 1;
-const int INFO    = 2;
+
 #endif
 
 // ------------------------- Glog compatibility ------------------------------
@@ -262,8 +268,8 @@ class MYNTEYE_API MessageLogger {
 
   void StripBasename(const std::string &full_path, std::string *filename) {
     // TODO(settinger): Add support for OSs with different path separators.
-    const char kSeparator = '/';
-    size_t pos = full_path.rfind(kSeparator);
+    // const char kSeparator = '/';
+    size_t pos = full_path.rfind(MYNTEYE_OS_SEP);
     if (pos != std::string::npos) {
       *filename = full_path.substr(pos + 1, std::string::npos);
     } else {
@@ -337,6 +343,28 @@ class MYNTEYE_API LoggerVoidify {
 #  define VLOG_IS_ON(x) (1)
 #else
 #  define VLOG_IS_ON(x) (x <= MYNTEYE_MAX_LOG_LEVEL)
+#endif
+
+#ifdef MYNTEYE_OS_WIN  // INFO is 2, change VLOG(2) to VLOG(4)
+#undef VLOG
+#undef VLOG_IF
+#undef VLOG_IS_ON
+
+#ifdef MYNTEYE_MAX_LOG_LEVEL
+#  define VLOG(n) LOG_IF(n+2, (n+2 <= MYNTEYE_MAX_LOG_LEVEL))
+#  define VLOG_IF(n, condition)                                         \
+    LOG_IF(n+2, (n+2 <= MYNTEYE_MAX_LOG_LEVEL) && condition)
+#else
+#  define VLOG(n) LOG_IF(n+2, true)
+#  define VLOG_IF(n, condition) LOG_IF(n+2, condition)
+#endif
+
+#ifndef MYNTEYE_MAX_LOG_LEVEL
+#  define VLOG_IS_ON(x) (1+2)
+#else
+#  define VLOG_IS_ON(x) (x+2 <= MYNTEYE_MAX_LOG_LEVEL)
+#endif
+
 #endif
 
 #ifndef NDEBUG
