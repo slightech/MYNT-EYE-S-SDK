@@ -108,7 +108,7 @@ endif()
 
 ## libmynteye
 
-if(NOT WITH_GLOG)
+if(NOT WITH_GLOG AND NOT OS_WIN)
   set(__MINIGLOG_FLAGS "-Wno-unused-parameter -Wno-format -Wno-return-type")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${__MINIGLOG_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${__MINIGLOG_FLAGS}")
