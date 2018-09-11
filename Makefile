@@ -123,7 +123,11 @@ else
 	@cd ./_build; make install
 endif
 else
+ifeq ($(HOST_OS),Linux)
 	@cd ./_build; sudo make install
+else
+	@cd ./_build; make install
+endif
 endif
 
 .PHONY: install
