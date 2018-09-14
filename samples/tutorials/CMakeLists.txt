@@ -16,6 +16,7 @@ get_filename_component(DIR_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${PRO_DIR}/src
 )
 
 set_outdir(

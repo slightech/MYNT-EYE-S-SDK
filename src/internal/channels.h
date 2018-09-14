@@ -70,8 +70,8 @@ class MYNTEYE_API Channels {
 
   typedef struct ImgParams {
     bool ok;
-    Intrinsics in_left;
-    Intrinsics in_right;
+    std::map<Resolution, Intrinsics> in_left_map;
+    std::map<Resolution, Intrinsics> in_right_map;
     Extrinsics ex_left_to_right;
   } img_params_t;
 

@@ -114,6 +114,11 @@ const char *to_string(const Option &value) {
     CASE(HDR_MODE)
     CASE(ZERO_DRIFT_CALIBRATION)
     CASE(ERASE_CHIP)
+    CASE(MIN_EXPOSURE_TIME)
+    CASE(ACCELEROMETER_RANGE)
+    CASE(GYROSCOPE_RANGE)
+    CASE(ACCELEROMETER_LOW_PASS_FILTER)
+    CASE(GYROSCOPE_LOW_PASS_FILTER)
     default:
       CHECK(is_valid(value));
       return "Option::UNKNOWN";

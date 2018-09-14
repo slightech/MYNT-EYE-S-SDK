@@ -212,21 +212,7 @@ std::vector<std::string> get_plugin_paths() {
 
 API::API(std::shared_ptr<Device> device) : device_(device) {
   VLOG(2) << __func__;
-  if (std::dynamic_pointer_cast<StandardDevice>(device_) != nullptr) {
-    bool in_l_ok, in_r_ok, ex_l2r_ok;
-    device_->GetIntrinsics(Stream::LEFT, &in_l_ok);
-    device_->GetIntrinsics(Stream::RIGHT, &in_r_ok);
-    device_->GetExtrinsics(Stream::LEFT, Stream::RIGHT, &ex_l2r_ok);
-    if (!in_l_ok || !in_r_ok || !ex_l2r_ok) {
-      LOG(FATAL) << "Image params not found, but we need it to process the "
-                    "images. Please `make tools` and use `img_params_writer` "
-                    "to write the image params. If you update the SDK from "
-                    "1.x, the `SN*.conf` is the file contains them. Besides, "
-                    "you could also calibrate them by yourself. Read the guide "
-                    "doc (https://github.com/slightech/MYNT-EYE-SDK-2-Guide) "
-                    "to learn more.";
-    }
-  }
+  std::dynamic_pointer_cast<StandardDevice>(device_);
   synthetic_.reset(new Synthetic(this));
 }
 
@@ -283,6 +269,7 @@ bool API::Supports(const AddOns &addon) const {
 void API::SetStreamRequest(
     const Resolution &res, const Format &format, const FrameRate &rate) {
   device_->SetStreamRequest(res, format, rate);
+  CheckImageParams();
 }
 
 const std::vector<StreamRequest> &API::GetStreamRequests(
@@ -450,6 +437,24 @@ void API::EnablePlugin(const std::string &path) {
 
 std::shared_ptr<Device> API::device() {
   return device_;
+}
+
+void API::CheckImageParams() {
+  if (device_ != nullptr) {
+    bool in_l_ok, in_r_ok, ex_l2r_ok;
+    device_->GetIntrinsics(Stream::LEFT, &in_l_ok);
+    device_->GetIntrinsics(Stream::RIGHT, &in_r_ok);
+    device_->GetExtrinsics(Stream::LEFT, Stream::RIGHT, &ex_l2r_ok);
+    if (!in_l_ok || !in_r_ok || !ex_l2r_ok) {
+      LOG(FATAL) << "Image params not found, but we need it to process the "
+                    "images. Please `make tools` and use `img_params_writer` "
+                    "to write the image params. If you update the SDK from "
+                    "1.x, the `SN*.conf` is the file contains them. Besides, "
+                    "you could also calibrate them by yourself. Read the guide "
+                    "doc (https://github.com/slightech/MYNT-EYE-SDK-2-Guide) "
+                    "to learn more.";
+    }
+  }
 }
 
 MYNTEYE_END_NAMESPACE

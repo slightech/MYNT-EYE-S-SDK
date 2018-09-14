@@ -280,6 +280,8 @@ class MYNTEYE_API API {
   std::shared_ptr<Device> device_;
 
   std::unique_ptr<Synthetic> synthetic_;
+
+  void CheckImageParams();
 };
 
 MYNTEYE_END_NAMESPACE

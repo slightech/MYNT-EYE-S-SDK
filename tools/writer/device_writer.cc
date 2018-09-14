@@ -17,10 +17,14 @@
 
 #include <glog/logging.h>
 
+#include <map>
 #include <vector>
 
 #include "mynteye/device.h"
 #include "mynteye/files.h"
+#include "mynteye/types.h"
+
+#include "internal/types.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -70,8 +74,8 @@ bool DeviceWriter::WriteImgParams(const img_params_t &params) {
           nullptr, const_cast<img_params_t *>(&params), nullptr,
           &dev_info->spec_version)) {
     LOG(INFO) << "Write img params success";
-    LOG(INFO) << "Intrinsics left: {" << params.in_left << "}";
-    LOG(INFO) << "Intrinsics right: {" << params.in_right << "}";
+    // LOG(INFO) << "Intrinsics left: {" << params.in_left << "}";
+    // LOG(INFO) << "Intrinsics right: {" << params.in_right << "}";
     LOG(INFO) << "Extrinsics left to right: {" << params.ex_left_to_right
               << "}";
     return true;
@@ -184,11 +188,33 @@ bool DeviceWriter::SaveImgParams(
     LOG(ERROR) << "Failed to save file: " << filepath;
     return false;
   }
-  fs << "in_left" << std::vector<Intrinsics>{params.in_left} << "in_right"
-     << std::vector<Intrinsics>{params.in_right} << "ex_left_to_right"
-     << params.ex_left_to_right;
-  fs.release();
-  return true;
+
+  std::vector<Intrinsics> v_left;
+  std::vector<Intrinsics> v_right;
+  std::map<Resolution, Intrinsics>::const_iterator it;
+
+  for (it = params.in_left_map.begin(); it != params.in_left_map.end(); it++)
+    v_left.push_back((*it).second);
+
+  for (it = params.in_right_map.begin(); it != params.in_right_map.end(); it++)
+    v_right.push_back((*it).second);
+
+  if (v_left.size() == v_right.size() && v_left.size() > 0) {
+    fs << "in_left_map";
+    for (unsigned int i = 0; i < v_left.size(); i++)
+      fs << v_left[i];
+
+    fs << "in_right_map";
+    for (unsigned int i = 0; i < v_right.size(); i++)
+      fs << v_right[i];
+
+    fs << "ex_left_to_right" << params.ex_left_to_right;
+    fs.release();
+    return true;
+  } else {
+    fs.release();
+    return false;
+  }
 }
 
 bool DeviceWriter::SaveImuParams(
@@ -210,11 +236,7 @@ void DeviceWriter::SaveAllInfos(const std::string &dir) {
     LOG(FATAL) << "Create directory failed: " << dir;
   }
   SaveDeviceInfo(*device_->GetInfo(), dir + OS_SEP "device.info");
-  SaveImgParams(
-      {false, device_->GetIntrinsics(Stream::LEFT),
-       device_->GetIntrinsics(Stream::RIGHT),
-       device_->GetExtrinsics(Stream::LEFT, Stream::RIGHT)},
-      dir + OS_SEP "img.params");
+  SaveImgParams(device_->GetImgParams(), dir + OS_SEP "img.params");
   auto &&m_in = device_->GetMotionIntrinsics();
   SaveImuParams(
       {
@@ -327,34 +349,50 @@ DeviceWriter::img_params_t DeviceWriter::LoadImgParams(
   }
 
   img_params_t params;
-  if (fs["in_left"].isNone()) {
-    std::uint16_t w = 640;
-    std::uint16_t h = 400;
-    std::uint8_t m = 0;
-    if (!fs["width"].isNone())
-      w = static_cast<int>(fs["width"]);
-    if (!fs["height"].isNone())
-      h = static_cast<int>(fs["height"]);
-    if (!fs["model"].isNone())
-      m = static_cast<int>(fs["model"]);
+  if (fs["version"].isNone()) {
+    if (fs["in_left"].isNone()) {
+      std::uint16_t w = 752;
+      std::uint16_t h = 480;
+      std::uint8_t m = 0;
+      if (!fs["width"].isNone())
+        w = static_cast<int>(fs["width"]);
+      if (!fs["height"].isNone())
+        h = static_cast<int>(fs["height"]);
+      if (!fs["model"].isNone())
+        m = static_cast<int>(fs["model"]);
 
-    cv::Mat M1, D1, M2, D2, R, T;
-    fs["M1"] >> M1;
-    fs["D1"] >> D1;
-    fs["M2"] >> M2;
-    fs["D2"] >> D2;
-    fs["R"] >> R;
-    fs["T"] >> T;
+      cv::Mat M1, D1, M2, D2, R, T;
+      fs["M1"] >> M1;
+      fs["D1"] >> D1;
+      fs["M2"] >> M2;
+      fs["D2"] >> D2;
+      fs["R"] >> R;
+      fs["T"] >> T;
 
-    to_intrinsics(w, h, m, M1, D1, &params.in_left);
-    to_intrinsics(w, h, m, M2, D2, &params.in_right);
-    to_extrinsics(R, T, &params.ex_left_to_right);
+      to_intrinsics(
+          w, h, m, M1, D1, &params.in_left_map[Resolution::RES_752x480]);
+      to_intrinsics(
+          w, h, m, M2, D2, &params.in_right_map[Resolution::RES_752x480]);
+      to_extrinsics(R, T, &params.ex_left_to_right);
+    } else {
+      fs["in_left"][0] >> params.in_left_map[Resolution::RES_752x480];
+      fs["in_right"][0] >> params.in_right_map[Resolution::RES_752x480];
+      fs["ex_left_to_right"] >> params.ex_left_to_right;
+    }
   } else {
-    fs["in_left"][0] >> params.in_left;
-    fs["in_right"][0] >> params.in_right;
-    fs["ex_left_to_right"] >> params.ex_left_to_right;
+    if (static_cast<double>(fs["version"]) == 1.0) {
+      fs["in_left_map"][0] >> params.in_left_map[Resolution::RES_752x480];
+      fs["in_right_map"][0] >> params.in_right_map[Resolution::RES_752x480];
+      fs["ex_left_to_right"] >> params.ex_left_to_right;
+    }
+    if (static_cast<double>(fs["version"]) == 1.1) {
+      fs["in_left_map"][0] >> params.in_left_map[Resolution::RES_1280x400];
+      fs["in_left_map"][1] >> params.in_left_map[Resolution::RES_2560x800];
+      fs["in_right_map"][0] >> params.in_right_map[Resolution::RES_1280x400];
+      fs["in_right_map"][1] >> params.in_left_map[Resolution::RES_2560x800];
+      fs["ex_left_to_right"] >> params.ex_left_to_right;
+    }
   }
-
   fs.release();
   return params;
 }

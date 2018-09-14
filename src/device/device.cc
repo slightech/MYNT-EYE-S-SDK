@@ -435,6 +435,7 @@ std::vector<device::MotionData> Device::GetMotionDatas() {
 void Device::SetStreamRequest(
     const Resolution &res, const Format &format, const FrameRate &rate) {
   StreamRequest request(res, format, rate);
+  ConfigIntrinsics(res);
   request_ = request;
 }
 
@@ -548,9 +549,8 @@ void Device::ReadAllInfos() {
   device_info_ = std::make_shared<DeviceInfo>();
 
   CHECK_NOTNULL(channels_);
-  Channels::img_params_t img_params;
   Channels::imu_params_t imu_params;
-  if (!channels_->GetFiles(device_info_.get(), &img_params, &imu_params)) {
+  if (!channels_->GetFiles(device_info_.get(), &img_params_, &imu_params)) {
     LOG(FATAL) << "Read device infos failed. Please upgrade your firmware to "
                   "the latest version.";
   }
@@ -566,12 +566,8 @@ void Device::ReadAllInfos() {
           << ", nominal_baseline: " << device_info_->nominal_baseline << "}";
 
   device_info_->name = uvc::get_name(*device_);
-  if (img_params.ok) {
-    SetIntrinsics(Stream::LEFT, img_params.in_left);
-    SetIntrinsics(Stream::RIGHT, img_params.in_right);
-    SetExtrinsics(Stream::LEFT, Stream::RIGHT, img_params.ex_left_to_right);
-    VLOG(2) << "Intrinsics left: {" << GetIntrinsics(Stream::LEFT) << "}";
-    VLOG(2) << "Intrinsics right: {" << GetIntrinsics(Stream::RIGHT) << "}";
+  if (img_params_.ok) {
+    SetExtrinsics(Stream::LEFT, Stream::RIGHT, img_params_.ex_left_to_right);
     VLOG(2) << "Extrinsics left to right: {"
             << GetExtrinsics(Stream::LEFT, Stream::RIGHT) << "}";
   } else {
@@ -585,6 +581,15 @@ void Device::ReadAllInfos() {
             << GetMotionExtrinsics(Stream::LEFT) << "}";
   } else {
     LOG(WARNING) << "Motion intrinsics & extrinsics not exist";
+  }
+}
+
+void Device::ConfigIntrinsics(const Resolution &res) {
+  if (img_params_.ok) {
+    SetIntrinsics(Stream::LEFT, img_params_.in_left_map[res]);
+    SetIntrinsics(Stream::RIGHT, img_params_.in_right_map[res]);
+    VLOG(2) << "Intrinsics left: {" << GetIntrinsics(Stream::LEFT) << "}";
+    VLOG(2) << "Intrinsics right: {" << GetIntrinsics(Stream::RIGHT) << "}";
   }
 }
 
@@ -609,6 +614,10 @@ void Device::CallbackMotionData(const device::MotionData &data) {
       motion_callback_(data);
     }
   }
+}
+
+Channels::img_params_t Device::GetImgParams() {
+  return img_params_;
 }
 
 MYNTEYE_END_NAMESPACE

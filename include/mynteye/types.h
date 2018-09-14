@@ -264,8 +264,8 @@ enum class AddOns : std::uint8_t {
  * @brief Camera supported resolution.
  */
 enum class Resolution : std::uint8_t {
-  /** 480x752 */
-  RES_480x752,
+  /** 752x480 */
+  RES_752x480,
   /** 1280x400 */
   RES_1280x400,
   /** 2560x800 */
@@ -373,7 +373,7 @@ struct MYNTEYE_API StreamRequest {
   StreamRequest(Resolution res, Format format, FrameRate rate)
       : format(format) {
     switch (res) {
-      case Resolution::RES_480x752:
+      case Resolution::RES_752x480:
         width = 480, height = 752;
         break;
       case Resolution::RES_1280x400:

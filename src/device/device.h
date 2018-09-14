@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 
+#include "internal/channels.h"
 #include "mynteye/callbacks.h"
 #include "mynteye/mynteye.h"
 #include "mynteye/types.h"
@@ -256,6 +257,10 @@ class MYNTEYE_API Device {
    * Get the motion datas.
    */
   std::vector<device::MotionData> GetMotionDatas();
+  /**
+   * Get the device img params
+   */
+  Channels::img_params_t GetImgParams();
 
  protected:
   std::shared_ptr<uvc::device> device() const {
@@ -301,6 +306,7 @@ class MYNTEYE_API Device {
   std::shared_ptr<MotionIntrinsics> motion_intrinsics_;
   std::map<Stream, Extrinsics> motion_from_extrinsics_;
 
+  Channels::img_params_t img_params_;
   stream_callbacks_t stream_callbacks_;
   motion_callback_t motion_callback_;
 
@@ -318,6 +324,8 @@ class MYNTEYE_API Device {
   std::shared_ptr<Motions> motions_;
 
   void ReadAllInfos();
+
+  void ConfigIntrinsics(const Resolution &res);
 
   void CallbackPushedStreamData(const Stream &stream);
   void CallbackMotionData(const device::MotionData &data);

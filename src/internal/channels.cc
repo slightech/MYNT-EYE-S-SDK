@@ -104,7 +104,7 @@ void CheckSpecVersion(const Version *spec_version) {
 
   std::vector<std::string> spec_versions{"1.0"};
   for (auto &&spec_ver : spec_versions) {
-    if (*spec_version == Version(spec_ver)) {
+    if (*spec_version >= Version(spec_ver)) {
       return;  // supported
     }
   }
@@ -554,8 +554,33 @@ std::size_t from_data(
     Channels::img_params_t *img_params, const std::uint8_t *data,
     const Version *spec_version) {
   std::size_t i = 0;
-  i += from_data(&img_params->in_left, data + i, spec_version);
-  i += from_data(&img_params->in_right, data + i, spec_version);
+
+  if (spec_version->major() == 1) {
+    if (spec_version->minor() == 0) {
+      i += from_data(
+          &img_params->in_left_map[Resolution::RES_752x480], data + i,
+          spec_version);
+      i += from_data(
+          &img_params->in_right_map[Resolution::RES_752x480], data + i,
+          spec_version);
+    }
+
+    if (spec_version->minor() == 1) {
+      i += from_data(
+          &img_params->in_left_map[Resolution::RES_1280x400], data + i,
+          spec_version);
+      i += from_data(
+          &img_params->in_right_map[Resolution::RES_1280x400], data + i,
+          spec_version);
+      i += from_data(
+          &img_params->in_left_map[Resolution::RES_2560x800], data + i,
+          spec_version);
+      i += from_data(
+          &img_params->in_right_map[Resolution::RES_2560x800], data + i,
+          spec_version);
+    }
+  }
+
   i += from_data(&img_params->ex_left_to_right, data + i, spec_version);
   return i;
 }
@@ -826,8 +851,34 @@ std::size_t to_data(
     const Channels::img_params_t *img_params, std::uint8_t *data,
     const Version *spec_version) {
   std::size_t i = 3;  // skip id, size
-  i += to_data(&img_params->in_left, data + i, spec_version);
-  i += to_data(&img_params->in_right, data + i, spec_version);
+
+  if (spec_version->major() == 1) {
+    if (spec_version->minor() == 0) {
+      i += to_data(
+          &img_params->in_left_map.at(Resolution::RES_752x480), data + i,
+          spec_version);
+      i += to_data(
+          &img_params->in_right_map.at(Resolution::RES_752x480), data + i,
+          spec_version);
+    }
+
+    if (spec_version->minor() == 1) {
+      i += to_data(
+          &img_params->in_left_map.at(Resolution::RES_1280x400), data + i,
+          spec_version);
+      i += to_data(
+          &img_params->in_right_map.at(Resolution::RES_1280x400), data + i,
+          spec_version);
+
+      i += to_data(
+          &img_params->in_left_map.at(Resolution::RES_2560x800), data + i,
+          spec_version);
+      i += to_data(
+          &img_params->in_right_map.at(Resolution::RES_2560x800), data + i,
+          spec_version);
+    }
+  }
+
   i += to_data(&img_params->ex_left_to_right, data + i, spec_version);
   // others
   std::size_t size = i - 3;
