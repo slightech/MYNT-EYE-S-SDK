@@ -48,7 +48,9 @@ class DeviceWriter {
   bool WriteImuParams(const std::string &filepath);
 
   bool SaveDeviceInfo(const dev_info_t &info, const std::string &filepath);
-  bool SaveImgParams(const img_params_t &params, const std::string &filepath);
+  bool SaveImgParams(
+      const dev_info_t &info, const img_params_t &params,
+      const std::string &filepath);
   bool SaveImuParams(const imu_params_t &params, const std::string &filepath);
 
   /** Save all infos of this device */

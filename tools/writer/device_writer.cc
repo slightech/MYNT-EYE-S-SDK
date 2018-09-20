@@ -191,7 +191,8 @@ bool DeviceWriter::SaveDeviceInfo(
 }
 
 bool DeviceWriter::SaveImgParams(
-    const img_params_t &params, const std::string &filepath) {
+    const dev_info_t &info, const img_params_t &params,
+    const std::string &filepath) {
   using FileStorage = cv::FileStorage;
   FileStorage fs(filepath, FileStorage::WRITE);
   if (!fs.isOpened()) {
@@ -200,8 +201,9 @@ bool DeviceWriter::SaveImgParams(
   }
 
   if (params.in_left_map.size() == params.in_right_map.size()) {
-    fs << "in_left_map" << params.in_left_map << "in_right_map"
-       << params.in_right_map << "ex_left_to_right" << params.ex_left_to_right;
+    fs << "version" << info.spec_version.to_string() << "in_left_map"
+       << params.in_left_map << "in_right_map" << params.in_right_map
+       << "ex_left_to_right" << params.ex_left_to_right;
     fs.release();
     return true;
   } else {
@@ -229,7 +231,8 @@ void DeviceWriter::SaveAllInfos(const std::string &dir) {
     LOG(FATAL) << "Create directory failed: " << dir;
   }
   SaveDeviceInfo(*device_->GetInfo(), dir + OS_SEP "device.info");
-  SaveImgParams(device_->GetImgParams(), dir + OS_SEP "img.params");
+  SaveImgParams(
+      *device_->GetInfo(), device_->GetImgParams(), dir + OS_SEP "img.params");
   auto &&m_in = device_->GetMotionIntrinsics();
   SaveImuParams(
       {
@@ -344,7 +347,6 @@ DeviceWriter::img_params_t DeviceWriter::LoadImgParams(
   img_params_t params;
   if (fs["version"].isNone()) {
     if (fs["in_left"].isNone()) {
-      LOG(INFO) << "static_cast<double>(fs[version]) == 0.1";
       std::uint16_t w = 752;
       std::uint16_t h = 480;
       std::uint8_t m = 0;
@@ -374,14 +376,12 @@ DeviceWriter::img_params_t DeviceWriter::LoadImgParams(
       fs["ex_left_to_right"] >> params.ex_left_to_right;
     }
   } else {
-    if (static_cast<double>(fs["version"]) == 1.0) {
-      LOG(INFO) << "static_cast<double>(fs[version]) == 1.0";
+    if (static_cast<std::string>(fs["version"]) == "1.0") {
       fs["in_left_map"][0] >> params.in_left_map[Resolution::RES_752x480];
       fs["in_right_map"][0] >> params.in_right_map[Resolution::RES_752x480];
       fs["ex_left_to_right"] >> params.ex_left_to_right;
     }
-    if (static_cast<double>(fs["version"]) == 1.1) {
-      LOG(INFO) << "static_cast<double>(fs[version]) == 1.1";
+    if (static_cast<std::string>(fs["version"]) == "1.1") {
       fs["in_left_map"][0] >> params.in_left_map[Resolution::RES_1280x400];
       fs["in_left_map"][1] >> params.in_left_map[Resolution::RES_2560x800];
       fs["in_right_map"][0] >> params.in_right_map[Resolution::RES_1280x400];
