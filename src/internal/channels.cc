@@ -663,7 +663,8 @@ bool Channels::GetFiles(
           img_params->ok = file_size > 0;
           if (img_params->ok) {
             CheckSpecVersion(spec_ver);
-            CHECK_EQ(from_data(img_params, data + i, spec_ver), file_size);
+            from_data(img_params, data + i, spec_ver);
+            // CHECK_EQ(from_data(img_params, data + i, spec_ver), file_size);
           }
         } break;
         case FID_IMU_PARAMS: {

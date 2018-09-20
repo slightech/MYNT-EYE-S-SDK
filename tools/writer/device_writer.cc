@@ -130,6 +130,16 @@ cv::FileStorage &operator<<(
   return fs;
 }
 
+cv::FileStorage &operator<<(
+    cv::FileStorage &fs, const std::map<Resolution, Intrinsics> &mapIn) {
+  fs << "[";
+  std::map<Resolution, Intrinsics>::const_iterator it;
+  for (it = mapIn.begin(); it != mapIn.end(); it++)
+    fs << (*it).second;
+  fs << "]";
+  return fs;
+}
+
 cv::FileStorage &operator<<(cv::FileStorage &fs, const ImuIntrinsics &in) {
   std::vector<double> scales;
   for (std::size_t i = 0; i < 3; i++) {
@@ -189,26 +199,9 @@ bool DeviceWriter::SaveImgParams(
     return false;
   }
 
-  std::vector<Intrinsics> v_left;
-  std::vector<Intrinsics> v_right;
-  std::map<Resolution, Intrinsics>::const_iterator it;
-
-  for (it = params.in_left_map.begin(); it != params.in_left_map.end(); it++)
-    v_left.push_back((*it).second);
-
-  for (it = params.in_right_map.begin(); it != params.in_right_map.end(); it++)
-    v_right.push_back((*it).second);
-
-  if (v_left.size() == v_right.size() && v_left.size() > 0) {
-    fs << "in_left_map";
-    for (unsigned int i = 0; i < v_left.size(); i++)
-      fs << v_left[i];
-
-    fs << "in_right_map";
-    for (unsigned int i = 0; i < v_right.size(); i++)
-      fs << v_right[i];
-
-    fs << "ex_left_to_right" << params.ex_left_to_right;
+  if (params.in_left_map.size() == params.in_right_map.size()) {
+    fs << "in_left_map" << params.in_left_map << "in_right_map"
+       << params.in_right_map << "ex_left_to_right" << params.ex_left_to_right;
     fs.release();
     return true;
   } else {
@@ -351,6 +344,7 @@ DeviceWriter::img_params_t DeviceWriter::LoadImgParams(
   img_params_t params;
   if (fs["version"].isNone()) {
     if (fs["in_left"].isNone()) {
+      LOG(INFO) << "static_cast<double>(fs[version]) == 0.1";
       std::uint16_t w = 752;
       std::uint16_t h = 480;
       std::uint8_t m = 0;
@@ -381,15 +375,17 @@ DeviceWriter::img_params_t DeviceWriter::LoadImgParams(
     }
   } else {
     if (static_cast<double>(fs["version"]) == 1.0) {
+      LOG(INFO) << "static_cast<double>(fs[version]) == 1.0";
       fs["in_left_map"][0] >> params.in_left_map[Resolution::RES_752x480];
       fs["in_right_map"][0] >> params.in_right_map[Resolution::RES_752x480];
       fs["ex_left_to_right"] >> params.ex_left_to_right;
     }
     if (static_cast<double>(fs["version"]) == 1.1) {
+      LOG(INFO) << "static_cast<double>(fs[version]) == 1.1";
       fs["in_left_map"][0] >> params.in_left_map[Resolution::RES_1280x400];
       fs["in_left_map"][1] >> params.in_left_map[Resolution::RES_2560x800];
       fs["in_right_map"][0] >> params.in_right_map[Resolution::RES_1280x400];
-      fs["in_right_map"][1] >> params.in_left_map[Resolution::RES_2560x800];
+      fs["in_right_map"][1] >> params.in_right_map[Resolution::RES_2560x800];
       fs["ex_left_to_right"] >> params.ex_left_to_right;
     }
   }

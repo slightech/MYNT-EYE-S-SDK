@@ -21,7 +21,8 @@ int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
   if (!api)
     return 1;
-
+  api->SetStreamRequest(
+      Resolution::RES_2560x800, Format::BGR888, FrameRate::RATE_30_FPS);
   LOG(INFO) << "Intrinsics left: {" << api->GetIntrinsics(Stream::LEFT) << "}";
   LOG(INFO) << "Intrinsics right: {" << api->GetIntrinsics(Stream::RIGHT)
             << "}";
