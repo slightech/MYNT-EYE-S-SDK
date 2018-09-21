@@ -232,7 +232,6 @@ std::shared_ptr<API> API::Create(
     std::shared_ptr<Device> device, Resolution res) {
   if (!device)
     return nullptr;
-  LOG(INFO) << "API::Create(std::shared_ptr<Device> device,Resolution res)";
   device->InitResolution(res);
   return std::make_shared<API>(device);
 }
