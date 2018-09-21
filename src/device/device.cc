@@ -104,7 +104,6 @@ std::shared_ptr<Device> Device::Create(
     VLOG(2) << "MYNE EYE Model: " << model_s;
     DeviceModel model(model_s);
     if (model.type == 'S') {
-      LOG(INFO) << "model.generation " << model.generation;
       switch (model.generation) {
         case '1':
           return std::make_shared<StandardDevice>(device);
