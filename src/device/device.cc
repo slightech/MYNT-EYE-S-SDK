@@ -104,14 +104,14 @@ std::shared_ptr<Device> Device::Create(
     VLOG(2) << "MYNE EYE Model: " << model_s;
     DeviceModel model(model_s);
     if (model.type == 'S') {
+      LOG(INFO) << "model.generation " << model.generation;
       switch (model.generation) {
-        case 1:
+        case '1':
           return std::make_shared<StandardDevice>(device);
-        case 2:
+        case '2':
           return std::make_shared<StandardDevice>(device);
         default:
-          return std::make_shared<StandardDevice>(device);
-          // LOG(FATAL) << "No such generation now";
+          LOG(FATAL) << "No such generation now";
       }
     } else {
       LOG(FATAL) << "MYNT EYE model is not supported now";
