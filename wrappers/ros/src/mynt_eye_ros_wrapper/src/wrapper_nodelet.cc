@@ -531,9 +531,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       }
     }
 
-    api_ = API::Create(device);
-    api_->SetStreamRequest(
-        Resolution::RES_1280x400, Format::BGR888, FrameRate::RATE_20_FPS);
+    api_ = API::Create(device, Resolution::RES_1280x400);
+    api_->SetStreamRequest(Format::BGR888, FrameRate::RATE_20_FPS);
   }
 
   sensor_msgs::CameraInfoPtr getCameraInfo(const Stream &stream) {

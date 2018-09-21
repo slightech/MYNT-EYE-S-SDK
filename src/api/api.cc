@@ -220,29 +220,51 @@ API::~API() {
   VLOG(2) << __func__;
 }
 
-std::shared_ptr<API> API::Create() {
-  return Create(device::select());
-}
-
-std::shared_ptr<API> API::Create(std::shared_ptr<Device> device) {
-  if (!device)
-    return nullptr;
-  return std::make_shared<API>(device);
-}
-
-std::shared_ptr<API> API::Create(int argc, char *argv[]) {
-  static glog_init _(argc, argv);
+std::shared_ptr<API> API::Create(Resolution res) {
   auto &&device = device::select();
   if (!device)
     return nullptr;
+  device->InitResolution(res);
   return std::make_shared<API>(device);
+}
+
+std::shared_ptr<API> API::Create(
+    std::shared_ptr<Device> device, Resolution res) {
+  if (!device)
+    return nullptr;
+  LOG(INFO) << "API::Create(std::shared_ptr<Device> device,Resolution res)";
+  device->InitResolution(res);
+  return std::make_shared<API>(device);
+}
+
+std::shared_ptr<API> API::Create(std::shared_ptr<Device> device) {
+  return Create(device, Resolution::RES_2560x800);
+}
+
+std::shared_ptr<API> API::Create(int argc, char *argv[]) {
+  auto &&device = device::select();
+  return Create(argc, argv, device);
 }
 
 std::shared_ptr<API> API::Create(
     int argc, char *argv[], std::shared_ptr<Device> device) {
   static glog_init _(argc, argv);
+  int index = 0;
+  if (argc >= 2) {
+    try {
+      index = std::stoi(argv[1]);
+    } catch (...) {
+      LOG(WARNING) << "Unexpected index.";
+    }
+  }
   if (!device)
     return nullptr;
+  if (index == 0)
+    device->InitResolution(Resolution::RES_1280x400);
+  else if (index == 1)
+    device->InitResolution(Resolution::RES_2560x800);
+  else
+    device->InitResolution(Resolution::RES_1280x400);
   return std::make_shared<API>(device);
 }
 
@@ -266,10 +288,8 @@ bool API::Supports(const AddOns &addon) const {
   return device_->Supports(addon);
 }
 
-void API::SetStreamRequest(
-    const Resolution &res, const Format &format, const FrameRate &rate) {
-  device_->SetStreamRequest(res, format, rate);
-  CheckImageParams();
+void API::SetStreamRequest(const Format &format, const FrameRate &rate) {
+  device_->SetStreamRequest(format, rate);
 }
 
 const std::vector<StreamRequest> &API::GetStreamRequests(

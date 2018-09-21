@@ -103,12 +103,14 @@ class MYNTEYE_API Device {
    * Supports the addon or not.
    */
   bool Supports(const AddOns &addon) const;
-
+  /**
+   * Init device resolution.
+   */
+  void InitResolution(const Resolution &res);
   /**
    * set the stream request.
    */
-  void SetStreamRequest(
-      const Resolution &res, const Format &format, const FrameRate &rate);
+  void SetStreamRequest(const Format &format, const FrameRate &rate);
   /**
    * Get all stream requests of the capability.
    */
@@ -296,6 +298,7 @@ class MYNTEYE_API Device {
 
  private:
   Model model_;
+  Resolution res_ = Resolution::RES_752x480;
   StreamRequest request_;
   std::shared_ptr<uvc::device> device_;
   std::shared_ptr<DeviceInfo> device_info_;

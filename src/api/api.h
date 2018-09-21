@@ -95,7 +95,14 @@ class MYNTEYE_API API {
    * @return the API instance.
    * @note This will call device::select() to select a device.
    */
-  static std::shared_ptr<API> Create();
+  static std::shared_ptr<API> Create(Resolution res);
+  /**
+   * Create the API instance.
+   * @param device the selected device.
+   * @return the API instance.
+   */
+  static std::shared_ptr<API> Create(
+      std::shared_ptr<Device> device, Resolution res);
   /**
    * Create the API instance.
    * @param device the selected device.
@@ -147,8 +154,7 @@ class MYNTEYE_API API {
   /**
    * set the stream request.
    */
-  void SetStreamRequest(
-      const Resolution &res, const Format &format, const FrameRate &rate);
+  void SetStreamRequest(const Format &format, const FrameRate &rate);
   /**
    * Get all stream requests of the capability.
    */

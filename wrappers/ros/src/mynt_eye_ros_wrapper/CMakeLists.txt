@@ -96,6 +96,7 @@ add_compile_options(-std=c++11)
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  ${SDK_DIR}/src
 )
 
 set(LINK_LIBS

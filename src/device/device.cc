@@ -104,13 +104,14 @@ std::shared_ptr<Device> Device::Create(
     VLOG(2) << "MYNE EYE Model: " << model_s;
     DeviceModel model(model_s);
     if (model.type == 'S') {
-      switch (model.custom_code) {
-        case '0':
+      switch (model.generation) {
+        case 1:
           return std::make_shared<StandardDevice>(device);
-        case 'A':
+        case 2:
           return std::make_shared<StandardDevice>(device);
         default:
-          LOG(FATAL) << "No such custom code now";
+          return std::make_shared<StandardDevice>(device);
+          // LOG(FATAL) << "No such generation now";
       }
     } else {
       LOG(FATAL) << "MYNT EYE model is not supported now";
@@ -432,10 +433,13 @@ std::vector<device::MotionData> Device::GetMotionDatas() {
   return motions_->GetMotionDatas();
 }
 
-void Device::SetStreamRequest(
-    const Resolution &res, const Format &format, const FrameRate &rate) {
-  StreamRequest request(res, format, rate);
-  ConfigIntrinsics(res);
+void Device::InitResolution(const Resolution &res) {
+  res_ = res;
+  ConfigIntrinsics(res_);
+}
+
+void Device::SetStreamRequest(const Format &format, const FrameRate &rate) {
+  StreamRequest request(res_, format, rate);
   request_ = request;
 }
 
