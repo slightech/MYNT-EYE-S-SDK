@@ -208,7 +208,7 @@ struct ImuSegment {
   std::uint64_t timestamp;
   std::uint8_t flag;
   std::int16_t temperature;
-  std::int16_t aceel_or_gyro[3];
+  std::int16_t accel_or_gyro[3];
 
   ImuSegment() = default;
   explicit ImuSegment(std::uint8_t *data) {
@@ -228,9 +228,9 @@ struct ImuSegment {
     timestamp = (static_cast<std::uint64_t>(timestamp_h) << 32) | timestamp_l;
     flag = *(data + 12);
     temperature = (*(data + 13) << 8) | *(data + 14);
-    aceel_or_gyro[0] = (*(data + 15) << 8) | *(data + 16);
-    aceel_or_gyro[1] = (*(data + 17) << 8) | *(data + 18);
-    aceel_or_gyro[2] = (*(data + 19) << 8) | *(data + 20);
+    accel_or_gyro[0] = (*(data + 15) << 8) | *(data + 16);
+    accel_or_gyro[1] = (*(data + 17) << 8) | *(data + 18);
+    accel_or_gyro[2] = (*(data + 19) << 8) | *(data + 20);
   }
 };
 #pragma pack(pop)
