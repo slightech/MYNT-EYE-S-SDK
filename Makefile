@@ -49,7 +49,8 @@ all: test samples tools
 
 apidoc:
 	@$(call echo,Make $@)
-	@[ -e ./_install/include ] || $(MAKE) install
+	@# @[ -e ./_install/include ] || $(MAKE) install
+	@[ -e /usr/local/include/mynteye ] || $(MAKE) install
 	@$(SH) ./doc/build.sh
 
 opendoc: apidoc
