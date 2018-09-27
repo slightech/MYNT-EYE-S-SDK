@@ -31,8 +31,8 @@ int main(int argc, char *argv[]) {
   auto &&device = device::select();
   if (!device)
     return 1;
-  device->SetStreamRequest(
-      Resolution::RES_1280x400, Format::BGR888, FrameRate::RATE_30_FPS);
+  device->InitResolution(Resolution::RES_1280x400);
+  device->SetStreamRequest(Format::BGR888, FrameRate::RATE_30_FPS);
   /*
   {  // auto-exposure
     device->SetOptionValue(Option::EXPOSURE_MODE, 0);
