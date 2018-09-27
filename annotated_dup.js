@@ -27,6 +27,5 @@ var annotated_dup =
       [ "Plugin", "classmynteye_1_1_plugin.html", "classmynteye_1_1_plugin" ],
       [ "StreamRequest", "structmynteye_1_1_stream_request.html", "structmynteye_1_1_stream_request" ],
       [ "strings_error", "classmynteye_1_1strings__error.html", null ]
-    ] ],
-    [ "glog_init", "structglog__init.html", "structglog__init" ]
+    ] ]
 ];

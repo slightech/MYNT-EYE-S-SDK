@@ -184,8 +184,6 @@ var NAVTREEINDEX0 =
 "spec_imu_params.html":[0,2],
 "specs_ctrl.html":[1],
 "specs_data.html":[0],
-"structglog__init.html":[3,0,1],
-"structglog__init.html#a714aa2df9a669dee500b88c25e8b2311":[3,0,1,0],
 "structmynteye_1_1_extrinsics.html":[2,1,3],
 "structmynteye_1_1_extrinsics.html#a36093cc06059d4f59663b9e7006c79ff":[2,1,3,2],
 "structmynteye_1_1_extrinsics.html#a59bc28f3c4f09416706bf415084d7db6":[2,1,3,0],

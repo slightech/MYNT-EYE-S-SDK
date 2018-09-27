@@ -6,7 +6,6 @@ var hierarchy =
     [ "mynteye::Device", "classmynteye_1_1_device.html", null ],
     [ "mynteye::Extrinsics", "structmynteye_1_1_extrinsics.html", null ],
     [ "mynteye::device::Frame", "classmynteye_1_1device_1_1_frame.html", null ],
-    [ "glog_init", "structglog__init.html", null ],
     [ "mynteye::ImgData", "structmynteye_1_1_img_data.html", null ],
     [ "mynteye::ImuData", "structmynteye_1_1_imu_data.html", null ],
     [ "mynteye::ImuIntrinsics", "structmynteye_1_1_imu_intrinsics.html", null ],
@@ -23,7 +22,7 @@ var hierarchy =
     [ "runtime_error", null, [
       [ "mynteye::strings_error", "classmynteye_1_1strings__error.html", null ]
     ] ],
-    [ "mynteye::api::StreamData", "structmynteye_1_1api_1_1_stream_data.html", null ],
     [ "mynteye::device::StreamData", "structmynteye_1_1device_1_1_stream_data.html", null ],
+    [ "mynteye::api::StreamData", "structmynteye_1_1api_1_1_stream_data.html", null ],
     [ "mynteye::StreamRequest", "structmynteye_1_1_stream_request.html", null ]
 ];

@@ -15,7 +15,6 @@ var searchData=
   ['getstreamdata',['GetStreamData',['../classmynteye_1_1_a_p_i.html#a49a4447f9dbcb85f3aef0a013174f362',1,'mynteye::API']]],
   ['getstreamdatas',['GetStreamDatas',['../classmynteye_1_1_a_p_i.html#a81f6b26a1f3e136247b6088ce0d61b90',1,'mynteye::API::GetStreamDatas()'],['../classmynteye_1_1_device.html#ac1ce8fd9e9d164a7a547eac8d266d382',1,'mynteye::Device::GetStreamDatas()']]],
   ['getstreamrequests',['GetStreamRequests',['../classmynteye_1_1_a_p_i.html#a7b45104aa50cf10819993ccb875620ae',1,'mynteye::API::GetStreamRequests()'],['../classmynteye_1_1_device.html#adbd712ab0e11fd24bcce9ef504be8a86',1,'mynteye::Device::GetStreamRequests()']]],
-  ['glog_5finit',['glog_init',['../structglog__init.html',1,'glog_init'],['../structglog__init.html#a714aa2df9a669dee500b88c25e8b2311',1,'glog_init::glog_init()']]],
   ['grey',['GREY',['../group__enumerations.html#gga40c22565756e51ccaf616884e3b3e9e2a3c551f0d1a06b4f852d1832daed357bf',1,'mynteye']]],
   ['gyro',['gyro',['../structmynteye_1_1_motion_intrinsics.html#a129fbd620a93e2f749d69a9425956a36',1,'mynteye::MotionIntrinsics::gyro()'],['../structmynteye_1_1_imu_data.html#acc6cfa25ac3d6435690f60b3000eaa43',1,'mynteye::ImuData::gyro()']]]
 ];

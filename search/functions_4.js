@@ -13,6 +13,5 @@ var searchData=
   ['getoptionvalue',['GetOptionValue',['../classmynteye_1_1_a_p_i.html#ab00fddbd0a46c5f4f8106a376d5f5502',1,'mynteye::API::GetOptionValue()'],['../classmynteye_1_1_device.html#ae424a4e294e575f66b9ae1a85f110943',1,'mynteye::Device::GetOptionValue()']]],
   ['getstreamdata',['GetStreamData',['../classmynteye_1_1_a_p_i.html#a49a4447f9dbcb85f3aef0a013174f362',1,'mynteye::API']]],
   ['getstreamdatas',['GetStreamDatas',['../classmynteye_1_1_a_p_i.html#a81f6b26a1f3e136247b6088ce0d61b90',1,'mynteye::API::GetStreamDatas()'],['../classmynteye_1_1_device.html#ac1ce8fd9e9d164a7a547eac8d266d382',1,'mynteye::Device::GetStreamDatas()']]],
-  ['getstreamrequests',['GetStreamRequests',['../classmynteye_1_1_a_p_i.html#a7b45104aa50cf10819993ccb875620ae',1,'mynteye::API::GetStreamRequests()'],['../classmynteye_1_1_device.html#adbd712ab0e11fd24bcce9ef504be8a86',1,'mynteye::Device::GetStreamRequests()']]],
-  ['glog_5finit',['glog_init',['../structglog__init.html#a714aa2df9a669dee500b88c25e8b2311',1,'glog_init']]]
+  ['getstreamrequests',['GetStreamRequests',['../classmynteye_1_1_a_p_i.html#a7b45104aa50cf10819993ccb875620ae',1,'mynteye::API::GetStreamRequests()'],['../classmynteye_1_1_device.html#adbd712ab0e11fd24bcce9ef504be8a86',1,'mynteye::Device::GetStreamRequests()']]]
 ];

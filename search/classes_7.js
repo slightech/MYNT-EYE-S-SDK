@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['motiondata',['MotionData',['../structmynteye_1_1device_1_1_motion_data.html',1,'mynteye::device::MotionData'],['../structmynteye_1_1api_1_1_motion_data.html',1,'mynteye::api::MotionData']]],
-  ['motionintrinsics',['MotionIntrinsics',['../structmynteye_1_1_motion_intrinsics.html',1,'mynteye']]]
+  ['object',['Object',['../structmynteye_1_1_object.html',1,'mynteye']]],
+  ['objmat',['ObjMat',['../structmynteye_1_1_obj_mat.html',1,'mynteye']]],
+  ['objmat2',['ObjMat2',['../structmynteye_1_1_obj_mat2.html',1,'mynteye']]],
+  ['optioninfo',['OptionInfo',['../structmynteye_1_1_option_info.html',1,'mynteye']]]
 ];
