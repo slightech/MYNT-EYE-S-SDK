@@ -35,8 +35,8 @@ Motions::~Motions() {
 void Motions::SetMotionCallback(motion_callback_t callback) {
   motion_callback_ = callback;
   if (motion_callback_) {
-    // accel_range = channels_->GetControlValue(Option::ACCELEROMETER_RANGE);
-    // gyro_range = channels_->GetControlValue(Option::GYROSCOPE_RANGE);
+    accel_range = channels_->GetControlValue(Option::ACCELEROMETER_RANGE);
+    gyro_range = channels_->GetControlValue(Option::GYROSCOPE_RANGE);
     channels_->SetImuCallback([this](const ImuPacket &packet) {
       if (!motion_callback_ && !motion_datas_enabled_) {
         LOG(WARNING) << "";

@@ -23,9 +23,11 @@ const std::map<Model, CapabilitiesSupports> capabilities_supports_map = {
 
 const std::map<Model, OptionSupports> option_supports_map = {
     {Model::STANDARD,
-     {Option::BRIGHTNESS, Option::EXPOSURE_MODE, Option::ERASE_CHIP,
-      Option::MIN_EXPOSURE_TIME, Option::ACCELEROMETER_RANGE,
-      Option::GYROSCOPE_RANGE, Option::ACCELEROMETER_LOW_PASS_FILTER,
+     {Option::BRIGHTNESS, Option::EXPOSURE_MODE, Option::MAX_GAIN,
+      Option::MAX_EXPOSURE_TIME, Option::DESIRED_BRIGHTNESS,
+      Option::MIN_EXPOSURE_TIME, Option::ERASE_CHIP,
+      Option::ACCELEROMETER_RANGE, Option::GYROSCOPE_RANGE,
+      Option::ACCELEROMETER_LOW_PASS_FILTER,
       Option::GYROSCOPE_LOW_PASS_FILTER}}};
 
 const std::map<Model, std::map<Capabilities, StreamRequests>>

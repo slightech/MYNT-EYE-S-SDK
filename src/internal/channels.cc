@@ -143,32 +143,27 @@ void Channels::LogControlInfos() const {
 }
 
 void Channels::UpdateControlInfos() {
-  /*
-    for (auto &&option : std::vector<Option>{Option::GAIN, Option::BRIGHTNESS,
-                                             Option::CONTRAST}) {
-       control_infos_[option] = PuControlInfo(option);
+  for (auto &&option : std::vector<Option>{Option::BRIGHTNESS}) {
+    control_infos_[option] = PuControlInfo(option);
     }
 
     for (auto &&option : std::vector<Option>{
-             Option::FRAME_RATE, Option::IMU_FREQUENCY, Option::EXPOSURE_MODE,
+             Option::EXPOSURE_MODE, Option::DESIRED_BRIGHTNESS,
              Option::MAX_GAIN, Option::MAX_EXPOSURE_TIME,
-             Option::DESIRED_BRIGHTNESS, Option::IR_CONTROL, Option::HDR_MODE
              Option::MIN_EXPOSURE_TIME, Option::ACCELEROMETER_RANGE,
              Option::GYROSCOPE_RANGE, Option::ACCELEROMETER_LOW_PASS_FILTER,
-             Option::GYROSCOPE_LOW_PASS_FILTER})
-    {
-       control_infos_[option] = XuControlInfo(option);
+             Option::GYROSCOPE_LOW_PASS_FILTER}) {
+      control_infos_[option] = XuControlInfo(option);
     }
 
     if (VLOG_IS_ON(2)) {
-      for (auto &&it = control_infos_.begin(); it != control_infos_.end(); it++)
-    {
+      for (auto &&it = control_infos_.begin(); it != control_infos_.end();
+           it++) {
         VLOG(2) << it->first << ": min=" << it->second.min
                 << ", max=" << it->second.max << ", def=" << it->second.def
                 << ", cur=" << GetControlValue(it->first);
       }
     }
-  */
 }
 
 Channels::control_info_t Channels::GetControlInfo(const Option &option) const {
