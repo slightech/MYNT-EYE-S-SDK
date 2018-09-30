@@ -29,26 +29,6 @@ int main(int argc, char *argv[]) {
   auto &&device = device::select();
   if (!device)
     return 1;
-  /*
-  {  // auto-exposure
-    device->SetOptionValue(Option::EXPOSURE_MODE, 0);
-    device->SetOptionValue(Option::MAX_GAIN, 40);  // [0.48]
-    device->SetOptionValue(Option::MAX_EXPOSURE_TIME, 120);  // [0,240]
-    device->SetOptionValue(Option::DESIRED_BRIGHTNESS, 200);  // [0,255]
-  }
-  {  // manual-exposure
-    device->SetOptionValue(Option::EXPOSURE_MODE, 1);
-    device->SetOptionValue(Option::GAIN, 20);  // [0.48]
-    device->SetOptionValue(Option::BRIGHTNESS, 20);  // [0,240]
-    device->SetOptionValue(Option::CONTRAST, 20);  // [0,255]
-  }
-  device->SetOptionValue(Option::IR_CONTROL, 80);
-  device->SetOptionValue(Option::FRAME_RATE, 25);
-  device->SetOptionValue(Option::IMU_FREQUENCY, 500);
-  */
-  // device->LogOptionInfos();
-  // device->RunOptionAction(Option::ZERO_DRIFT_CALIBRATION);
-  // device->RunOptionAction(Option::ERASE_CHIP);
 
   std::size_t left_count = 0;
   device->InitResolution(Resolution::RES_1280x400);
@@ -117,6 +97,7 @@ int main(int argc, char *argv[]) {
 
     cv::Mat img;
 
+    // TODO(Kalman): Extract into public or internal method
     if (left_data.frame->format() == Format::GREY) {
       cv::Mat left_img(
           left_data.frame->height(), left_data.frame->width(), CV_8UC1,

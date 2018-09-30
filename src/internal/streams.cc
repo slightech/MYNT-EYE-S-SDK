@@ -100,6 +100,7 @@ bool unpack_left_img_pixels(
   return true;
 }
 
+// TODO(Kalman): Too similar to 'unpack_left_img_pixels'
 bool unpack_right_img_pixels(
     const void *data, const StreamRequest &request, Streams::frame_t *frame) {
   CHECK_NOTNULL(frame);

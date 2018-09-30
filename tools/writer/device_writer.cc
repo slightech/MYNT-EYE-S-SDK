@@ -376,6 +376,7 @@ DeviceWriter::img_params_t DeviceWriter::LoadImgParams(
       fs["ex_left_to_right"] >> params.ex_left_to_right;
     }
   } else {
+    // TODO(Kalman): Is there a more reasonable way?
     if (static_cast<std::string>(fs["version"]) == "1.0") {
       fs["in_left_map"][0] >> params.in_left_map[Resolution::RES_752x480];
       fs["in_right_map"][0] >> params.in_right_map[Resolution::RES_752x480];
