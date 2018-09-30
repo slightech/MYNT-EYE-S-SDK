@@ -236,6 +236,7 @@ std::shared_ptr<API> API::Create(
   return std::make_shared<API>(device);
 }
 
+// TODO(Kalman): Compatible with two generation
 std::shared_ptr<API> API::Create(std::shared_ptr<Device> device) {
   return Create(device, Resolution::RES_2560x800);
 }
@@ -245,6 +246,7 @@ std::shared_ptr<API> API::Create(int argc, char *argv[]) {
   return Create(argc, argv, device);
 }
 
+// TODO(Kalman): Compatible with two generation
 std::shared_ptr<API> API::Create(
     int argc, char *argv[], std::shared_ptr<Device> device) {
   static glog_init _(argc, argv);
@@ -458,6 +460,7 @@ std::shared_ptr<Device> API::device() {
   return device_;
 }
 
+// TODO(Kalman): Call this function in the appropriate place
 void API::CheckImageParams() {
   if (device_ != nullptr) {
     bool in_l_ok, in_r_ok, ex_l2r_ok;

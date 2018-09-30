@@ -21,6 +21,7 @@ const std::map<Model, StreamSupports> stream_supports_map = {
 const std::map<Model, CapabilitiesSupports> capabilities_supports_map = {
     {Model::STANDARD, {Capabilities::STEREO_COLOR, Capabilities::IMU}}};
 
+// TODO(Kalman): Compatible with two generation
 const std::map<Model, OptionSupports> option_supports_map = {
     {Model::STANDARD,
      {Option::BRIGHTNESS, Option::EXPOSURE_MODE, Option::MAX_GAIN,

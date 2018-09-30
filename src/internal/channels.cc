@@ -142,6 +142,7 @@ void Channels::LogControlInfos() const {
   }
 }
 
+// TODO(Kalman): Compatible with two generation
 void Channels::UpdateControlInfos() {
   for (auto &&option : std::vector<Option>{Option::BRIGHTNESS}) {
     control_infos_[option] = PuControlInfo(option);
@@ -255,17 +256,33 @@ void Channels::SetControlValue(const Option &option, std::int32_t value) {
         break;
       XuCamCtrlSet(option, value);
     } break;
+    case Option::ACCELEROMETER_RANGE: {
+      if (!in_range() || !in_values({6, 12, 24, 48}))
+        break;
+      XuCamCtrlSet(option, value);
+    } break;
+    case Option::GYROSCOPE_RANGE: {
+      if (!in_range() || !in_values({6, 12, 24, 48}))
+        break;
+      XuCamCtrlSet(option, value);
+    } break;
+    case Option::ACCELEROMETER_LOW_PASS_FILTER: {
+      if (!in_range() || !in_values({0, 1, 2}))
+        break;
+      XuCamCtrlSet(option, value);
+    } break;
+    case Option::GYROSCOPE_LOW_PASS_FILTER: {
+      if (!in_range() || !in_values({23, 64}))
+        break;
+      XuCamCtrlSet(option, value);
+    } break;
     case Option::EXPOSURE_MODE:
     case Option::MAX_GAIN:
     case Option::MAX_EXPOSURE_TIME:
     case Option::DESIRED_BRIGHTNESS:
     case Option::IR_CONTROL:
     case Option::HDR_MODE:
-    case Option::MIN_EXPOSURE_TIME:
-    case Option::ACCELEROMETER_RANGE:
-    case Option::GYROSCOPE_RANGE:
-    case Option::ACCELEROMETER_LOW_PASS_FILTER:
-    case Option::GYROSCOPE_LOW_PASS_FILTER: {
+    case Option::MIN_EXPOSURE_TIME: {
       if (!in_range())
         break;
       XuCamCtrlSet(option, value);
@@ -545,6 +562,7 @@ std::size_t from_data(
   return i;
 }
 
+// TODO(Kalman): Is there a more elegant way?
 std::size_t from_data(
     Channels::img_params_t *img_params, const std::uint8_t *data,
     const Version *spec_version) {
@@ -659,6 +677,7 @@ bool Channels::GetFiles(
           if (img_params->ok) {
             CheckSpecVersion(spec_ver);
             from_data(img_params, data + i, spec_ver);
+            // Considering the upgrade, comment this
             // CHECK_EQ(from_data(img_params, data + i, spec_ver), file_size);
           }
         } break;
