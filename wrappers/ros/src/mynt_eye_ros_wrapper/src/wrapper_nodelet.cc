@@ -82,7 +82,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
 
     return ros::Time(
-        soft_time_begin + (_hard_time - hard_time_begin) * 0.00001f);
+        soft_time_begin + (_hard_time - hard_time_begin) * 0.000001f);
   }
 
   void onInit() override {
