@@ -144,7 +144,7 @@ enum class Option : std::uint8_t {
   /**
    * Image frame rate, must set IMU_FREQUENCY together
    *
-   *   values: {10,15,20,25,30,35,40,45,50,55}, default: 25
+   *   values: {10,15,20,25,30,35,40,45,50,55,60}, default: 25
    */
   FRAME_RATE,
   /**

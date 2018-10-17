@@ -14,7 +14,7 @@ There are two control modes, one is through UVC standard protocol, the other is 
 
 | Name | Field | Bytes | Default | Min | Max | Stored | Flash Address | Channel | Note |
 | :--- | :---- | :---- | :------ | :-- | :-- | :----- | :------------ | :------ | :----- |
-| Frame rate | frame_rate | 2 | 25 | 10 | √ | 0x21 | XU_CAM_CTRL | values: {10,15,20,25,30,35,40,45,50,55} |
+| Frame rate | frame_rate | 2 | 25 | 10 | √ | 0x21 | XU_CAM_CTRL | values: {10,15,20,25,30,35,40,45,50,55,60} |
 | IMU frequency | imu_frequency | 2 | 200 | 100 | 500 | √ | 0x23 | XU_CAM_CTRL | values: {100,200,250,333,500} |
 | Exposure mode | exposure_mode | 1 | 0 | 0 | 1 | √ | 0x0F | XU_CAM_CTRL | 0: enable auto-exposure; 1: manual-exposure |
 | Max gain | max_gain | 2 | 48 | 0 | 48 | √ | 0x1D | XU_CAM_CTRL | valid if auto-exposure |

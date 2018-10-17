@@ -100,6 +100,9 @@ float get_real_exposure_time(
     case 55:
       real_max = 16.325;
       break;
+    case 60:
+      real_max = 15;
+      break;
     default:
       LOG(ERROR) << "Invalid frame rate: " << frame_rate;
       return exposure_time;

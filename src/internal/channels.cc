@@ -224,7 +224,7 @@ void Channels::SetControlValue(const Option &option, std::int32_t value) {
     } break;
     case Option::FRAME_RATE: {
       if (!in_range() ||
-          !in_values({10, 15, 20, 25, 30, 35, 40, 45, 50, 55}))
+          !in_values({10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60}))
         break;
       XuCamCtrlSet(option, value);
     } break;
