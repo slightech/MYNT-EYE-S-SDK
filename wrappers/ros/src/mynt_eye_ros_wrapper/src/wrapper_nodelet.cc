@@ -62,8 +62,13 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                 << ", fps: " << (left_count_ / time_elapsed);
       LOG(INFO) << "Right count: " << right_count_
                 << ", fps: " << (right_count_ / time_elapsed);
-      LOG(INFO) << "Imu count: " << imu_count_
-                << ", hz: " << (imu_count_ / time_elapsed);
+      if (publish_imu_by_sync_) {
+        LOG(INFO) << "imu_sync_count: " << imu_sync_count_
+                  << ", hz: " << (imu_sync_count_ / time_elapsed);
+      } else {
+        LOG(INFO) << "Imu count: " << imu_count_
+                  << ", hz: " << (imu_count_ / time_elapsed);
+      }
 
       // ROS messages could not be reliably printed here, using glog instead :(
       // ros::Duration(1).sleep();  // 1s
@@ -322,6 +327,21 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       // imu_time_prev = data.imu->timestamp;
 
       ++imu_count_;
+      if (publish_imu_by_sync_) {
+        if (data.imu) {
+          if (data.imu->flag == 1) {  // accelerometer
+            imu_accel_ = data.imu;
+            publishImuBySync(stamp);
+          } else if (data.imu->flag == 2) {  // gyroscope
+            imu_gyro_ = data.imu;
+            publishImuBySync(stamp);
+          } else {
+            NODELET_WARN_STREAM("Imu type is unknown");
+          }
+        } else {
+          NODELET_WARN_STREAM("Motion data is empty");
+        }
+      }
       publishImu(data, imu_count_, stamp);
       publishTemp(data.imu->temperature, imu_count_, stamp);
       NODELET_DEBUG_STREAM(
@@ -482,6 +502,59 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     msg.angular_velocity_covariance[8] = 0;
 
     pub_imu_.publish(msg);
+  }
+
+  void publishImuBySync(ros::Time stamp) {
+    if (imu_accel_ == nullptr || imu_gyro_ == nullptr) {
+      return;
+    }
+    sensor_msgs::Imu msg;
+
+    msg.header.seq = imu_sync_count_;
+    msg.header.stamp = stamp;
+    msg.header.frame_id = imu_frame_id_;
+
+    // acceleration should be in m/s^2 (not in g's)
+    msg.linear_acceleration.x = imu_accel_->accel[0] * gravity_;
+    msg.linear_acceleration.y = imu_accel_->accel[1] * gravity_;
+    msg.linear_acceleration.z = imu_accel_->accel[2] * gravity_;
+
+    msg.linear_acceleration_covariance[0] = 0;
+    msg.linear_acceleration_covariance[1] = 0;
+    msg.linear_acceleration_covariance[2] = 0;
+
+    msg.linear_acceleration_covariance[3] = 0;
+    msg.linear_acceleration_covariance[4] = 0;
+    msg.linear_acceleration_covariance[5] = 0;
+
+    msg.linear_acceleration_covariance[6] = 0;
+    msg.linear_acceleration_covariance[7] = 0;
+    msg.linear_acceleration_covariance[8] = 0;
+
+    // velocity should be in rad/sec
+    msg.angular_velocity.x = imu_gyro_->gyro[0] * M_PI / 180;
+    msg.angular_velocity.y = imu_gyro_->gyro[1] * M_PI / 180;
+    msg.angular_velocity.z = imu_gyro_->gyro[2] * M_PI / 180;
+
+    msg.angular_velocity_covariance[0] = 0;
+    msg.angular_velocity_covariance[1] = 0;
+    msg.angular_velocity_covariance[2] = 0;
+
+    msg.angular_velocity_covariance[3] = 0;
+    msg.angular_velocity_covariance[4] = 0;
+    msg.angular_velocity_covariance[5] = 0;
+
+    msg.angular_velocity_covariance[6] = 0;
+    msg.angular_velocity_covariance[7] = 0;
+    msg.angular_velocity_covariance[8] = 0;
+
+    pub_imu_.publish(msg);
+
+    publishTemp(imu_accel_->temperature, imu_sync_count_, stamp);
+
+    ++imu_sync_count_;
+    imu_accel_ = nullptr;
+    imu_gyro_ = nullptr;
   }
 
   void publishTemp(float temperature, std::uint32_t seq, ros::Time stamp) {
@@ -795,6 +868,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   std::size_t left_count_ = 0;
   std::size_t right_count_ = 0;
   std::size_t imu_count_ = 0;
+  std::size_t imu_sync_count_ = 0;
+  std::shared_ptr<ImuData> imu_accel_;
+  std::shared_ptr<ImuData> imu_gyro_;
+  bool publish_imu_by_sync_ = false;
 };
 
 MYNTEYE_END_NAMESPACE

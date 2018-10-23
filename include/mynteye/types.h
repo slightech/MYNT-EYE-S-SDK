@@ -525,7 +525,7 @@ std::ostream &operator<<(std::ostream &os, const Extrinsics &ex);
 struct MYNTEYE_API ImgData {
   /** Image frame id */
   std::uint16_t frame_id;
-  /** Image timestamp in 0.01ms */
+  /** Image timestamp in 1us */
   std::uint64_t timestamp;
   /** Image exposure time, virtual value in [1, 480] */
   std::uint16_t exposure_time;
