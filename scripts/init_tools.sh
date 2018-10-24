@@ -16,6 +16,7 @@
 _INIT_BUILD_=1
 # _INIT_LINTER_=1
 # _FORCE_INSRALL_=1
+# _INSTALL_OPTIONS_=-y
 
 BASE_DIR=$(cd "$(dirname "$0")" && pwd)
 
@@ -42,6 +43,9 @@ fi
 
 _install_deps() {
   _cmd="$1"; shift; _deps_all=($@)
+  if [ -n "${_INSTALL_OPTIONS_}" ]; then
+    _cmd="$_cmd $_INSTALL_OPTIONS_"
+  fi
   _echo "Install cmd: $_cmd"
   _echo "Install deps: ${_deps_all[*]}"
   if [ -n "${_FORCE_INSRALL_}" ]; then
@@ -68,6 +72,7 @@ _echo_s "Init tools"
 if [ "$HOST_OS" = "Linux" ]; then
   # sudo
   SUDO="sudo"
+  _detect_cmd $SUDO || SUDO=
   # detect apt-get
   _detect apt-get
   # apt-get install

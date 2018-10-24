@@ -22,6 +22,8 @@ MKFILE_DIR := $(patsubst %/,%,$(dir $(MKFILE_PATH)))
 #   UNIX: /usr/local
 #   Windows: c:/Program Files/${PROJECT_NAME}
 
+SUDO ?= sudo
+
 .DEFAULT_GOAL := help
 
 help:
@@ -77,7 +79,7 @@ submodules:
 
 init: submodules
 	@$(call echo,Make $@)
-	@$(SH) ./scripts/init.sh
+	@$(SH) ./scripts/init.sh $(INIT_OPTIONS)
 
 .PHONY: init
 
@@ -125,7 +127,7 @@ else
 endif
 else
 ifeq ($(HOST_OS),Linux)
-	@cd ./_build; sudo make install
+	@cd ./_build; $(SUDO) make install
 else
 	@cd ./_build; make install
 endif
