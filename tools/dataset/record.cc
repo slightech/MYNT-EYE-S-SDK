@@ -99,8 +99,7 @@ int main(int argc, char *argv[]) {
       return -1;
     }
     cv::imshow("frame", img);
-
-    {  // save
+    if (img_count > 10 && imu_count > 50) {  // save
       for (auto &&left : left_datas) {
         dataset.SaveStreamData(Stream::LEFT, left);
       }

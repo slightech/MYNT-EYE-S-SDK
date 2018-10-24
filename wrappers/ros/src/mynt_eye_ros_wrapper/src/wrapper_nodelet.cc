@@ -341,9 +341,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         } else {
           NODELET_WARN_STREAM("Motion data is empty");
         }
+      } else {
+        publishImu(data, imu_count_, stamp);
+        publishTemp(data.imu->temperature, imu_count_, stamp);
       }
-      publishImu(data, imu_count_, stamp);
-      publishTemp(data.imu->temperature, imu_count_, stamp);
       NODELET_DEBUG_STREAM(
           "Imu count: " << imu_count_ << ", timestamp: " << data.imu->timestamp
                         << ", accel_x: " << data.imu->accel[0]
