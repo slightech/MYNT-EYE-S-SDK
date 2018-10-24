@@ -1,17 +1,24 @@
 pipeline {
   agent {
-    docker { image 'ros:kinetic-ros-core-xenial' }
+    // docker { image 'ros:kinetic-ros-core-xenial' }
+    docker { image 'ros:kinetic-ros-base-xenial' }
   }
+
+  /*
+  environment {
+    // FindOpenCV.cmake
+    OpenCV_DIR = '/opt/ros/kinetic/share/OpenCV-3.3.1-dev'
+  }
+  */
 
   stages {
     stage('Prepare') {
       steps {
-				echo "WORKSPACE: ${env.WORKSPACE}"
+        echo "WORKSPACE: ${env.WORKSPACE}"
         echo 'apt-get ..'
         sh '''
         apt-get update
         apt-get install -y ros-kinetic-opencv3
-        export OpenCV_DIR=/opt/ros/kinetic/share/OpenCV-3.3.1-dev
         '''
       }
     }
@@ -19,42 +26,45 @@ pipeline {
       steps {
         echo 'make init ..'
         sh 'make init INIT_OPTIONS=-y'
+        // echo 'skip get submodules and make test'
+        // sh './scripts/init.sh -y'
       }
     }
     stage('Build') {
       steps {
         echo 'make build ..'
-        sh 'make build'
+        sh '. /opt/ros/kinetic/setup.sh; make build'
       }
     }
     stage('Install') {
       steps {
         echo 'make install ..'
-        sh 'make install SUDO='
+        sh '. /opt/ros/kinetic/setup.sh; make install SUDO='
       }
     }
     stage('Test') {
       steps {
         echo 'make test ..'
-        sh 'make test SUDO='
+        sh '. /opt/ros/kinetic/setup.sh; make test SUDO='
       }
     }
     stage('Samples') {
       steps {
         echo 'make samples ..'
-        sh 'make samples SUDO='
+        sh '. /opt/ros/kinetic/setup.sh; make samples SUDO='
       }
     }
     stage('Tools') {
       steps {
         echo 'make tools ..'
-        sh 'make tools SUDO='
+        sh '. /opt/ros/kinetic/setup.sh; make tools SUDO='
       }
     }
     stage('ROS') {
       steps {
         echo 'make ros ..'
         sh '''
+        . /opt/ros/kinetic/setup.sh
         rosdep install --from-paths wrappers/ros/src --ignore-src --rosdistro kinetic -y
         make ros SUDO=
         '''
