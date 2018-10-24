@@ -130,6 +130,10 @@ bool Processor::Process(const Object &in) {
       return false;
     }
   }
+  if (!in.DecValidity()) {
+    LOG(WARNING) << Name() << " process with invalid input";
+    return false;
+  }
   {
     std::lock_guard<std::mutex> lk(mtx_input_ready_);
     input_.reset(in.Clone());
