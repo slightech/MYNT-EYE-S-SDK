@@ -13,6 +13,9 @@
   <arg name="depth_topic" default="depth/image_raw" />
   <arg name="points_topic" default="points/data_raw" />
 
+  <arg name="left_gray_topic" default="left/image_gray" />
+  <arg name="right_gray_topic" default="right/image_gray" />
+
   <arg name="imu_topic" default="imu/data_raw" />
   <arg name="temp_topic" default="temp/data_raw" />
 
@@ -101,6 +104,9 @@
       <param name="disparity_norm_topic" value="$(arg disparity_norm_topic)" />
       <param name="points_topic" value="$(arg points_topic)" />
       <param name="depth_topic" value="$(arg depth_topic)" />
+
+      <param name="left_gray_topic" value="$(arg left_gray_topic)" />
+      <param name="right_gray_topic" value="$(arg right_gray_topic)" />
 
       <param name="imu_topic" value="$(arg imu_topic)" />
       <param name="temp_topic" value="$(arg temp_topic)" />

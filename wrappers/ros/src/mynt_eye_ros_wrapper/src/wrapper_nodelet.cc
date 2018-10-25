@@ -115,6 +115,15 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       private_nh_.getParam(it->second + "_topic", stream_topics[it->first]);
     }
 
+    std::map<Stream, std::string> gray_names{{Stream::LEFT, "left_gray"},
+                                             {Stream::RIGHT, "right_gray"}};
+
+    std::map<Stream, std::string> gray_topics{};
+    for (auto &&it = gray_names.begin(); it != gray_names.end(); ++it) {
+      gray_topics[it->first] = it->second;
+      private_nh_.getParam(it->second + "_topic", gray_topics[it->first]);
+    }
+
     std::string imu_topic = "imu";
     std::string temp_topic = "temp";
     private_nh_.getParam("imu_topic", imu_topic);
@@ -175,6 +184,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         points_publisher_ = nh_.advertise<sensor_msgs::PointCloud2>(topic, 1);
       } else {  // image
         image_publishers_[it->first] = it_mynteye.advertise(topic, 1);
+      }
+      NODELET_INFO_STREAM("Advertized on topic " << topic);
+    }
+
+    for (auto &&it = gray_topics.begin(); it != gray_topics.end(); ++it) {
+      auto &&topic = gray_topics[it->first];
+      if (it->first == Stream::LEFT || it->first == Stream::RIGHT) {  // camera
+        gray_publishers_[it->first] = it_mynteye.advertiseCamera(topic, 1);
       }
       NODELET_INFO_STREAM("Advertized on topic " << topic);
     }
@@ -274,6 +291,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
           ++left_count_;
           publishCamera(Stream::LEFT, data, left_count_, stamp);
+          publishGray(Stream::LEFT, data, left_count_, stamp);
           NODELET_DEBUG_STREAM(
               Stream::LEFT << ", count: " << left_count_
                            << ", frame_id: " << data.img->frame_id
@@ -287,6 +305,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
           ++right_count_;
           publishCamera(Stream::RIGHT, data, right_count_, stamp);
+          publishGray(Stream::RIGHT, data, right_count_, stamp);
           NODELET_DEBUG_STREAM(
               Stream::RIGHT << ", count: " << right_count_
                             << ", frame_id: " << data.img->frame_id
@@ -398,6 +417,23 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     auto &&msg =
         cv_bridge::CvImage(header, image_encodings_[stream], img).toImageMsg();
     image_publishers_[stream].publish(msg);
+  }
+
+  void publishGray(
+      const Stream &stream, const api::StreamData &data, std::uint32_t seq,
+      ros::Time stamp) {
+    if (gray_publishers_[stream].getNumSubscribers() == 0)
+      return;
+    std_msgs::Header header;
+    header.seq = seq;
+    header.stamp = stamp;
+    header.frame_id = frame_ids_[stream];
+    cv::Mat gray;
+    cv::cvtColor(data.frame, gray, CV_RGB2GRAY);
+    auto &&msg = cv_bridge::CvImage(header, enc::MONO8, gray).toImageMsg();
+    auto &&info = getCameraInfo(stream);
+    info->header.stamp = msg->header.stamp;
+    gray_publishers_[stream].publish(msg, info);
   }
 
   void publishPoints(
@@ -841,6 +877,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   // DEPTH
   std::map<Stream, image_transport::Publisher> image_publishers_;
   std::map<Stream, std::string> image_encodings_;
+
+  // gray: LEFT, RIGHT
+  std::map<Stream, image_transport::CameraPublisher> gray_publishers_;
 
   // pointcloud: POINTS
   ros::Publisher points_publisher_;
