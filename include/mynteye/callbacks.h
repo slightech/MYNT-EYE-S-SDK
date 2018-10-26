@@ -113,6 +113,8 @@ struct MYNTEYE_API StreamData {
   std::shared_ptr<ImgData> img;
   /** Frame. */
   std::shared_ptr<Frame> frame;
+  /** Frame ID. */
+  std::uint16_t frame_id;
 };
 
 /**

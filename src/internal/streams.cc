@@ -147,10 +147,12 @@ bool Streams::PushStream(const Capabilities &capability, const void *data) {
       // unpack img data
       if (unpack_img_data_map_[Stream::LEFT](
               data, request, left_data.img.get())) {
+        left_data.frame_id = left_data.img->frame_id;
         // alloc right
         AllocStreamData(Stream::RIGHT, request, Format::GREY);
         auto &&right_data = stream_datas_map_[Stream::RIGHT].back();
         *right_data.img = *left_data.img;
+        right_data.frame_id = left_data.img->frame_id;
         // unpack frame
         unpack_img_pixels_map_[Stream::LEFT](
             data, request, left_data.frame.get());
@@ -267,13 +269,14 @@ void Streams::AllocStreamData(
       // reuse the dropped data
       data.img = datas.front().img;
       data.frame = datas.front().frame;
+      data.frame_id = 0;
       datas.erase(datas.begin());
       VLOG(2) << "Stream data of " << stream << " is dropped as out of limits";
     }
   }
 
   if (stream == Stream::LEFT || stream == Stream::RIGHT) {
-    if(!data.img) {
+    if (!data.img) {
       data.img = std::make_shared<ImgData>();
     }
   } else {
@@ -283,6 +286,7 @@ void Streams::AllocStreamData(
     data.frame = std::make_shared<frame_t>(
         request.width, request.height, format, nullptr);
   }
+  data.frame_id = 0;
   stream_datas_map_[stream].push_back(data);
 }
 

@@ -46,6 +46,7 @@ bool PointsProcessor::OnProcess(
   const ObjMat *input = Object::Cast<ObjMat>(in);
   ObjMat *output = Object::Cast<ObjMat>(out);
   cv::reprojectImageTo3D(input->value, output->value, Q_, true);
+  output->id = input->id;
   return true;
 }
 

@@ -99,6 +99,7 @@ bool DisparityProcessor::OnProcess(
   sgbm_->compute(input->first, input->second, disparity);
 #endif
   output->value = disparity / 16 + 1;
+  output->id = input->first_id;
   return true;
 }
 

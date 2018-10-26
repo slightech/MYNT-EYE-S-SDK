@@ -54,6 +54,8 @@ bool RectifyProcessor::OnProcess(
   ObjMat2 *output = Object::Cast<ObjMat2>(out);
   cv::remap(input->first, output->first, map11, map12, cv::INTER_LINEAR);
   cv::remap(input->second, output->second, map21, map22, cv::INTER_LINEAR);
+  output->first_id = input->first_id;
+  output->second_id = input->second_id;
   return true;
 }
 

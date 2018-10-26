@@ -49,6 +49,7 @@ bool DisparityNormalizedProcessor::OnProcess(
   ObjMat *output = Object::Cast<ObjMat>(out);
   cv::normalize(input->value, output->value, 0, 255, cv::NORM_MINMAX, CV_8UC1);
   // cv::normalize maybe return empty ==
+  output->id = input->id;
   return !output->value.empty();
 }
 

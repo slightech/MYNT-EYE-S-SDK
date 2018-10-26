@@ -46,7 +46,7 @@ cv::Mat frame2mat(const std::shared_ptr<device::Frame> &frame) {
 }
 
 api::StreamData data2api(const device::StreamData &data) {
-  return {data.img, frame2mat(data.frame), data.frame};
+  return {data.img, frame2mat(data.frame), data.frame, data.frame_id};
 }
 
 void process_childs(
@@ -165,9 +165,9 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
       }
       if (output != nullptr) {
         if (stream == Stream::LEFT_RECTIFIED) {
-          return {nullptr, output->first, nullptr};
+          return {nullptr, output->first, nullptr, output->first_id};
         } else {
-          return {nullptr, output->second, nullptr};
+          return {nullptr, output->second, nullptr, output->second_id};
         }
       }
       VLOG(2) << "Rectify not ready now";
@@ -179,7 +179,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
         auto &&out = processor->GetOutput();
         if (out != nullptr) {
           auto &&output = Object::Cast<ObjMat>(out);
-          return {nullptr, output->value, nullptr};
+          return {nullptr, output->value, nullptr, output->id};
         }
         VLOG(2) << "Disparity not ready now";
       } break;
@@ -189,7 +189,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
         auto &&out = processor->GetOutput();
         if (out != nullptr) {
           auto &&output = Object::Cast<ObjMat>(out);
-          return {nullptr, output->value, nullptr};
+          return {nullptr, output->value, nullptr, output->id};
         }
         VLOG(2) << "Disparity normalized not ready now";
       } break;
@@ -198,7 +198,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
         auto &&out = processor->GetOutput();
         if (out != nullptr) {
           auto &&output = Object::Cast<ObjMat>(out);
-          return {nullptr, output->value, nullptr};
+          return {nullptr, output->value, nullptr, output->id};
         }
         VLOG(2) << "Points not ready now";
       } break;
@@ -207,7 +207,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
         auto &&out = processor->GetOutput();
         if (out != nullptr) {
           auto &&output = Object::Cast<ObjMat>(out);
-          return {nullptr, output->value, nullptr};
+          return {nullptr, output->value, nullptr, output->id};
         }
         VLOG(2) << "Depth not ready now";
       } break;
@@ -456,7 +456,8 @@ void Synthetic::ProcessNativeStream(
     if (left_data.img && right_data.img &&
         left_data.img->frame_id == right_data.img->frame_id) {
       auto &&processor = find_processor<RectifyProcessor>(processor_);
-      processor->Process(ObjMat2{left_data.frame, right_data.frame});
+      processor->Process(ObjMat2{left_data.frame, left_data.frame_id,
+          right_data.frame, right_data.frame_id});
     }
     return;
   }
@@ -472,24 +473,28 @@ void Synthetic::ProcessNativeStream(
         left_rect_data.img->frame_id == right_rect_data.img->frame_id) {
       process_childs(
           processor_, RectifyProcessor::NAME,
-          ObjMat2{left_rect_data.frame, right_rect_data.frame});
+          ObjMat2{left_rect_data.frame, left_rect_data.frame_id,
+              right_rect_data.frame, right_rect_data.frame_id});
     }
     return;
   }
 
   switch (stream) {
     case Stream::DISPARITY: {
-      process_childs(processor_, DisparityProcessor::NAME, ObjMat{data.frame});
+      process_childs(processor_, DisparityProcessor::NAME,
+          ObjMat{data.frame, data.frame_id});
     } break;
     case Stream::DISPARITY_NORMALIZED: {
-      process_childs(
-          processor_, DisparityNormalizedProcessor::NAME, ObjMat{data.frame});
+      process_childs(processor_, DisparityNormalizedProcessor::NAME,
+          ObjMat{data.frame, data.frame_id});
     } break;
     case Stream::POINTS: {
-      process_childs(processor_, PointsProcessor::NAME, ObjMat{data.frame});
+      process_childs(processor_, PointsProcessor::NAME,
+          ObjMat{data.frame, data.frame_id});
     } break;
     case Stream::DEPTH: {
-      process_childs(processor_, DepthProcessor::NAME, ObjMat{data.frame});
+      process_childs(processor_, DepthProcessor::NAME,
+          ObjMat{data.frame, data.frame_id});
     } break;
     default:
       break;
@@ -546,18 +551,19 @@ void Synthetic::OnRectifyPostProcess(Object *const out) {
   const ObjMat2 *output = Object::Cast<ObjMat2>(out);
   if (HasStreamCallback(Stream::LEFT_RECTIFIED)) {
     stream_callbacks_.at(Stream::LEFT_RECTIFIED)(
-        {nullptr, output->first, nullptr});
+        {nullptr, output->first, nullptr, output->first_id});
   }
   if (HasStreamCallback(Stream::RIGHT_RECTIFIED)) {
     stream_callbacks_.at(Stream::RIGHT_RECTIFIED)(
-        {nullptr, output->second, nullptr});
+        {nullptr, output->second, nullptr, output->second_id});
   }
 }
 
 void Synthetic::OnDisparityPostProcess(Object *const out) {
   const ObjMat *output = Object::Cast<ObjMat>(out);
   if (HasStreamCallback(Stream::DISPARITY)) {
-    stream_callbacks_.at(Stream::DISPARITY)({nullptr, output->value, nullptr});
+    stream_callbacks_.at(Stream::DISPARITY)(
+        {nullptr, output->value, nullptr, output->id});
   }
 }
 
@@ -565,21 +571,23 @@ void Synthetic::OnDisparityNormalizedPostProcess(Object *const out) {
   const ObjMat *output = Object::Cast<ObjMat>(out);
   if (HasStreamCallback(Stream::DISPARITY_NORMALIZED)) {
     stream_callbacks_.at(Stream::DISPARITY_NORMALIZED)(
-        {nullptr, output->value, nullptr});
+        {nullptr, output->value, nullptr, output->id});
   }
 }
 
 void Synthetic::OnPointsPostProcess(Object *const out) {
   const ObjMat *output = Object::Cast<ObjMat>(out);
   if (HasStreamCallback(Stream::POINTS)) {
-    stream_callbacks_.at(Stream::POINTS)({nullptr, output->value, nullptr});
+    stream_callbacks_.at(Stream::POINTS)(
+        {nullptr, output->value, nullptr, output->id});
   }
 }
 
 void Synthetic::OnDepthPostProcess(Object *const out) {
   const ObjMat *output = Object::Cast<ObjMat>(out);
   if (HasStreamCallback(Stream::DEPTH)) {
-    stream_callbacks_.at(Stream::DEPTH)({nullptr, output->value, nullptr});
+    stream_callbacks_.at(Stream::DEPTH)(
+        {nullptr, output->value, nullptr, output->id});
   }
 }
 

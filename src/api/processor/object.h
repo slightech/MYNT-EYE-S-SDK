@@ -56,14 +56,18 @@ struct MYNTEYE_API Object {
  */
 struct MYNTEYE_API ObjMat : public Object {
   ObjMat() = default;
-  explicit ObjMat(const cv::Mat &value) : value(value) {}
+  ObjMat(const cv::Mat &value, std::uint16_t id)
+      : value(value), id(id) {}
 
   /** The value */
   cv::Mat value;
+  /** The id **/
+  std::uint16_t id;
 
   Object *Clone() const {
     ObjMat *mat = new ObjMat;
     mat->value = value.clone();
+    mat->id = id;
     return mat;
   }
 
@@ -77,19 +81,27 @@ struct MYNTEYE_API ObjMat : public Object {
  */
 struct MYNTEYE_API ObjMat2 : public Object {
   ObjMat2() = default;
-  ObjMat2(const cv::Mat &first, const cv::Mat &second)
-      : first(first), second(second) {}
+  ObjMat2(const cv::Mat &first, std::uint16_t first_id,
+          const cv::Mat &second, std::uint16_t second_id)
+      : first(first), first_id(first_id),
+        second(second), second_id(second_id) {}
 
   /** The first value */
   cv::Mat first;
+  /** The first id **/
+  std::uint16_t first_id;
 
   /** The second value */
   cv::Mat second;
+  /** The second id **/
+  std::uint16_t second_id;
 
   Object *Clone() const {
     ObjMat2 *mat2 = new ObjMat2;
     mat2->first = first.clone();
+    mat2->first_id = first_id;
     mat2->second = second.clone();
+    mat2->second_id = second_id;
     return mat2;
   }
 

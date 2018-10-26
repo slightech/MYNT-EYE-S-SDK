@@ -15,6 +15,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "mynteye/api.h"
+// #include "mynteye/logger.h"
 
 #include "util/cv_painter.h"
 #include "util/pc_viewer.h"
@@ -186,6 +187,8 @@ int main(int argc, char *argv[]) {
     painter.DrawImgData(img, *left_data.img);
 
     cv::imshow("frame", img);
+    // LOG(INFO) << "left id: " << left_data.frame_id
+    //     << ", right id: " << right_data.frame_id;
 
     auto &&disp_data = api->GetStreamData(Stream::DISPARITY_NORMALIZED);
     auto &&depth_data = api->GetStreamData(Stream::DEPTH);
@@ -204,6 +207,7 @@ int main(int argc, char *argv[]) {
       depth_region.DrawRect(depth_frame);
 
       cv::imshow("depth", depth_frame);
+      // LOG(INFO) << "depth id: " << disp_data.frame_id;
 
       depth_region.ShowElems<ushort>(
           depth_data.frame,
@@ -223,6 +227,7 @@ int main(int argc, char *argv[]) {
     auto &&points_data = api->GetStreamData(Stream::POINTS);
     if (!points_data.frame.empty()) {
       pcviewer.Update(points_data.frame);
+      // LOG(INFO) << "points id: " << points_data.frame_id;
     }
 
     char key = static_cast<char>(cv::waitKey(1));

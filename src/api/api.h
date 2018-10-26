@@ -49,6 +49,8 @@ struct MYNTEYE_API StreamData {
   cv::Mat frame;
   /** Raw frame. */
   std::shared_ptr<device::Frame> frame_raw;
+  /** Frame ID. */
+  std::uint16_t frame_id;
 
   bool operator==(const StreamData &other) const {
     if (img && other.img) {
