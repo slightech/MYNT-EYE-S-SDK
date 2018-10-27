@@ -13,15 +13,15 @@
 // limitations under the License.
 #include "util/cv_painter.h"
 
-#include <opencv2/imgproc/imgproc.hpp>
-
 #include <iomanip>
 #include <iostream>
 #include <memory>
 #include <utility>
 
+#include <opencv2/imgproc/imgproc.hpp>
+
 #include "mynteye/logger.h"
-#include "mynteye/utils.h"
+#include "mynteye/device/utils.h"
 
 #define FONT_FACE cv::FONT_HERSHEY_PLAIN
 #define FONT_SCALE 1

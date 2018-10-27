@@ -20,8 +20,8 @@
 #include <memory>
 #include <string>
 
-#include "mynteye/callbacks.h"
 #include "mynteye/mynteye.h"
+#include "mynteye/device/callbacks.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 

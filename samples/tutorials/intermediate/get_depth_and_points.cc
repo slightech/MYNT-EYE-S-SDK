@@ -14,8 +14,8 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "mynteye/api.h"
 // #include "mynteye/logger.h"
+#include "mynteye/api/api.h"
 
 #include "util/cv_painter.h"
 #include "util/pc_viewer.h"

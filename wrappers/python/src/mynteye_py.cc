@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include <vector>
 
 // #include <boost/python.hpp>
 #include <boost/python/class.hpp>
@@ -23,11 +24,9 @@
 
 #include <opencv2/core/core.hpp>
 
-#include <vector>
-
-#include "mynteye/api.h"
 #include "mynteye/logger.h"
-#include "mynteye/utils.h"
+#include "mynteye/api/api.h"
+#include "mynteye/device/utils.h"
 
 #include "array_indexing_suite.hpp"
 #include "array_ref.hpp"

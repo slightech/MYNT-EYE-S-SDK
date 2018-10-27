@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "mynteye/logger.h"
-
-#include "mynteye/device.h"
-#include "mynteye/utils.h"
+#include "mynteye/device/device.h"
+#include "mynteye/device/utils.h"
 
 #include "writer/device_writer.h"
 

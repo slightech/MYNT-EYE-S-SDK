@@ -15,11 +15,9 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "mynteye/logger.h"
-
-#include "mynteye/device.h"
-#include "mynteye/utils.h"
-
-#include "mynteye/times.h"
+#include "mynteye/device/device.h"
+#include "mynteye/device/utils.h"
+#include "mynteye/util/times.h"
 
 #include "dataset/dataset.h"
 

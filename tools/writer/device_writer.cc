@@ -13,13 +13,13 @@
 // limitations under the License.
 #include "writer/device_writer.h"
 
-#include <opencv2/core/core.hpp>
-
 #include <vector>
 
-#include "mynteye/device.h"
-#include "mynteye/files.h"
+#include <opencv2/core/core.hpp>
+
 #include "mynteye/logger.h"
+#include "mynteye/device/device.h"
+#include "mynteye/util/files.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 

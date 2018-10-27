@@ -14,7 +14,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "mynteye/api.h"
+#include "mynteye/api/api.h"
 
 namespace {
 

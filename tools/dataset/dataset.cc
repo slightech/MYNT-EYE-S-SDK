@@ -24,8 +24,8 @@
 #include <stdexcept>
 #include <utility>
 
-#include "mynteye/files.h"
 #include "mynteye/logger.h"
+#include "mynteye/util/files.h"
 
 #define FULL_PRECISION \
   std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10)
