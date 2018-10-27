@@ -23,7 +23,7 @@
 #include "mynteye/logger.h"
 #include "mynteye/mynteye.h"
 #include "mynteye/types.h"
-#include "uvc/uvc.h"
+#include "mynteye/uvc/uvc.h"
 
 struct frame {
   const void *data = nullptr;
