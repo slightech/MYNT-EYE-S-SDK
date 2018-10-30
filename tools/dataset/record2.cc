@@ -15,7 +15,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "mynteye/logger.h"
-#include "mynteye/api/api.h"
+#include "mynteye/device/device.h"
+#include "mynteye/device/utils.h"
 #include "mynteye/util/times.h"
 
 #include "dataset/dataset.h"
@@ -23,31 +24,33 @@
 MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
-  auto &&api = API::Create(argc, argv);
-  if (!api)
+  glog_init _(argc, argv);
+
+  auto &&device = device::select();
+  if (!device)
     return 1;
   /*
   {  // auto-exposure
-    api->SetOptionValue(Option::EXPOSURE_MODE, 0);
-    api->SetOptionValue(Option::MAX_GAIN, 40);  // [0.48]
-    api->SetOptionValue(Option::MAX_EXPOSURE_TIME, 120);  // [0,240]
-    api->SetOptionValue(Option::DESIRED_BRIGHTNESS, 200);  // [0,255]
+    device->SetOptionValue(Option::EXPOSURE_MODE, 0);
+    device->SetOptionValue(Option::MAX_GAIN, 40);  // [0.48]
+    device->SetOptionValue(Option::MAX_EXPOSURE_TIME, 120);  // [0,240]
+    device->SetOptionValue(Option::DESIRED_BRIGHTNESS, 200);  // [0,255]
   }
   {  // manual-exposure
-    api->SetOptionValue(Option::EXPOSURE_MODE, 1);
-    api->SetOptionValue(Option::GAIN, 20);  // [0.48]
-    api->SetOptionValue(Option::BRIGHTNESS, 20);  // [0,240]
-    api->SetOptionValue(Option::CONTRAST, 20);  // [0,255]
+    device->SetOptionValue(Option::EXPOSURE_MODE, 1);
+    device->SetOptionValue(Option::GAIN, 20);  // [0.48]
+    device->SetOptionValue(Option::BRIGHTNESS, 20);  // [0,240]
+    device->SetOptionValue(Option::CONTRAST, 20);  // [0,255]
   }
-  api->SetOptionValue(Option::IR_CONTROL, 80);
-  api->SetOptionValue(Option::FRAME_RATE, 25);
-  api->SetOptionValue(Option::IMU_FREQUENCY, 500);
+  device->SetOptionValue(Option::IR_CONTROL, 80);
+  device->SetOptionValue(Option::FRAME_RATE, 25);
+  device->SetOptionValue(Option::IMU_FREQUENCY, 500);
   */
-  api->LogOptionInfos();
+  device->LogOptionInfos();
 
   // Enable this will cache the motion datas until you get them.
-  api->EnableMotionDatas();
-  api->Start(Source::ALL);
+  device->EnableMotionDatas();
+  device->Start(Source::ALL);
 
   const char *outdir;
   if (argc >= 2) {
@@ -63,17 +66,22 @@ int main(int argc, char *argv[]) {
   std::size_t imu_count = 0;
   auto &&time_beg = times::now();
   while (true) {
-    api->WaitForStreams();
+    device->WaitForStreams();
 
-    auto &&left_datas = api->GetStreamDatas(Stream::LEFT);
-    auto &&right_datas = api->GetStreamDatas(Stream::RIGHT);
+    auto &&left_datas = device->GetStreamDatas(Stream::LEFT);
+    auto &&right_datas = device->GetStreamDatas(Stream::RIGHT);
     img_count += left_datas.size();
 
-    auto &&motion_datas = api->GetMotionDatas();
+    auto &&motion_datas = device->GetMotionDatas();
     imu_count += motion_datas.size();
 
-    auto &&left_img = left_datas.back().frame;
-    auto &&right_img = right_datas.back().frame;
+    auto &&left_frame = left_datas.back().frame;
+    auto &&right_frame = right_datas.back().frame;
+    cv::Mat left_img(
+        left_frame->height(), left_frame->width(), CV_8UC1, left_frame->data());
+    cv::Mat right_img(
+        right_frame->height(), right_frame->width(), CV_8UC1,
+        right_frame->data());
 
     cv::Mat img;
     cv::hconcat(left_img, right_img, img);
@@ -103,7 +111,7 @@ int main(int argc, char *argv[]) {
   std::cout << " to " << outdir << std::endl;
   auto &&time_end = times::now();
 
-  api->Stop(Source::ALL);
+  device->Stop(Source::ALL);
 
   float elapsed_ms =
       times::count<times::microseconds>(time_end - time_beg) * 0.001f;

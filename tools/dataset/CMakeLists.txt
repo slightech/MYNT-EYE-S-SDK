@@ -27,3 +27,9 @@ make_executable(record
   LINK_LIBS mynteye ${OpenCV_LIBS}
   DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
 )
+
+make_executable(record2
+  SRCS record2.cc dataset.cc
+  LINK_LIBS mynteye ${OpenCV_LIBS}
+  DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
+)
