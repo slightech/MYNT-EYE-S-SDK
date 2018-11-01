@@ -202,6 +202,15 @@ endif
 
 endif
 
+# Package
+
+PKGVERSION := $(shell ./scripts/version.sh)
+PKGNAME := mynteye-$(PKGVERSION)-$(HOST_OS)-$(HOST_ARCH)
+ifeq ($(HOST_OS),Linux)
+  PKGNAME := $(PKGNAME)-gcc$(shell gcc -dumpversion | cut -c 1-1)
+endif
+PKGNAME := $(call lower,$(PKGNAME))
+
 # Shell
 
 # `sh` is not possible to export a function
