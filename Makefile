@@ -168,7 +168,7 @@ tools: install
 pkg: clean
 	@$(call echo,Make $@)
 ifeq ($(HOST_OS),Win)
-	@$(SH) ./scripts/win/winpack.sh
+	@$(SH) ./scripts/win/winpack.sh "$(PKGNAME)"
 else
 	$(error "Can't make pkg on $(HOST_OS)")
 endif

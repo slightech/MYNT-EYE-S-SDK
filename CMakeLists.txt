@@ -83,6 +83,13 @@ configure_file(
   include/mynteye/mynteye.h @ONLY
 )
 
+if(OS_WIN)
+  configure_file(
+    scripts/win/nsis/winpack.nsi.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/winpack.nsi @ONLY
+  )
+endif()
+
 # targets
 
 add_definitions(-DMYNTEYE_EXPORTS)
