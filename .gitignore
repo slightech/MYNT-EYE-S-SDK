@@ -17,6 +17,7 @@ _output/
 /plugins/
 
 /3rdparty/opencv/
+/pkginfo.sh
 /*.nsi
 /*.exe
 

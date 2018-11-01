@@ -61,7 +61,7 @@ Section "SDK (required)"
   SetOutPath $INSTDIR
 
   ; Put file there
-  File /r "mynteye-s-${VERSION}-win-x64\*"
+  File /r "mynteye-s-${VERSION}-win-x64-opencv-${OpenCV_VERSION}\*"
 
   ; Write the installation path into the registry
   WriteRegStr HKLM "SOFTWARE\MYNTEYESSDK" "Install_Dir" "$INSTDIR"

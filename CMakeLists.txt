@@ -83,6 +83,10 @@ configure_file(
   include/mynteye/mynteye.h @ONLY
 )
 
+configure_file(
+  cmake/templates/pkginfo.sh.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/pkginfo.sh @ONLY
+)
 if(OS_WIN)
   configure_file(
     scripts/win/nsis/winpack.nsi.in

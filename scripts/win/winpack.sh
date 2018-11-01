@@ -75,7 +75,8 @@ mv "$ROOT_DIR/3rdparty/opencv" "$ROOT_DIR/_install/3rdparty/opencv"
 ################################################################################
 # archive exe
 
-_pkgname=$1
+source "$ROOT_DIR/pkginfo.sh"
+_pkgname=$1-opencv-$OpenCV_VERSION
 mv "$ROOT_DIR/_install" "$ROOT_DIR/$_pkgname"
 
 makensis "$ROOT_DIR/winpack.nsi"
