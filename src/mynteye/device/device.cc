@@ -15,6 +15,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <limits>
 #include <stdexcept>
 #include <utility>
 
@@ -413,6 +414,10 @@ device::StreamData Device::GetLatestStreamData(const Stream &stream) {
   CheckSupports(this, stream);
   std::lock_guard<std::mutex> _(mtx_streams_);
   return streams_->GetLatestStreamData(stream);
+}
+
+void Device::EnableMotionDatas() {
+  EnableMotionDatas(std::numeric_limits<std::size_t>::max());
 }
 
 void Device::EnableMotionDatas(std::size_t max_size) {

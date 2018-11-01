@@ -26,6 +26,16 @@ SINGLE_QUOTE := '
 OPEN_PAREN := (
 CLOSE_PAREN := )
 
+# Options
+#
+#   VS_CODE: ignore to auto detect, otherwise specify the version
+#            15|2017, 14|2015, 12|2013, 11|2012, 10|2010, 9|2008, 8|2005
+#   BUILD_TYPE: Debug|Release
+#
+# e.g. make [TARGET] VS_CODE=2017 BUILD_TYPE=Debug
+
+BUILD_TYPE ?= Release
+
 # Host detection
 
 ifeq ($(OS),Windows_NT)
@@ -124,7 +134,7 @@ ifeq ($(HOST_OS),Win)
     CC := cl
     CXX := cl
     MAKE := make
-    BUILD := msbuild.exe ALL_BUILD.vcxproj /property:Configuration=Release
+    BUILD := msbuild.exe ALL_BUILD.vcxproj /property:Configuration=$(BUILD_TYPE)
   endif
 else
   # mac & linux
@@ -144,8 +154,7 @@ endif
 # CMake
 
 CMAKE := cmake
-# CMAKE := $(CMAKE) -DCMAKE_BUILD_TYPE=Debug
-CMAKE := $(CMAKE) -DCMAKE_BUILD_TYPE=Release
+CMAKE := $(CMAKE) -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
 ifneq ($(CC),)
   CMAKE := $(CMAKE) -DCMAKE_C_COMPILER=$(CC)
 endif

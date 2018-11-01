@@ -15,7 +15,6 @@
 #define MYNTEYE_DEVICE_DEVICE_H_
 #pragma once
 
-#include <limits>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -245,8 +244,11 @@ class MYNTEYE_API Device {
   /**
    * Enable cache motion datas.
    */
-  void EnableMotionDatas(
-      std::size_t max_size = std::numeric_limits<std::size_t>::max());
+  void EnableMotionDatas();
+  /**
+   * Enable cache motion datas.
+   */
+  void EnableMotionDatas(std::size_t max_size);
   /**
    * Get the motion datas.
    */

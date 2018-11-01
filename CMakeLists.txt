@@ -18,6 +18,10 @@ project(mynteye VERSION 2.2.1 LANGUAGES C CXX)
 
 include(cmake/Common.cmake)
 
+if(NOT CMAKE_DEBUG_POSTFIX)
+  set(CMAKE_DEBUG_POSTFIX d)
+endif()
+
 # options
 
 include(cmake/Option.cmake)
