@@ -15,8 +15,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mynt_eye_ros_wrapper)
 
-get_filename_component(SDK_DIR "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
-
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
@@ -77,9 +75,11 @@ catkin_package(
   CATKIN_DEPENDS cv_bridge geometry_msgs image_transport nodelet roscpp sensor_msgs std_msgs tf
 )
 
-get_filename_component(SDK_DIR "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
+#get_filename_component(SDK_DIR "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
+#LIST(APPEND CMAKE_PREFIX_PATH ${SDK_DIR}/_install/lib/cmake)
 
-LIST(APPEND CMAKE_PREFIX_PATH ${SDK_DIR}/_install/lib/cmake)
+LIST(APPEND CMAKE_MODULE_PATH cmake)
+
 find_package(mynteye REQUIRED)
 message(STATUS "Found mynteye: ${mynteye_VERSION}")
 
@@ -87,10 +87,13 @@ if(NOT mynteye_WITH_API)
   message(FATAL_ERROR "Must with API layer :(")
 endif()
 
-include(${SDK_DIR}/cmake/DetectOpenCV.cmake)
+include(cmake/DetectOpenCV.cmake)
 
 if(mynteye_WITH_GLOG)
-  include(${SDK_DIR}/cmake/DetectGLog.cmake)
+  find_package(glog REQUIRED)
+  if(glog_FOUND)
+    add_definitions(-DWITH_GLOG)
+  endif()
 endif()
 
 # targets

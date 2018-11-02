@@ -87,6 +87,34 @@ void Dataset::SaveMotionData(const device::MotionData &data) {
   ++motion_count_;
 }
 
+void Dataset::SaveStreamData(
+    const Stream &stream, const api::StreamData &data) {
+  auto &&writer = GetStreamWriter(stream);
+  auto seq = stream_counts_[stream];
+  writer->ofs << seq << ", " << data.img->frame_id << ", "
+              << data.img->timestamp << ", " << data.img->exposure_time
+              << std::endl;
+  if (!data.frame.empty()) {
+    std::stringstream ss;
+    ss << writer->outdir << MYNTEYE_OS_SEP << std::dec
+       << std::setw(IMAGE_FILENAME_WIDTH) << std::setfill('0') << seq << ".png";
+    cv::imwrite(ss.str(), data.frame);
+  }
+  ++stream_counts_[stream];
+}
+
+void Dataset::SaveMotionData(const api::MotionData &data) {
+  auto &&writer = GetMotionWriter();
+  auto seq = motion_count_;
+  writer->ofs << seq << ", " << data.imu->frame_id << ", "
+              << data.imu->timestamp << ", " << data.imu->accel[0] << ", "
+              << data.imu->accel[1] << ", " << data.imu->accel[2] << ", "
+              << data.imu->gyro[0] << ", " << data.imu->gyro[1] << ", "
+              << data.imu->gyro[2] << ", " << data.imu->temperature
+              << std::endl;
+  ++motion_count_;
+}
+
 Dataset::writer_t Dataset::GetStreamWriter(const Stream &stream) {
   try {
     return stream_writers_.at(stream);
