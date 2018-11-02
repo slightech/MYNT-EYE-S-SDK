@@ -70,7 +70,9 @@ macro(set_outdir ARCHIVE_OUTPUT_DIRECTORY LIBRARY_OUTPUT_DIRECTORY RUNTIME_OUTPU
   endforeach()
 endmacro()
 
-set(__exe2bat_relative_path false)
+if(NOT __exe2bat_relative_path)
+  set(__exe2bat_relative_path false)
+endif()
 
 macro(exe2bat exe_name exe_dir dll_search_paths)
   message(STATUS "Generating ${exe_name}.bat")
