@@ -18,6 +18,10 @@ project(mynteye VERSION 2.2.1 LANGUAGES C CXX)
 
 include(cmake/Common.cmake)
 
+if(NOT CMAKE_DEBUG_POSTFIX)
+  set(CMAKE_DEBUG_POSTFIX d)
+endif()
+
 # options
 
 include(cmake/Option.cmake)
@@ -78,6 +82,17 @@ configure_file(
   include/mynteye/mynteye.h.in
   include/mynteye/mynteye.h @ONLY
 )
+
+configure_file(
+  cmake/templates/pkginfo.sh.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/pkginfo.sh @ONLY
+)
+if(OS_WIN)
+  configure_file(
+    scripts/win/nsis/winpack.nsi.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/winpack.nsi @ONLY
+  )
+endif()
 
 # targets
 

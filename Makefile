@@ -37,6 +37,7 @@ help:
 	@echo "  make test            build test and run"
 	@echo "  make samples         build samples"
 	@echo "  make tools           build tools"
+	@echo "  make pkg             package sdk"
 	@echo "  make ros             build ros wrapper"
 	@echo "  make py              build python wrapper"
 	@echo "  make clean|cleanall  clean generated or useless things"
@@ -162,14 +163,30 @@ tools: install
 
 .PHONY: tools
 
+# pkg
+
+pkg: clean
+	@$(call echo,Make $@)
+ifeq ($(HOST_OS),Win)
+	@$(SH) ./scripts/win/winpack.sh "$(PKGNAME)"
+else
+	$(error "Can't make pkg on $(HOST_OS)")
+endif
+
+cleanpkg:
+	@$(call echo,Make $@)
+	@$(call rm_f,$(PKGNAME)*)
+
+.PHONY: pkg cleanpkg
+
 # ros
 
 ros: install
 	@$(call echo,Make $@)
-ifeq ($(HOST_OS),Win)
-	$(error "Can't make ros on win")
-else
+ifeq ($(HOST_OS),Linux)
 	@cd ./wrappers/ros && catkin_make
+else
+	$(error "Can't make ros on $(HOST_OS)")
 endif
 
 .PHONY: ros
@@ -278,6 +295,7 @@ host:
 	@echo BUILD: $(BUILD)
 	@echo LDD: $(LDD)
 	@echo CMAKE: $(CMAKE)
+	@echo PKGNAME: $(PKGNAME)
 
 .PHONY: host
 

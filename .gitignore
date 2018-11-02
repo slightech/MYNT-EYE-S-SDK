@@ -16,6 +16,11 @@ _output/
 
 /plugins/
 
+/3rdparty/opencv/
+/pkginfo.sh
+/*.nsi
+/*.exe
+
 # ros
 
 /wrappers/ros/build

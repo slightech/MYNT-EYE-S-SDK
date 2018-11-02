@@ -27,11 +27,13 @@ ECHO="echo -e"
 # task colors
 COLOR_STRONG="1;35"  # Magenta
 COLOR_INFO="1;34"    # Blue
+COLOR_WARN="1;33"    # Yellow
 COLOR_DONE="1;32"    # Green
 COLOR_ERROR="1;31"   # Red
 # action colors
 COLOR_STRONG_NORMAL="35"
 COLOR_INFO_NORMAL="34"
+COLOR_WARN_NORMAL="33"
 COLOR_DONE_NORMAL="32"
 COLOR_ERROR_NORMAL="31"
 
@@ -59,6 +61,10 @@ _echo_i() {
   _echo_ "$1" "$COLOR_INFO"
 }
 
+_echo_w() {
+  _echo_ "$1" "$COLOR_WARN"
+}
+
 _echo_d() {
   _echo_ "$1" "$COLOR_DONE"
 }
@@ -73,6 +79,10 @@ _echo_sn() {
 
 _echo_in() {
   _echo_ "$1" "$COLOR_INFO_NORMAL"
+}
+
+_echo_wn() {
+  _echo_ "$1" "$COLOR_WARN_NORMAL"
 }
 
 _echo_dn() {
