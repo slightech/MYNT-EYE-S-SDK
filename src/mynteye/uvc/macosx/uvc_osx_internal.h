@@ -15,7 +15,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <signal.h>
-#include "mynteye/uvc/utlist_osx.h"
+#include "mynteye/uvc/macosx/utlist_osx.h"
 
 #pragma GCC diagnostic ignored "-Wpedantic"
 #include <libusb-1.0/libusb.h>

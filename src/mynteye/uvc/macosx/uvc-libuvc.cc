@@ -20,7 +20,7 @@
 #include "mynteye/uvc/uvc.h"
 #include "libuvc/libuvc.h"
 
-#include "mynteye/uvc/uvc_osx_internal.h"
+#include "mynteye/uvc/macosx/uvc_osx_internal.h"
 
 // #define ENABLE_DEBUG_SPAM
 
