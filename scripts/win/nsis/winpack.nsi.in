@@ -96,8 +96,9 @@ SectionEnd
 
 Function .onInstSuccess
 
-  ;WriteRegStr "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" "View README" \
-  ;  "cmd.exe /c start /max notepad.exe $INSTDIR\README"
+  WriteRegStr "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" \
+    "View MYNTEYES README.txt" \
+    "cmd.exe /c start /max notepad.exe $INSTDIR\README.txt"
 
   MessageBox MB_OKCANCEL "Reboot your system now?" /SD IDOK IDCANCEL NoReboot
     Reboot
