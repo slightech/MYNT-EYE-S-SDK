@@ -106,6 +106,10 @@ mv "$ROOT_DIR/tools" "$ROOT_DIR/_install/tools"
 # platforms/win
 mv "$ROOT_DIR/platforms/win/README.txt" "$ROOT_DIR/_install"
 
+_rm "$ROOT_DIR/platforms/projects/vs2017/mynteyes_demo/.vs"
+_rm "$ROOT_DIR/platforms/projects/vs2017/mynteyes_demo/x64"
+_rm "$ROOT_DIR/platforms/projects/vs2017/mynteyes_demo/mynteyes_demo/x64"
+_rm "$ROOT_DIR/platforms/projects/vs2017/mynteyes_demo/mynteyes_demo/mynteyes_demo.vcxproj.user"
 mv "$ROOT_DIR/platforms/projects" "$ROOT_DIR/_install/projects"
 
 ################################################################################
