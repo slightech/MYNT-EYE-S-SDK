@@ -178,7 +178,7 @@ cv::Rect CVPainter::DrawText(
   y += offset_y;
 
   cv::Point org(x, y);
-#ifdef USE_OPENCV2
+#ifdef WITH_OPENCV2
   cv::putText(
       const_cast<cv::Mat &>(img), text, org, FONT_FACE, FONT_SCALE, FONT_COLOR,
       THICKNESS);

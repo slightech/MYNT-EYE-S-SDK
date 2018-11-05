@@ -29,7 +29,7 @@ DisparityProcessor::DisparityProcessor(std::int32_t proc_period)
   int sgbmWinSize = 3;
   int numberOfDisparities = 64;
 
-#ifdef USE_OPENCV2
+#ifdef WITH_OPENCV2
   // StereoSGBM
   //   http://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html?#stereosgbm
   sgbm_ = cv::Ptr<cv::StereoSGBM>(
@@ -79,7 +79,7 @@ bool DisparityProcessor::OnProcess(
   ObjMat *output = Object::Cast<ObjMat>(out);
 
   cv::Mat disparity;
-#ifdef USE_OPENCV2
+#ifdef WITH_OPENCV2
   // StereoSGBM::operator()
   //   http://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html#stereosgbm-operator
   // Output disparity map. It is a 16-bit signed single-channel image of the

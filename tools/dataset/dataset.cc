@@ -13,7 +13,7 @@
 // limitations under the License.
 #include "dataset/dataset.h"
 
-#ifdef USE_OPENCV2
+#ifdef WITH_OPENCV2
 #include <opencv2/highgui/highgui.hpp>
 #else
 #include <opencv2/imgcodecs/imgcodecs.hpp>

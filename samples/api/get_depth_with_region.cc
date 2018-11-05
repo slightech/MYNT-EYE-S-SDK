@@ -184,7 +184,7 @@ int main(int argc, char *argv[]) {
       // Show disparity instead of depth, but show depth values in region.
       auto &&depth_frame = disp_data.frame;
 
-#ifdef USE_OPENCV3
+#ifdef WITH_OPENCV3
       // ColormapTypes
       //   http://docs.opencv.org/master/d3/d50/group__imgproc__colormap.html#ga9a805d8262bcbe273f16be9ea2055a65
       cv::applyColorMap(depth_frame, depth_frame, cv::COLORMAP_JET);
