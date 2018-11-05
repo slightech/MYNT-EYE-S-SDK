@@ -106,6 +106,8 @@ mv "$ROOT_DIR/tools" "$ROOT_DIR/_install/tools"
 # platforms/win
 mv "$ROOT_DIR/platforms/win/README.txt" "$ROOT_DIR/_install"
 
+mv "$ROOT_DIR/platforms/projects" "$ROOT_DIR/_install/projects"
+
 ################################################################################
 # copy to _install
 
@@ -151,6 +153,8 @@ mv "$ROOT_DIR/3rdparty/linter" "$ROOT_DIR/tools/linter"
 
 # platforms/win
 mv "$ROOT_DIR/_install/README.txt" "$ROOT_DIR/platforms/win"
+
+mv "$ROOT_DIR/_install/projects" "$ROOT_DIR/platforms/projects"
 
 ################################################################################
 # clean build
