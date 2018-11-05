@@ -47,6 +47,7 @@ bool DepthProcessor::OnProcess(
   cv::split(input->value, channels);
   channels[2].convertTo(output->value, CV_16UC1);
   output->id = input->id;
+  output->data = input->data;
   return true;
 }
 

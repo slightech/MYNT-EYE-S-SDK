@@ -50,6 +50,7 @@ bool DisparityNormalizedProcessor::OnProcess(
   cv::normalize(input->value, output->value, 0, 255, cv::NORM_MINMAX, CV_8UC1);
   // cv::normalize maybe return empty ==
   output->id = input->id;
+  output->data = input->data;
   return !output->value.empty();
 }
 

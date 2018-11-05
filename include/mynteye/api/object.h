@@ -23,6 +23,8 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
+struct ImgData;
+
 /**
  * Input & output object.
  */
@@ -56,18 +58,22 @@ struct MYNTEYE_API Object {
  */
 struct MYNTEYE_API ObjMat : public Object {
   ObjMat() = default;
-  ObjMat(const cv::Mat &value, std::uint16_t id)
-      : value(value), id(id) {}
+  ObjMat(const cv::Mat &value, std::uint16_t id,
+         const std::shared_ptr<ImgData> &data)
+      : value(value), id(id), data(data) {}
 
   /** The value */
   cv::Mat value;
   /** The id **/
   std::uint16_t id;
+  /** The data **/
+  std::shared_ptr<ImgData> data;
 
   Object *Clone() const {
     ObjMat *mat = new ObjMat;
     mat->value = value.clone();
     mat->id = id;
+    mat->data = data;
     return mat;
   }
 
@@ -82,26 +88,34 @@ struct MYNTEYE_API ObjMat : public Object {
 struct MYNTEYE_API ObjMat2 : public Object {
   ObjMat2() = default;
   ObjMat2(const cv::Mat &first, std::uint16_t first_id,
-          const cv::Mat &second, std::uint16_t second_id)
-      : first(first), first_id(first_id),
-        second(second), second_id(second_id) {}
+          const std::shared_ptr<ImgData> &first_data,
+          const cv::Mat &second, std::uint16_t second_id,
+          const std::shared_ptr<ImgData> &second_data)
+      : first(first), first_id(first_id), first_data(first_data),
+        second(second), second_id(second_id), second_data(second_data) {}
 
   /** The first value */
   cv::Mat first;
   /** The first id **/
   std::uint16_t first_id;
+  /** The first data **/
+  std::shared_ptr<ImgData> first_data;
 
   /** The second value */
   cv::Mat second;
   /** The second id **/
   std::uint16_t second_id;
+  /** The second data **/
+  std::shared_ptr<ImgData> second_data;
 
   Object *Clone() const {
     ObjMat2 *mat2 = new ObjMat2;
     mat2->first = first.clone();
     mat2->first_id = first_id;
+    mat2->first_data = first_data;
     mat2->second = second.clone();
     mat2->second_id = second_id;
+    mat2->second_data = second_data;
     return mat2;
   }
 

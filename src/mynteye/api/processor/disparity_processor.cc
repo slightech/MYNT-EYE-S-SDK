@@ -100,6 +100,7 @@ bool DisparityProcessor::OnProcess(
 #endif
   output->value = disparity / 16 + 1;
   output->id = input->first_id;
+  output->data = input->first_data;
   return true;
 }
 
