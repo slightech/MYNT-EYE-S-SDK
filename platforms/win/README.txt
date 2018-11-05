@@ -16,7 +16,7 @@ Language: 简体中文
 
 首先，安装好 Visual Studio 2017 <https://visualstudio.microsoft.com/> 和 CMake <https://cmake.org/> 。
 
-接着，进入 "<SDK_ROOT_DIR>\bin\samples" 目录， 双击 "generate.bat" 即可生成样例工程。
+接着，进入 "<SDK_ROOT_DIR>\samples" 目录， 双击 "generate.bat" 即可生成样例工程。
 
 p.s. 样例教程，可见 https://slightech.github.io/MYNT-EYE-SDK-2/ 主页给出的 Guide 文档。
 
@@ -46,7 +46,7 @@ Finally, you will see the window that display the realtime frame of the camera.
 
 First, you should install Visual Studio 2017 <https://visualstudio.microsoft.com/> and CMake <https://cmake.org/>.
 
-Second, goto the "<SDK_ROOT_DIR>\bin\samples" directory and click "generate.bat" to run.
+Second, goto the "<SDK_ROOT_DIR>\samples" directory and click "generate.bat" to run.
 
 Finally, you could click `_build\mynteye_samples.sln` to open the samples project.
 
