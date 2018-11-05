@@ -126,10 +126,17 @@ cp -f "$ROOT_DIR/scripts/win/generate.bat" "$ROOT_DIR/_install/tools/"
 
 source "$ROOT_DIR/pkginfo.sh"
 _pkgname="$1-opencv-$OpenCV_VERSION"
+
 _rm "$ROOT_DIR/$_pkgname.exe"
 mv "$ROOT_DIR/_install" "$ROOT_DIR/$_pkgname"
 
 makensis "$ROOT_DIR/winpack.nsi"
+
+_git_branch=`git symbolic-ref --short -q HEAD`
+if [ "$_git_branch" == "develop" ]; then
+  _git_hash=`git rev-parse --short HEAD`
+  mv "$ROOT_DIR/$_pkgname.exe" "$ROOT_DIR/$_pkgname-dev-$_git_hash.exe"
+fi
 
 mv "$ROOT_DIR/$_pkgname" "$ROOT_DIR/_install"
 
