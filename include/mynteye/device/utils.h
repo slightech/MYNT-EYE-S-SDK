@@ -16,6 +16,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 
 #include "mynteye/mynteye.h"
 
@@ -54,6 +55,20 @@ namespace utils {
  */
 MYNTEYE_API float get_real_exposure_time(
     std::int32_t frame_rate, std::uint16_t exposure_time);
+
+/**
+ * @ingroup utils
+ * 
+ * Get sdk root dir.
+ */
+MYNTEYE_API std::string get_sdk_root_dir();
+
+/**
+ * @ingroup utils
+ * 
+ * Get sdk install dir.
+ */
+MYNTEYE_API std::string get_sdk_install_dir();
 
 }  // namespace utils
 

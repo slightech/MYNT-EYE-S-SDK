@@ -88,7 +88,7 @@ bool dir_exists(const std::string &p) {
 #endif
 
 std::vector<std::string> get_plugin_paths() {
-  std::string info_path(MYNTEYE_SDK_INSTALL_DIR);
+  std::string info_path = utils::get_sdk_install_dir();
   info_path.append(MYNTEYE_OS_SEP "share" MYNTEYE_OS_SEP "mynteye" MYNTEYE_OS_SEP "build.info");
 
   cv::FileStorage fs(info_path, cv::FileStorage::READ);
@@ -183,7 +183,8 @@ std::vector<std::string> get_plugin_paths() {
   }
   plats.push_back(host_os + "-" + host_arch);
 
-  std::vector<std::string> dirs{MYNTEYE_SDK_ROOT_DIR, MYNTEYE_SDK_INSTALL_DIR};
+  std::vector<std::string> dirs{
+      utils::get_sdk_root_dir(), utils::get_sdk_install_dir()};
   for (auto &&plat : plats) {
     for (auto &&dir : dirs) {
       auto &&plat_dir = dir + MYNTEYE_OS_SEP "plugins" + MYNTEYE_OS_SEP + plat;

@@ -13,6 +13,8 @@
 // limitations under the License.
 #include "mynteye/device/utils.h"
 
+#include <cstdlib>
+
 #include "mynteye/logger.h"
 
 #include "mynteye/device/context.h"
@@ -108,6 +110,24 @@ float get_real_exposure_time(
       return exposure_time;
   }
   return exposure_time * real_max / 480.f;
+}
+
+std::string get_sdk_root_dir() {
+  if (const char* root = std::getenv("MYNTEYES_SDK_ROOT")) {
+    // LOG(INFO) << "Environment variable MYNTEYES_SDK_ROOT found: " << root;
+    return std::string(root);
+  } else {
+    return std::string(MYNTEYE_SDK_ROOT_DIR);
+  }
+}
+
+std::string get_sdk_install_dir() {
+  if (const char* root = std::getenv("MYNTEYES_SDK_ROOT")) {
+    // LOG(INFO) << "Environment variable MYNTEYES_SDK_ROOT found: " << root;
+    return std::string(root);
+  } else {
+    return std::string(MYNTEYE_SDK_INSTALL_DIR);
+  }
 }
 
 }  // namespace utils
