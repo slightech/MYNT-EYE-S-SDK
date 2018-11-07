@@ -184,7 +184,7 @@ cleanpkg:
 ros: install
 	@$(call echo,Make $@)
 ifeq ($(HOST_OS),Linux)
-	@cd ./wrappers/ros && catkin_make
+	@cd ./wrappers/ros && catkin_make -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
 else
 	$(error "Can't make ros on $(HOST_OS)")
 endif
