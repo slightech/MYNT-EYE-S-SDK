@@ -1,4 +1,4 @@
-# MYNT® EYE SDK
+# MYNT® EYE S SDK
 
 ################################################################################
 Language: 简体中文
@@ -171,6 +171,6 @@ CMake Warning at tutorials/CMakeLists.txt:86 (message):
 Press any key to continue . . .
 ```
 
-3) Start using MYNT® EYE SDK with Visual Studio 2017
+3) Start using MYNT® EYE S SDK with Visual Studio 2017
 
 Goto the "<SDK_ROOT_DIR>\projects\vs2017", see the "README.md".

@@ -1,4 +1,4 @@
-# MYNT® EYE SDK
+# MYNT® EYE S SDK
 
 [![](https://img.shields.io/badge/MYNT%20EYE%20SDK-2.2.1--rc-brightgreen.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK)
 
