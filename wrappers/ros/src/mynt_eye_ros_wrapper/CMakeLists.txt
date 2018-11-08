@@ -37,7 +37,7 @@ find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   geometry_msgs
   image_transport
-  message_runtime
+  message_generation
   nodelet
   roscpp
   sensor_msgs
@@ -48,6 +48,7 @@ find_package(catkin REQUIRED COMPONENTS
 checkPackage("cv_bridge" "")
 checkPackage("geometry_msgs" "")
 checkPackage("image_transport" "")
+checkPackage("message_generation" "")
 checkPackage("nodelet" "")
 checkPackage("roscpp" "")
 checkPackage("sensor_msgs" "")
@@ -72,7 +73,7 @@ generate_messages(
 )
 
 catkin_package(
-  CATKIN_DEPENDS cv_bridge geometry_msgs image_transport nodelet roscpp sensor_msgs std_msgs tf
+  CATKIN_DEPENDS cv_bridge geometry_msgs image_transport message_runtime nodelet roscpp sensor_msgs std_msgs tf
 )
 
 #get_filename_component(SDK_DIR "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
@@ -112,6 +113,7 @@ set(LINK_LIBS
 
 add_library(mynteye_wrapper src/wrapper_nodelet.cc)
 target_link_libraries(mynteye_wrapper ${LINK_LIBS})
+add_dependencies(mynteye_wrapper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(mynteye_wrapper_node src/wrapper_node.cc)
 target_link_libraries(mynteye_wrapper_node mynteye_wrapper ${LINK_LIBS})
