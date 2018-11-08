@@ -18,7 +18,7 @@ Language: 简体中文
 
 接着，进入 "<SDK_ROOT_DIR>\samples" 目录， 双击 "generate.bat" 即可生成样例工程。
 
-p.s. 样例教程，可见 https://slightech.github.io/MYNT-EYE-SDK-2/ 主页给出的 Guide 文档。
+p.s. 样例教程，可见 https://slightech.github.io/MYNT-EYE-S-SDK/ 主页给出的 Guide 文档。
 
 p.p.s. 运行结果，参考下方英文内容。
 
@@ -36,7 +36,7 @@ Language: English
 
 After you install the win pack of SDK, there will be a shortcut to the SDK root directory on your desktop.
 
-First, you should plug the MYNT® EYE camera in a USB 3.0 port. 
+First, you should plug the MYNT® EYE camera in a USB 3.0 port.
 
 Second, goto the "<SDK_ROOT_DIR>\bin\samples\tutorials" directory and click "get_stereo.exe" to run.
 
@@ -50,7 +50,7 @@ Second, goto the "<SDK_ROOT_DIR>\samples" directory and click "generate.bat" to 
 
 Finally, you could click `_build\mynteye_samples.sln` to open the samples project.
 
-p.s. The tutorials of samples are here: https://slightech.github.io/MYNT-EYE-SDK-2-Guide/src/data/contents.html.
+p.s. The tutorials of samples are here: https://slightech.github.io/MYNT-EYE-S-SDK-Guide/src/data/contents.html.
 
 p.p.s. The example result of "generate.bat",
 

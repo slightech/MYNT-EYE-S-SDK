@@ -72,13 +72,13 @@ GNU Make 4.2.1
 ## 获取代码
 
 ```cmd
->git clone https://github.com/slightech/MYNT-EYE-SDK-2.git
+>git clone https://github.com/slightech/MYNT-EYE-S-SDK.git
 ```
 
 ## 准备依赖
 
 ```cmd
->cd mynt-eye-sdk-2
+>cd mynt-eye-s-sdk
 >make init
 Make init
 Init deps

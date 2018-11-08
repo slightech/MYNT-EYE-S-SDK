@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:/Users/tiny/Desktop/develop/MYNT-EYE-SDK-2/src/mynteye/uvc/macosx/UVCXcodeProject.xcodeproj">
+      location = "self:/Users/tiny/Desktop/develop/MYNT-EYE-S-SDK/src/mynteye/uvc/macosx/UVCXcodeProject.xcodeproj">
    </FileRef>
 </Workspace>

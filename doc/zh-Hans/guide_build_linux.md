@@ -5,13 +5,13 @@
 ## 获取代码
 
 ```bash
-git clone https://github.com/slightech/MYNT-EYE-SDK-2.git
+git clone https://github.com/slightech/MYNT-EYE-S-SDK.git
 ```
 
 ## 准备依赖
 
 ```bash
-cd mynt-eye-sdk-2/
+cd mynt-eye-s-sdk/
 make init
 ```
 

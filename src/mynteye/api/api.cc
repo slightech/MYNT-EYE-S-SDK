@@ -226,7 +226,7 @@ API::API(std::shared_ptr<Device> device) : device_(device) {
              "to write the image params. If you update the SDK from "
              "1.x, the `SN*.conf` is the file contains them. Besides, "
              "you could also calibrate them by yourself. Read the guide "
-             "doc (https://github.com/slightech/MYNT-EYE-SDK-2-Guide) "
+             "doc (https://github.com/slightech/MYNT-EYE-S-SDK-Guide) "
              "to learn more.";
     }
   }
