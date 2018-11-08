@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['mynt_20eye_20sdk',['MYNT EYE SDK',['../index.html',1,'']]]
+  ['mynt_20eye_20s_20sdk',['MYNT EYE S SDK',['../index.html',1,'']]]
 ];

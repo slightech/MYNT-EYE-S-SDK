@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['mynt_20eye_20sdk',['MYNT EYE SDK',['../index.html',1,'']]],
+  ['mynt_20eye_20s_20sdk',['MYNT EYE S SDK',['../index.html',1,'']]],
   ['max',['max',['../structmynteye_1_1_option_info.html#aa438d1ac484ae211ee5f1a54c35d3345',1,'mynteye::OptionInfo']]],
   ['max_5fexposure_5ftime',['MAX_EXPOSURE_TIME',['../group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6a7117dff1c380545ebd93eb7792f1b855',1,'mynteye']]],
   ['max_5fgain',['MAX_GAIN',['../group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6a83633b8ef60a69118be45fd762271e16',1,'mynteye']]],

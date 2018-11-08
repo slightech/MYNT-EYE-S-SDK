@@ -23,7 +23,7 @@ for the JavaScript code in this file
 */
 var NAVTREE =
 [
-  [ "MYNT EYE SDK", "index.html", [
+  [ "MYNT EYE S SDK", "index.html", [
     [ "Device Data Specification", "specs_data.html", "specs_data" ],
     [ "Device Control Specification", "specs_ctrl.html", "specs_ctrl" ],
     [ "Modules", "modules.html", "modules" ],
