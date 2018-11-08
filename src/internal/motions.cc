@@ -74,7 +74,9 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
 
         std::lock_guard<std::mutex> _(mtx_datas_);
         motion_data_t data = {imu};
-        motion_datas_.push_back(data);
+        if (motion_datas_enabled_) {
+          motion_datas_.push_back(data);
+        }
 
         motion_callback_(data);
       }

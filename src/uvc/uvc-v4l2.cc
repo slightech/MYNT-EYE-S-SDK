@@ -394,7 +394,7 @@ struct device {
           living_count++;
         } else {
           living_count = 0;
-          LOG(INFO) << "UVC pulse detection,Please ignore.";
+          // LOG(INFO) << "UVC pulse detection,Please ignore.";
         }
       }
 
