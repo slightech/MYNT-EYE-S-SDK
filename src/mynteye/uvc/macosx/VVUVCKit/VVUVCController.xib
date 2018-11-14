@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10116"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="VVUVCController">
+            <connections>
+                <outlet property="settingsView" destination="5" id="105"/>
+                <outlet property="settingsWindow" destination="3" id="104"/>
+                <outlet property="uiCtrlr" destination="4" id="106"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <window title="Camera Settings" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="3" customClass="NSPanel">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="784" y="313" width="396" height="364"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="777"/>
+            <value key="minSize" type="size" width="396" height="364"/>
+            <view key="contentView" id="5">
+                <rect key="frame" x="0.0" y="0.0" width="396" height="364"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <button id="32">
+                        <rect key="frame" x="235" y="59" width="143" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="check" title="Auto White Balance" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="mini" state="on" inset="2" id="38">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="miniSystem"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="buttonUsed:" target="4" id="70"/>
+                        </connections>
+                    </button>
+                    <textField verticalHuggingPriority="750" id="19">
+                        <rect key="frame" x="18" y="305" width="138" height="11"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Exposure Mode:" id="51">
+                            <font key="font" metaFont="miniSystem"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <popUpButton verticalHuggingPriority="750" id="18">
+                        <rect key="frame" x="19" y="284" width="171" height="15"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <popUpButtonCell key="cell" type="push" title="Auto" bezelStyle="rounded" alignment="left" controlSize="mini" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" autoenablesItems="NO" selectedItem="56" id="52">
+                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="miniSystem"/>
+                            <menu key="menu" title="OtherViews" autoenablesItems="NO" id="53">
+                                <items>
+                                    <menuItem title="Manual" id="57"/>
+                                    <menuItem title="Auto" state="on" id="56"/>
+                                    <menuItem title="Shutter Priority" id="55"/>
+                                    <menuItem title="Aperture Priority" id="54"/>
+                                </items>
+                            </menu>
+                        </popUpButtonCell>
+                        <connections>
+                            <action selector="popUpButtonUsed:" target="4" id="91"/>
+                        </connections>
+                    </popUpButton>
+                    <button id="17">
+                        <rect key="frame" x="110" y="302" width="80" height="19"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="check" title="Auto Priority" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="mini" state="on" inset="2" id="58">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="miniSystem"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="buttonUsed:" target="4" id="86"/>
+                        </connections>
+                    </button>
+                    <button id="14">
+                        <rect key="frame" x="41" y="187" width="80" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="check" title="Auto Focus" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="mini" state="on" inset="2" id="61">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="miniSystem"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="buttonUsed:" target="4" id="96"/>
+                        </connections>
+                    </button>
+                    <button id="6">
+                        <rect key="frame" x="235" y="187" width="143" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="check" title="Auto Hue" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="mini" state="on" inset="2" id="69">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="miniSystem"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="buttonUsed:" target="4" id="88"/>
+                        </connections>
+                    </button>
+                    <customView id="263" customClass="VVUVCUIElement">
+                        <rect key="frame" x="20" y="242" width="168" height="34"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <connections>
+                            <outlet property="delegate" destination="4" id="278"/>
+                        </connections>
+                    </customView>
+                    <customView id="264" customClass="VVUVCUIElement">
+                        <rect key="frame" x="20" y="208" width="168" height="34"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <connections>
+                            <outlet property="delegate" destination="4" id="280"/>
+                        </connections>
+                    </customView>
+                    <customView id="265" customClass="VVUVCUIElement">
+                        <rect key="frame" x="20" y="148" width="168" height="34"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <connections>
+                            <outlet property="delegate" destination="4" id="281"/>
+                        </connections>
+                    </customView>
+                    <customView id="266" customClass="VVUVCUIElement">
+                        <rect key="frame" x="20" y="114" width="168" height="34"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <connections>
+                            <outlet property="delegate" destination="4" id="279"/>
+                        </connections>
+                    </customView>
+                    <customView id="267" customClass="VVUVCUIElement">
+                        <rect key="frame" x="208" y="310" width="168" height="34"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <connections>
+                            <outlet property="delegate" destination="4" id="282"/>
+                        </connections>
+                    </customView>
+                    <customView id="268" customClass="VVUVCUIElement">
+                        <rect key="frame" x="208" y="276" width="168" height="34"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <connections>
+                            <outlet property="delegate" destination="4" id="283"/>
+                        </connections>
+                    </customView>
+                    <customView id="269" customClass="VVUVCUIElement">
+                        <rect key="frame" x="208" y="242" width="168" height="34"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <connections>
+                            <outlet property="delegate" destination="4" id="284"/>
+                        </connections>
+                    </customView>
+                    <customView id="270" customClass="VVUVCUIElement">
+                        <rect key="frame" x="208" y="208" width="168" height="34"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <connections>
+                            <outlet property="delegate" destination="4" id="285"/>
+                        </connections>
+                    </customView>
+                    <customView id="274" customClass="VVUVCUIElement">
+                        <rect key="frame" x="208" y="148" width="168" height="34"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <connections>
+                            <outlet property="delegate" destination="4" id="286"/>
+                        </connections>
+                    </customView>
+                    <customView id="275" customClass="VVUVCUIElement">
+                        <rect key="frame" x="208" y="114" width="168" height="34"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <connections>
+                            <outlet property="delegate" destination="4" id="287"/>
+                        </connections>
+                    </customView>
+                    <customView id="276" customClass="VVUVCUIElement">
+                        <rect key="frame" x="208" y="80" width="168" height="34"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <connections>
+                            <outlet property="delegate" destination="4" id="288"/>
+                        </connections>
+                    </customView>
+                    <customView id="277" customClass="VVUVCUIElement">
+                        <rect key="frame" x="208" y="20" width="168" height="34"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <connections>
+                            <outlet property="delegate" destination="4" id="289"/>
+                        </connections>
+                    </customView>
+                    <customView id="XQj-Gv-sNM" customClass="VVUVCUIElement">
+                        <rect key="frame" x="20" y="80" width="168" height="34"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <connections>
+                            <outlet property="delegate" destination="4" id="CJi-lu-pBj"/>
+                        </connections>
+                    </customView>
+                    <button verticalHuggingPriority="750" id="7">
+                        <rect key="frame" x="53" y="328" width="102" height="16"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Reset to Defaults" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="68">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="miniSystem"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="resetToDefaults:" target="4" id="71"/>
+                        </connections>
+                    </button>
+                    <customView id="Pxn-LE-Cmk" customClass="VVUVCUIElement">
+                        <rect key="frame" x="20" y="20" width="168" height="34"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <connections>
+                            <outlet property="delegate" destination="4" id="y2U-D2-yhd"/>
+                        </connections>
+                    </customView>
+                </subviews>
+            </view>
+            <point key="canvasLocation" x="556" y="260"/>
+        </window>
+        <customObject id="4" customClass="VVUVCUIController">
+            <connections>
+                <outlet property="autoExpButton" destination="18" id="82"/>
+                <outlet property="autoFocusButton" destination="14" id="99"/>
+                <outlet property="autoHueButton" destination="6" id="100"/>
+                <outlet property="autoWBButton" destination="32" id="72"/>
+                <outlet property="backlightElement" destination="267" id="294"/>
+                <outlet property="brightElement" destination="268" id="295"/>
+                <outlet property="contrastElement" destination="269" id="296"/>
+                <outlet property="device" destination="-2" id="108"/>
+                <outlet property="expElement" destination="263" id="290"/>
+                <outlet property="expPriorityButton" destination="17" id="97"/>
+                <outlet property="focusElement" destination="265" id="292"/>
+                <outlet property="gainElement" destination="270" id="297"/>
+                <outlet property="gammaElement" destination="XQj-Gv-sNM" id="4Ia-iT-QdE"/>
+                <outlet property="hueElement" destination="274" id="298"/>
+                <outlet property="irisElement" destination="264" id="291"/>
+                <outlet property="powerElement" destination="Pxn-LE-Cmk" id="M7l-QN-0hS"/>
+                <outlet property="satElement" destination="275" id="299"/>
+                <outlet property="sharpElement" destination="276" id="300"/>
+                <outlet property="wbElement" destination="277" id="301"/>
+                <outlet property="zoomElement" destination="266" id="293"/>
+            </connections>
+        </customObject>
+    </objects>
+</document>

@@ -1,0 +1,198 @@
+; winpack.nsi
+
+!addincludedir scripts\win\nsis\Include
+!include EnvVarUpdate.nsh
+
+!addplugindir scripts\win\nsis\Plugins
+
+!include WinMessages.nsh
+
+!define VERSION "@mynteye_VERSION@"
+!define OpenCV_VERSION "@OpenCV_VERSION@"
+
+!define DSETDIR "$APPDATA"
+;!define DSETDIR "$PROGRAMFILES64"
+
+; HKLM (all users) vs HKCU (current user) defines
+!define ENV_HKLM 'HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"'
+!define ENV_HKCU 'HKCU "Environment"'
+
+;--------------------------------
+
+; The name of the installer
+Name "MYNTEYE S SDK ${VERSION}"
+
+; The icon of the installer
+Icon "scripts\win\nsis\mynt.ico"
+
+; The file to write
+OutFile "mynteye-s-${VERSION}-win-x64-opencv-${OpenCV_VERSION}.exe"
+
+; The default installation directory
+InstallDir ${DSETDIR}\Slightech\MYNTEYES\SDK\${VERSION}
+
+; Registry key to check for directory (so if you install again, it will
+; overwrite the old one automatically)
+InstallDirRegKey HKLM "Software\MYNTEYESSDK" "Install_Dir"
+
+; Request application privileges for Windows Vista
+;RequestExecutionLevel user
+RequestExecutionLevel admin
+
+;--------------------------------
+
+; Pages
+
+Page components
+Page directory
+Page instfiles
+
+UninstPage uninstConfirm
+UninstPage instfiles
+
+;--------------------------------
+
+; The stuff to install
+Section "SDK (required)"
+
+  SectionIn RO
+
+  ; Set output path to the installation directory.
+  SetOutPath $INSTDIR
+
+  ; Put file there
+  File /r "mynteye-s-${VERSION}-win-x64-opencv-${OpenCV_VERSION}\*"
+
+  ; Write the installation path into the registry
+  WriteRegStr HKLM "SOFTWARE\MYNTEYESSDK" "Install_Dir" "$INSTDIR"
+
+  ; Write the uninstall keys for Windows
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MYNTEYESSDK" "DisplayName" "MYNTEYE S SDK"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MYNTEYESSDK" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MYNTEYESSDK" "NoModify" 1
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MYNTEYESSDK" "NoRepair" 1
+  WriteUninstaller "uninstall.exe"
+
+  ; Set variables for local machine
+  WriteRegExpandStr ${ENV_HKLM} MYNTEYES_SDK_ROOT "$INSTDIR"
+
+  ;${EnvVarUpdate} $0 "PATH" "P" "HKLM" "%MYNTEYES_SDK_PATH%"
+  ${EnvVarUpdate} $0 "PATH" "P" "HKLM" "$INSTDIR\bin;$INSTDIR\3rdparty\opencv\build\x64\vc15\bin"
+
+  ; Push "%MYNTEYES_SDK_PATH%"
+  ; Call AddToPath
+
+  ; Make sure windows knows about the change
+  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+
+SectionEnd
+
+; Optional section (can be disabled by the user)
+Section "Desktop Shortcuts"
+
+  CreateShortcut "$DESKTOP\MYNTEYE S SDK ${VERSION}.lnk" "$INSTDIR" "" "$INSTDIR" 0
+
+SectionEnd
+
+Function .onInstSuccess
+
+  WriteRegStr "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" \
+    "View MYNTEYES README.txt" \
+    "cmd.exe /c start /max notepad.exe $INSTDIR\README.txt"
+
+  MessageBox MB_OKCANCEL "Reboot your system now?" /SD IDOK IDCANCEL NoReboot
+    Reboot
+  NoReboot:
+
+FunctionEnd
+
+Function .onInstFailed
+  MessageBox MB_OK "Install failed."
+FunctionEnd
+
+;--------------------------------
+
+; Uninstaller
+
+Section "Uninstall"
+
+  ; Remove registry keys
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MYNTEYESSDK"
+  DeleteRegKey HKLM "SOFTWARE\MYNTEYESSDK"
+
+  ; Remove install stuff
+  RMDir /r "$INSTDIR"
+
+  ; Remove shortcuts, if any
+  Delete "$DESKTOP\MYNTEYE S SDK ${VERSION}.lnk"
+
+  ; Remove directories used
+  StrCpy $0 "${DSETDIR}\Slightech\MYNTEYES"
+  Call un.DeleteDirIfEmpty
+  StrCpy $0 "${DSETDIR}\Slightech"
+  Call un.DeleteDirIfEmpty
+
+  RMDir /r "$APPDATA\Slightech\MYNTEYES"
+  StrCpy $0 "$APPDATA\Slightech"
+  Call un.DeleteDirIfEmpty
+
+  ; Delete variables
+  DeleteRegValue ${ENV_HKLM} MYNTEYES_SDK_ROOT
+
+  ;${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "%MYNTEYES_SDK_PATH%"
+  ${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$INSTDIR\bin"
+  ${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$INSTDIR\3rdparty\opencv\build\x64\vc15\bin"
+
+  ; Push "%MYNTEYES_SDK_PATH%"
+  ; Call un.RemoveFromPath
+
+  ; Make sure windows knows about the change
+  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+
+SectionEnd
+
+Function un.onUninstSuccess
+  MessageBox MB_OK "Uninstall success."
+FunctionEnd
+
+Function un.onUninstFailed
+  MessageBox MB_OK "Uninstall failed."
+FunctionEnd
+
+;--------------------------------
+
+; DeleteDirIfEmpty - Delete dir only if empty
+
+Function un.DeleteDirIfEmpty
+  FindFirst $R0 $R1 "$0\*.*"
+  strcmp $R1 "." 0 NoDelete
+   FindNext $R0 $R1
+   strcmp $R1 ".." 0 NoDelete
+    ClearErrors
+    FindNext $R0 $R1
+    IfErrors 0 NoDelete
+     FindClose $R0
+     Sleep 1000
+     RMDir "$0"
+  NoDelete:
+   FindClose $R0
+FunctionEnd
+
+;--------------------------------
+
+; Path Manipulation
+;   http://nsis.sourceforge.net/Path_Manipulation
+; Environmental Variables: append, prepend, and remove entries
+;   http://nsis.sourceforge.net/Environmental_Variables:_append%2C_prepend%2C_and_remove_entries
+; Setting Environment Variables
+;   http://nsis.sourceforge.net/Setting_Environment_Variables
+; Setting Environment Variables to Active Installer Process
+;   http://nsis.sourceforge.net/Setting_Environment_Variables_to_Active_Installer_Process
+
+; Delete files and subdirectories
+;   http://nsis.sourceforge.net/Delete_files_and_subdirectories
+; Delete dir only if empty
+;   http://nsis.sourceforge.net/Delete_dir_only_if_empty
+
+;https://gist.github.com/azalea/deb3c1ed2a984eadf96be77b81dd49b1
+;!include ProcessEnvPrependPath.nsh

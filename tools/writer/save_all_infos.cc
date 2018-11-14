@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "mynteye/logger.h"
-
-#include "mynteye/device.h"
-#include "mynteye/utils.h"
+#include "mynteye/device/device.h"
+#include "mynteye/device/utils.h"
 
 #include "writer/device_writer.h"
 
@@ -32,7 +31,7 @@ int main(int argc, char *argv[]) {
   if (!device)
     return 1;
 
-  dir.append(OS_SEP "SN").append(device->GetInfo()->serial_number);
+  dir.append(MYNTEYE_OS_SEP "SN").append(device->GetInfo()->serial_number);
 
   tools::DeviceWriter writer(device);
   writer.SaveAllInfos(dir);

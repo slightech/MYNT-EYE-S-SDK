@@ -22,6 +22,8 @@ MKFILE_DIR := $(patsubst %/,%,$(dir $(MKFILE_PATH)))
 #   UNIX: /usr/local
 #   Windows: c:/Program Files/${PROJECT_NAME}
 
+SUDO ?= sudo
+
 .DEFAULT_GOAL := help
 
 help:
@@ -35,6 +37,7 @@ help:
 	@echo "  make test            build test and run"
 	@echo "  make samples         build samples"
 	@echo "  make tools           build tools"
+	@echo "  make pkg             package sdk"
 	@echo "  make ros             build ros wrapper"
 	@echo "  make py              build python wrapper"
 	@echo "  make clean|cleanall  clean generated or useless things"
@@ -49,7 +52,8 @@ all: test samples tools
 
 apidoc:
 	@$(call echo,Make $@)
-	@[ -e ./_install/include ] || $(MAKE) install
+	@# @[ -e ./_install/include ] || $(MAKE) install
+	@[ -e /usr/local/include/mynteye ] || $(MAKE) install
 	@$(SH) ./doc/build.sh
 
 opendoc: apidoc
@@ -76,7 +80,7 @@ submodules:
 
 init: submodules
 	@$(call echo,Make $@)
-	@$(SH) ./scripts/init.sh
+	@$(SH) ./scripts/init.sh $(INIT_OPTIONS)
 
 .PHONY: init
 
@@ -123,10 +127,25 @@ else
 	@cd ./_build; make install
 endif
 else
-	@cd ./_build; sudo make install
+ifeq ($(HOST_OS),Linux)
+	@cd ./_build; $(SUDO) make install
+else
+	@cd ./_build; make install
+endif
 endif
 
 .PHONY: install
+
+uninstall:
+	@$(call echo,Make $@)
+ifeq ($(HOST_OS),Linux)
+	$(SUDO) rm -rf /usr/local/lib/libmynteye*
+	$(SUDO) rm -rf /usr/local/include/mynteye/
+	$(SUDO) rm -rf /usr/local/lib/cmake/mynteye/
+	$(SUDO) rm -rf /usr/local/share/mynteye/
+endif
+
+.PHONY: uninstall
 
 # samples
 
@@ -144,14 +163,30 @@ tools: install
 
 .PHONY: tools
 
+# pkg
+
+pkg: clean
+	@$(call echo,Make $@)
+ifeq ($(HOST_OS),Win)
+	@$(SH) ./scripts/win/winpack.sh "$(PKGNAME)"
+else
+	$(error "Can't make pkg on $(HOST_OS)")
+endif
+
+cleanpkg:
+	@$(call echo,Make $@)
+	@$(call rm_f,$(PKGNAME)*)
+
+.PHONY: pkg cleanpkg
+
 # ros
 
 ros: install
 	@$(call echo,Make $@)
-ifeq ($(HOST_OS),Win)
-	$(error "Can't make ros on win")
+ifeq ($(HOST_OS),Linux)
+	@cd ./wrappers/ros && catkin_make -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
 else
-	@cd ./wrappers/ros && catkin_make
+	$(error "Can't make ros on $(HOST_OS)")
 endif
 
 .PHONY: ros
@@ -260,6 +295,7 @@ host:
 	@echo BUILD: $(BUILD)
 	@echo LDD: $(LDD)
 	@echo CMAKE: $(CMAKE)
+	@echo PKGNAME: $(PKGNAME)
 
 .PHONY: host
 

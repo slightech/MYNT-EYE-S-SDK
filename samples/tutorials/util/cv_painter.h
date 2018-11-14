@@ -15,9 +15,9 @@
 #define MYNTEYE_TUTORIALS_CV_PAINTER_H_
 #pragma once
 
-#include <opencv2/core/core.hpp>
-
 #include <string>
+
+#include <opencv2/core/core.hpp>
 
 #include "mynteye/types.h"
 

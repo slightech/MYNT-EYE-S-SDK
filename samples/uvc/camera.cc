@@ -11,19 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-
 #include <chrono>
 #include <condition_variable>
 #include <iomanip>
 #include <iostream>
 #include <mutex>
 
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+
 #include "mynteye/logger.h"
 #include "mynteye/mynteye.h"
 #include "mynteye/types.h"
-#include "uvc/uvc.h"
+#include "mynteye/uvc/uvc.h"
 
 struct frame {
   const void *data = nullptr;
@@ -157,7 +157,7 @@ int main(int argc, char *argv[]) {
     t = static_cast<double>(cv::getTickCount() - t);
     fps = cv::getTickFrequency() / t;
   }
-  UNUSED(fps)
+  MYNTEYE_UNUSED(fps)
 
   uvc::stop_streaming(*device);
   // cv::destroyAllWindows();

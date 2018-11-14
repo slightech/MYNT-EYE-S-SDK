@@ -52,7 +52,7 @@ chmod 755 ./ros_install.sh && bash ./ros_install.sh catkin_ws indigo
 
 If `libopencv` not found when `make ros`,
 
-    make[3]: *** No rule to make target `/usr/lib/x86_64-linux-gnu/libopencv_videostab.so.2.4.8', needed by `/home/john/Workspace/mynt-eye-sdk-2/wrappers/ros/devel/lib/libmynteye_wrapper.so'.  Stop.
+    make[3]: *** No rule to make target `/usr/lib/x86_64-linux-gnu/libopencv_videostab.so.2.4.8', needed by `/home/john/Workspace/mynt-eye-s-sdk/wrappers/ros/devel/lib/libmynteye_wrapper.so'.  Stop.
 
 Solution 1) Install OpenCV 2 package:
 
@@ -67,7 +67,7 @@ Solution 2) Install OpenCV 3 and recompile `cv_bridge`:
 sudo apt-get install ros-indigo-opencv3
 
 git clone https://github.com/ros-perception/vision_opencv.git
-mv vision_opencv/cv_bridge/ mynt-eye-sdk-2/wrappers/ros/src/
+mv vision_opencv/cv_bridge/ mynt-eye-s-sdk/wrappers/ros/src/
 ```
 
 Finally, `make ros` again.

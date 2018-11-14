@@ -99,7 +99,7 @@ def main():
   # set_option_value
 
   def set_rate(frame_rate=25, imu_frequency=500):  # pylint: disable=unused-variable
-    # FRAME_RATE values: 10, 15, 20, 25, 30, 35, 40, 45, 50, 55
+    # FRAME_RATE values: 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60
     api.set_option_value(mynteye.FRAME_RATE, frame_rate)
     # IMU_FREQUENCY values: 100, 200, 250, 333, 500
     api.set_option_value(mynteye.IMU_FREQUENCY, imu_frequency)

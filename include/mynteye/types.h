@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef MYNTEYE_TYPES_H_  // NOLINT
+#ifndef MYNTEYE_TYPES_H_
 #define MYNTEYE_TYPES_H_
 #pragma once
 
@@ -144,7 +144,7 @@ enum class Option : std::uint8_t {
   /**
    * Image frame rate, must set IMU_FREQUENCY together
    *
-   *   values: {10,15,20,25,30,35,40,45,50,55}, default: 25
+   *   values: {10,15,20,25,30,35,40,45,50,55,60}, default: 25
    */
   FRAME_RATE,
   /**
@@ -483,4 +483,4 @@ std::ostream &operator<<(std::ostream &os, const OptionInfo &info);
 
 MYNTEYE_END_NAMESPACE
 
-#endif  // MYNTEYE_TYPES_H_ NOLINT
+#endif  // MYNTEYE_TYPES_H_

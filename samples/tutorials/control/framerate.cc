@@ -11,13 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <opencv2/highgui/highgui.hpp>
-
 #include <atomic>
 
-#include "mynteye/api.h"
+#include <opencv2/highgui/highgui.hpp>
+
 #include "mynteye/logger.h"
-#include "mynteye/times.h"
+#include "mynteye/api/api.h"
+#include "mynteye/util/times.h"
 
 MYNTEYE_USE_NAMESPACE
 
@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
   // Attention: must set FRAME_RATE and IMU_FREQUENCY together, otherwise won't
   // succeed.
 
-  // FRAME_RATE values: 10, 15, 20, 25, 30, 35, 40, 45, 50, 55
+  // FRAME_RATE values: 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60
   api->SetOptionValue(Option::FRAME_RATE, 25);
   // IMU_FREQUENCY values: 100, 200, 250, 333, 500
   api->SetOptionValue(Option::IMU_FREQUENCY, 500);

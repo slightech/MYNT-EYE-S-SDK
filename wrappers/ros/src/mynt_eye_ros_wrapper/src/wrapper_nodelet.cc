@@ -33,10 +33,10 @@
 #include <map>
 #include <string>
 
-#include "mynteye/api.h"
-#include "mynteye/context.h"
-#include "mynteye/device.h"
 #include "mynteye/logger.h"
+#include "mynteye/api/api.h"
+#include "mynteye/device/context.h"
+#include "mynteye/device/device.h"
 
 #define FULL_PRECISION \
   std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10)

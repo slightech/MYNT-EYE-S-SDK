@@ -14,9 +14,13 @@
 
 cmake_minimum_required(VERSION 3.0)
 
-project(mynteye VERSION 2.0.1 LANGUAGES C CXX)
+project(mynteye VERSION 2.2.2 LANGUAGES C CXX)
 
 include(cmake/Common.cmake)
+
+if(NOT CMAKE_DEBUG_POSTFIX)
+  set(CMAKE_DEBUG_POSTFIX d)
+endif()
 
 # options
 
@@ -79,6 +83,17 @@ configure_file(
   include/mynteye/mynteye.h @ONLY
 )
 
+configure_file(
+  cmake/templates/pkginfo.sh.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/pkginfo.sh @ONLY
+)
+if(OS_WIN)
+  configure_file(
+    scripts/win/nsis/winpack.nsi.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/winpack.nsi @ONLY
+  )
+endif()
+
 # targets
 
 add_definitions(-DMYNTEYE_EXPORTS)
@@ -89,11 +104,6 @@ set_outdir(
   "${OUT_DIR}/lib"
   "${OUT_DIR}/bin"
 )
-
-set(MYNTEYE_CMAKE_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
-set(MYNTEYE_CMAKE_BINDIR "${CMAKE_INSTALL_PREFIX}/bin")
-set(MYNTEYE_CMAKE_LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
-set(MYNTEYE_CMAKE_INSTALLDIR "${MYNTEYE_CMAKE_LIBDIR}/cmake/${MYNTEYE_NAME}")
 
 ## main
 
@@ -108,84 +118,58 @@ endif()
 
 ## libmynteye
 
-if(NOT WITH_GLOG)
+if(NOT WITH_GLOG AND NOT OS_WIN)
   set(__MINIGLOG_FLAGS "-Wno-unused-parameter -Wno-format -Wno-return-type")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${__MINIGLOG_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${__MINIGLOG_FLAGS}")
   unset(__MINIGLOG_FLAGS)
 endif()
 
-set(MYNTEYE_PUBLIC_H
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/callbacks.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/global.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/logger.h
-  ${CMAKE_CURRENT_BINARY_DIR}/include/mynteye/mynteye.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/types.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/utils.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/device/context.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/device/device.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/internal/files.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/internal/strings.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/internal/times.h
-)
-if(WITH_API)
-  list(APPEND MYNTEYE_PUBLIC_H
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/api.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/plugin.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/processor/object.h
-  )
-endif()
-if(NOT WITH_GLOG)
-  list(APPEND MYNTEYE_PUBLIC_H
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/miniglog.h
-  )
-endif()
-
 if(OS_WIN)
-  set(UVC_SRC src/uvc/uvc-wmf.cc)
+  set(UVC_SRC src/mynteye/uvc/win/uvc-wmf.cc)
 elseif(OS_MAC)
-  set(UVC_SRC src/uvc/uvc-libuvc.cc)
+  set(UVC_SRC src/mynteye/uvc/macosx/uvc-libuvc.cc)
 
   find_package(libuvc REQUIRED)
   set(UVC_LIB ${libuvc_LIBRARIES})
 
   include_directories(${libuvc_INCLUDE_DIRS})
 elseif(OS_LINUX)
-  set(UVC_SRC src/uvc/uvc-v4l2.cc)
+  set(UVC_SRC src/mynteye/uvc/linux/uvc-v4l2.cc)
 else()
   message(FATAL_ERROR "Unsupported OS.")
 endif()
 
 set(MYNTEYE_SRCS
   ${UVC_SRC}
-  src/internal/channels.cc
-  src/internal/config.cc
-  src/internal/dl.cc
-  src/internal/files.cc
-  src/internal/motions.cc
-  src/internal/streams.cc
-  src/internal/strings.cc
-  src/internal/types.cc
-  src/public/types.cc
-  src/public/utils.cc
-  src/device/context.cc
-  src/device/device.cc
-  src/device/device_s.cc
+  src/mynteye/types.cc
+  src/mynteye/util/files.cc
+  src/mynteye/util/strings.cc
+  src/mynteye/device/channels.cc
+  src/mynteye/device/config.cc
+  src/mynteye/device/context.cc
+  src/mynteye/device/device.cc
+  src/mynteye/device/device_s.cc
+  src/mynteye/device/motions.cc
+  src/mynteye/device/streams.cc
+  src/mynteye/device/types.cc
+  src/mynteye/device/utils.cc
 )
 if(WITH_API)
   list(APPEND MYNTEYE_SRCS
-    src/api/api.cc
-    src/api/synthetic.cc
-    src/api/processor/processor.cc
-    src/api/processor/rectify_processor.cc
-    src/api/processor/disparity_processor.cc
-    src/api/processor/disparity_normalized_processor.cc
-    src/api/processor/depth_processor.cc
-    src/api/processor/points_processor.cc
+    src/mynteye/api/api.cc
+    src/mynteye/api/dl.cc
+    src/mynteye/api/processor.cc
+    src/mynteye/api/synthetic.cc
+    src/mynteye/api/processor/rectify_processor.cc
+    src/mynteye/api/processor/disparity_processor.cc
+    src/mynteye/api/processor/disparity_normalized_processor.cc
+    src/mynteye/api/processor/depth_processor.cc
+    src/mynteye/api/processor/points_processor.cc
   )
 endif()
 if(NOT WITH_GLOG)
-  list(APPEND MYNTEYE_SRCS src/public/miniglog.cc)
+  list(APPEND MYNTEYE_SRCS src/mynteye/miniglog.cc)
 endif()
 
 set(MYNTEYE_LINKLIBS ${UVC_LIB})
@@ -214,27 +198,78 @@ target_include_directories(${MYNTEYE_NAME} PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
-  "$<INSTALL_INTERFACE:${MYNTEYE_CMAKE_INCLUDE_DIR}>"
+  "$<INSTALL_INTERFACE:include>"
 )
 
 set_target_properties(${MYNTEYE_NAME} PROPERTIES
   VERSION ${PROJECT_VERSION}
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
-set_target_properties(${MYNTEYE_NAME} PROPERTIES
-  PUBLIC_HEADER "${MYNTEYE_PUBLIC_H}"
-)
 
 # install
 
-#message(STATUS "MYNTEYE_CMAKE_INCLUDE_DIR: ${MYNTEYE_CMAKE_INCLUDE_DIR}")
-#message(STATUS "MYNTEYE_CMAKE_BINDIR: ${MYNTEYE_CMAKE_BINDIR}")
-#message(STATUS "MYNTEYE_CMAKE_LIBDIR: ${MYNTEYE_CMAKE_LIBDIR}")
-#message(STATUS "MYNTEYE_CMAKE_INSTALLDIR: ${MYNTEYE_CMAKE_INSTALLDIR}")
+set(MYNTEYE_CMAKE_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include/${MYNTEYE_NAME}")
+set(MYNTEYE_CMAKE_BINDIR "${CMAKE_INSTALL_PREFIX}/bin")
+set(MYNTEYE_CMAKE_LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
+set(MYNTEYE_CMAKE_INSTALLDIR "${MYNTEYE_CMAKE_LIBDIR}/cmake/${MYNTEYE_NAME}")
+
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/include/mynteye/mynteye.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/global.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/logger.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/types.h
+  DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}
+)
+install(FILES
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/device/callbacks.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/device/context.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/device/device.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/device/utils.h
+  DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}/device
+)
+install(FILES
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/util/files.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/util/strings.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/util/times.h
+  DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}/util
+)
+if(WITH_API)
+  install(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/api/api.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/api/plugin.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/api/object.h
+    DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}/api
+  )
+endif()
+if(NOT WITH_GLOG)
+  install(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/miniglog.h
+    DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}
+  )
+endif()
+
+install(FILES
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/deprecated/mynteye/callbacks.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/deprecated/mynteye/context.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/deprecated/mynteye/device.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/deprecated/mynteye/files.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/deprecated/mynteye/glog_init.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/deprecated/mynteye/strings.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/deprecated/mynteye/times.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/deprecated/mynteye/utils.h
+  DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}
+)
+if(WITH_API)
+  install(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/deprecated/mynteye/api.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/deprecated/mynteye/plugin.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/deprecated/mynteye/object.h
+    DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}
+  )
+endif()
 
 install(TARGETS ${MYNTEYE_NAME}
   EXPORT ${MYNTEYE_NAME}-targets
-  PUBLIC_HEADER DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}/${MYNTEYE_NAME}
   RUNTIME DESTINATION ${MYNTEYE_CMAKE_BINDIR}
   LIBRARY DESTINATION ${MYNTEYE_CMAKE_LIBDIR}
   ARCHIVE DESTINATION ${MYNTEYE_CMAKE_LIBDIR}
