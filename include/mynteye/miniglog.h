@@ -242,7 +242,7 @@ class MYNTEYE_API MessageLogger {
     struct tm *timeinfo;
 
     time(&rawtime);
-    timeinfo = localtime_r(&rawtime);
+    timeinfo = localtime(&rawtime);
     std::set<google::LogSink *>::iterator iter;
     // Send the log message to all sinks.
     for (iter = google::log_sinks_global.begin();
