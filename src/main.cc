@@ -21,8 +21,8 @@
 #include <gflags/gflags.h>
 #endif
 
-#include "mynteye/mynteye.h"
 #include "mynteye/logger.h"
+#include "mynteye/mynteye.h"
 
 int main(int /*argc*/, char *argv[]) {
   // Set whether log messages go to stderr instead of logfiles

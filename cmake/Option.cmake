@@ -17,4 +17,6 @@ option(WITH_API "Build with API layer, need OpenCV" ON)
 message(STATUS "Options:")
 message(STATUS "  WITH_API: ${WITH_API}")
 
+# How to install glog?
+#   Ubuntu: `sudo apt-get install libgoogle-glog-dev`
 option(WITH_GLOG "Include glog support" OFF)

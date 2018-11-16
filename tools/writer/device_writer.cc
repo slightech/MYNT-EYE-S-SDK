@@ -20,8 +20,8 @@
 
 #include "mynteye/device.h"
 #include "mynteye/files.h"
-#include "mynteye/types.h"
 #include "mynteye/logger.h"
+#include "mynteye/types.h"
 
 #include "internal/types.h"
 
@@ -231,7 +231,8 @@ void DeviceWriter::SaveAllInfos(const std::string &dir) {
   }
   SaveDeviceInfo(*device_->GetInfo(), dir + MYNTEYE_OS_SEP "device.info");
   SaveImgParams(
-      *device_->GetInfo(), device_->GetImgParams(), dir + MYNTEYE_OS_SEP "img.params");
+      *device_->GetInfo(), device_->GetImgParams(),
+      dir + MYNTEYE_OS_SEP "img.params");
   auto &&m_in = device_->GetMotionIntrinsics();
   SaveImuParams(
       {
