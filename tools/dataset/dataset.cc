@@ -14,7 +14,6 @@
 #include "dataset/dataset.h"
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <glog/logging.h>
 
 #include <iomanip>
 #include <limits>
@@ -22,6 +21,7 @@
 #include <utility>
 
 #include "mynteye/files.h"
+#include "mynteye/logger.h"
 
 #define FULL_PRECISION \
   std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10)
@@ -62,7 +62,7 @@ void Dataset::SaveStreamData(
               << std::endl;
   if (data.frame) {
     std::stringstream ss;
-    ss << writer->outdir << OS_SEP << std::dec
+    ss << writer->outdir << MYNTEYE_OS_SEP << std::dec
        << std::setw(IMAGE_FILENAME_WIDTH) << std::setfill('0') << seq << ".png";
     if (data.frame->format() == Format::GREY) {
       cv::Mat img(
@@ -120,15 +120,15 @@ Dataset::writer_t Dataset::GetStreamWriter(const Stream &stream) {
     writer_t writer = std::make_shared<Writer>();
     switch (stream) {
       case Stream::LEFT: {
-        writer->outdir = outdir_ + OS_SEP "left";
+        writer->outdir = outdir_ + MYNTEYE_OS_SEP "left";
       } break;
       case Stream::RIGHT: {
-        writer->outdir = outdir_ + OS_SEP "right";
+        writer->outdir = outdir_ + MYNTEYE_OS_SEP "right";
       } break;
       default:
         LOG(FATAL) << "Unsupported stream: " << stream;
     }
-    writer->outfile = writer->outdir + OS_SEP "stream.txt";
+    writer->outfile = writer->outdir + MYNTEYE_OS_SEP "stream.txt";
 
     files::mkdir(writer->outdir);
     writer->ofs.open(writer->outfile, std::ofstream::out);
@@ -145,7 +145,7 @@ Dataset::writer_t Dataset::GetMotionWriter() {
   if (motion_writer_ == nullptr) {
     writer_t writer = std::make_shared<Writer>();
     writer->outdir = outdir_;
-    writer->outfile = writer->outdir + OS_SEP "motion.txt";
+    writer->outfile = writer->outdir + MYNTEYE_OS_SEP "motion.txt";
 
     files::mkdir(writer->outdir);
     writer->ofs.open(writer->outfile, std::ofstream::out);

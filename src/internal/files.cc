@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "internal/files.h"
-
-#include <glog/logging.h>
+#include "mynteye/logger.h"
 
 #if defined(OS_WIN) && !defined(OS_MINGW) && !defined(OS_CYGWIN)
 #include <direct.h>
@@ -51,7 +50,7 @@ bool _mkdir(const std::string &path) {
 }
 
 bool mkdir(const std::string &path) {
-  auto &&dirs = strings::split(path, OS_SEP);
+  auto &&dirs = strings::split(path, MYNTEYE_OS_SEP);
   auto &&size = dirs.size();
   if (size <= 0)
     return false;
@@ -59,7 +58,7 @@ bool mkdir(const std::string &path) {
   if (!_mkdir(p))
     return false;
   for (std::size_t i = 1; i < size; i++) {
-    p.append(OS_SEP).append(dirs[i]);
+    p.append(MYNTEYE_OS_SEP).append(dirs[i]);
     if (!_mkdir(p))
       return false;
   }

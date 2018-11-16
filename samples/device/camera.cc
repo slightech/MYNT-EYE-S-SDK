@@ -14,7 +14,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "mynteye/glog_init.h"
+#include "mynteye/logger.h"
 
 #include "mynteye/device.h"
 #include "mynteye/utils.h"

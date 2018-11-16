@@ -16,13 +16,13 @@
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
 #define GLOG_NO_ABBREVIATED_SEVERITIES
 #endif
-#include <glog/logging.h>
 
 #ifdef HAVE_LIB_GFLAGS
 #include <gflags/gflags.h>
 #endif
 
 #include "mynteye/mynteye.h"
+#include "mynteye/logger.h"
 
 int main(int /*argc*/, char *argv[]) {
   // Set whether log messages go to stderr instead of logfiles

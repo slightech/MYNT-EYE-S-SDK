@@ -13,10 +13,10 @@
 // limitations under the License.
 #include "mynteye/types.h"
 
-#include <glog/logging.h>
-
 #include <iomanip>
 #include <limits>
+
+#include "mynteye/logger.h"
 
 #define FULL_PRECISION \
   std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10)

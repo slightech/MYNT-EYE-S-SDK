@@ -20,7 +20,7 @@
 #include <iostream>
 #include <mutex>
 
-#include "mynteye/glog_init.h"
+#include "mynteye/logger.h"
 #include "mynteye/mynteye.h"
 #include "mynteye/types.h"
 #include "uvc/uvc.h"

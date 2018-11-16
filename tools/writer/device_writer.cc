@@ -15,14 +15,13 @@
 
 #include <opencv2/core/core.hpp>
 
-#include <glog/logging.h>
-
 #include <map>
 #include <vector>
 
 #include "mynteye/device.h"
 #include "mynteye/files.h"
 #include "mynteye/types.h"
+#include "mynteye/logger.h"
 
 #include "internal/types.h"
 
@@ -230,16 +229,16 @@ void DeviceWriter::SaveAllInfos(const std::string &dir) {
   if (!files::mkdir(dir)) {
     LOG(FATAL) << "Create directory failed: " << dir;
   }
-  SaveDeviceInfo(*device_->GetInfo(), dir + OS_SEP "device.info");
+  SaveDeviceInfo(*device_->GetInfo(), dir + MYNTEYE_OS_SEP "device.info");
   SaveImgParams(
-      *device_->GetInfo(), device_->GetImgParams(), dir + OS_SEP "img.params");
+      *device_->GetInfo(), device_->GetImgParams(), dir + MYNTEYE_OS_SEP "img.params");
   auto &&m_in = device_->GetMotionIntrinsics();
   SaveImuParams(
       {
           false, m_in.accel, m_in.gyro,
           device_->GetMotionExtrinsics(Stream::LEFT),
       },
-      dir + OS_SEP "imu.params");
+      dir + MYNTEYE_OS_SEP "imu.params");
 }
 
 namespace {

@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
   if (!device)
     return 1;
 
-  dir.append(OS_SEP "SN").append(device->GetInfo()->serial_number);
+  dir.append(MYNTEYE_OS_SEP "SN").append(device->GetInfo()->serial_number);
 
   tools::DeviceWriter writer(device);
   writer.SaveAllInfos(dir);

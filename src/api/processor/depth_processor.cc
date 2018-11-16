@@ -13,7 +13,7 @@
 // limitations under the License.
 #include "api/processor/depth_processor.h"
 
-#include <glog/logging.h>
+#include "mynteye/logger.h"
 
 #include <utility>
 

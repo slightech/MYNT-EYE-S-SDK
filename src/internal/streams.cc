@@ -13,14 +13,13 @@
 // limitations under the License.
 #include "internal/streams.h"
 
-#include <glog/logging.h>
-
 #include <algorithm>
 #include <chrono>
 #include <iomanip>
 #include <stdexcept>
 
 #include "internal/types.h"
+#include "mynteye/logger.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 

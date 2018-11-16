@@ -13,10 +13,10 @@
 // limitations under the License.
 #include "mynteye/utils.h"
 
-#include <glog/logging.h>
-
 #include "device/context.h"
 #include "device/device.h"
+
+#include "mynteye/logger.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 

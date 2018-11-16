@@ -15,9 +15,9 @@
 
 #include <opencv2/calib3d/calib3d.hpp>
 
-#include <glog/logging.h>
-
 #include <utility>
+
+#include "mynteye/logger.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 

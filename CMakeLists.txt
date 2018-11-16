@@ -44,9 +44,16 @@ message(STATUS "CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 
 # packages
 
-LIST(APPEND CMAKE_PREFIX_PATH third_party/glog/_build)
-find_package(glog REQUIRED)
-message(STATUS "Found glog: ${glog_VERSION}")
+find_package(Threads QUIET)
+
+macro(target_link_threads NAME)
+  if(THREADS_HAVE_PTHREAD_ARG)
+    target_compile_options(PUBLIC ${NAME} "-pthread")
+  endif()
+  if(CMAKE_THREAD_LIBS_INIT)
+    target_link_libraries(${NAME} "${CMAKE_THREAD_LIBS_INIT}")
+  endif()
+endmacro()
 
 if(WITH_API)
   include(cmake/DetectOpenCV.cmake)
@@ -106,20 +113,28 @@ set(MYNTEYE_CMAKE_LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
 set(MYNTEYE_CMAKE_INSTALLDIR "${MYNTEYE_CMAKE_LIBDIR}/cmake/${MYNTEYE_NAME}")
 
 ## main
-
-add_executable(main src/main.cc)
-target_link_libraries(main glog::glog)
-target_include_directories(main PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_BINARY_DIR}/include
-)
+if(WITH_GLOG)
+  add_executable(main src/main.cc)
+  target_link_libraries(main glog::glog)
+  target_include_directories(main PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_BINARY_DIR}/include
+  )
+endif()
 
 ## libmynteye
+
+if(NOT WITH_GLOG)
+  set(__MINIGLOG_FLAGS "-Wno-unused-parameter -Wno-format -Wno-return-type")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${__MINIGLOG_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${__MINIGLOG_FLAGS}")
+  unset(__MINIGLOG_FLAGS)
+endif()
 
 set(MYNTEYE_PUBLIC_H
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/callbacks.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/global.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/glog_init.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/logger.h
   ${CMAKE_CURRENT_BINARY_DIR}/include/mynteye/mynteye.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/types.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/utils.h
@@ -134,6 +149,11 @@ if(WITH_API)
     ${CMAKE_CURRENT_SOURCE_DIR}/src/api/api.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/api/plugin.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/api/processor/object.h
+  )
+endif()
+if(NOT WITH_GLOG)
+  list(APPEND MYNTEYE_PUBLIC_H
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/miniglog.h
   )
 endif()
 
@@ -180,21 +200,25 @@ if(WITH_API)
     src/api/processor/points_processor.cc
   )
 endif()
+if(NOT WITH_GLOG)
+  list(APPEND MYNTEYE_SRCS src/public/miniglog.cc)
+endif()
 
-set(MYNTEYE_LINKLIBS
-  glog::glog
-  ${UVC_LIB}
-)
+set(MYNTEYE_LINKLIBS ${UVC_LIB})
 if(WITH_API)
   list(APPEND MYNTEYE_LINKLIBS ${OpenCV_LIBS})
 endif()
 if(WITH_BOOST_FILESYSTEM)
   list(APPEND MYNTEYE_LINKLIBS ${Boost_LIBRARIES})
 endif()
+if(WITH_GLOG)
+  list(APPEND MYNTEYE_LINKLIBS glog::glog)
+endif()
 #message(STATUS "MYNTEYE_LINKLIBS: ${MYNTEYE_LINKLIBS}")
 
 add_library(${MYNTEYE_NAME} SHARED ${MYNTEYE_SRCS})
 target_link_libraries(${MYNTEYE_NAME} ${MYNTEYE_LINKLIBS})
+option(WITH_GLOG "Include glog support" OFF)
 
 if(OS_WIN)
   target_compile_definitions(${MYNTEYE_NAME}

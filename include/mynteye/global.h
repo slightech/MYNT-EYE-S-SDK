@@ -67,9 +67,9 @@
 #endif
 
 #if defined(OS_WIN) && !defined(OS_MINGW) && !defined(OS_CYGWIN)
-#define OS_SEP "\\"
+#define MYNTEYE_OS_SEP "\\"
 #else
-#define OS_SEP "/"
+#define MYNTEYE_OS_SEP "/"
 #endif
 
 #define STRINGIFY_HELPER(X) #X

@@ -13,9 +13,8 @@
 // limitations under the License.
 #include <opencv2/highgui/highgui.hpp>
 
-#include <glog/logging.h>
-
 #include "mynteye/api.h"
+#include "mynteye/logger.h"
 
 #include "util/pc_viewer.h"
 

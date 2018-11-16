@@ -11,9 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef MYNTEYE_GLOG_INIT_H_  // NOLINT
-#define MYNTEYE_GLOG_INIT_H_
+#ifndef MYNTEYE_LOGGER_H_
+#define MYNTEYE_LOGGER_H_
 #pragma once
+
+#ifdef WITH_GLOG
 
 #include <glog/logging.h>
 
@@ -25,14 +27,30 @@ struct glog_init {
   glog_init(int argc, char *argv[]) {
     (void)argc;
 
-    // FLAGS_logtostderr = true;
-    FLAGS_alsologtostderr = true;
+    // Set whether log messages go to stderr instead of logfiles
+    FLAGS_logtostderr = true;
+
+    // Set whether log messages go to stderr in addition to logfiles.
+    // FLAGS_alsologtostderr = true;
+
+    // Set color messages logged to stderr (if supported by terminal).
     FLAGS_colorlogtostderr = true;
 
-    // FLAGS_log_dir = ".";
-    FLAGS_max_log_size = 1024;
+    // Log suppression level: messages logged at a lower level than this
+    // are suppressed.
+    FLAGS_minloglevel = google::GLOG_INFO;
+
+    // If specified, logfiles are written into this directory instead of the
+    // default logging directory.
+    FLAGS_log_dir = ".";
+
+    // Sets the maximum log file size (in MB).
+    FLAGS_max_log_size = 8;
+
+    // Sets whether to avoid logging to the disk if the disk is full.
     FLAGS_stop_logging_if_full_disk = true;
 
+    // Show all VLOG(m) messages for m <= this.
     // FLAGS_v = 2;
 
     google::InitGoogleLogging(argv[0]);
@@ -46,4 +64,20 @@ struct glog_init {
   }
 };
 
-#endif  // MYNTEYE_GLOG_INIT_H_ NOLINT
+#else
+
+struct glog_init {
+  glog_init(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
+    // Do nothing.
+  }
+};
+
+#define MYNTEYE_MAX_LOG_LEVEL google::INFO
+
+#include "mynteye/miniglog.h"
+
+#endif
+
+#endif  // MYNTEYE_LOGGER_H_

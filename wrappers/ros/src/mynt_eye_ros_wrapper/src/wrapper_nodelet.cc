@@ -26,8 +26,6 @@
 #include <mynt_eye_ros_wrapper/GetInfo.h>
 #include <mynt_eye_ros_wrapper/Temp.h>
 
-#include <glog/logging.h>
-
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <map>
@@ -36,6 +34,7 @@
 #include "mynteye/api.h"
 #include "mynteye/context.h"
 #include "mynteye/device.h"
+#include "mynteye/logger.h"
 
 #define FULL_PRECISION \
   std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10)
