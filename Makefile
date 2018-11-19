@@ -44,7 +44,7 @@ help:
 
 .PHONY: help
 
-all: samples tools ros
+all: init samples tools ros
 
 .PHONY: all
 
@@ -86,7 +86,7 @@ init:
 
 # build
 
-build: init
+build:
 	@$(call echo,Make $@)
 ifeq ($(HOST_OS),Win)
 	@$(call cmake_build,./_build,..,-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/_install)
