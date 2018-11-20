@@ -16,7 +16,7 @@ include CommonDefs.mk
 MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 MKFILE_DIR := $(patsubst %/,%,$(dir $(MKFILE_PATH)))
 
-.DEFAULT_GOAL := help
+.DEFAULT_GOAL := all
 
 help:
 	@echo "Usage:"
@@ -35,7 +35,7 @@ help:
 
 .PHONY: help
 
-all: test samples tools
+all: init samples tools ros
 
 .PHONY: all
 
@@ -64,7 +64,7 @@ submodules:
 
 # init
 
-init: submodules
+init:
 	@$(call echo,Make $@)
 	@$(SH) ./scripts/init.sh
 
@@ -72,7 +72,7 @@ init: submodules
 
 # build
 
-build: submodules
+build:
 	@$(call echo,Make $@)
 	@$(call cmake_build,./_build,..,-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/_install)
 
@@ -80,7 +80,7 @@ build: submodules
 
 # test
 
-test: install
+test: submodules install
 	@$(call echo,Make $@)
 	@$(call echo,Make gtest,33)
 ifeq ($(HOST_OS),Win)
