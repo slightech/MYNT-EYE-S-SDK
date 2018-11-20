@@ -26,3 +26,5 @@
 | HDR 模式 | hdr_mode | 1 | 0 | 0 | 1 | √ | 0x1F | XU_CAM_CTRL | 0：10-bit；1：12-bit |
 | 零漂标定 | zero_drift_calibration | | - | - | - | × | - | XU_HALF_DUPLEX | |
 | 擦除芯片 | erase_chip | | - | - | - | × | - | XU_HALF_DUPLEX | |
+| 加速度计量程 | accelerometer_range | 2 | 12 | 6 | 48 | √ | - | XU_CAM_CTRL | 0x0100 | |
+| 陀螺仪量程 | gyroscope_range | 2 | 1000 | 250 | 4000 | √ | - | XU_CAM_CTRL | 0x0100 | |

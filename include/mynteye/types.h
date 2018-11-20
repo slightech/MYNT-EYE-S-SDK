@@ -195,6 +195,18 @@ enum class Option : std::uint8_t {
   ZERO_DRIFT_CALIBRATION,
   /** Erase chip */
   ERASE_CHIP,
+  /**
+   * The range of accelerometer
+   *
+   *   values: {4,8,16,32}, default: 8
+   */
+  ACCELEROMETER_RANGE,
+  /**
+   * The range of gyroscope
+   *
+   *   values: {500,1000,2000,4000}, default: 1000
+   */
+  GYROSCOPE_RANGE,
   /** Last guard */
   LAST
 };

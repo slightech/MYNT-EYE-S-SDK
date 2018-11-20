@@ -63,6 +63,12 @@ int XuCamCtrlId(Option option) {
     case Option::FRAME_RATE:
       return 7;
       break;
+    case Option::ACCELEROMETER_RANGE:
+      return 9;
+      break;
+    case Option::GYROSCOPE_RANGE:
+      return 10;
+      break;
     default:
       LOG(FATAL) << "No cam ctrl id for " << option;
   }
@@ -135,7 +141,8 @@ void Channels::UpdateControlInfos() {
   for (auto &&option : std::vector<Option>{
            Option::FRAME_RATE, Option::IMU_FREQUENCY, Option::EXPOSURE_MODE,
            Option::MAX_GAIN, Option::MAX_EXPOSURE_TIME,
-           Option::DESIRED_BRIGHTNESS, Option::IR_CONTROL, Option::HDR_MODE}) {
+           Option::DESIRED_BRIGHTNESS, Option::IR_CONTROL, Option::HDR_MODE,
+           Option::ACCELEROMETER_RANGE, Option::GYROSCOPE_RANGE}) {
     control_infos_[option] = XuControlInfo(option);
   }
 
@@ -177,6 +184,8 @@ std::int32_t Channels::GetControlValue(const Option &option) const {
     case Option::DESIRED_BRIGHTNESS:
     case Option::IR_CONTROL:
     case Option::HDR_MODE:
+    case Option::ACCELEROMETER_RANGE:
+    case Option::GYROSCOPE_RANGE:
       return XuCamCtrlGet(option);
     case Option::ZERO_DRIFT_CALIBRATION:
     case Option::ERASE_CHIP:
@@ -232,6 +241,16 @@ void Channels::SetControlValue(const Option &option, std::int32_t value) {
         break;
       XuCamCtrlSet(option, value);
     } break;
+    case Option::ACCELEROMETER_RANGE: {
+      if (!in_range() || !in_values({4, 8, 16, 32}))
+        break;
+      XuCamCtrlSet(option, value);
+    } break;
+    case Option::GYROSCOPE_RANGE: {
+      if (!in_range() || !in_values({500, 1000, 2000, 4000}))
+        break;
+      XuCamCtrlSet(option, value);
+    } break;
     case Option::EXPOSURE_MODE:
     case Option::MAX_GAIN:
     case Option::MAX_EXPOSURE_TIME:
@@ -268,6 +287,8 @@ bool Channels::RunControlAction(const Option &option) const {
     case Option::DESIRED_BRIGHTNESS:
     case Option::IR_CONTROL:
     case Option::HDR_MODE:
+    case Option::ACCELEROMETER_RANGE:
+    case Option::GYROSCOPE_RANGE:
       LOG(WARNING) << option << " run action useless";
       return false;
     default:

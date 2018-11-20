@@ -114,6 +114,7 @@ make_executable2(get_with_plugin SRCS data/get_with_plugin.cc WITH_OPENCV)
 ## control
 
 make_executable2(ctrl_framerate SRCS control/framerate.cc WITH_OPENCV)
+make_executable2(ctrl_imu_range SRCS control/imu_range.cc WITH_OPENCV)
 make_executable2(ctrl_auto_exposure
   SRCS control/auto_exposure.cc util/cv_painter.cc
   WITH_OPENCV
