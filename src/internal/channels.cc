@@ -262,7 +262,7 @@ void Channels::SetControlValue(const Option &option, std::int32_t value) {
       XuCamCtrlSet(option, value);
     } break;
     case Option::GYROSCOPE_RANGE: {
-      if (!in_range() || !in_values({6, 12, 24, 48}))
+      if (!in_range() || !in_values({250, 500, 1000, 2000, 4000}))
         break;
       XuCamCtrlSet(option, value);
     } break;

@@ -200,31 +200,31 @@ enum class Option : std::uint8_t {
   /**
    * min exposure time, valid if auto-exposure
    *
-   *   range: [0,?], default: ?
+   *   range: [0,1000], default: 0
    */
   MIN_EXPOSURE_TIME,
   /**
    * The range of accelerometer
    *
-   *   values: {?}, default: ?
+   *   values: {6,12,24,48}, default: 6
    */
   ACCELEROMETER_RANGE,
   /**
    * The range of gyroscope
    *
-   *   values: {?}, default: ?
+   *   values: {250,500,1000,2000,4000}, default: 1000
    */
   GYROSCOPE_RANGE,
   /**
    * The parameter of accelerometer low pass filter
    *
-   *   values: {?}, default: ?
+   *   values: {0,1,2}, default: 2
    */
   ACCELEROMETER_LOW_PASS_FILTER,
   /**
    * The parameter of gyroscope low pass filter
    *
-   *   values: {?}, default: ?
+   *   values: {23,64}, default: 64
    */
   GYROSCOPE_LOW_PASS_FILTER,
   /** Last guard */

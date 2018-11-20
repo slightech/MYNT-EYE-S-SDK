@@ -19,8 +19,8 @@
 | 最大曝光时间 | max_exposure_time | 2 | 333 | 0 | 1000 | √ | 0x1B | XU_CAM_CTRL | 0x0100 | 开始自动曝光，可设定的阈值 |
 | 期望亮度 | desired_brightness | 2 | 122 | 1 | 255 | √ | 0x19 | XU_CAM_CTRL | 0x0100 | |
 | 擦除芯片 | erase_chip | | - | - | - | × | - | XU_HALF_DUPLEX | 0x0200 | |
-| 最小曝光时间 | min_exposure_time | 2 | 0 | 0 | 1000 | √ | ?? | XU_CAM_CTRL | 0x0100 | 开始自动曝光，可设定的阈值 |
-| 加速度计量程 | accelerometer_range | 2 | 12 | 6 | 48 | √ | ?? | XU_CAM_CTRL | 0x0100 | |
-| 陀螺仪量程 | gyroscope_range | 2 | 1000 | 250 | 4000 | √ | ?? | XU_CAM_CTRL | 0x0100 | |
-| 加速度计低通滤波 | accelerometer_low_pass_filter | 2 | 2 | 0 | 2 | √ | ?? | XU_CAM_CTRL | 0x0100 | |
-| 陀螺仪低通滤波 | gyroscope__low_pass_filter | 2 | 64 | 23 | 64 | √ | ?? | XU_CAM_CTRL | 0x0100 | |
+| 最小曝光时间 | min_exposure_time | 2 | 0 | 0 | 1000 | √ | - | XU_CAM_CTRL | 0x0100 | 开始自动曝光，可设定的阈值 |
+| 加速度计量程 | accelerometer_range | 2 | 12 | 6 | 48 | √ | - | XU_CAM_CTRL | 0x0100 | |
+| 陀螺仪量程 | gyroscope_range | 2 | 1000 | 250 | 4000 | √ | - | XU_CAM_CTRL | 0x0100 | |
+| 加速度计低通滤波 | accelerometer_low_pass_filter | 2 | 2 | 0 | 2 | √ | - | XU_CAM_CTRL | 0x0100 | |
+| 陀螺仪低通滤波 | gyroscope__low_pass_filter | 2 | 64 | 23 | 64 | √ | - | XU_CAM_CTRL | 0x0100 | |
