@@ -44,49 +44,45 @@
 
   <!-- device options, -1 will not set the value -->
 
-  <!-- gain range: [0,48] -->
-  <arg name="gain" default="-1" />
-  <!-- <arg name="gain" default="24" /> -->
-
   <!-- brightness range: [0,240] -->
   <arg name="brightness" default="-1" />
   <!-- <arg name="brightness" default="120" /> -->
-
-  <!-- contrast range: [0,255] -->
-  <arg name="contrast" default="-1" />
-  <!-- <arg name="contrast" default="127" /> -->
-
-  <!-- frame_rate range: {10,15,20,25,30,35,40,45,50,55,60} -->
-  <arg name="frame_rate" default="-1" />
-  <!-- <arg name="frame_rate" default="25" /> -->
-
-  <!-- imu_frequency range: {100,200,250,333,500} -->
-  <arg name="imu_frequency" default="-1" />
-  <!-- <arg name="imu_frequency" default="200" /> -->
 
   <!-- exposure_mode, 0: auto-exposure, 1: manual-exposure -->
   <arg name="exposure_mode" default="-1" />
   <!-- <arg name="exposure_mode" default="0" /> -->
 
-  <!-- max_gain range: [0,48] -->
+  <!-- max_gain range: [0,255] -->
   <arg name="max_gain" default="-1" />
-  <!-- <arg name="max_gain" default="48" /> -->
+  <!-- <arg name="max_gain" default="8" /> -->
 
-  <!-- max_exposure_time range: [0,240] -->
+  <!-- max_exposure_time range: [0,1000] -->
   <arg name="max_exposure_time" default="-1" />
-  <!-- <arg name="max_exposure_time" default="240" /> -->
+  <!-- <arg name="max_exposure_time" default="333" /> -->
 
-  <!-- desired_brightness range: [0,255] -->
+  <!-- desired_brightness range: [1,255] -->
   <arg name="desired_brightness" default="-1" />
-  <!-- <arg name="desired_brightness" default="192" /> -->
+  <!-- <arg name="desired_brightness" default="122" /> -->
 
-  <!-- ir_control range: [0,160] -->
-  <arg name="ir_control" default="80" />
-  <!-- <arg name="ir_control" default="0" /> -->
+  <!-- min_exposure_time range: [0,1000] -->
+  <arg name="min_exposure_time" default="-1" />
+  <!-- <arg name="min_exposure_time" default="0" /> -->
 
-  <!-- hdr_mode, 0: 10-bit, 1: 12-bit -->
-  <arg name="hdr_mode" default="-1" />
-  <!-- <arg name="hdr_mode" default="0" /> -->
+  <!-- accel_range range: [6,48] -->
+  <arg name="accel_range" default="-1" />
+  <!-- <arg name="accel_range" default="6" /> -->
+
+  <!-- gyro_range range: [250,4000] -->
+  <arg name="gyro_range" default="-1" />
+  <!-- <arg name="gyro_range" default="1000" /> -->
+
+  <!-- accel_low_filter range: [0,2] -->
+  <arg name="accel_low_filter" default="-1" />
+  <!-- <arg name="accel_low_filter" default="2" /> -->
+
+  <!-- gyro_low_filter range: [23,64] -->
+  <arg name="gyro_low_filter" default="-1" />
+  <!-- <arg name="gyro_low_filter" default="64" /> -->
 
   <!-- Push down all topics/nodelets into "mynteye" namespace -->
   <group ns="$(arg mynteye)">
@@ -136,18 +132,16 @@
 
       <!-- device options -->
 
-      <param name="gain" value="$(arg gain)" />
       <param name="brightness" value="$(arg brightness)" />
-      <param name="contrast" value="$(arg contrast)" />
-      <param name="frame_rate" value="$(arg frame_rate)" />
-      <param name="imu_frequency" value="$(arg imu_frequency)" />
       <param name="exposure_mode" value="$(arg exposure_mode)" />
       <param name="max_gain" value="$(arg max_gain)" />
       <param name="max_exposure_time" value="$(arg max_exposure_time)" />
       <param name="desired_brightness" value="$(arg desired_brightness)" />
-      <param name="ir_control" value="$(arg ir_control)" />
-      <param name="hdr_mode" value="$(arg hdr_mode)" />
-
+      <param name="min_exposure_time" value="$(arg max_exposure_time)" />
+      <param name="accel_range" value="$(arg accel_range)" />
+      <param name="gyro_range" value="$(arg gyro_range)" />
+      <param name="accel_low_filter" value="$(arg accel_low_filter)" />
+      <param name="gyro_low_filter" value="$(arg gyro_low_filter)" />
     </node>
 
   </group> <!-- mynteye -->

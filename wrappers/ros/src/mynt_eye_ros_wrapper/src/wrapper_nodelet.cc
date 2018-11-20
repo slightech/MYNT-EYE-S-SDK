@@ -147,18 +147,16 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     // device options
 
     std::map<Option, std::string> option_names = {
-        {Option::GAIN, "gain"},
         {Option::BRIGHTNESS, "brightness"},
-        {Option::CONTRAST, "contrast"},
-        {Option::FRAME_RATE, "frame_rate"},
-        {Option::IMU_FREQUENCY, "imu_frequency"},
         {Option::EXPOSURE_MODE, "exposure_mode"},
         {Option::MAX_GAIN, "max_gain"},
         {Option::MAX_EXPOSURE_TIME, "max_exposure_time"},
         {Option::DESIRED_BRIGHTNESS, "desired_brightness"},
-        {Option::IR_CONTROL, "ir_control"},
-        {Option::HDR_MODE, "hdr_mode"},
-    };
+        {Option::MIN_EXPOSURE_TIME, "min_exposure_time"},
+        {Option::EXPOSURE_MODE, "accel_range"},
+        {Option::GYROSCOPE_RANGE, "gyro_range"},
+        {Option::ACCELEROMETER_LOW_PASS_FILTER, "accel_low_filter"},
+        {Option::GYROSCOPE_LOW_PASS_FILTER, "gyro_low_filter"}};
     for (auto &&it = option_names.begin(); it != option_names.end(); ++it) {
       if (!api_->Supports(it->first))
         continue;
