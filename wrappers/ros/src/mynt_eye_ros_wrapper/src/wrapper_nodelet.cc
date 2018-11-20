@@ -160,6 +160,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         {Option::DESIRED_BRIGHTNESS, "desired_brightness"},
         {Option::IR_CONTROL, "ir_control"},
         {Option::HDR_MODE, "hdr_mode"},
+        {Option::ACCELEROMETER_RANGE, "accel_range"},
+        {Option::GYROSCOPE_RANGE, "gyro_range"}
     };
     for (auto &&it = option_names.begin(); it != option_names.end(); ++it) {
       if (!api_->Supports(it->first))
