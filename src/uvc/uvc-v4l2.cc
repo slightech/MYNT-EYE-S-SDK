@@ -410,7 +410,8 @@ struct device {
     if (no_data_count > NO_DATA_MAX_COUNT) {
       no_data_count = 0;
       living_count = 0;
-      LOG(WARNING) << __func__ << "v4l2 get stream time out,Try to reboot!";
+      LOG(WARNING) << __func__
+                   << " failed: v4l2 get stream time out,Try to reboot!";
       stop_capture();
       start_capture();
     }
