@@ -11,16 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <opencv2/highgui/highgui.hpp>
-
-#include <glog/logging.h>
-
 #include <atomic>
 #include <memory>
 #include <mutex>
 #include <sstream>
 
-#include "mynteye/api.h"
+#include <opencv2/highgui/highgui.hpp>
+
+#include "mynteye/logger.h"
+#include "mynteye/api/api.h"
 
 #include "util/cv_painter.h"
 
@@ -53,7 +52,7 @@ int main(int argc, char *argv[]) {
   api->SetStreamCallback(
       Stream::DEPTH,
       [&depth_count, &depth, &depth_mtx](const api::StreamData &data) {
-        UNUSED(data)
+        MYNTEYE_UNUSED(data)
         ++depth_count;
         {
           std::lock_guard<std::mutex> _(depth_mtx);

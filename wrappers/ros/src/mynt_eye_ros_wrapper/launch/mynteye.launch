@@ -6,8 +6,8 @@
 
   <arg name="left_topic" default="left/image_raw" />
   <arg name="right_topic" default="right/image_raw" />
-  <arg name="left_rect_topic" default="left/image_rect" />
-  <arg name="right_rect_topic" default="right/image_rect" />
+  <arg name="left_rect_topic" default="left_rect/image_rect" />
+  <arg name="right_rect_topic" default="right_rect/image_rect" />
   <arg name="disparity_topic" default="disparity/image_raw" />
   <arg name="disparity_norm_topic" default="disparity/image_norm" />
   <arg name="depth_topic" default="depth/image_raw" />
@@ -38,7 +38,7 @@
   <arg name="enable_disparity" default="false" />
   <arg name="enable_disparity_norm" default="false" />
   <arg name="enable_points" default="false" />
-  <arg name="enable_depth" default="true" />
+  <arg name="enable_depth" default="false" />
 
   <!-- device options, -1 will not set the value -->
 
@@ -54,7 +54,7 @@
   <arg name="contrast" default="-1" />
   <!-- <arg name="contrast" default="127" /> -->
 
-  <!-- frame_rate range: {10,15,20,25,30,35,40,45,50,55} -->
+  <!-- frame_rate range: {10,15,20,25,30,35,40,45,50,55,60} -->
   <arg name="frame_rate" default="-1" />
   <!-- <arg name="frame_rate" default="25" /> -->
 
@@ -85,6 +85,14 @@
   <!-- hdr_mode, 0: 10-bit, 1: 12-bit -->
   <arg name="hdr_mode" default="-1" />
   <!-- <arg name="hdr_mode" default="0" /> -->
+
+  <!-- accel_range range: {4,8,16,32} -->
+  <arg name="accel_range" default="-1" />
+  <!-- <arg name="accel_range" default="8" /> -->
+
+  <!-- gyro_range range: {500,1000,2000,4000} -->
+  <arg name="gyro_range" default="-1" />
+  <!-- <arg name="gyro_range" default="1000" /> -->
 
   <!-- Push down all topics/nodelets into "mynteye" namespace -->
   <group ns="$(arg mynteye)">
@@ -143,6 +151,8 @@
       <param name="desired_brightness" value="$(arg desired_brightness)" />
       <param name="ir_control" value="$(arg ir_control)" />
       <param name="hdr_mode" value="$(arg hdr_mode)" />
+      <param name="accel_range" value="$(arg accel_range)" />
+      <param name="gyro_range" value="$(arg gyro_range)" />
 
     </node>
 

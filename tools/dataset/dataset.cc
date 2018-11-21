@@ -13,20 +13,19 @@
 // limitations under the License.
 #include "dataset/dataset.h"
 
-#ifdef USE_OPENCV2
+#ifdef WITH_OPENCV2
 #include <opencv2/highgui/highgui.hpp>
 #else
 #include <opencv2/imgcodecs/imgcodecs.hpp>
 #endif
-
-#include <glog/logging.h>
 
 #include <iomanip>
 #include <limits>
 #include <stdexcept>
 #include <utility>
 
-#include "mynteye/files.h"
+#include "mynteye/logger.h"
+#include "mynteye/util/files.h"
 
 #define FULL_PRECISION \
   std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10)
@@ -67,7 +66,7 @@ void Dataset::SaveStreamData(
               << std::endl;
   if (data.frame) {
     std::stringstream ss;
-    ss << writer->outdir << OS_SEP << std::dec
+    ss << writer->outdir << MYNTEYE_OS_SEP << std::dec
        << std::setw(IMAGE_FILENAME_WIDTH) << std::setfill('0') << seq << ".png";
     cv::Mat img(
         data.frame->height(), data.frame->width(), CV_8UC1, data.frame->data());
@@ -88,6 +87,34 @@ void Dataset::SaveMotionData(const device::MotionData &data) {
   ++motion_count_;
 }
 
+void Dataset::SaveStreamData(
+    const Stream &stream, const api::StreamData &data) {
+  auto &&writer = GetStreamWriter(stream);
+  auto seq = stream_counts_[stream];
+  writer->ofs << seq << ", " << data.img->frame_id << ", "
+              << data.img->timestamp << ", " << data.img->exposure_time
+              << std::endl;
+  if (!data.frame.empty()) {
+    std::stringstream ss;
+    ss << writer->outdir << MYNTEYE_OS_SEP << std::dec
+       << std::setw(IMAGE_FILENAME_WIDTH) << std::setfill('0') << seq << ".png";
+    cv::imwrite(ss.str(), data.frame);
+  }
+  ++stream_counts_[stream];
+}
+
+void Dataset::SaveMotionData(const api::MotionData &data) {
+  auto &&writer = GetMotionWriter();
+  auto seq = motion_count_;
+  writer->ofs << seq << ", " << data.imu->frame_id << ", "
+              << data.imu->timestamp << ", " << data.imu->accel[0] << ", "
+              << data.imu->accel[1] << ", " << data.imu->accel[2] << ", "
+              << data.imu->gyro[0] << ", " << data.imu->gyro[1] << ", "
+              << data.imu->gyro[2] << ", " << data.imu->temperature
+              << std::endl;
+  ++motion_count_;
+}
+
 Dataset::writer_t Dataset::GetStreamWriter(const Stream &stream) {
   try {
     return stream_writers_.at(stream);
@@ -95,15 +122,15 @@ Dataset::writer_t Dataset::GetStreamWriter(const Stream &stream) {
     writer_t writer = std::make_shared<Writer>();
     switch (stream) {
       case Stream::LEFT: {
-        writer->outdir = outdir_ + OS_SEP "left";
+        writer->outdir = outdir_ + MYNTEYE_OS_SEP "left";
       } break;
       case Stream::RIGHT: {
-        writer->outdir = outdir_ + OS_SEP "right";
+        writer->outdir = outdir_ + MYNTEYE_OS_SEP "right";
       } break;
       default:
         LOG(FATAL) << "Unsupported stream: " << stream;
     }
-    writer->outfile = writer->outdir + OS_SEP "stream.txt";
+    writer->outfile = writer->outdir + MYNTEYE_OS_SEP "stream.txt";
 
     files::mkdir(writer->outdir);
     writer->ofs.open(writer->outfile, std::ofstream::out);
@@ -120,7 +147,7 @@ Dataset::writer_t Dataset::GetMotionWriter() {
   if (motion_writer_ == nullptr) {
     writer_t writer = std::make_shared<Writer>();
     writer->outdir = outdir_;
-    writer->outfile = writer->outdir + OS_SEP "motion.txt";
+    writer->outfile = writer->outdir + MYNTEYE_OS_SEP "motion.txt";
 
     files::mkdir(writer->outdir);
     writer->ofs.open(writer->outfile, std::ofstream::out);

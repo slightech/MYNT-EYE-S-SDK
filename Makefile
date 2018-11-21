@@ -16,7 +16,15 @@ include CommonDefs.mk
 MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 MKFILE_DIR := $(patsubst %/,%,$(dir $(MKFILE_PATH)))
 
-.DEFAULT_GOAL := help
+# CMAKE_INSTALL_PREFIX:
+#   https://cmake.org/cmake/help/latest/variable/CMAKE_INSTALL_PREFIX.html
+#
+#   UNIX: /usr/local
+#   Windows: c:/Program Files/${PROJECT_NAME}
+
+SUDO ?= sudo
+
+.DEFAULT_GOAL := all
 
 help:
 	@echo "Usage:"
@@ -25,17 +33,18 @@ help:
 	@echo "  make opendoc         open api doc (html)"
 	@echo "  make init            init project"
 	@echo "  make build           build project"
-	@echo "  make test            build test and run"
 	@echo "  make install         install project"
+	@echo "  make test            build test and run"
 	@echo "  make samples         build samples"
 	@echo "  make tools           build tools"
+	@echo "  make pkg             package sdk"
 	@echo "  make ros             build ros wrapper"
 	@echo "  make py              build python wrapper"
 	@echo "  make clean|cleanall  clean generated or useless things"
 
 .PHONY: help
 
-all: test tools samples
+all: init samples tools ros
 
 .PHONY: all
 
@@ -43,7 +52,8 @@ all: test tools samples
 
 apidoc:
 	@$(call echo,Make $@)
-	@[ -e ./_install/include ] || $(MAKE) install
+	@# @[ -e ./_install/include ] || $(MAKE) install
+	@[ -e /usr/local/include/mynteye ] || $(MAKE) install
 	@$(SH) ./doc/build.sh
 
 opendoc: apidoc
@@ -64,32 +74,31 @@ cleandoc:
 submodules:
 	@git submodule update --init
 
-third_party: submodules
-	@$(call echo,Make $@)
-	@$(call echo,Make glog,33)
-	@$(call cmake_build,./third_party/glog/_build)
-
-.PHONY: submodules third_party
+.PHONY: submodules
 
 # init
 
-init: submodules
+init:
 	@$(call echo,Make $@)
-	@$(SH) ./scripts/init.sh
+	@$(SH) ./scripts/init.sh $(INIT_OPTIONS)
 
 .PHONY: init
 
 # build
 
-build: third_party
+build:
 	@$(call echo,Make $@)
+ifeq ($(HOST_OS),Win)
 	@$(call cmake_build,./_build,..,-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/_install)
+else
+	@$(call cmake_build,./_build,..)
+endif
 
 .PHONY: build
 
 # test
 
-test: install
+test: submodules install
 	@$(call echo,Make $@)
 	@$(call echo,Make gtest,33)
 ifeq ($(HOST_OS),Win)
@@ -118,10 +127,25 @@ else
 	@cd ./_build; make install
 endif
 else
+ifeq ($(HOST_OS),Linux)
+	@cd ./_build; $(SUDO) make install
+else
 	@cd ./_build; make install
+endif
 endif
 
 .PHONY: install
+
+uninstall:
+	@$(call echo,Make $@)
+ifeq ($(HOST_OS),Linux)
+	$(SUDO) rm -rf /usr/local/lib/libmynteye*
+	$(SUDO) rm -rf /usr/local/include/mynteye/
+	$(SUDO) rm -rf /usr/local/lib/cmake/mynteye/
+	$(SUDO) rm -rf /usr/local/share/mynteye/
+endif
+
+.PHONY: uninstall
 
 # samples
 
@@ -139,14 +163,30 @@ tools: install
 
 .PHONY: tools
 
+# pkg
+
+pkg: clean
+	@$(call echo,Make $@)
+ifeq ($(HOST_OS),Win)
+	@$(SH) ./scripts/win/winpack.sh "$(PKGNAME)"
+else
+	$(error "Can't make pkg on $(HOST_OS)")
+endif
+
+cleanpkg:
+	@$(call echo,Make $@)
+	@$(call rm_f,$(PKGNAME)*)
+
+.PHONY: pkg cleanpkg
+
 # ros
 
 ros: install
 	@$(call echo,Make $@)
-ifeq ($(HOST_OS),Win)
-	$(error "Can't make ros on win")
+ifeq ($(HOST_OS),Linux)
+	@cd ./wrappers/ros && catkin_make -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
 else
-	@cd ./wrappers/ros && catkin_make
+	$(error "Can't make ros on $(HOST_OS)")
 endif
 
 .PHONY: ros
@@ -255,6 +295,7 @@ host:
 	@echo BUILD: $(BUILD)
 	@echo LDD: $(LDD)
 	@echo CMAKE: $(CMAKE)
+	@echo PKGNAME: $(PKGNAME)
 
 .PHONY: host
 

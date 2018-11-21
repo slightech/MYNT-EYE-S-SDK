@@ -13,11 +13,11 @@
 // limitations under the License.
 #include "util/pc_viewer.h"
 
-#include <glog/logging.h>
-
 // #include <pcl/common/common_headers.h>
 
 #include <cmath>
+
+#include "mynteye/logger.h"
 
 std::shared_ptr<pcl::visualization::PCLVisualizer> CustomColorVis(
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc) {

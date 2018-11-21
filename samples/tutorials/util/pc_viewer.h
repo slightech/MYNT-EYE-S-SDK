@@ -15,11 +15,11 @@
 #define MYNTEYE_TUTORIALS_PC_VIEWER_H_
 #pragma once
 
+#include <memory>
+
 #include <opencv2/core/core.hpp>
 
 #include <pcl/visualization/pcl_visualizer.h>
-
-#include <memory>
 
 class PCViewer {
  public:

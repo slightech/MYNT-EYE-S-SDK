@@ -13,9 +13,7 @@
 // limitations under the License.
 #include <opencv2/highgui/highgui.hpp>
 
-#include <glog/logging.h>
-
-#include "mynteye/api.h"
+#include "mynteye/api/api.h"
 
 MYNTEYE_USE_NAMESPACE
 

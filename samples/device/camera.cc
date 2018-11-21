@@ -14,12 +14,10 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "mynteye/glog_init.h"
-
-#include "mynteye/device.h"
-#include "mynteye/utils.h"
-
-#include "mynteye/times.h"
+#include "mynteye/logger.h"
+#include "mynteye/device/device.h"
+#include "mynteye/device/utils.h"
+#include "mynteye/util/times.h"
 
 MYNTEYE_USE_NAMESPACE
 

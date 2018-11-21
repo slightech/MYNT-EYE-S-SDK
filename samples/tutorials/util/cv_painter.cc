@@ -13,16 +13,15 @@
 // limitations under the License.
 #include "util/cv_painter.h"
 
-#include <glog/logging.h>
-
-#include <opencv2/imgproc/imgproc.hpp>
-
 #include <iomanip>
 #include <iostream>
 #include <memory>
 #include <utility>
 
-#include "mynteye/utils.h"
+#include <opencv2/imgproc/imgproc.hpp>
+
+#include "mynteye/logger.h"
+#include "mynteye/device/utils.h"
 
 #define FONT_FACE cv::FONT_HERSHEY_PLAIN
 #define FONT_SCALE 1
@@ -179,7 +178,7 @@ cv::Rect CVPainter::DrawText(
   y += offset_y;
 
   cv::Point org(x, y);
-#ifdef USE_OPENCV2
+#ifdef WITH_OPENCV2
   cv::putText(
       const_cast<cv::Mat &>(img), text, org, FONT_FACE, FONT_SCALE, FONT_COLOR,
       THICKNESS);

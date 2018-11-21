@@ -14,4 +14,7 @@
 
 @PACKAGE_INIT@
 
+set(mynteye_WITH_API @WITH_API@)
+set(mynteye_WITH_GLOG @WITH_GLOG@)
+
 include("${CMAKE_CURRENT_LIST_DIR}/mynteye-targets.cmake")
