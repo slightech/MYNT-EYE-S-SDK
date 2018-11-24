@@ -15,7 +15,7 @@
 
 #include "gtest/gtest.h"
 
-#include "mynteye/glog_init.h"
+#include "mynteye/logger.h"
 
 int main(int argc, char **argv) {
   glog_init _(argc, argv);

@@ -14,30 +14,25 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "mynteye/glog_init.h"
-
-#include "mynteye/device.h"
-#include "mynteye/utils.h"
-
-#include "mynteye/times.h"
+#include "mynteye/logger.h"
+#include "mynteye/api/api.h"
+#include "mynteye/util/times.h"
 
 #include "dataset/dataset.h"
 
 MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
-  glog_init _(argc, argv);
-
-  auto &&device = device::select();
-  if (!device)
+  auto &&api = API::Create(argc, argv);
+  if (!api)
     return 1;
-  device->InitResolution(Resolution::RES_1280x400);
-  device->SetStreamRequest(Format::BGR888, FrameRate::RATE_30_FPS);
-  device->LogOptionInfos();
+  api->InitResolution(Resolution::RES_1280x400);
+  api->SetStreamRequest(Format::BGR888, FrameRate::RATE_30_FPS);
+  api->LogOptionInfos();
 
   // Enable this will cache the motion datas until you get them.
-  device->EnableMotionDatas();
-  device->Start(Source::ALL);
+  api->EnableMotionDatas();
+  api->Start(Source::ALL);
 
   const char *outdir;
   if (argc >= 2) {
@@ -53,13 +48,13 @@ int main(int argc, char *argv[]) {
   std::size_t imu_count = 0;
   auto &&time_beg = times::now();
   while (true) {
-    device->WaitForStreams();
+    api->WaitForStreams();
 
-    auto &&left_datas = device->GetStreamDatas(Stream::LEFT);
-    auto &&right_datas = device->GetStreamDatas(Stream::RIGHT);
+    auto &&left_datas = api->GetStreamDatas(Stream::LEFT);
+    auto &&right_datas = api->GetStreamDatas(Stream::RIGHT);
     img_count += left_datas.size();
 
-    auto &&motion_datas = device->GetMotionDatas();
+    auto &&motion_datas = api->GetMotionDatas();
     imu_count += motion_datas.size();
 
     auto &&left_frame = left_datas.back().frame;
@@ -123,7 +118,7 @@ int main(int argc, char *argv[]) {
   std::cout << " to " << outdir << std::endl;
   auto &&time_end = times::now();
 
-  device->Stop(Source::ALL);
+  api->Stop(Source::ALL);
 
   float elapsed_ms =
       times::count<times::microseconds>(time_end - time_beg) * 0.001f;

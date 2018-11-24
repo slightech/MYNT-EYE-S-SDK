@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include <vector>
 
 // #include <boost/python.hpp>
 #include <boost/python/class.hpp>
@@ -23,11 +24,9 @@
 
 #include <opencv2/core/core.hpp>
 
-#include <vector>
-
-#include "mynteye/api.h"
-#include "mynteye/glog_init.h"
-#include "mynteye/utils.h"
+#include "mynteye/logger.h"
+#include "mynteye/api/api.h"
+#include "mynteye/device/utils.h"
 
 #include "array_indexing_suite.hpp"
 #include "array_ref.hpp"
@@ -449,7 +448,7 @@ BOOST_PYTHON_MODULE(mynteye_py) {
 
   bp::register_ptr_to_python<std::shared_ptr<APIWrap>>();
 
-  // glog_init.h - glog_init
+  // logger.h - glog_init
 
   bp::class_<glog_init, boost::noncopyable>("glog_init", bp::no_init)
       .def("create", &glog_init_create)

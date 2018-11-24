@@ -103,25 +103,25 @@
 #include "mynteye/mynteye.h"
 
 #ifdef MYNTEYE_OS_ANDROID
-#include <android/log.h>
+#  include <android/log.h>
 #endif  // ANDROID
 
 // Log severity level constants.
 #ifdef MYNTEYE_OS_WIN
 
-const int FATAL = -1;
+const int FATAL   = -1;
 #ifndef ERROR  // NOT windows.h
-const int ERROR = 0;
+const int ERROR   = 0;
 #endif
 const int WARNING = 1;
-const int INFO = 2;
+const int INFO    = 2;
 
 #else
 
-const int FATAL = -3;
-const int ERROR = -2;
+const int FATAL   = -3;
+const int ERROR   = -2;
 const int WARNING = -1;
-const int INFO = 0;
+const int INFO    =  0;
 
 #endif
 
@@ -130,12 +130,12 @@ const int INFO = 0;
 namespace google {
 
 typedef int LogSeverity;
-const int FATAL = ::FATAL;
+const int FATAL   = ::FATAL;
 #ifndef ERROR  // NOT windows.h
-const int ERROR = ::ERROR;
+const int ERROR   = ::ERROR;
 #endif
 const int WARNING = ::WARNING;
-const int INFO = ::INFO;
+const int INFO    = ::INFO;
 
 // Sink class used for integration with mock and test functions. If sinks are
 // added, all log output is also sent to each sink through the send function.
@@ -144,10 +144,13 @@ const int INFO = ::INFO;
 class MYNTEYE_API LogSink {
  public:
   virtual ~LogSink() {}
-  virtual void send(
-      LogSeverity severity, const char *full_filename,
-      const char *base_filename, int line, const struct tm *tm_time,
-      const char *message, size_t message_len) = 0;
+  virtual void send(LogSeverity severity,
+                    const char* full_filename,
+                    const char* base_filename,
+                    int line,
+                    const struct tm* tm_time,
+                    const char* message,
+                    size_t message_len) = 0;
   virtual void WaitTillSent() = 0;
 };
 
@@ -157,7 +160,7 @@ MYNTEYE_API extern std::set<LogSink *> log_sinks_global;
 // Added by chachi - a runtime global maximum log level. Defined in logging.cc
 MYNTEYE_API extern int log_severity_global;
 
-inline void InitGoogleLogging(char * /*argv*/) {
+inline void InitGoogleLogging(char */*argv*/) {
   // Do nothing; this is ignored.
 }
 
@@ -183,7 +186,7 @@ inline void RemoveLogSink(LogSink *sink) {
 class MYNTEYE_API MessageLogger {
  public:
   MessageLogger(const char *file, int line, const char *tag, int severity)
-      : file_(file), line_(line), tag_(tag), severity_(severity) {
+    : file_(file), line_(line), tag_(tag), severity_(severity) {
     // Pre-pend the stream with the file and line number.
     StripBasename(std::string(file), &filename_only_);
     stream_ << SeverityLabel() << "/" << filename_only_ << ":" << line << " ";
@@ -205,8 +208,8 @@ class MYNTEYE_API MessageLogger {
 
     // Bound the logging level.
     const int kMaxVerboseLevel = 2;
-    int android_level_index =
-        std::min(std::max(FATAL, severity_), kMaxVerboseLevel) - FATAL;
+    int android_level_index = std::min(std::max(FATAL, severity_),
+                                       kMaxVerboseLevel) - FATAL;
     int android_log_level = android_log_levels[android_level_index];
 
     // Output the log string the Android log at the appropriate level.
@@ -214,7 +217,9 @@ class MYNTEYE_API MessageLogger {
 
     // Indicate termination if needed.
     if (severity_ == FATAL) {
-      __android_log_write(ANDROID_LOG_FATAL, tag_.c_str(), "terminating.\n");
+      __android_log_write(ANDROID_LOG_FATAL,
+                          tag_.c_str(),
+                          "terminating.\n");
     }
 #else
     // If not building on Android, log all output to std::cerr.
@@ -232,24 +237,21 @@ class MYNTEYE_API MessageLogger {
   }
 
   // Return the stream associated with the logger object.
-  std::stringstream &stream() {
-    return stream_;
-  }
+  std::stringstream &stream() { return stream_; }
 
  private:
   void LogToSinks(int severity) {
     time_t rawtime;
-    struct tm *timeinfo;
+    struct tm* timeinfo;
 
-    time(&rawtime);
+    time (&rawtime);
     timeinfo = localtime(&rawtime);
-    std::set<google::LogSink *>::iterator iter;
+    std::set<google::LogSink*>::iterator iter;
     // Send the log message to all sinks.
     for (iter = google::log_sinks_global.begin();
          iter != google::log_sinks_global.end(); ++iter) {
-      (*iter)->send(
-          severity, file_.c_str(), filename_only_.c_str(), line_, timeinfo,
-          stream_.str().c_str(), stream_.str().size());
+      (*iter)->send(severity, file_.c_str(), filename_only_.c_str(), line_,
+                    timeinfo, stream_.str().c_str(), stream_.str().size());
     }
   }
 
@@ -305,19 +307,17 @@ class MYNTEYE_API MessageLogger {
 // is not used" and "statement has no effect".
 class MYNTEYE_API LoggerVoidify {
  public:
-  LoggerVoidify() {}
+  LoggerVoidify() { }
   // This has to be an operator with a precedence lower than << but
   // higher than ?:
-  void operator&(const std::ostream & /*s*/) {}
+  void operator&(const std::ostream &/*s*/) { }
 };
 
 // Log only if condition is met.  Otherwise evaluates to void.
-#define LOG_IF(severity, condition)                                          \
-  (static_cast<int>(severity) > google::log_severity_global || !(condition)) \
-      ? (void)0                                                              \
-      : LoggerVoidify() &                                                    \
-            MessageLogger((char *)__FILE__, __LINE__, "native", severity)    \
-                .stream()
+#define LOG_IF(severity, condition) \
+  (static_cast<int>(severity) > google::log_severity_global || !(condition)) ? \
+  (void) 0 : LoggerVoidify() &                                          \
+  MessageLogger((char *)__FILE__, __LINE__, "native", severity).stream()
 
 // Log only if condition is NOT met.  Otherwise evaluates to void.
 #define LOG_IF_FALSE(severity, condition) LOG_IF(severity, !(condition))
@@ -326,23 +326,23 @@ class MYNTEYE_API LoggerVoidify {
 // google3 code is discouraged and the following shortcut exists for
 // backward compatibility with existing code.
 #ifdef MYNTEYE_MAX_LOG_LEVEL
-#define LOG(n) LOG_IF(n, (n <= MYNTEYE_MAX_LOG_LEVEL))
-#define VLOG(n) LOG_IF(n, (n <= MYNTEYE_MAX_LOG_LEVEL))
-#define LG LOG_IF(INFO, (INFO <= MYNTEYE_MAX_LOG_LEVEL))
-#define VLOG_IF(n, condition) \
-  LOG_IF(n, (n <= MYNTEYE_MAX_LOG_LEVEL) && condition)
+#  define LOG(n)  LOG_IF(n, (n <= MYNTEYE_MAX_LOG_LEVEL))
+#  define VLOG(n) LOG_IF(n, (n <= MYNTEYE_MAX_LOG_LEVEL))
+#  define LG      LOG_IF(INFO, (INFO <= MYNTEYE_MAX_LOG_LEVEL))
+#  define VLOG_IF(n, condition)                                         \
+    LOG_IF(n, (n <= MYNTEYE_MAX_LOG_LEVEL) && condition)
 #else
-#define LOG(n) LOG_IF(n, true)
-#define VLOG(n) LOG_IF(n, true)
-#define LG LOG_IF(INFO, true)
-#define VLOG_IF(n, condition) LOG_IF(n, condition)
+#  define LOG(n)  LOG_IF(n, true)
+#  define VLOG(n) LOG_IF(n, true)
+#  define LG      LOG_IF(INFO, true)
+#  define VLOG_IF(n, condition) LOG_IF(n, condition)
 #endif
 
 // Currently, VLOG is always on for levels below MYNTEYE_MAX_LOG_LEVEL.
 #ifndef MYNTEYE_MAX_LOG_LEVEL
-#define VLOG_IS_ON(x) (1)
+#  define VLOG_IS_ON(x) (1)
 #else
-#define VLOG_IS_ON(x) (x <= MYNTEYE_MAX_LOG_LEVEL)
+#  define VLOG_IS_ON(x) (x <= MYNTEYE_MAX_LOG_LEVEL)
 #endif
 
 #ifdef MYNTEYE_OS_WIN  // INFO is 2, change VLOG(2) to VLOG(4)
@@ -351,34 +351,32 @@ class MYNTEYE_API LoggerVoidify {
 #undef VLOG_IS_ON
 
 #ifdef MYNTEYE_MAX_LOG_LEVEL
-#define VLOG(n) LOG_IF(n + 2, (n + 2 <= MYNTEYE_MAX_LOG_LEVEL))
-#define VLOG_IF(n, condition) \
-  LOG_IF(n + 2, (n + 2 <= MYNTEYE_MAX_LOG_LEVEL) && condition)
+#  define VLOG(n) LOG_IF(n+2, (n+2 <= MYNTEYE_MAX_LOG_LEVEL))
+#  define VLOG_IF(n, condition)                                         \
+    LOG_IF(n+2, (n+2 <= MYNTEYE_MAX_LOG_LEVEL) && condition)
 #else
-#define VLOG(n) LOG_IF(n + 2, true)
-#define VLOG_IF(n, condition) LOG_IF(n + 2, condition)
+#  define VLOG(n) LOG_IF(n+2, true)
+#  define VLOG_IF(n, condition) LOG_IF(n+2, condition)
 #endif
 
 #ifndef MYNTEYE_MAX_LOG_LEVEL
-#define VLOG_IS_ON(x) (1 + 2)
+#  define VLOG_IS_ON(x) (1+2)
 #else
-#define VLOG_IS_ON(x) (x + 2 <= MYNTEYE_MAX_LOG_LEVEL)
+#  define VLOG_IS_ON(x) (x+2 <= MYNTEYE_MAX_LOG_LEVEL)
 #endif
 
 #endif
 
 #ifndef NDEBUG
-#define DLOG LOG
+#  define DLOG LOG
 #else
-#define DLOG(severity)                                                     \
-  true ? (void)0                                                           \
-       : LoggerVoidify() &                                                 \
-             MessageLogger((char *)__FILE__, __LINE__, "native", severity) \
-                 .stream()
+#  define DLOG(severity) true ? (void) 0 : LoggerVoidify() & \
+      MessageLogger((char *)__FILE__, __LINE__, "native", severity).stream()
 #endif
 
+
 // Log a message and terminate.
-template <class T>
+template<class T>
 void LogMessageFatal(const char *file, int line, const T &message) {
   MessageLogger(file, line, "native", FATAL).stream() << message;
 }
@@ -386,27 +384,25 @@ void LogMessageFatal(const char *file, int line, const T &message) {
 // ---------------------------- CHECK macros ---------------------------------
 
 // Check for a given boolean condition.
-#define CHECK(condition) \
-  LOG_IF_FALSE(FATAL, condition) << "Check failed: " #condition " "
+#define CHECK(condition) LOG_IF_FALSE(FATAL, condition) \
+        << "Check failed: " #condition " "
 
 #ifndef NDEBUG
 // Debug only version of CHECK
-#define DCHECK(condition) \
-  LOG_IF_FALSE(FATAL, condition) << "Check failed: " #condition " "
+#  define DCHECK(condition) LOG_IF_FALSE(FATAL, condition) \
+          << "Check failed: " #condition " "
 #else
 // Optimized version - generates no code.
-#define DCHECK(condition) \
-  if (false)              \
-  LOG_IF_FALSE(FATAL, condition) << "Check failed: " #condition " "
+#  define DCHECK(condition) if (false) LOG_IF_FALSE(FATAL, condition) \
+          << "Check failed: " #condition " "
 #endif  // NDEBUG
 
 // ------------------------- CHECK_OP macros ---------------------------------
 
 // Generic binary operator check macro. This should not be directly invoked,
 // instead use the binary comparison macros defined below.
-#define CHECK_OP(val1, val2, op)      \
-  LOG_IF_FALSE(FATAL, (val1 op val2)) \
-      << "Check failed: " #val1 " " #op " " #val2 " "
+#define CHECK_OP(val1, val2, op) LOG_IF_FALSE(FATAL, (val1 op val2)) \
+  << "Check failed: " #val1 " " #op " " #val2 " "
 
 // Check_op macro definitions
 #define CHECK_EQ(val1, val2) CHECK_OP(val1, val2, ==)
@@ -418,32 +414,20 @@ void LogMessageFatal(const char *file, int line, const T &message) {
 
 #ifndef NDEBUG
 // Debug only versions of CHECK_OP macros.
-#define DCHECK_EQ(val1, val2) CHECK_OP(val1, val2, ==)
-#define DCHECK_NE(val1, val2) CHECK_OP(val1, val2, !=)
-#define DCHECK_LE(val1, val2) CHECK_OP(val1, val2, <=)
-#define DCHECK_LT(val1, val2) CHECK_OP(val1, val2, <)
-#define DCHECK_GE(val1, val2) CHECK_OP(val1, val2, >=)
-#define DCHECK_GT(val1, val2) CHECK_OP(val1, val2, >)
+#  define DCHECK_EQ(val1, val2) CHECK_OP(val1, val2, ==)
+#  define DCHECK_NE(val1, val2) CHECK_OP(val1, val2, !=)
+#  define DCHECK_LE(val1, val2) CHECK_OP(val1, val2, <=)
+#  define DCHECK_LT(val1, val2) CHECK_OP(val1, val2, <)
+#  define DCHECK_GE(val1, val2) CHECK_OP(val1, val2, >=)
+#  define DCHECK_GT(val1, val2) CHECK_OP(val1, val2, >)
 #else
 // These versions generate no code in optimized mode.
-#define DCHECK_EQ(val1, val2) \
-  if (false)                  \
-  CHECK_OP(val1, val2, ==)
-#define DCHECK_NE(val1, val2) \
-  if (false)                  \
-  CHECK_OP(val1, val2, !=)
-#define DCHECK_LE(val1, val2) \
-  if (false)                  \
-  CHECK_OP(val1, val2, <=)
-#define DCHECK_LT(val1, val2) \
-  if (false)                  \
-  CHECK_OP(val1, val2, <)
-#define DCHECK_GE(val1, val2) \
-  if (false)                  \
-  CHECK_OP(val1, val2, >=)
-#define DCHECK_GT(val1, val2) \
-  if (false)                  \
-  CHECK_OP(val1, val2, >)
+#  define DCHECK_EQ(val1, val2) if (false) CHECK_OP(val1, val2, ==)
+#  define DCHECK_NE(val1, val2) if (false) CHECK_OP(val1, val2, !=)
+#  define DCHECK_LE(val1, val2) if (false) CHECK_OP(val1, val2, <=)
+#  define DCHECK_LT(val1, val2) if (false) CHECK_OP(val1, val2, <)
+#  define DCHECK_GE(val1, val2) if (false) CHECK_OP(val1, val2, >=)
+#  define DCHECK_GT(val1, val2) if (false) CHECK_OP(val1, val2, >)
 #endif  // NDEBUG
 
 // ---------------------------CHECK_NOTNULL macros ---------------------------
@@ -451,7 +435,7 @@ void LogMessageFatal(const char *file, int line, const T &message) {
 // Helpers for CHECK_NOTNULL(). Two are necessary to support both raw pointers
 // and smart pointers.
 template <typename T>
-T &CheckNotNullCommon(const char *file, int line, const char *names, T &t) {
+T& CheckNotNullCommon(const char *file, int line, const char *names, T& t) {
   if (t == NULL) {
     LogMessageFatal(file, line, std::string(names));
   }
@@ -459,12 +443,12 @@ T &CheckNotNullCommon(const char *file, int line, const char *names, T &t) {
 }
 
 template <typename T>
-T *CheckNotNull(const char *file, int line, const char *names, T *t) {
+T* CheckNotNull(const char *file, int line, const char *names, T* t) {
   return CheckNotNullCommon(file, line, names, t);
 }
 
 template <typename T>
-T &CheckNotNull(const char *file, int line, const char *names, T &t) {
+T& CheckNotNull(const char *file, int line, const char *names, T& t) {
   return CheckNotNullCommon(file, line, names, t);
 }
 
@@ -478,8 +462,7 @@ T &CheckNotNull(const char *file, int line, const char *names, T &t) {
   CheckNotNull(__FILE__, __LINE__, "'" #val "' Must be non NULL", (val))
 #else
 // Optimized version - generates no code.
-#define DCHECK_NOTNULL(val) \
-  if (false)                \
+#define DCHECK_NOTNULL(val) if (false)\
   CheckNotNull(__FILE__, __LINE__, "'" #val "' Must be non NULL", (val))
 #endif  // NDEBUG
 

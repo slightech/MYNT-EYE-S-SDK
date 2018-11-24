@@ -40,8 +40,8 @@ OUTPUT="$BASE_DIR/_output"
 _texcjk() {
   tex="$1"; shift;
   _echo_in "add cjk to $tex"
-  sed -i "" -e $'s/^\\\\begin{document}$/\\\\usepackage{CJKutf8}\\\n\\\\begin{document}\\\n\\\\begin{CJK}{UTF8}{gbsn}/g' $tex
-  sed -i "" -e $'s/^\\\\end{document}$/\\\\end{CJK}\\\n\\\\end{document}/g' $tex
+  sed -i "" -E $'s/^\\\\begin{document}$/\\\\usepackage{CJKutf8}\\\n\\\\begin{document}\\\n\\\\begin{CJK}{UTF8}{gbsn}/g' $tex
+  sed -i "" -E $'s/^\\\\end{document}$/\\\\end{CJK}\\\n\\\\end{document}/g' $tex
 }
 
 for lang in "${LANGS[@]}"; do
@@ -52,11 +52,30 @@ for lang in "${LANGS[@]}"; do
     _mkdir "$OUTPUT/$lang"
     _echo_i "doxygen $DOXYFILE"
     doxygen $DOXYFILE
+
+    version=`cat $DOXYFILE | grep -m1 "^PROJECT_NUMBER\s*=" | \
+      sed -E "s/^.*=[[:space:]]*(.*)[[:space:]]*$/\1/g"`
+
+    # html
+    if [ -d "$OUTPUT/$lang/html" ]; then
+      dirname="mynt-eye-s-sdk-apidoc"; \
+        [ -n "$version" ] && dirname="$dirname-$version"; \
+        dirname="$dirname-$lang"
+      cd "$OUTPUT/$lang"
+      [ -d "$dirname" ] && rm -rf "$dirname"
+      mv "html" "$dirname" && zip -r "$dirname.zip" "$dirname"
+    fi
+
+    # latex
     if [ $pdflatex_FOUND ] && [ -f "$OUTPUT/$lang/latex/Makefile" ]; then
       _echo_in "doxygen make latex"
+      filename="mynt-eye-s-sdk-apidoc"; \
+        [ -n "$version" ] && filename="$filename-$version"; \
+        filename="$filename-$lang.pdf"
       cd "$OUTPUT/$lang/latex" && _texcjk refman.tex && make
-      [ -f "refman.pdf" ] && mv "refman.pdf" "../mynteye-apidoc.pdf"
+      [ -f "refman.pdf" ] && mv "refman.pdf" "../$filename"
     fi
+
     _echo_d "doxygen completed"
   else
     _echo_e "$DOXYFILE not found"

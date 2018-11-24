@@ -6,8 +6,8 @@
 
   <arg name="left_topic" default="left/image_raw" />
   <arg name="right_topic" default="right/image_raw" />
-  <arg name="left_rect_topic" default="left/image_rect" />
-  <arg name="right_rect_topic" default="right/image_rect" />
+  <arg name="left_rect_topic" default="left_rect/image_rect" />
+  <arg name="right_rect_topic" default="right_rect/image_rect" />
   <arg name="disparity_topic" default="disparity/image_raw" />
   <arg name="disparity_norm_topic" default="disparity/image_norm" />
   <arg name="depth_topic" default="depth/image_raw" />
@@ -83,6 +83,14 @@
   <!-- gyro_low_filter range: [23,64] -->
   <arg name="gyro_low_filter" default="-1" />
   <!-- <arg name="gyro_low_filter" default="64" /> -->
+
+  <!-- accel_range range: {4,8,16,32} -->
+  <arg name="accel_range" default="-1" />
+  <!-- <arg name="accel_range" default="8" /> -->
+
+  <!-- gyro_range range: {500,1000,2000,4000} -->
+  <arg name="gyro_range" default="-1" />
+  <!-- <arg name="gyro_range" default="1000" /> -->
 
   <!-- Push down all topics/nodelets into "mynteye" namespace -->
   <group ns="$(arg mynteye)">

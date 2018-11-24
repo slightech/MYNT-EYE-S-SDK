@@ -20,8 +20,9 @@
 #include <memory>
 #include <string>
 
-#include "mynteye/callbacks.h"
 #include "mynteye/mynteye.h"
+#include "mynteye/api/api.h"
+#include "mynteye/device/callbacks.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -42,6 +43,9 @@ class Dataset {
 
   void SaveStreamData(const Stream &stream, const device::StreamData &data);
   void SaveMotionData(const device::MotionData &data);
+
+  void SaveStreamData(const Stream &stream, const api::StreamData &data);
+  void SaveMotionData(const api::MotionData &data);
 
  private:
   writer_t GetStreamWriter(const Stream &stream);

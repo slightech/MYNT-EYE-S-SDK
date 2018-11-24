@@ -11,8 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+<<<<<<< HEAD
 #include "mynteye/api.h"
 #include "mynteye/logger.h"
+=======
+#include "mynteye/logger.h"
+#include "mynteye/api/api.h"
+>>>>>>> origin/develop
 
 MYNTEYE_USE_NAMESPACE
 
@@ -24,8 +29,8 @@ int main(int argc, char *argv[]) {
   LOG(INFO) << "Intrinsics left: {" << api->GetIntrinsics(Stream::LEFT) << "}";
   LOG(INFO) << "Intrinsics right: {" << api->GetIntrinsics(Stream::RIGHT)
             << "}";
-  LOG(INFO) << "Extrinsics left to right: {"
-            << api->GetExtrinsics(Stream::LEFT, Stream::RIGHT) << "}";
+  LOG(INFO) << "Extrinsics right to left: {"
+            << api->GetExtrinsics(Stream::RIGHT, Stream::LEFT) << "}";
 
   return 0;
 }

@@ -15,11 +15,17 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "mynteye/logger.h"
+<<<<<<< HEAD
 
 #include "mynteye/device.h"
 #include "mynteye/utils.h"
 
 #include "mynteye/times.h"
+=======
+#include "mynteye/device/device.h"
+#include "mynteye/device/utils.h"
+#include "mynteye/util/times.h"
+>>>>>>> origin/develop
 
 MYNTEYE_USE_NAMESPACE
 

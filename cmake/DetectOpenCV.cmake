@@ -15,14 +15,25 @@
 include(${CMAKE_CURRENT_LIST_DIR}/IncludeGuard.cmake)
 cmake_include_guard()
 
-find_package(OpenCV REQUIRED)
-message(STATUS "Found OpenCV: ${OpenCV_VERSION}")
-if(OpenCV_VERSION VERSION_LESS 3.0)
-  add_definitions(-DUSE_OPENCV2)
-elseif(OpenCV_VERSION VERSION_LESS 4.0)
-  add_definitions(-DUSE_OPENCV3)
+if(OpenCV_FIND_QUIET)
+  find_package(OpenCV QUIET)
 else()
-  add_definitions(-DUSE_OPENCV4)
+  find_package(OpenCV REQUIRED)
+endif()
+
+if(OpenCV_FOUND)
+
+#message(STATUS "Found OpenCV: ${OpenCV_VERSION}")
+
+set(WITH_OPENCV TRUE)
+add_definitions(-DWITH_OPENCV)
+
+if(OpenCV_VERSION VERSION_LESS 3.0)
+  add_definitions(-DWITH_OPENCV2)
+elseif(OpenCV_VERSION VERSION_LESS 4.0)
+  add_definitions(-DWITH_OPENCV3)
+else()
+  add_definitions(-DWITH_OPENCV4)
 endif()
 
 list(FIND OpenCV_LIBS "opencv_world" __index)
@@ -34,4 +45,10 @@ if(MSVC OR MSYS OR MINGW)
   get_filename_component(OpenCV_LIB_SEARCH_PATH "${OpenCV_LIB_PATH}/../bin" ABSOLUTE)
 else()
   set(OpenCV_LIB_SEARCH_PATH "${OpenCV_LIB_PATH}")
+endif()
+
+else()
+
+set(WITH_OPENCV FALSE)
+
 endif()

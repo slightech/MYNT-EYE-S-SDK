@@ -64,7 +64,7 @@ macro(make_executable2 NAME)
   endif()
 endmacro()
 
-if(WITH_API)
+# packages
 
 # If you install PCL to different directory, please set CMAKE_PREFIX_PATH to find it.
 #LIST(APPEND CMAKE_PREFIX_PATH /usr/local/share)
@@ -115,6 +115,7 @@ make_executable2(get_with_plugin SRCS data/get_with_plugin.cc WITH_OPENCV)
 ## control
 
 make_executable2(ctrl_framerate SRCS control/framerate.cc WITH_OPENCV)
+make_executable2(ctrl_imu_range SRCS control/imu_range.cc WITH_OPENCV)
 make_executable2(ctrl_auto_exposure
   SRCS control/auto_exposure.cc util/cv_painter.cc
   WITH_OPENCV
@@ -124,8 +125,6 @@ make_executable2(ctrl_manual_exposure
   WITH_OPENCV
 )
 make_executable2(ctrl_infrared SRCS control/infrared.cc WITH_OPENCV)
-
-endif()
 
 # intermediate level
 

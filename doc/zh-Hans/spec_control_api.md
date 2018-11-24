@@ -1,4 +1,4 @@
-# 控制 API 说明 {#spec_contorl_api}
+# 控制 API 说明 {#spec_control_api}
 
 控制有两种实现方式，一是通过 UVC 标准协议，二是通过 UVC 拓展通道自定义协议。
 
@@ -24,3 +24,4 @@
 | 陀螺仪量程 | gyroscope_range | 2 | 1000 | 250 | 4000 | √ | - | XU_CAM_CTRL | 0x0100 | |
 | 加速度计低通滤波 | accelerometer_low_pass_filter | 2 | 2 | 0 | 2 | √ | - | XU_CAM_CTRL | 0x0100 | |
 | 陀螺仪低通滤波 | gyroscope__low_pass_filter | 2 | 64 | 23 | 64 | √ | - | XU_CAM_CTRL | 0x0100 | |
+

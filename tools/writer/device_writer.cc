@@ -13,17 +13,14 @@
 // limitations under the License.
 #include "writer/device_writer.h"
 
-#include <opencv2/core/core.hpp>
-
 #include <map>
 #include <vector>
 
-#include "mynteye/device.h"
-#include "mynteye/files.h"
-#include "mynteye/logger.h"
-#include "mynteye/types.h"
+#include <opencv2/core/core.hpp>
 
-#include "internal/types.h"
+#include "mynteye/logger.h"
+#include "mynteye/device/device.h"
+#include "mynteye/util/files.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -75,7 +72,7 @@ bool DeviceWriter::WriteImgParams(const img_params_t &params) {
     LOG(INFO) << "Write img params success";
     // LOG(INFO) << "Intrinsics left: {" << params.in_left << "}";
     // LOG(INFO) << "Intrinsics right: {" << params.in_right << "}";
-    LOG(INFO) << "Extrinsics left to right: {" << params.ex_left_to_right
+    LOG(INFO) << "Extrinsics left to right: {" << params.ex_right_to_left
               << "}";
     return true;
   } else {
@@ -202,7 +199,7 @@ bool DeviceWriter::SaveImgParams(
   if (params.in_left_map.size() == params.in_right_map.size()) {
     fs << "version" << info.spec_version.to_string() << "in_left_map"
        << params.in_left_map << "in_right_map" << params.in_right_map
-       << "ex_left_to_right" << params.ex_left_to_right;
+       << "ex_right_to_left" << params.ex_right_to_left;
     fs.release();
     return true;
   } else {
@@ -329,8 +326,8 @@ DeviceWriter::dev_info_t DeviceWriter::LoadDeviceInfo(
     LOG(FATAL) << "Failed to load file: " << filepath;
   }
   DeviceInfo info;
-  info.lens_type = Type(fs["lens_type"].string());
-  info.imu_type = Type(fs["imu_type"].string());
+  info.lens_type = Type(std::string(fs["lens_type"]));
+  info.imu_type = Type(std::string(fs["imu_type"]));
   fs["nominal_baseline"] >> info.nominal_baseline;
   fs.release();
   return info;
@@ -369,25 +366,25 @@ DeviceWriter::img_params_t DeviceWriter::LoadImgParams(
           w, h, m, M1, D1, &params.in_left_map[Resolution::RES_752x480]);
       to_intrinsics(
           w, h, m, M2, D2, &params.in_right_map[Resolution::RES_752x480]);
-      to_extrinsics(R, T, &params.ex_left_to_right);
+      to_extrinsics(R, T, &params.ex_right_to_left);
     } else {
       fs["in_left"][0] >> params.in_left_map[Resolution::RES_752x480];
       fs["in_right"][0] >> params.in_right_map[Resolution::RES_752x480];
-      fs["ex_left_to_right"] >> params.ex_left_to_right;
+      fs["ex_right_to_left"] >> params.ex_right_to_left;
     }
   } else {
     // TODO(Kalman): Is there a more reasonable way?
     if (static_cast<std::string>(fs["version"]) == "1.0") {
       fs["in_left_map"][0] >> params.in_left_map[Resolution::RES_752x480];
       fs["in_right_map"][0] >> params.in_right_map[Resolution::RES_752x480];
-      fs["ex_left_to_right"] >> params.ex_left_to_right;
+      fs["ex_right_to_left"] >> params.ex_right_to_left;
     }
     if (static_cast<std::string>(fs["version"]) == "1.1") {
       fs["in_left_map"][0] >> params.in_left_map[Resolution::RES_1280x400];
       fs["in_left_map"][1] >> params.in_left_map[Resolution::RES_2560x800];
       fs["in_right_map"][0] >> params.in_right_map[Resolution::RES_1280x400];
       fs["in_right_map"][1] >> params.in_right_map[Resolution::RES_2560x800];
-      fs["ex_left_to_right"] >> params.ex_left_to_right;
+      fs["ex_right_to_left"] >> params.ex_right_to_left;
     }
   }
   fs.release();

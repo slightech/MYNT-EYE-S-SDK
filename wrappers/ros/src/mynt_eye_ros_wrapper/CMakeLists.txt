@@ -15,8 +15,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mynt_eye_ros_wrapper)
 
-get_filename_component(SDK_DIR "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
-
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
@@ -39,7 +37,7 @@ find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   geometry_msgs
   image_transport
-  message_runtime
+  message_generation
   nodelet
   roscpp
   sensor_msgs
@@ -50,6 +48,7 @@ find_package(catkin REQUIRED COMPONENTS
 checkPackage("cv_bridge" "")
 checkPackage("geometry_msgs" "")
 checkPackage("image_transport" "")
+checkPackage("message_generation" "")
 checkPackage("nodelet" "")
 checkPackage("roscpp" "")
 checkPackage("sensor_msgs" "")
@@ -74,13 +73,17 @@ generate_messages(
 )
 
 catkin_package(
-  CATKIN_DEPENDS cv_bridge geometry_msgs image_transport nodelet roscpp sensor_msgs std_msgs tf
+  CATKIN_DEPENDS cv_bridge geometry_msgs image_transport message_runtime nodelet roscpp sensor_msgs std_msgs tf
 )
 
-get_filename_component(SDK_DIR "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
+#get_filename_component(SDK_DIR "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
+#LIST(APPEND CMAKE_PREFIX_PATH ${SDK_DIR}/_install/lib/cmake)
 
+<<<<<<< HEAD
+=======
+LIST(APPEND CMAKE_MODULE_PATH cmake)
+>>>>>>> origin/develop
 
-LIST(APPEND CMAKE_PREFIX_PATH ${SDK_DIR}/_install/lib/cmake)
 find_package(mynteye REQUIRED)
 message(STATUS "Found mynteye: ${mynteye_VERSION}")
 
@@ -88,10 +91,20 @@ if(NOT mynteye_WITH_API)
   message(FATAL_ERROR "Must with API layer :(")
 endif()
 
+<<<<<<< HEAD
 include(${SDK_DIR}/cmake/DetectOpenCV.cmake)
 
 if(mynteye_WITH_GLOG)
   include(${SDK_DIR}/cmake/DetectGLog.cmake)
+=======
+include(cmake/DetectOpenCV.cmake)
+
+if(mynteye_WITH_GLOG)
+  find_package(glog REQUIRED)
+  if(glog_FOUND)
+    add_definitions(-DWITH_GLOG)
+  endif()
+>>>>>>> origin/develop
 endif()
 
 # targets
@@ -111,6 +124,7 @@ set(LINK_LIBS
 
 add_library(mynteye_wrapper src/wrapper_nodelet.cc)
 target_link_libraries(mynteye_wrapper ${LINK_LIBS})
+add_dependencies(mynteye_wrapper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(mynteye_wrapper_node src/wrapper_node.cc)
 target_link_libraries(mynteye_wrapper_node mynteye_wrapper ${LINK_LIBS})
