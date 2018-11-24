@@ -11,25 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-<<<<<<< HEAD
-#include <opencv2/highgui/highgui.hpp>
-
-=======
->>>>>>> origin/develop
 #include <atomic>
 #include <memory>
 #include <mutex>
 #include <sstream>
 
-<<<<<<< HEAD
-#include "mynteye/api.h"
-#include "mynteye/logger.h"
-=======
 #include <opencv2/highgui/highgui.hpp>
 
 #include "mynteye/logger.h"
 #include "mynteye/api/api.h"
->>>>>>> origin/develop
 
 #include "util/cv_painter.h"
 

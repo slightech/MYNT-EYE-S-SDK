@@ -198,7 +198,6 @@ enum class Option : std::uint8_t {
   /** Erase chip */
   ERASE_CHIP,
   /**
-<<<<<<< HEAD
    * min exposure time, valid if auto-exposure
    *
    *   range: [0,1000], default: 0
@@ -208,17 +207,11 @@ enum class Option : std::uint8_t {
    * The range of accelerometer
    *
    *   values: {6,12,24,48}, default: 6
-=======
-   * The range of accelerometer
-   *
-   *   values: {4,8,16,32}, default: 8
->>>>>>> origin/develop
    */
   ACCELEROMETER_RANGE,
   /**
    * The range of gyroscope
    *
-<<<<<<< HEAD
    *   values: {250,500,1000,2000,4000}, default: 1000
    */
   GYROSCOPE_RANGE,
@@ -234,11 +227,6 @@ enum class Option : std::uint8_t {
    *   values: {23,64}, default: 64
    */
   GYROSCOPE_LOW_PASS_FILTER,
-=======
-   *   values: {500,1000,2000,4000}, default: 1000
-   */
-  GYROSCOPE_RANGE,
->>>>>>> origin/develop
   /** Last guard */
   LAST
 };

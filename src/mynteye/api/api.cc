@@ -88,15 +88,8 @@ bool dir_exists(const std::string &p) {
 #endif
 
 std::vector<std::string> get_plugin_paths() {
-<<<<<<< HEAD:src/api/api.cc
-  std::string info_path(MYNTEYE_SDK_INSTALL_DIR);
-  info_path.append(
-      MYNTEYE_OS_SEP "share" MYNTEYE_OS_SEP "mynteye" MYNTEYE_OS_SEP
-                     "build.info");
-=======
   std::string info_path = utils::get_sdk_install_dir();
   info_path.append(MYNTEYE_OS_SEP "share" MYNTEYE_OS_SEP "mynteye" MYNTEYE_OS_SEP "build.info");
->>>>>>> origin/develop:src/mynteye/api/api.cc
 
   cv::FileStorage fs(info_path, cv::FileStorage::READ);
   if (!fs.isOpened()) {
@@ -217,30 +210,7 @@ std::vector<std::string> get_plugin_paths() {
 
 API::API(std::shared_ptr<Device> device) : device_(device) {
   VLOG(2) << __func__;
-<<<<<<< HEAD:src/api/api.cc
   std::dynamic_pointer_cast<StandardDevice>(device_);
-=======
-  if (std::dynamic_pointer_cast<StandardDevice>(device_) != nullptr) {
-    bool in_l_ok, in_r_ok, ex_r2l_ok;
-    device_->GetIntrinsics(Stream::LEFT, &in_l_ok);
-    device_->GetIntrinsics(Stream::RIGHT, &in_r_ok);
-    device_->GetExtrinsics(Stream::RIGHT, Stream::LEFT, &ex_r2l_ok);
-    if (!in_l_ok || !in_r_ok || !ex_r2l_ok) {
-#if defined(WITH_DEVICE_INFO_REQUIRED)
-      LOG(FATAL)
-#else
-      LOG(WARNING)
-#endif
-          << "Image params not found, but we need it to process the "
-             "images. Please `make tools` and use `img_params_writer` "
-             "to write the image params. If you update the SDK from "
-             "1.x, the `SN*.conf` is the file contains them. Besides, "
-             "you could also calibrate them by yourself. Read the guide "
-             "doc (https://github.com/slightech/MYNT-EYE-S-SDK-Guide) "
-             "to learn more.";
-    }
-  }
->>>>>>> origin/develop:src/mynteye/api/api.cc
   synthetic_.reset(new Synthetic(this));
 }
 

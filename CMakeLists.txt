@@ -117,39 +117,11 @@ endif()
 
 ## libmynteye
 
-<<<<<<< HEAD
-if(NOT WITH_GLOG)
-=======
 if(NOT WITH_GLOG AND NOT OS_WIN)
->>>>>>> origin/develop
   set(__MINIGLOG_FLAGS "-Wno-unused-parameter -Wno-format -Wno-return-type")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${__MINIGLOG_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${__MINIGLOG_FLAGS}")
   unset(__MINIGLOG_FLAGS)
-<<<<<<< HEAD
-endif()
-
-set(MYNTEYE_PUBLIC_H
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/callbacks.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/global.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/logger.h
-  ${CMAKE_CURRENT_BINARY_DIR}/include/mynteye/mynteye.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/types.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/utils.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/device/context.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/device/device.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/internal/files.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/internal/strings.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/internal/times.h
-)
-if(WITH_API)
-  list(APPEND MYNTEYE_PUBLIC_H
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/api.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/plugin.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/processor/object.h
-  )
-=======
->>>>>>> origin/develop
 endif()
 if(NOT WITH_GLOG)
   list(APPEND MYNTEYE_PUBLIC_H
@@ -201,11 +173,7 @@ if(WITH_API)
   )
 endif()
 if(NOT WITH_GLOG)
-<<<<<<< HEAD
-  list(APPEND MYNTEYE_SRCS src/public/miniglog.cc)
-=======
   list(APPEND MYNTEYE_SRCS src/mynteye/miniglog.cc)
->>>>>>> origin/develop
 endif()
 
 set(MYNTEYE_LINKLIBS ${UVC_LIB})
@@ -222,11 +190,7 @@ endif()
 
 add_library(${MYNTEYE_NAME} SHARED ${MYNTEYE_SRCS})
 target_link_libraries(${MYNTEYE_NAME} ${MYNTEYE_LINKLIBS})
-<<<<<<< HEAD
-option(WITH_GLOG "Include glog support" OFF)
-=======
 target_link_threads(${MYNTEYE_NAME})
->>>>>>> origin/develop
 
 if(OS_WIN)
   target_compile_definitions(${MYNTEYE_NAME}

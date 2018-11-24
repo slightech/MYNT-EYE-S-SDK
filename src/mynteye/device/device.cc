@@ -558,11 +558,6 @@ void Device::ReadAllInfos() {
 
   CHECK_NOTNULL(channels_);
   Channels::imu_params_t imu_params;
-<<<<<<< HEAD:src/device/device.cc
-  if (!channels_->GetFiles(device_info_.get(), &img_params_, &imu_params)) {
-    LOG(FATAL) << "Read device infos failed. Please upgrade your firmware to "
-                  "the latest version.";
-=======
   if (!channels_->GetFiles(device_info_.get(), &img_params, &imu_params)) {
 #if defined(WITH_DEVICE_INFO_REQUIRED)
     LOG(FATAL)
@@ -571,7 +566,6 @@ void Device::ReadAllInfos() {
 #endif
         << "Read device infos failed. Please upgrade your firmware to the "
            "latest version.";
->>>>>>> origin/develop:src/mynteye/device/device.cc
   }
   VLOG(2) << "Device info: {name: " << device_info_->name
           << ", serial_number: " << device_info_->serial_number
@@ -585,21 +579,10 @@ void Device::ReadAllInfos() {
           << ", nominal_baseline: " << device_info_->nominal_baseline << "}";
 
   device_info_->name = uvc::get_name(*device_);
-<<<<<<< HEAD:src/device/device.cc
   if (img_params_.ok) {
     SetExtrinsics(Stream::LEFT, Stream::RIGHT, img_params_.ex_right_to_left);
     VLOG(2) << "Extrinsics left to right: {"
             << GetExtrinsics(Stream::LEFT, Stream::RIGHT) << "}";
-=======
-  if (img_params.ok) {
-    SetIntrinsics(Stream::LEFT, img_params.in_left);
-    SetIntrinsics(Stream::RIGHT, img_params.in_right);
-    SetExtrinsics(Stream::RIGHT, Stream::LEFT, img_params.ex_right_to_left);
-    VLOG(2) << "Intrinsics left: {" << GetIntrinsics(Stream::LEFT) << "}";
-    VLOG(2) << "Intrinsics right: {" << GetIntrinsics(Stream::RIGHT) << "}";
-    VLOG(2) << "Extrinsics right to left: {"
-            << GetExtrinsics(Stream::RIGHT, Stream::LEFT) << "}";
->>>>>>> origin/develop:src/mynteye/device/device.cc
   } else {
     LOG(WARNING) << "Intrinsics & extrinsics not exist";
   }

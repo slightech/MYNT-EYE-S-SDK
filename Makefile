@@ -73,10 +73,7 @@ cleandoc:
 
 submodules:
 	@git submodule update --init
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/develop
 .PHONY: submodules
 
 # init

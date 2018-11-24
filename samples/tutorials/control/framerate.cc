@@ -11,15 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-<<<<<<< HEAD
-#include <opencv2/highgui/highgui.hpp>
-
-#include <atomic>
-
-#include "mynteye/api.h"
-#include "mynteye/logger.h"
-#include "mynteye/times.h"
-=======
 #include <atomic>
 
 #include <opencv2/highgui/highgui.hpp>
@@ -27,7 +18,6 @@
 #include "mynteye/logger.h"
 #include "mynteye/api/api.h"
 #include "mynteye/util/times.h"
->>>>>>> origin/develop
 
 MYNTEYE_USE_NAMESPACE
 

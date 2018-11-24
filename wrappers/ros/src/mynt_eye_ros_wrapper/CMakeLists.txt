@@ -79,10 +79,7 @@ catkin_package(
 #get_filename_component(SDK_DIR "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
 #LIST(APPEND CMAKE_PREFIX_PATH ${SDK_DIR}/_install/lib/cmake)
 
-<<<<<<< HEAD
-=======
 LIST(APPEND CMAKE_MODULE_PATH cmake)
->>>>>>> origin/develop
 
 find_package(mynteye REQUIRED)
 message(STATUS "Found mynteye: ${mynteye_VERSION}")
@@ -91,12 +88,6 @@ if(NOT mynteye_WITH_API)
   message(FATAL_ERROR "Must with API layer :(")
 endif()
 
-<<<<<<< HEAD
-include(${SDK_DIR}/cmake/DetectOpenCV.cmake)
-
-if(mynteye_WITH_GLOG)
-  include(${SDK_DIR}/cmake/DetectGLog.cmake)
-=======
 include(cmake/DetectOpenCV.cmake)
 
 if(mynteye_WITH_GLOG)
@@ -104,7 +95,6 @@ if(mynteye_WITH_GLOG)
   if(glog_FOUND)
     add_definitions(-DWITH_GLOG)
   endif()
->>>>>>> origin/develop
 endif()
 
 # targets

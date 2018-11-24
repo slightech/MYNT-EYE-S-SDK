@@ -17,12 +17,9 @@
 #include <iostream>
 #include <mutex>
 
-<<<<<<< HEAD
-=======
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
->>>>>>> origin/develop
 #include "mynteye/logger.h"
 #include "mynteye/mynteye.h"
 #include "mynteye/types.h"

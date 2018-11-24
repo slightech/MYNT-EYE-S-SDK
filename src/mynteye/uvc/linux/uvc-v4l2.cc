@@ -409,16 +409,12 @@ struct device {
     }
 
     if (no_data_count > NO_DATA_MAX_COUNT) {
-<<<<<<< HEAD:src/uvc/uvc-v4l2.cc
       no_data_count = 0;
       living_count = 0;
       LOG(WARNING) << __func__
                    << " failed: v4l2 get stream time out,Try to reboot!";
       stop_capture();
       start_capture();
-=======
-      throw_error("v4l2 get stream time out!");
->>>>>>> origin/develop:src/mynteye/uvc/linux/uvc-v4l2.cc
     }
   }
 

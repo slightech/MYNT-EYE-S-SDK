@@ -11,13 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-<<<<<<< HEAD
-#include "mynteye/api.h"
-#include "mynteye/logger.h"
-=======
 #include "mynteye/logger.h"
 #include "mynteye/api/api.h"
->>>>>>> origin/develop
 
 MYNTEYE_USE_NAMESPACE
 
