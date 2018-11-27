@@ -66,6 +66,9 @@ class MYNTEYE_API Device {
   using stream_async_callback_ptr_t = std::shared_ptr<stream_async_callback_t>;
   using motion_async_callback_ptr_t = std::shared_ptr<motion_async_callback_t>;
 
+  using img_params_t = device::img_params_t;
+  using imu_params_t = device::imu_params_t;
+
   Device(const Model &model, std::shared_ptr<uvc::device> device);
   virtual ~Device();
 
@@ -263,7 +266,7 @@ class MYNTEYE_API Device {
   /**
    * Get the device img params
    */
-  Channels::img_params_t GetImgParams();
+  img_params_t GetImgParams();
 
  protected:
   std::shared_ptr<uvc::device> device() const {
@@ -310,7 +313,7 @@ class MYNTEYE_API Device {
   std::shared_ptr<MotionIntrinsics> motion_intrinsics_;
   std::map<Stream, Extrinsics> motion_from_extrinsics_;
 
-  Channels::img_params_t img_params_;
+  img_params_t img_params_;
   stream_callbacks_t stream_callbacks_;
   motion_callback_t motion_callback_;
 

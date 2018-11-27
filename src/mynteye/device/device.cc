@@ -557,8 +557,8 @@ void Device::ReadAllInfos() {
   device_info_ = std::make_shared<DeviceInfo>();
 
   CHECK_NOTNULL(channels_);
-  Channels::imu_params_t imu_params;
-  if (!channels_->GetFiles(device_info_.get(), &img_params, &imu_params)) {
+  Device::imu_params_t imu_params;
+  if (!channels_->GetFiles(device_info_.get(), &img_params_, &imu_params)) {
 #if defined(WITH_DEVICE_INFO_REQUIRED)
     LOG(FATAL)
 #else
@@ -629,7 +629,7 @@ void Device::CallbackMotionData(const device::MotionData &data) {
   }
 }
 
-Channels::img_params_t Device::GetImgParams() {
+Device::img_params_t Device::GetImgParams() {
   return img_params_;
 }
 

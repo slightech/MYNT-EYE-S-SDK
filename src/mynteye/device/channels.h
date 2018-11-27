@@ -21,6 +21,7 @@
 
 #include "mynteye/mynteye.h"
 #include "mynteye/types.h"
+#include "mynteye/device/device.h"
 #include "mynteye/device/types.h"
 #include "mynteye/uvc/uvc.h"
 
@@ -67,6 +68,9 @@ class MYNTEYE_API Channels {
 
   using device_info_t = DeviceInfo;
 
+  using imu_params_t = device::imu_params_t;
+  using img_params_t = device::img_params_t;
+/*
   typedef struct ImgParams {
     bool ok;
     std::map<Resolution, Intrinsics> in_left_map;
@@ -80,7 +84,7 @@ class MYNTEYE_API Channels {
     ImuIntrinsics in_gyro;
     Extrinsics ex_left_to_imu;
   } imu_params_t;
-
+*/
   explicit Channels(std::shared_ptr<uvc::device> device);
   ~Channels();
 

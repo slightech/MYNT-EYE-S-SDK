@@ -17,6 +17,8 @@
 #include <functional>
 #include <stdexcept>
 
+#include <opencv2/imgproc/imgproc.hpp>
+
 #include "mynteye/logger.h"
 #include "mynteye/api/object.h"
 #include "mynteye/api/plugin.h"

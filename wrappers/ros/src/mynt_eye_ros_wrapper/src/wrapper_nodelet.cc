@@ -72,11 +72,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       }
       if (imu_time_beg_ != -1) {
         if (publish_imu_by_sync_) {
-          LOG(INFO) << "imu_sync_count: " << imu_sync_count_
-                    << ", hz: " << (imu_sync_count_ / time_elapsed);
+          LOG(INFO) << "imu_sync_count: " << imu_sync_count_ << ", hz: "
+                    << (imu_sync_count_ /
+                    compute_time(time_end, imu_time_beg_));
         } else {
-          LOG(INFO) << "Imu count: " << imu_count_
-                    << ", hz: " << (imu_count_ / time_elapsed);
+          LOG(INFO) << "Imu count: " << imu_count_ << ", hz: "
+                    << (imu_count_ /
+                    compute_time(time_end, imu_time_beg_));
+        }
       }
 
       // ROS messages could not be reliably printed here, using glog instead :(
@@ -208,7 +211,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
 
     camera_encodings_ = {{Stream::LEFT, enc::BGR8},
-                         {Stream::RIGHT, enc::BGR8}
+                         {Stream::RIGHT, enc::BGR8},
                          {Stream::LEFT_RECTIFIED, enc::BGR8},
                          {Stream::RIGHT_RECTIFIED, enc::BGR8},
                          {Stream::DISPARITY, enc::MONO8},  // float

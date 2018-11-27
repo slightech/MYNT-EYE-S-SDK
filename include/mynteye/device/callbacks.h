@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -28,6 +29,20 @@
 MYNTEYE_BEGIN_NAMESPACE
 
 namespace device {
+
+typedef struct ImgParams {
+  bool ok;
+  std::map<Resolution, Intrinsics> in_left_map;
+  std::map<Resolution, Intrinsics> in_right_map;
+  Extrinsics ex_right_to_left;
+} img_params_t;
+
+typedef struct ImuParams {
+  bool ok;
+  ImuIntrinsics in_accel;
+  ImuIntrinsics in_gyro;
+  Extrinsics ex_left_to_imu;
+} imu_params_t;
 
 /**
  * @ingroup datatypes

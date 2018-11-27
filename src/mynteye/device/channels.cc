@@ -565,7 +565,7 @@ std::size_t from_data(
 
 // TODO(Kalman): Is there a more elegant way?
 std::size_t from_data(
-    Channels::img_params_t *img_params, const std::uint8_t *data,
+    device::img_params_t *img_params, const std::uint8_t *data,
     const Version *spec_version) {
   std::size_t i = 0;
 
@@ -600,7 +600,7 @@ std::size_t from_data(
 }
 
 std::size_t from_data(
-    Channels::imu_params_t *imu_params, const std::uint8_t *data,
+    device::imu_params_t *imu_params, const std::uint8_t *data,
     const Version *spec_version) {
   std::size_t i = 0;
   i += from_data(&imu_params->in_accel, data + i, spec_version);
@@ -864,7 +864,7 @@ std::size_t to_data(
 }
 
 std::size_t to_data(
-    const Channels::img_params_t *img_params, std::uint8_t *data,
+    const device::img_params_t *img_params, std::uint8_t *data,
     const Version *spec_version) {
   std::size_t i = 3;  // skip id, size
 

@@ -31,8 +31,8 @@ namespace tools {
 class DeviceWriter {
  public:
   using dev_info_t = DeviceInfo;
-  using img_params_t = Channels::img_params_t;
-  using imu_params_t = Channels::imu_params_t;
+  using img_params_t = device::img_params_t;
+  using imu_params_t = device::imu_params_t;
 
   explicit DeviceWriter(std::shared_ptr<Device> device);
   ~DeviceWriter();

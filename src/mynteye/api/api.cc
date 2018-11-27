@@ -287,6 +287,10 @@ bool API::Supports(const AddOns &addon) const {
   return device_->Supports(addon);
 }
 
+void API::InitResolution(const Resolution &res) {
+  return device_->InitResolution(res);
+}
+
 void API::SetStreamRequest(const Format &format, const FrameRate &rate) {
   device_->SetStreamRequest(format, rate);
 }

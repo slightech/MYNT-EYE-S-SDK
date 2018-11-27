@@ -214,6 +214,11 @@ class MYNTEYE_API API {
   bool RunOptionAction(const Option &option) const;
 
   /**
+   * Init device resolution.
+   */
+  void InitResolution(const Resolution &res);
+
+  /**
    * Set the callback of stream.
    */
   void SetStreamCallback(const Stream &stream, stream_callback_t callback);
