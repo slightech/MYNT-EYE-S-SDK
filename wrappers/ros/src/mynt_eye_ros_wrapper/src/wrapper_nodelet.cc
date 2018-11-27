@@ -409,7 +409,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
             ++right_count_;
             publishCamera(Stream::RIGHT, data, right_count_, stamp);
-            publishMono(Stream::LEFT, data, left_count_, stamp);
+            publishMono(Stream::RIGHT, data, right_count_, stamp);
             NODELET_DEBUG_STREAM(
                 Stream::RIGHT
                 << ", count: " << right_count_ << ", frame_id: "
