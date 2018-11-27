@@ -165,19 +165,19 @@ enum class Option : std::uint8_t {
   /**
    * Max gain, valid if auto-exposure
    *
-   *   range: [0,48], default: 48
+   *   range: [0,255], default: 8
    */
   MAX_GAIN,
   /**
    * Max exposure time, valid if auto-exposure
    *
-   *   range: [0,240], default: 240
+   *   range: [0,1000], default: 333
    */
   MAX_EXPOSURE_TIME,
   /**
    * Desired brightness, valid if auto-exposure
    *
-   *   range: [0,255], default: 192
+   *   range: [1,255], default: 122
    */
   DESIRED_BRIGHTNESS,
   /**

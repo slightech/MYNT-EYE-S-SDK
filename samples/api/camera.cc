@@ -24,9 +24,6 @@ int main(int argc, char *argv[]) {
   if (!api)
     return 1;
   api->SetStreamRequest(Format::BGR888, FrameRate::RATE_30_FPS);
-  // api->SetOptionValue(Option::FRAME_RATE, 25);
-  // api->SetOptionValue(Option::IMU_FREQUENCY, 500);
-  api->SetOptionValue(Option::IR_CONTROL, 80);
   api->LogOptionInfos();
 
   std::size_t left_count = 0;
