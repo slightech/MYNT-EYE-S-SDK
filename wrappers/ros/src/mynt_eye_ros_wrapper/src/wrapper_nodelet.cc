@@ -371,7 +371,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
   void publishTopics() {
-    if (camera_publishers_[Stream::LEFT].getNumSubscribers() > 0 &&
+    if ((camera_publishers_[Stream::LEFT].getNumSubscribers() > 0 ||
+        mono_publishers_[Stream::LEFT].getNumSubscribers() > 0) &&
         !is_published_[Stream::LEFT]) {
       api_->SetStreamCallback(
           Stream::LEFT, [this](const api::StreamData &data) {
@@ -401,7 +402,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       is_published_[Stream::LEFT] = true;
     }
 
-    if (camera_publishers_[Stream::RIGHT].getNumSubscribers() > 0 &&
+    if ((camera_publishers_[Stream::RIGHT].getNumSubscribers() > 0 ||
+        mono_publishers_[Stream::RIGHT].getNumSubscribers() > 0) &&
         !is_published_[Stream::RIGHT]) {
       api_->SetStreamCallback(
           Stream::RIGHT, [this](const api::StreamData &data) {
