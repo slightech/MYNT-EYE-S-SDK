@@ -139,8 +139,8 @@ endif
 uninstall:
 	@$(call echo,Make $@)
 ifeq ($(HOST_OS),Linux)
-	$(SUDO) rm -rf /usr/local/lib/libmynteye*
 	$(SUDO) rm -rf /usr/local/include/mynteye/
+	$(SUDO) rm -rf /usr/local/lib/libmynteye.so*
 	$(SUDO) rm -rf /usr/local/lib/cmake/mynteye/
 	$(SUDO) rm -rf /usr/local/share/mynteye/
 endif
