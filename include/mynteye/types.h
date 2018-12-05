@@ -280,15 +280,15 @@ enum class Resolution : std::uint8_t {
  */
 enum class FrameRate : std::uint8_t {
   /** 10 fps */
-  RATE_10_FPS,
+  RATE_10_FPS = 10,
   /** 20 fps */
-  RATE_20_FPS,
+  RATE_20_FPS = 20,
   /** 20 fps */
-  RATE_25_FPS,
+  RATE_25_FPS = 25,
   /** 30 fps */
-  RATE_30_FPS,
+  RATE_30_FPS = 30,
   /** 60 fps */
-  RATE_60_FPS,
+  RATE_60_FPS = 60,
   /** Last guard */
   LAST
 };
@@ -372,6 +372,8 @@ struct MYNTEYE_API StreamRequest {
 
   StreamRequest(Resolution res, Format format, FrameRate rate)
       : format(format) {
+    fps = static_cast<uint16_t>(rate);
+
     switch (res) {
       case Resolution::RES_752x480:
         width = 480, height = 752;
@@ -384,27 +386,6 @@ struct MYNTEYE_API StreamRequest {
         break;
       default:
         width = 480, height = 752;
-        break;
-    }
-
-    switch (rate) {
-      case FrameRate::RATE_10_FPS:
-        fps = 10;
-        break;
-      case FrameRate::RATE_20_FPS:
-        fps = 20;
-        break;
-      case FrameRate::RATE_25_FPS:
-        fps = 25;
-        break;
-      case FrameRate::RATE_30_FPS:
-        fps = 30;
-        break;
-      case FrameRate::RATE_60_FPS:
-        fps = 60;
-        break;
-      default:
-        fps = 25;
         break;
     }
   }

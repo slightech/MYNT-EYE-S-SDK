@@ -35,6 +35,27 @@
 
   <!-- stream toggles -->
 
+  <!-- Resolution -->
+  <arg name="res_752x480"    default="0" />
+  <arg name="res_1280x400"   default="1" />
+  <arg name="res_2560x800"   default="2" />
+
+  <!-- FrameRate -->
+  <arg name="rate_10_fps"   default="10" />
+  <arg name="rate_20_fps"   default="20" />
+  <arg name="rate_25_fps"   default="25" />
+  <arg name="rate_30_fps"   default="30" />
+  <arg name="rate_60_fps"   default="60" />
+
+  <!-- Format -->
+  <arg name="grey"    default="1497715271" />
+  <arg name="yuyv"   default="1497715271" />
+  <arg name="bgr888"   default="861030210" />
+
+  <arg name="resolution" default="$(arg res_1280x400)" />
+  <arg name="framerate" default="$(arg rate_30_fps)" />
+  <arg name="format" default="$(arg bgr888)" />
+
   <arg name="enable_left_rect" default="false" />
   <arg name="enable_right_rect" default="false" />
   <arg name="enable_disparity" default="false" />
@@ -129,6 +150,11 @@
       <param name="enable_disparity_norm" value="$(arg enable_disparity_norm)" />
       <param name="enable_points" value="$(arg enable_points)" />
       <param name="enable_depth" value="$(arg enable_depth)" />
+
+      <!-- init params -->
+      <param name="resolution" value="$(arg resolution)" />
+      <param name="framerate" value="$(arg framerate)" />
+      <param name="format" value="$(arg format)" />
 
       <!-- device options -->
 

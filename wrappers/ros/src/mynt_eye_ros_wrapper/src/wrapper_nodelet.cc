@@ -103,11 +103,18 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
   void onInit() override {
-    initDevice();
-    NODELET_FATAL_COND(api_ == nullptr, "No MYNT EYE device selected :(");
-
     nh_ = getMTNodeHandle();
     private_nh_ = getMTPrivateNodeHandle();
+    int resolution = 0;
+    int format = 0;
+    int framerate = 20;
+    private_nh_.getParam("resolution", resolution);
+    private_nh_.getParam("framerate", framerate);
+    private_nh_.getParam("format", format);
+    frame_rate_ = framerate;
+
+    initDevice(resolution, format, framerate);
+    NODELET_FATAL_COND(api_ == nullptr, "No MYNT EYE device selected :(");
 
     // node params
 
@@ -186,7 +193,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       }
       NODELET_INFO_STREAM(it->first << ": " << api_->GetOptionValue(it->first));
     }
-    frame_rate_ = api_->GetOptionValue(Option::FRAME_RATE);
 
     // publishers
 
@@ -717,7 +723,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
  private:
-  void initDevice() {
+  void initDevice(int resolution, int format, int framerate) {
     NODELET_INFO_STREAM("Detecting MYNT EYE devices");
 
     Context context;
@@ -752,8 +758,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       }
     }
 
-    api_ = API::Create(device, Resolution::RES_1280x400);
-    api_->SetStreamRequest(Format::BGR888, FrameRate::RATE_20_FPS);
+    api_ = API::Create(device, static_cast<Resolution>(resolution));
+    api_->SetStreamRequest(static_cast<Format>(format),
+                            static_cast<FrameRate>(framerate));
 
     computeRectTransforms();
   }
@@ -765,7 +772,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     auto &&ex_right_to_left = api_->GetExtrinsics(Stream::RIGHT, Stream::LEFT);
 
     cv::Size size{in_left.width, in_left.height};
-
     cv::Mat M1 =
         (cv::Mat_<double>(3, 3) << in_left.fx, 0, in_left.cx, 0, in_left.fy,
          in_left.cy, 0, 0, 1);
