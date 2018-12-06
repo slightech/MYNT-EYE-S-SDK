@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<launch>
+<!--subscribe namespace -->
+<arg name="stereo" default="mynteye" />
+
+<!--advertise namespace -->
+<arg name="ns" default="stereo" />
+<arg name="base_frame_id" default="$(arg ns)_link" />
+
+<!--advertise rect image topic and cameraInfo topic-->
+<arg name="left_image_topic" default="left/image_mono" />
+<arg name="right_image_topic" default="right/image_mono" />
+<arg name="left_camera_info_topic" default="left/camera_info" />
+<arg name="right_camera_info_topic" default= "right/camera_info" />
+<arg name="left_frame_id" default="left_frame" />
+<arg name="right_frame_id" default="right_frame" />
+<arg name="points_frame_id" default="points_frame" />
+<arg name="laser_scan_depth_frame_id" default="laser_scan_depth_frame" />
+
+
+<arg name="left_rect_topic" default="left/image_rect" />
+<arg name="right_rect_topic" default = "right/image_rect" />
+<arg name="left_rect_camerainfo_topic" default="left/rect/camera_info" />
+<arg name="right_rect_camerainfo_topic" default="right/rect/camera_info" />
+<arg name="left_rect_frame_id" default="left_rect_frame" />
+<arg name="right_rect_frame_id" default="right_rect_frame" />
+
+<arg name="depth_frame_id" default="depth_frame" />
+<arg name="depth_image_topic" default="depth/data_raw" />
+<arg name="depth_image_topic16" default="depth/data_raw16" />
+<arg name="depth_camera_info_topic" default="depth/camera_info" />
+
+<!-- whether to use meters(true) or mill-meters(false)  to compute depth_image -->
+<arg name="use_meters" default="true" />
+
+<!--load stereo calibration parameters-->
+<!--relative_camera_path: kannala-brandt | mei | pinhole | scaramuzza -->
+<arg name="relative_camera_path" default="kannala-brandt" />
+<!--camera model: pinhole | omini -->
+<arg name="project_model" default="pinhole" />
+
+<arg name="stereo_calibration_params_path" default="$(find mynteye_image_pipeline)/params" />
+
+<!-- public parameters-->
+<!--Size of message queue for synchronizing image and camera_info topics. You may need to raise this if images take significantly longer to travel over the network than camera info. -->
+<arg name="approx_sync" default="false" />
+<arg name="square_size" default="5" />
+
+<arg name="use_filer" default="false" />
+<arg name="ksize" default="5" />
+
+<!-- whether to use BM(true) or SGBM(false) to compute disparity_image -->
+<arg name="use_bm" default="true" />
+<arg name="disparity_parameters" default="$(find mynteye_image_pipeline)/launch/cfg/disparity_parameters.yaml" />
+
+<node pkg="nodelet" type="nodelet" name="standalone_nodelet"  args="manager" output="screen"/>
+
+<node pkg="nodelet" type="nodelet" name="orgin_camera_nodelet" args="load mynteye_image_pipeline/PubCamera standalone_nodelet" respawn="false" output="screen">
+
+  <param name="sub_left_image_topic" value="$(arg stereo)/$(arg left_image_topic)" />
+  <param name="sub_right_image_topic" value="$(arg stereo)/$(arg right_image_topic)" />
+
+  <param name="pub_left_camera_info_topic" value="$(arg ns)/$(arg left_camera_info_topic)" />
+  <param name="pub_right_camera_info_topic" value="$(arg ns)/$(arg right_camera_info_topic)" />
+  <param name="pub_left_image_topic" value="$(arg ns)/$(arg left_image_topic)" />
+  <param name="pub_right_image_topic" value="$(arg ns)/$(arg right_image_topic)" />
+
+  <param name="base_frame_id" value="$(arg base_frame_id)" />
+  <param name="left_frame_id"  value="$(arg ns)_$(arg left_frame_id)" />
+  <param name="right_frame_id" value="$(arg ns)_$(arg right_frame_id)" />
+  <param name="left_rect_frame_id" value="$(arg ns)_$(arg left_rect_frame_id)" />
+  <param name="right_rect_frame_id" value="$(arg ns)_$(arg right_rect_frame_id)" />
+  <param name="depth_frame_id" value="$(arg ns)_$(arg depth_frame_id)" />
+  <param name="points_frame_id" value="$(arg ns)_$(arg points_frame_id)" />
+  <param name="laser_scan_depth_frame_id" value="$(arg laser_scan_depth_frame_id)" />
+
+  <param name="square_size" value="$(arg square_size)" />
+  <param name="approx_sync" value="$(arg approx_sync)" />
+
+  <param name="left_camera_yaml" value="$(arg stereo_calibration_params_path)/$(arg relative_camera_path)/camera_left.yaml"/>
+  <param name="right_camera_yaml" value="$(arg stereo_calibration_params_path)/$(arg relative_camera_path)/camera_right.yaml" />
+  <param name="extrinsics_yaml" value="$(arg stereo_calibration_params_path)/$(arg relative_camera_path)/extrinsics.yaml" />
+</node>
+<node pkg="nodelet" type="nodelet" name="rectify_nodelet_node" args="load mynteye_image_pipeline/Rectify standalone_nodelet" respawn="false" output="screen">
+  <param name="left_topic" value="$(arg ns)/$(arg left_image_topic)" />
+  <param name="right_topic" value="$(arg ns)/$(arg right_image_topic)" />
+  <param name="left_camera_info" value="$(arg ns)/$(arg left_camera_info_topic)" />
+  <param name="right_camera_info" value="$(arg ns)/$(arg right_camera_info_topic)" />
+
+  <param name="left_rect_topic" value="$(arg ns)/$(arg left_rect_topic)" />
+  <param name="right_rect_topic" value="$(arg ns)/$(arg right_rect_topic)" />
+  <param name="left_rect_camerainfo_topic" value="$(arg ns)/$(arg left_rect_camerainfo_topic)" />
+  <param name="right_rect_camerainfo_topic" value="$(arg ns)/$(arg right_rect_camerainfo_topic)" />
+  <param name="left_rect_frame_id" value="$(arg ns)_$(arg left_rect_frame_id)" />
+  <param name="right_rect_frame_id" value="$(arg ns)_$(arg right_rect_frame_id)" />
+
+  <param name="square_size" value="$(arg square_size)" />
+  <param name="approx_sync" value="$(arg approx_sync)" />
+  <param name="project_model" value="$(arg project_model)" />
+</node>
+
+<node pkg="nodelet" type="nodelet" name="disparity_nodelet" args="load mynteye_image_pipeline/Disparity standalone_nodelet" respawn="false" output="screen">
+  <param name="sub_left_rect_topic" value="$(arg ns)/$(arg left_rect_topic)" />
+  <param name="sub_right_rect_topic" value="$(arg ns)/$(arg right_rect_topic)" />
+  <param name="sub_left_rect_camerainfo_topic" value="$(arg ns)/$(arg left_rect_camerainfo_topic)"  />
+  <param name="sub_right_rect_camerainfo_topic" value="$(arg ns)/$(arg right_rect_camerainfo_topic)" />
+  <param name="square_size" value="$(arg square_size)" />
+  <param name="approx_sync" value="$(arg approx_sync)" />
+
+  <param name="disparity" value="$(arg ns)/disparity" />
+  <param name="use_bm" value="true" if="$(arg use_bm)" />
+  <param name="use_bm" value="false" unless="$(arg use_bm)" />
+  <rosparam file="$(arg disparity_parameters)" />
+</node>
+
+<node pkg="nodelet" type="nodelet" name="disparity_depth_nodelet" args="load mynteye_image_pipeline/DisparityToDepth standalone_nodelet" respawn="false" output="screen">
+  <param name="sub_disparity_topic" value="$(arg ns)/disparity" />
+  <param name="sub_left_rect_camerainfo_topic" value="$(arg ns)/$(arg left_rect_camerainfo_topic)"  />
+  <param name="pub_depth_topic" value="$(arg ns)/$(arg depth_image_topic)" />
+  <param name="pub_depth16_topic" value="$(arg ns)/$(arg depth_image_topic16)" />
+  <param name="pub_depth_camera_info_topic" value="$(arg ns)/$(arg depth_camera_info_topic)" />
+  <param name="depth_frame_id" value="$(arg ns)_$(arg depth_frame_id)" />
+
+  <param name="square_size" value="$(arg square_size)" />
+  <param name="approx_sync" value="$(arg approx_sync)" />
+  <param name="delay_time" value= "0" />
+
+  <param name="use_filer" value="$(arg use_filer)" />
+  <param name="ksize" value="$(arg ksize)" />
+</node>
+
+<node pkg="nodelet" type="nodelet" name="point_cloud_xyz_nodelet" args="load mynteye_image_pipeline/PointClouldXyz standalone_nodelet" respawn="false" output="screen">
+  <param name="sub_depth_topic" value="$(arg ns)/$(arg depth_image_topic)" if="$(arg use_meters)" />
+  <param name="sub_depth_topic" value="$(arg ns)/$(arg depth_image_topic16)" unless="$(arg use_meters)" />
+  <param name="sub_left_camerainfo" value="$(arg ns)/$(arg depth_camera_info_topic)" />
+
+  <param name="points_frame_id" value="$(arg ns)_$(arg points_frame_id)" />
+  <param name="pub_pointcloud_topic" value="$(arg ns)/points" />
+  <param name="square_size" value="$(arg square_size)" />
+  <param name="approx_sync" value="$(arg approx_sync)" />
+</node>
+</launch>

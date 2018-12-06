@@ -1,0 +1,25 @@
+# device options, -1 will not set the value
+
+#gain [0, 48], default:24
+gain: -1
+#brightness [0, 240], default:120
+brightness: -1
+#contrast [0, 255], default: 127
+contrast: -1 
+#frame_rate [10,15,20,25,30,35,40,45,50,55], default:25
+frame_rate: 25
+#imu_frequency [100,200,250,333,500], default:200
+imu_frequency: 100
+#exposure_mode 0: auto-exposure, 1: manual-exposure, default:0
+exposure_mode: -1 
+#max_gain [0, 48], default:48
+max_gain: -1
+#max_exposure_time [0, 240], default:240
+max_exposure_time: -1 
+#desired_brightness [0, 255], default: 192
+desired_brightness: -1 
+#ir_control [0, 160], default:80
+ir_control: 80
+# hdr_mode , 0: 10-bit, 1: 12-bit, default: 0
+hdr_mode: -1
+

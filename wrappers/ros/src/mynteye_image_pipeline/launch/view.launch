@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+ <arg name="ns" default="stereo" />
+ <node pkg="image_view" type="image_view" name="left_rect_view" output="screen" >
+   <remap from="image" to="$(arg ns)/left/image_rect" />
+ </node>
+ <node pkg="image_view" type="image_view" name="right_rect_view" output="screen" >
+   <remap from="image" to="$(arg ns)/right/image_rect" />
+ </node>
+ <node pkg="image_view" type="image_view" name="depth_view" output="screen" >
+   <remap from="image" to="$(arg ns)/depth/data_raw" />
+ </node>
+ <node pkg="image_view" type="disparity_view" name="disparity_view" output="screen" >
+   <remap from="image" to="$(arg ns)/disparity" />
+ </node>
+</launch>

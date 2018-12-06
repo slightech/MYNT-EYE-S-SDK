@@ -1,0 +1,26 @@
+# Normalization window size, pixels. 
+prefilter_size: 9 
+# Bound on normalized pixel values. 
+prefilter_cap: 31
+# Edge size (pixels) of the correlation window for matching. Values must be odd, in the range 5 to 255 (but with an extra performance hit for values larger than 21). Larger values have smoother disparity results, but smear out small features and depth discontinuities. 
+correlation_window_size: 15
+# Minimum disparity, or the offset to the disparity search window. By setting to a positive value, the cameras become more "cross-eyed" and will find objects closer to the cameras. If the cameras are "verged" (inclined toward each other), it may be appropriate to set min_disparity to a negative value. When min_disparity is greater than 0, objects at large distances will not be found. 
+min_disparity: 0
+# The size of the disparity search window (pixels). Together with min_disparity, this defines the "horopter," the 3D volume that is visible to the stereo algorithm.
+disparity_range: 64
+# Filters disparity readings based on a comparison to the next-best correlation along the epipolar line. Matches where uniqueness_ratio > (best_match - next_match) / next_match are filtered out. 
+uniqueness_ratio: 15
+# Filters disparity readings based on the amount of texture in the correlation window. 
+texture_threshold: 10
+# Filters disparity regions that are less than this number of pixels. For example, a value of 100 means that all regions with fewer than 100 pixels will be rejected. 
+speckle_size: 100
+# Groups disparity regions based on their connectedness. Disparities are grouped together in the same region if they are within this distance in pixels. 
+speckle_range: 4
+# Size of message queue for each synchronized topic. You may need to raise this if images take significantly longer to travel over the network than camera info and/or the delay from disparity processing is too long. 
+
+disp12MaxDiff: -1
+sgbmWindsize: 3
+
+square_size: 5 
+# Whether to use approximate synchronization. Set to true if the left and right cameras do not produce exactly synced timestamps.  
+approx_sync: false

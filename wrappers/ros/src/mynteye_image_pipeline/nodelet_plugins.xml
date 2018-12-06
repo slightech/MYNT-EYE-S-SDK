@@ -1,0 +1,45 @@
+<library path="lib/libmynteye_image_pipeline">
+
+  <class name="mynteye_image_pipeline/CameraCalibration"
+         type="mynteye_image_pipeline::CameraCalibration"
+         base_class_type="nodelet::Nodelet">
+    <description>This is the nodelet of ROS interface for MYNT EYE camera.</description>
+  </class>
+
+  <class name="mynteye_image_pipeline/OriginImageCamera"
+         type="mynteye_image_pipeline::OriginImageCamera"
+         base_class_type="nodelet::Nodelet">
+    <description>This is the nodelet of ROS interface for MYNT EYE camera.</description>
+  </class>
+
+  <class name="mynteye_image_pipeline/PubCamera"
+         type="mynteye_image_pipeline::PubCamera"
+         base_class_type="nodelet::Nodelet">
+    <description>This is the nodelet of ROS interface for MYNT EYE camera.</description>
+  </class>
+
+  <class name="mynteye_image_pipeline/Rectify"
+         type="mynteye_image_pipeline::Rectify"
+         base_class_type="nodelet::Nodelet">
+    <description>This is the nodelet of ROS interface for MYNT EYE camera.</description>
+  </class>
+
+  <class name="mynteye_image_pipeline/Disparity"
+         type="mynteye_image_pipeline::Disparity"
+         base_class_type="nodelet::Nodelet">
+    <description>This is the nodelet of ROS interface for MYNT EYE camera.</description>
+  </class>
+
+  <class name="mynteye_image_pipeline/DisparityToDepth"
+         type="mynteye_image_pipeline::DisparityToDepth"
+         base_class_type="nodelet::Nodelet">
+    <description>This is the nodelet of ROS interface for MYNT EYE camera.</description>
+  </class>
+
+  <class name="mynteye_image_pipeline/PointClouldXyz"
+         type="mynteye_image_pipeline::PointClouldXyz"
+         base_class_type="nodelet::Nodelet">
+    <description>This is the nodelet of ROS interface for MYNT EYE camera.</description>
+  </class>
+
+</library>
