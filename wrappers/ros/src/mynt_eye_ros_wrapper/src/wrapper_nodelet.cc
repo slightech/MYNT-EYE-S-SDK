@@ -409,25 +409,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       } else {
         publishPoint(stream);
       }
-      api_->SetStreamCallback(
-          stream, [this, stream](const api::StreamData &data) {
-            // data.img is null, not hard timestamp
-            static std::size_t count = 0;
-            ++count;
-            publishCamera(stream, data, count, ros::Time::now());
-          });
-      is_published_[stream] = true;
-    }
-
-    if (points_publisher_.getNumSubscribers() > 0 &&
-        !is_published_[Stream::POINTS]) {
-      api_->SetStreamCallback(
-          Stream::POINTS, [this](const api::StreamData &data) {
-            static std::size_t count = 0;
-            ++count;
-            publishPoints(data, count, ros::Time::now());
-          });
-      is_published_[Stream::POINTS] = true;
     }
 
     if (!is_motion_published_) {
