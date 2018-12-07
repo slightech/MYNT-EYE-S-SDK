@@ -27,34 +27,33 @@ DisparityProcessor::DisparityProcessor(std::int32_t proc_period)
     : Processor(std::move(proc_period)) {
   VLOG(2) << __func__ << ": proc_period=" << proc_period;
 
-	int blockSize_ = 15;           // 15
-	int numDisparities_ = 64;      // 64
+  int blockSize_ = 15;           // 15
+  int numDisparities_ = 64;      // 64
 
 #ifdef WITH_OPENCV2
-	bm_ = cv::Ptr<cv::StereoBM>(
-			new cv::StereoBM(
-				cv::StereoBM::BASIC_PRESET,
-				numDisparities_,
-				blockSize_));
+  bm_ = cv::Ptr<cv::StereoBM>(
+      new cv::StereoBM(
+        cv::StereoBM::BASIC_PRESET,
+        numDisparities_,
+        blockSize_));
 #else
-	int minDisparity_ = 0;         // 0
-	int preFilterSize_ = 9;        // 9
-	int preFilterCap_ = 31;        // 31
-	int uniquenessRatio_ = 15;     // 15
-	int textureThreshold_ = 10;    // 10
-	int speckleWindowSize_ = 100;  // 100
-	int speckleRange_ = 4;         // 4
-
-	bm_ = cv::StereoBM::create(16, 9);
-	bm_->setBlockSize(blockSize_);
-	bm_->setMinDisparity(minDisparity_);
-	bm_->setNumDisparities(numDisparities_);
-	bm_->setPreFilterSize(preFilterSize_);
-	bm_->setPreFilterCap(preFilterCap_);
-	bm_->setUniquenessRatio(uniquenessRatio_);
-	bm_->setTextureThreshold(textureThreshold_);
-	bm_->setSpeckleWindowSize(speckleWindowSize_);
-	bm_->setSpeckleRange(speckleRange_);
+  int minDisparity_ = 0;         // 0
+  int preFilterSize_ = 9;        // 9
+  int preFilterCap_ = 31;        // 31
+  int uniquenessRatio_ = 15;     // 15
+  int textureThreshold_ = 10;    // 10
+  int speckleWindowSize_ = 100;  // 100
+  int speckleRange_ = 4;         // 4
+  bm_ = cv::StereoBM::create(16, 9);
+  bm_->setBlockSize(blockSize_);
+  bm_->setMinDisparity(minDisparity_);
+  bm_->setNumDisparities(numDisparities_);
+  bm_->setPreFilterSize(preFilterSize_);
+  bm_->setPreFilterCap(preFilterCap_);
+  bm_->setUniquenessRatio(uniquenessRatio_);
+  bm_->setTextureThreshold(textureThreshold_);
+  bm_->setSpeckleWindowSize(speckleWindowSize_);
+  bm_->setSpeckleRange(speckleRange_);
 #endif
 }
 
@@ -78,11 +77,11 @@ bool DisparityProcessor::OnProcess(
 
   cv::Mat disparity;
 #ifdef WITH_OPENCV2
-	(*bm_)(input->first, input->second, disparity);
+  (*bm_)(input->first, input->second, disparity);
 #else
   bm_->compute(input->first, input->second, disparity);
 #endif
-	disparity.convertTo(output->value, CV_32F, 1./16);
+  disparity.convertTo(output->value, CV_32F, 1./16);
   return true;
 }
 

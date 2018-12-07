@@ -72,15 +72,15 @@ void RectifyProcessor::InitParams(
        in_right.cy, 0, 0, 1);
   cv::Mat D1(1, 5, CV_64F, in_left.coeffs);
   cv::Mat D2(1, 5, CV_64F, in_right.coeffs);
-	/*
+  /*
   cv::Mat R =
       (cv::Mat_<double>(3, 3) << ex_right_to_left.rotation[0][0],
        ex_right_to_left.rotation[0][1], ex_right_to_left.rotation[0][2],
        ex_right_to_left.rotation[1][0], ex_right_to_left.rotation[1][1],
        ex_right_to_left.rotation[1][2], ex_right_to_left.rotation[2][0],
        ex_right_to_left.rotation[2][1], ex_right_to_left.rotation[2][2]);
-			 */
-	cv::Mat R =
+  */
+  cv::Mat R =
       (cv::Mat_<double>(3, 3) << 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
   cv::Mat T(3, 1, CV_64F, ex_right_to_left.translation);
 
