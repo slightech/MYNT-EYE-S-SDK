@@ -84,7 +84,6 @@ void PCViewer::ConvertMatToPointCloud(
   for (int i = 0; i < xyz.rows; i++) {
     for (int j = 0; j < xyz.cols; j++) {
       auto &&p = xyz.at<cv::Point3f>(i, j);
-      if (std::abs(p.z) > 9999) continue;
       if (std::isfinite(p.x) && std::isfinite(p.y) && std::isfinite(p.z)) {
         // LOG(INFO) << "[" << i << "," << j << "] x: " << p.x << ", y: " << p.y
         // << ", z: " << p.z;

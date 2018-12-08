@@ -26,34 +26,37 @@ const char DisparityProcessor::NAME[] = "DisparityProcessor";
 DisparityProcessor::DisparityProcessor(std::int32_t proc_period)
     : Processor(std::move(proc_period)) {
   VLOG(2) << __func__ << ": proc_period=" << proc_period;
-
-  int blockSize_ = 15;           // 15
-  int numDisparities_ = 64;      // 64
+  int sgbmWinSize = 3;
+  int numberOfDisparities = 64;
 
 #ifdef WITH_OPENCV2
-  bm_ = cv::Ptr<cv::StereoBM>(
-      new cv::StereoBM(
-        cv::StereoBM::BASIC_PRESET,
-        numDisparities_,
-        blockSize_));
+  // StereoSGBM
+  //   http://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html?#stereosgbm
+  sgbm_ = cv::Ptr<cv::StereoSGBM>(
+      new cv::StereoSGBM(
+          0,                               // minDisparity
+          numberOfDisparities,             // numDisparities
+          sgbmWinSize,                     // SADWindowSize
+          8 * sgbmWinSize * sgbmWinSize,   // P1
+          32 * sgbmWinSize * sgbmWinSize,  // P2
+          1,                               // disp12MaxDiff
+          63,                              // preFilterCap
+          10,                              // uniquenessRatio
+          100,                             // speckleWindowSize
+          32,                              // speckleRange
+          false));                         // fullDP
 #else
-  int minDisparity_ = 0;         // 0
-  int preFilterSize_ = 9;        // 9
-  int preFilterCap_ = 31;        // 31
-  int uniquenessRatio_ = 15;     // 15
-  int textureThreshold_ = 10;    // 10
-  int speckleWindowSize_ = 100;  // 100
-  int speckleRange_ = 4;         // 4
-  bm_ = cv::StereoBM::create(16, 9);
-  bm_->setBlockSize(blockSize_);
-  bm_->setMinDisparity(minDisparity_);
-  bm_->setNumDisparities(numDisparities_);
-  bm_->setPreFilterSize(preFilterSize_);
-  bm_->setPreFilterCap(preFilterCap_);
-  bm_->setUniquenessRatio(uniquenessRatio_);
-  bm_->setTextureThreshold(textureThreshold_);
-  bm_->setSpeckleWindowSize(speckleWindowSize_);
-  bm_->setSpeckleRange(speckleRange_);
+  sgbm_ = cv::StereoSGBM::create(0, 16, 3);
+  sgbm_->setPreFilterCap(63);
+  sgbm_->setBlockSize(sgbmWinSize);
+  sgbm_->setP1(8 * sgbmWinSize * sgbmWinSize);
+  sgbm_->setP2(32 * sgbmWinSize * sgbmWinSize);
+  sgbm_->setMinDisparity(0);
+  sgbm_->setNumDisparities(numberOfDisparities);
+  sgbm_->setUniquenessRatio(10);
+  sgbm_->setSpeckleWindowSize(100);
+  sgbm_->setSpeckleRange(32);
+  sgbm_->setDisp12MaxDiff(1);
 #endif
 }
 
@@ -77,11 +80,27 @@ bool DisparityProcessor::OnProcess(
 
   cv::Mat disparity;
 #ifdef WITH_OPENCV2
-  (*bm_)(input->first, input->second, disparity);
+  // StereoSGBM::operator()
+  //   http://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html#stereosgbm-operator
+  // Output disparity map. It is a 16-bit signed single-channel image of the
+  // same size as the input image.
+  // It contains disparity values scaled by 16. So, to get the floating-point
+  // disparity map,
+  // you need to divide each disp element by 16.
+  (*sgbm_)(input->first, input->second, disparity);
 #else
-  bm_->compute(input->first, input->second, disparity);
+  // compute()
+  //   http://docs.opencv.org/master/d2/d6e/classcv_1_1StereoMatcher.html
+  // Output disparity map. It has the same size as the input images.
+  // Some algorithms, like StereoBM or StereoSGBM compute 16-bit fixed-point
+  // disparity map
+  // (where each disparity value has 4 fractional bits),
+  // whereas other algorithms output 32-bit floating-point disparity map.
+  sgbm_->compute(input->first, input->second, disparity);
 #endif
-  disparity.convertTo(output->value, CV_32F, 1./16);
+  output->value = disparity / 16 + 1;
+  output->id = input->first_id;
+  output->data = inpu t->first_data;
   return true;
 }
 
