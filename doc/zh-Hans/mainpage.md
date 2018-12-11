@@ -1,4 +1,4 @@
-# MYNT EYE SDK {#mainpage}
+# MYNT EYE S SDK {#mainpage}
 
 * <a class="el" href="annotated.html">API 类</a>
 * <a class="el" href="modules.html">API 模块</a>

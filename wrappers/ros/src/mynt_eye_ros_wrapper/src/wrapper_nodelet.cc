@@ -160,6 +160,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         {Option::DESIRED_BRIGHTNESS, "desired_brightness"},
         {Option::IR_CONTROL, "ir_control"},
         {Option::HDR_MODE, "hdr_mode"},
+        {Option::ACCELEROMETER_RANGE, "accel_range"},
+        {Option::GYROSCOPE_RANGE, "gyro_range"}
     };
     for (auto &&it = option_names.begin(); it != option_names.end(); ++it) {
       if (!api_->Supports(it->first))
@@ -196,10 +198,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                          {Stream::DISPARITY_NORMALIZED, enc::MONO8},
                          {Stream::DEPTH, enc::MONO16}};
 
-    pub_imu_ = nh_.advertise<sensor_msgs::Imu>(imu_topic, 1);
+    pub_imu_ = nh_.advertise<sensor_msgs::Imu>(imu_topic, 100);
     NODELET_INFO_STREAM("Advertized on topic " << imu_topic);
 
-    pub_temp_ = nh_.advertise<mynt_eye_ros_wrapper::Temp>(temp_topic, 1);
+    pub_temp_ = nh_.advertise<mynt_eye_ros_wrapper::Temp>(temp_topic, 100);
     NODELET_INFO_STREAM("Advertized on topic " << temp_topic);
 
     // stream toggles

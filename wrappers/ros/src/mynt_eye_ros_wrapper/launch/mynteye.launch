@@ -86,6 +86,14 @@
   <arg name="hdr_mode" default="-1" />
   <!-- <arg name="hdr_mode" default="0" /> -->
 
+  <!-- accel_range range: {4,8,16,32} -->
+  <arg name="accel_range" default="-1" />
+  <!-- <arg name="accel_range" default="8" /> -->
+
+  <!-- gyro_range range: {500,1000,2000,4000} -->
+  <arg name="gyro_range" default="-1" />
+  <!-- <arg name="gyro_range" default="1000" /> -->
+
   <!-- Push down all topics/nodelets into "mynteye" namespace -->
   <group ns="$(arg mynteye)">
 
@@ -143,6 +151,8 @@
       <param name="desired_brightness" value="$(arg desired_brightness)" />
       <param name="ir_control" value="$(arg ir_control)" />
       <param name="hdr_mode" value="$(arg hdr_mode)" />
+      <param name="accel_range" value="$(arg accel_range)" />
+      <param name="gyro_range" value="$(arg gyro_range)" />
 
     </node>
 

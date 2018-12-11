@@ -58,7 +58,7 @@ for lang in "${LANGS[@]}"; do
 
     # html
     if [ -d "$OUTPUT/$lang/html" ]; then
-      dirname="mynt-eye-sdk-apidoc"; \
+      dirname="mynt-eye-s-sdk-apidoc"; \
         [ -n "$version" ] && dirname="$dirname-$version"; \
         dirname="$dirname-$lang"
       cd "$OUTPUT/$lang"
@@ -69,7 +69,7 @@ for lang in "${LANGS[@]}"; do
     # latex
     if [ $pdflatex_FOUND ] && [ -f "$OUTPUT/$lang/latex/Makefile" ]; then
       _echo_in "doxygen make latex"
-      filename="mynt-eye-sdk-apidoc"; \
+      filename="mynt-eye-s-sdk-apidoc"; \
         [ -n "$version" ] && filename="$filename-$version"; \
         filename="$filename-$lang.pdf"
       cd "$OUTPUT/$lang/latex" && _texcjk refman.tex && make

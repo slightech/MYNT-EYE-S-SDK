@@ -26,7 +26,8 @@ const std::map<Model, OptionSupports> option_supports_map = {
      {Option::GAIN, Option::BRIGHTNESS, Option::CONTRAST, Option::FRAME_RATE,
       Option::IMU_FREQUENCY, Option::EXPOSURE_MODE, Option::MAX_GAIN,
       Option::MAX_EXPOSURE_TIME, Option::DESIRED_BRIGHTNESS, Option::IR_CONTROL,
-      Option::HDR_MODE, Option::ZERO_DRIFT_CALIBRATION, Option::ERASE_CHIP}}};
+      Option::HDR_MODE, Option::ZERO_DRIFT_CALIBRATION, Option::ERASE_CHIP,
+      Option::ACCELEROMETER_RANGE, Option::GYROSCOPE_RANGE}}};
 
 const std::map<Model, std::map<Capabilities, StreamRequests>>
     stream_requests_map = {

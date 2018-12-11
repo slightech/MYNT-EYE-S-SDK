@@ -34,9 +34,16 @@ Motions::~Motions() {
 void Motions::SetMotionCallback(motion_callback_t callback) {
   motion_callback_ = callback;
   if (motion_callback_) {
+    accel_range = channels_->GetControlValue(Option::ACCELEROMETER_RANGE);
+    if (accel_range == -1)
+      accel_range = 8;
+
+    gyro_range = channels_->GetControlValue(Option::GYROSCOPE_RANGE);
+    if (gyro_range == -1)
+      gyro_range = 1000;
+
     channels_->SetImuCallback([this](const ImuPacket &packet) {
       if (!motion_callback_ && !motion_datas_enabled_) {
-        LOG(WARNING) << "";
         return;
       }
       for (auto &&seg : packet.segments) {
@@ -47,17 +54,19 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
         //   LOG(WARNING) << "Imu timestamp offset is incorrect";
         // }
         imu->timestamp = packet.timestamp + seg.offset;
-        imu->accel[0] = seg.accel[0] * 8.f / 0x10000;
-        imu->accel[1] = seg.accel[1] * 8.f / 0x10000;
-        imu->accel[2] = seg.accel[2] * 8.f / 0x10000;
-        imu->gyro[0] = seg.gyro[0] * 1000.f / 0x10000;
-        imu->gyro[1] = seg.gyro[1] * 1000.f / 0x10000;
-        imu->gyro[2] = seg.gyro[2] * 1000.f / 0x10000;
+        imu->accel[0] = seg.accel[0] * 1.f * accel_range / 0x10000;
+        imu->accel[1] = seg.accel[1] * 1.f * accel_range / 0x10000;
+        imu->accel[2] = seg.accel[2] * 1.f * accel_range / 0x10000;
+        imu->gyro[0] = seg.gyro[0] * 1.f * gyro_range / 0x10000;
+        imu->gyro[1] = seg.gyro[1] * 1.f * gyro_range / 0x10000;
+        imu->gyro[2] = seg.gyro[2] * 1.f * gyro_range / 0x10000;
         imu->temperature = seg.temperature / 326.8f + 25;
 
         std::lock_guard<std::mutex> _(mtx_datas_);
         motion_data_t data = {imu};
-        motion_datas_.push_back(data);
+        if (motion_datas_enabled_) {
+          motion_datas_.push_back(data);
+        }
 
         motion_callback_(data);
       }

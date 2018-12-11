@@ -1,10 +1,10 @@
-# How to use MYNT® EYE SDK with Visual Studio 2017
+# How to use MYNT® EYE S SDK with Visual Studio 2017
 
-This tutorial will create a project with Visual Studio 2017 to start using MYNT® EYE SDK.
+This tutorial will create a project with Visual Studio 2017 to start using MYNT® EYE S SDK.
 
 ## Preparation
 
-Install the win pack of MYNT® EYE SDK.
+Install the win pack of MYNT® EYE S SDK.
 
 ## Create Project
 
@@ -71,6 +71,6 @@ Include the headers of SDK and start using its APIs,
 
 Select "Release x64" or "Debug x64" to run the project.
 
-<!--  
+<!--
 ![](images/10_path.png)
 -->

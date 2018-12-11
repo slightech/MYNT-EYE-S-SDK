@@ -24,7 +24,7 @@ MKFILE_DIR := $(patsubst %/,%,$(dir $(MKFILE_PATH)))
 
 SUDO ?= sudo
 
-.DEFAULT_GOAL := help
+.DEFAULT_GOAL := all
 
 help:
 	@echo "Usage:"
@@ -44,7 +44,7 @@ help:
 
 .PHONY: help
 
-all: test samples tools
+all: init samples tools ros
 
 .PHONY: all
 
@@ -78,7 +78,7 @@ submodules:
 
 # init
 
-init: submodules
+init:
 	@$(call echo,Make $@)
 	@$(SH) ./scripts/init.sh $(INIT_OPTIONS)
 
@@ -86,7 +86,7 @@ init: submodules
 
 # build
 
-build: submodules
+build:
 	@$(call echo,Make $@)
 ifeq ($(HOST_OS),Win)
 	@$(call cmake_build,./_build,..,-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/_install)
@@ -98,7 +98,7 @@ endif
 
 # test
 
-test: install
+test: submodules install
 	@$(call echo,Make $@)
 	@$(call echo,Make gtest,33)
 ifeq ($(HOST_OS),Win)
@@ -139,8 +139,8 @@ endif
 uninstall:
 	@$(call echo,Make $@)
 ifeq ($(HOST_OS),Linux)
-	$(SUDO) rm -rf /usr/local/lib/libmynteye*
 	$(SUDO) rm -rf /usr/local/include/mynteye/
+	$(SUDO) rm -rf /usr/local/lib/libmynteye.so*
 	$(SUDO) rm -rf /usr/local/lib/cmake/mynteye/
 	$(SUDO) rm -rf /usr/local/share/mynteye/
 endif
@@ -184,7 +184,7 @@ cleanpkg:
 ros: install
 	@$(call echo,Make $@)
 ifeq ($(HOST_OS),Linux)
-	@cd ./wrappers/ros && catkin_make
+	@cd ./wrappers/ros && catkin_make -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
 else
 	$(error "Can't make ros on $(HOST_OS)")
 endif
