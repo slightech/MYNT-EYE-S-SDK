@@ -156,5 +156,37 @@
 
     </node>
 
+    <!-- disable compressed depth plugin for image topics -->
+    <group ns="$(arg left_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg left_rect_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg right_rect_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg right_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg disparity_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg disparity_norm_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+
   </group> <!-- mynteye -->
 </launch>
