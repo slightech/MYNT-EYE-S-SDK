@@ -71,7 +71,7 @@ add_subdirectory(device)
 
 # samples above uvc layer
 
-add_subdirectory(uvc)
+#add_subdirectory(uvc)
 
 # tutorials
 
