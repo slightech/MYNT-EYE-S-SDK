@@ -98,7 +98,7 @@ bool DisparityProcessor::OnProcess(
   // whereas other algorithms output 32-bit floating-point disparity map.
   sgbm_->compute(input->first, input->second, disparity);
 #endif
-  output->value = disparity / 16 + 1;
+  disparity.convertTo(output->value, CV_32F, 1./16, 1);
   output->id = input->first_id;
   output->data = input->first_data;
   return true;
