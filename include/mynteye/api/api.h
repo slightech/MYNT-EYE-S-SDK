@@ -15,6 +15,7 @@
 #define MYNTEYE_API_API_H_
 #pragma once
 
+#include <functional>
 #include <limits>
 #include <memory>
 #include <string>

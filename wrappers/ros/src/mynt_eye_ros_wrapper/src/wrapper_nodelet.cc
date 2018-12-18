@@ -322,9 +322,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       api_->EnableStreamData(Stream::POINTS);
       api_->SetStreamCallback(
           Stream::POINTS, [this](const api::StreamData &data) {
+            ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
             static std::size_t count = 0;
             ++count;
-            publishPoints(data, count, ros::Time::now());
+            publishPoints(data, count, stamp);
           });
       is_published_[Stream::POINTS] = true;
     }
@@ -341,10 +342,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       api_->EnableStreamData(stream);
       api_->SetStreamCallback(
           stream, [this, stream](const api::StreamData &data) {
-            // data.img is null, not hard timestamp
+            ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
             static std::size_t count = 0;
             ++count;
-            publishCamera(stream, data, count, ros::Time::now());
+            publishCamera(stream, data, count, stamp);
           });
       is_published_[stream] = true;
     }
