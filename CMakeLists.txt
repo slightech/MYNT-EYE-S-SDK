@@ -192,6 +192,7 @@ endif()
 
 set(MYNTEYE_LINKLIBS ${UVC_LIB})
 if(WITH_API)
+  include_directories(${OpenCV_INCLUDE_DIRS})
   list(APPEND MYNTEYE_LINKLIBS ${OpenCV_LIBS})
 endif()
 if(WITH_BOOST_FILESYSTEM)
