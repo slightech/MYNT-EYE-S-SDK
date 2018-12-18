@@ -16,10 +16,17 @@
 #include <vector>
 #include <atomic>
 #include <mutex>
+#include <chrono>
+#include <fstream>
+#include <sstream>
+#include <string>
+
 #include "mynteye/logger.h"
 #include "mynteye/uvc/uvc.h"
 #include "libuvc/libuvc.h"
 #include "AVfoundationCamera.h"
+
+#define MYNT_DEV_NAME "MYNT-EYE-S"
 
 // #define ENABLE_DEBUG_SPAM
 
@@ -27,28 +34,334 @@ MYNTEYE_BEGIN_NAMESPACE
 
 namespace uvc {
 
+struct context {
+  context() {
+    VLOG(2) << __func__;
+  }
+
+  ~context() {
+    VLOG(2) << __func__;
+  }
+};
+
+struct buffer {
+  void *start;
+  size_t length;
+};
+
+void printConfig(std::vector<CameraConfig> cfg_list) {
+	if(cfg_list.size()==0) return;
+
+	int device = -1;
+	int width = -1;
+	int height = -1;
+	float fps = -1;
+	int format = -1;
+	int frame_mode = -1;
+
+	for (int i=0;i<(int)cfg_list.size();i++) {
+		if (cfg_list[i].device != device) {
+			if (device>=0) printf("\b fps\n");
+			device = cfg_list[i].device;
+			if(strncmp(cfg_list[i].name, MYNT_DEV_NAME, strlen(MYNT_DEV_NAME)) == 0) {
+				printf("*");
+			} else {
+				printf(" ");
+			}
+
+			printf(" %d: %s\n",cfg_list[i].device,cfg_list[i].name);
+			format = -1;
+		}
+
+		if ((cfg_list[i].cam_format != format) || (cfg_list[i].frame_mode != frame_mode)) {
+			if (format>=0) printf("\b fps\n");
+			format = cfg_list[i].cam_format;
+			if(cfg_list[i].frame_mode<0) printf("    format: %s",fstr[cfg_list[i].cam_format]);
+			else printf("    format7_%d: %s",cfg_list[i].frame_mode,fstr[cfg_list[i].cam_format]);
+			//if(cfg_list[i].compress) printf(" (default)");
+			width = height = fps = -1;
+			printf("\n");
+		}
+
+		if ((cfg_list[i].cam_width != width) || (cfg_list[i].cam_height != height)) {
+			if (width>0) printf("\b fps\n");
+			printf("      %dx%d ",cfg_list[i].cam_width,cfg_list[i].cam_height);
+			width = cfg_list[i].cam_width;
+			height = cfg_list[i].cam_height;
+			fps = INT_MAX;
+		}
+
+		if (cfg_list[i].frame_mode>=0) printf("max|");
+		else if (cfg_list[i].cam_fps != fps) {
+			if(int(cfg_list[i].cam_fps)==cfg_list[i].cam_fps)
+				printf("%d|",int(cfg_list[i].cam_fps));
+			else printf("%.1f|",cfg_list[i].cam_fps);
+			fps = cfg_list[i].cam_fps;
+		}
+	}
+	printf("\b fps\n");
+}
+
+std::vector<CameraConfig> findDevicesConfig() {
+	std::vector<CameraConfig> dev_list;
+	std::vector<CameraConfig> sys_list = AVfoundationCamera::getCameraConfigs();
+	dev_list.insert(dev_list.end(), sys_list.begin(), sys_list.end());
+	return dev_list;
+}
+
+void pv_sleep(int ms=1) {
+	usleep(ms*1000);
+}
+
+/*
+		struct CameraConfig {
+
+    char path[256];
+
+    int driver;
+    int device;
+
+	char name[256];
+    char src[256];
+
+    bool color;
+    bool frame;
+
+    int cam_format;
+    int src_format;
+    int buf_format;
+
+    int cam_width;
+    int cam_height;
+    float cam_fps;
+
+    int frame_width;
+    int frame_height;
+    int frame_xoff;
+    int frame_yoff;
+    int frame_mode;
+
+    int brightness;
+    int contrast;
+    int sharpness;
+
+    int gain;
+    int shutter;
+    int exposure;
+    int focus;
+    int gamma;
+    int white;
+    int powerline;
+    int backlight;
+
+	int saturation;
+    int hue;
+    int red;
+    int blue;
+    int green;
+	
+	bool force;
+
+    bool operator < (const CameraConfig& c) const;
+};
+*/
+
+struct device;
+
+struct device : public AVfoundationCamera{
+  const std::shared_ptr<context> parent;
+
+	static std::vector <struct device*> s_devices;
+	int _vendor_id = -1;
+	int _product_id = -1;
+
+  CameraConfig _config;
+  video_channel_callback callback = nullptr;
+
+	bool is_capturing = false;
+  std::vector<buffer> buffers;
+
+  std::thread thread;
+	volatile bool pause_ = false;
+  volatile bool stop = false;
+
+	unsigned char *cameraBuffer = NULL;
+  unsigned char *cameraWriteBuffer = NULL;
+
+	std::mutex _devices_mutex;
+	device(std::shared_ptr<context> parent, CameraConfig &config)
+      : AVfoundationCamera(&config), parent(parent), _config(config){
+	  VLOG(2) << __func__;
+		if(strncmp(config.name, MYNT_DEV_NAME, strlen(MYNT_DEV_NAME)) == 0) {
+    	_vendor_id = MYNTEYE_VID;// 0x04B4
+			_product_id = MYNTEYE_PID;// 0x00F9
+			open();
+		}
+
+		std::lock_guard<std::mutex> lock(_devices_mutex);
+		s_devices.push_back(this);
+  }
+
+	~device() {
+    VLOG(2) << __func__;
+    std::lock_guard<std::mutex> lock(_devices_mutex);
+    for(unsigned long i = 0 ; i < s_devices.size() ; i++) {
+      if(this == s_devices[i]) {
+        s_devices.erase(s_devices.begin()+i);
+      }
+    }
+		pause_ = true;
+  }
+
+  void open() {
+    setup_camera();
+  }
+
+  // void set_format(
+  //     int width, int height, int format, int fps,
+  //     video_channel_callback callback) {
+  //   this->width = width;
+  //   this->height = height;
+  //   this->format = format;
+  //   this->fps = fps;
+  //   this->callback = callback;
+  // }
+
+  // static void uvc_frame_callback (struct uvc_frame *frame, void *user_ptr)
+  // {
+  //   for(unsigned long i = 0 ; i < s_devices.size() ; i++) {
+  //     if(user_ptr == (void*)s_devices[i]) {
+  //       printf("bingo\n");
+  //     }
+  //   }
+  // }
+
+  void start_capture() {
+    if (is_capturing) {
+      LOG(WARNING) << "Start capture failed, is capturing already";
+      return;
+    }
+		is_capturing = true;
+		startCamera();
+  }
+
+  void stop_capture() {
+    if (!is_capturing)
+      return;
+    is_capturing = false;
+  }
+
+	std::string get_name() const{
+		return std::string(_config.name);
+	}
+	int get_vendor_id() const{
+		return _vendor_id;
+	}
+	int get_product_id() const{
+		return _product_id;
+	}
+	std::string get_video_name() const{
+  	return std::string("video name is not supported on osx.");
+	}
+
+	void setup_camera() {
+    if(initCamera()) {
+			printInfo();
+    } else {
+			printf("could not initialize selected camera\n");
+      closeCamera();
+      return;
+		}
+  }
+
+	void poll() {
+		if(is_capturing) {
+			//long start_time = VisionEngine::currentMicroSeconds();
+			cameraBuffer = getFrame();
+			if (cameraBuffer!=NULL) {
+				// cameraWriteBuffer = engine->ringBuffer->getNextBufferToWrite();
+				// if (cameraWriteBuffer!=NULL) {
+				// 	memcpy(cameraWriteBuffer,cameraBuffer,engine->ringBuffer->size());
+				// 	engine->framenumber_++;
+				// 	engine->ringBuffer->writeFinished();
+				// 	//long driver_time = VisionEngine::currentMicroSeconds() - start_time;
+				// 	//std::cout << "camera latency: " << driver_time/1000.0f << "ms" << std::endl;
+				// }
+				if (callback) {
+					callback(cameraBuffer, [this]() mutable {
+						// todo
+					});
+				}
+			  pv_sleep();
+			} else {
+				if ((is_capturing) && (!stillRunning())) {
+					  printf("error!\n");
+				} else pv_sleep();
+			}
+		} else pv_sleep(5);
+  }
+
+	void pause(bool pause) {
+		pause_ = pause;
+	}
+
+	void start_streaming() {
+    if (!callback) {
+      LOG(WARNING) << __func__ << " failed: video_channel_callback is empty";
+      return;
+    }
+
+    start_capture();
+
+    thread = std::thread([this]() {
+      while (!stop)
+        poll();
+    });
+  }
+
+  void stop_streaming() {
+    if (thread.joinable()) {
+      stop = true;
+      thread.join();
+      stop = false;
+
+      stop_capture();
+    }
+  }
+};
+
+std::vector <struct device*> device::s_devices;
+
 // Enumerate devices
 MYNTEYE_API std::shared_ptr<context> create_context() {
-  //too
+	return std::make_shared<context>();
 }
+
 MYNTEYE_API std::vector<std::shared_ptr<device>> query_devices(
     std::shared_ptr<context> context) {
-  //todo
+	std::vector<std::shared_ptr<device>> devices;
+	auto camerasConfig = findDevicesConfig();
+	printConfig(camerasConfig);
+	for (unsigned int i = 0; i < camerasConfig.size(); i++) {
+		auto dev = std::make_shared<device>(context, camerasConfig[i]);
+    devices.push_back(dev);
+	}
+	return devices;
 }
 
 // Static device properties
 MYNTEYE_API std::string get_name(const device &device) {
-  //todo
+  return device.get_name();
 }
 MYNTEYE_API int get_vendor_id(const device &device) {
-  //todo
+  return device.get_vendor_id();
 }
 MYNTEYE_API int get_product_id(const device &device) {
-  //todo
+  return device.get_product_id();
 }
 
 MYNTEYE_API std::string get_video_name(const device &device) {
-  //todo
+  return device.get_video_name();
 }
 
 MYNTEYE_API bool pu_control_range(
@@ -65,24 +378,24 @@ MYNTEYE_API bool pu_control_query(
 MYNTEYE_API bool xu_control_range(
     const device &device, const xu &xu, uint8_t selector, uint8_t id,
     int32_t *min, int32_t *max, int32_t *def) {
-  //todo
+  // not supported on osx
 }
 MYNTEYE_API bool xu_control_query(  // XU_QUERY_SET, XU_QUERY_GET
     const device &device, const xu &xu, uint8_t selector, xu_query query,
     uint16_t size, uint8_t *data) {
-  //todo
+  // not supported on osx
 }
 
 MYNTEYE_API void set_device_mode(
     device &device, int width, int height, int fourcc, int fps,  // NOLINT
     video_channel_callback callback) {
-  //todo
+  device.callback = callback;
 }
 MYNTEYE_API void start_streaming(device &device, int num_transfer_bufs) {
-  //todo
+  device.start_streaming();
 }
 MYNTEYE_API void stop_streaming(device &device) {
-  //todo
+  device.stop_streaming();
 }
 
 }  // namespace uvc
