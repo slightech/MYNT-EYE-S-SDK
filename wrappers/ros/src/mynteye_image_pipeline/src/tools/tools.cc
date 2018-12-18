@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include <mynteye_image_pipeline/tools/tools.h>
-#include <Eigen/Dense>
-#include <Eigen/Geometry>
+#include "Eigen/Dense"
+#include "Eigen/Geometry"
 #include <opencv2/core/core.hpp>
 #include <opencv2/core/eigen.hpp>
 namespace mynteye_image_pipeline {

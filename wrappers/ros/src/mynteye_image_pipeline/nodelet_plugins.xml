@@ -42,4 +42,9 @@
     <description>This is the nodelet of ROS interface for MYNT EYE camera.</description>
   </class>
 
+  <class name="mynteye_image_pipeline/CheckRectify"
+         type="mynteye_image_pipeline::CheckRectify"
+         base_class_type="nodelet::Nodelet">
+    <description>This is the nodelet of ROS interface for MYNT EYE camera.</description>
+  </class>
 </library>

@@ -14,7 +14,7 @@
 #ifndef EIGENUTILS_H
 #define EIGENUTILS_H
 
-#include <eigen3/Eigen/Dense>
+#include "eigen3/Eigen/Dense"
 
 #include "camodocal/gpl/gpl.h"
 #include "ceres/rotation.h"

@@ -136,8 +136,15 @@ class PubCamera : public nodelet::Nodelet {
                 _right_rect_frame_id, _right_rect_frame_id);
     pnh.param("depth_frame_id",  _depth_frame_id, _depth_frame_id);
     pnh.param("points_frame_id",  _points_frame_id, _points_frame_id);
+    pnh.param("imu_frame_id",  _imu_frame_id, _imu_frame_id);
     pnh.param("laser_scan_depth_frame_id",
                 _laser_scan_depth_frame_id, _laser_scan_depth_frame_id);
+    pnh.getParam("T_cam0_imu", T_cam0_imu);
+
+    for (auto& e : T_cam0_imu) {
+      std::cout << e << std::endl;
+    }
+
     {
       NODELET_INFO_STREAM("sub_image: _square_size: " << _square_size);
       NODELET_INFO_STREAM("sub_image: _approx_sync: " << _approx_sync);
@@ -155,11 +162,15 @@ class PubCamera : public nodelet::Nodelet {
       NODELET_INFO_STREAM("extrinsics_yaml: " << _extrinsics_yaml);
       NODELET_INFO_STREAM("left_frame_id: " << _left_frame_id);
       NODELET_INFO_STREAM("right_frame_id: " << _right_frame_id);
+
       NODELET_INFO_STREAM("_laser_scan_depth_frame_id: "
                             << _laser_scan_depth_frame_id);
+      NODELET_INFO_STREAM("imu_frame_id: " << _imu_frame_id);
     }
-    _cam_odo_ptr = camodocal::CameraFactory::instance()->
-                    generateCameraFromYamlFile(_left_camera_yaml);
+     _cam_odo_ptr["LEFT"] = camodocal::CameraFactory::instance()->
+                            generateCameraFromYamlFile(_left_camera_yaml);
+     _cam_odo_ptr["RIGHT"] = camodocal::CameraFactory::instance()->
+                            generateCameraFromYamlFile(_right_camera_yaml);
 
     stereoRectify(_left_camera_yaml, _right_camera_yaml, _extrinsics_yaml);
     publishStaticTransforms();
@@ -282,9 +293,9 @@ class PubCamera : public nodelet::Nodelet {
     cv::Size image_size1, image_size2;
 
     _camera_info_ptr["left"] =
-        CameraManagerTools::generateCameraFromYamlFile(left_camera_yaml);
-     _camera_info_ptr["right"] =
-        CameraManagerTools::generateCameraFromYamlFile(right_camera_yaml);
+      CameraManagerTools::generateCameraFromYamlFile(left_camera_yaml);
+    _camera_info_ptr["right"] =
+      CameraManagerTools::generateCameraFromYamlFile(right_camera_yaml);
 
     loadCameraMatrix(left_camera_yaml, K1,
                       D1, image_size1,
@@ -320,12 +331,13 @@ class PubCamera : public nodelet::Nodelet {
     }
   }
 
-  void stereoRectify(
-    const CvMat* K1, const CvMat* K2, const CvMat* D1,
-    const CvMat* D2, CvSize imageSize, const CvMat* matR,
-    const CvMat* matT, CvMat* _R1, CvMat* _R2, CvMat* _P1,
-    CvMat* _P2, int flags = cv::CALIB_ZERO_DISPARITY,
-    double alpha = -1, CvSize newImgSize = cv::Size()) {
+  void stereoRectify(const CvMat* K1, const CvMat* K2,
+                     const CvMat* D1, const CvMat* D2,
+                     CvSize imageSize, const CvMat* matR,
+                     const CvMat* matT, CvMat* _R1,
+                     CvMat* _R2, CvMat* _P1, CvMat* _P2,
+                     int flags = cv::CALIB_ZERO_DISPARITY,
+                     double alpha = -1, CvSize newImgSize = cv::Size()) {
     double _om[3], _t[3] = {0}, _uu[3]={0, 0, 0}, _r_r[3][3], _pp[3][4];
     double _ww[3], _wr[3][3], _z[3] = {0, 0, 0}, _ri[3][3], _w3[3];
     cv::Rect_<float> inner1, inner2, outer1, outer2;
@@ -387,9 +399,40 @@ class PubCamera : public nodelet::Nodelet {
     fc_new = (cvmGet(K1, idx ^ 1, idx ^ 1) +
               cvmGet(K2, idx ^ 1, idx ^ 1)) * ratio;
 
+
     for (k = 0; k < 2; k++) {
-        cc_new[k].x = (nx)/2;
-        cc_new[k].y = (ny)/2;
+        CvPoint2D32f _pts[4];
+        CvPoint3D32f _pts_3[4];
+        CvMat pts = cvMat(1, 4, CV_32FC2, _pts);
+        CvMat pts_3 = cvMat(1, 4, CV_32FC3, _pts_3);
+        Eigen::Vector2d a;
+        Eigen::Vector3d b;
+        for (i = 0; i < 4; i++) {
+            int j = (i < 2) ? 0 : 1;
+            a.x() = static_cast<float>((i % 2)*(nx));
+            a.y() = static_cast<float>(j*(ny));
+      if (0 == k) {
+        _cam_odo_ptr["LEFT"]->liftProjective(a, b);
+      } else {
+       _cam_odo_ptr["RIGHT"]->liftProjective(a, b);
+      }
+      _pts[i].x = b.x()/b.z();
+      _pts[i].y = b.y()/b.z();
+        }
+
+        cvConvertPointsHomogeneous(&pts, &pts_3);
+
+        // Change camera matrix to have cc=[0,0] and fc = fc_new
+        double _a_tmp[3][3];
+        CvMat A_tmp  = cvMat(3, 3, CV_64F, _a_tmp);
+        _a_tmp[0][0] = fc_new;
+        _a_tmp[1][1] = fc_new;
+        _a_tmp[0][2] = 0.0;
+        _a_tmp[1][2] = 0.0;
+        cvProjectPoints2(&pts_3, k == 0 ? _R1 : _R2, &Z, &A_tmp, 0, &pts);
+        CvScalar avg = cvAvg(&pts);
+        cc_new[k].x = (nx)/2 - avg.val[0];
+        cc_new[k].y = (ny)/2 - avg.val[1];
     }
 
     if (flags & cv::CALIB_ZERO_DISPARITY) {
@@ -401,7 +444,7 @@ class PubCamera : public nodelet::Nodelet {
       cc_new[0].x = cc_new[1].x = (cc_new[0].x + cc_new[1].x)*0.5;
     }
 
-    cvZero( &pp );
+    cvZero(&pp);
     _pp[0][0] = _pp[1][1] = fc_new;
     _pp[0][2] = cc_new[0].x;
     _pp[1][2] = cc_new[0].y;
@@ -563,6 +606,19 @@ class PubCamera : public nodelet::Nodelet {
     optical2left_rect.transform.rotation.w = 1;
     static_tf_broadcaster_.sendTransform(optical2left_rect);
 
+    // transform between camera0 and imu
+    geometry_msgs::TransformStamped left_imu;
+    left_imu.header.stamp = tf_stamp;
+    left_imu.header.frame_id = _left_frame_id;
+    left_imu.child_frame_id = _imu_frame_id;
+    cv::Mat cam0_imu = cv::Mat(T_cam0_imu);
+    std::cout << cam0_imu.size() << std::endl;
+    cv::Mat t44 = cam0_imu.reshape(0, 4);
+    cv::Mat R = t44.rowRange(0, 3).colRange(0, 3);
+    cv::Mat t = t44.col(3).rowRange(0, 3);
+    std::cout << R << std::endl;
+    std::cout << t << std::endl;
+
     // base_link to right_frame
     geometry_msgs::TransformStamped optical2right_raw;
     optical2right_raw.header.stamp = tf_stamp;
@@ -663,6 +719,7 @@ class PubCamera : public nodelet::Nodelet {
   bool _approx_sync;
   std::string _left_frame_id;
   std::string _right_frame_id;
+  std::string _imu_frame_id;
   std::string _left_rect_frame_id = "left_rect_frame_id";
   std::string _right_rect_frame_id = "right_rect_frame_id";
   std::string _depth_frame_id = "depth_frame_id";
@@ -671,6 +728,7 @@ class PubCamera : public nodelet::Nodelet {
   std::string _base_frame_id;
   std::string _left_camera_yaml;
   std::string _right_camera_yaml;
+  std::vector<double> T_cam0_imu;
   Eigen::Quaterniond _q;
   Eigen::Vector3d _t;
   std::string _extrinsics_yaml;
@@ -678,7 +736,7 @@ class PubCamera : public nodelet::Nodelet {
   std::map<std::string, std::string> _remap_frame_yaml;
   std::map<std::string, Eigen::Matrix3d> _R;
   std::map<std::string, double> _baseline;
-  camodocal::CameraPtr _cam_odo_ptr;
+  std::map<std::string , camodocal::CameraPtr> _cam_odo_ptr;
 };
 PLUGINLIB_EXPORT_CLASS(mynteye_image_pipeline::PubCamera, nodelet::Nodelet);
 }  // namespace mynteye_image_pipeline

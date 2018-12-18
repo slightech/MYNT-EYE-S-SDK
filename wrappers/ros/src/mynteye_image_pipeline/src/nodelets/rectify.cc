@@ -23,6 +23,7 @@
 #include <nodelet/nodelet.h>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/opencv.hpp>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 #include <sensor_msgs/Image.h>
@@ -92,6 +93,7 @@ class Rectify : public nodelet::Nodelet {
                             << _right_rect_frame_id);
       NODELET_INFO_STREAM("Rectify: project_model: " << _project_model);
     }
+
     image_transport::ImageTransport it(nh);
     _img_left_sub.subscribe(it, left_topic, 1);
     _img_right_sub.subscribe(it, right_topic, 1);
@@ -142,6 +144,15 @@ class Rectify : public nodelet::Nodelet {
           sensor_msgs::image_encodings::MONO8) == 0);
       cv::Mat left_img = cv_bridge::toCvShare(img_left_ptr, "8UC1")->image;
       cv::Mat right_img = cv_bridge::toCvShare(img_right_ptr, "8UC1")->image;
+      if (_camera_odo_ptr_left.get() == 0 || _camera_odo_ptr_right.get() == 0) {
+        if (_camera_odo_ptr_left.get() == 0) {
+          _camera_odo_ptr_left =
+            CameraManagerTools::getCamOdoCameraPtr(left_camera_info);
+        }
+        if (_camera_odo_ptr_right.get() == 0) {
+          _camera_odo_ptr_right =
+            CameraManagerTools::getCamOdoCameraPtr(right_camera_info);
+        }
 
       cv::Mat rect_R_l = cv::Mat::eye(3, 3, CV_32F),
                 rect_R_r = cv::Mat::eye(3, 3, CV_32F);
@@ -152,30 +163,26 @@ class Rectify : public nodelet::Nodelet {
         }
       }
 
-     camodocal::CameraPtr camera_odo_ptr_left =
-      CameraManagerTools::getCamOdoCameraPtr(left_camera_info);
-     camodocal::CameraPtr camera_odo_ptr_right =
-      CameraManagerTools::getCamOdoCameraPtr(right_camera_info);
-
-     cv::Mat mapx_l, mapy_l, mapx_r, mapy_r;
-     double left_f[] = {left_camera_info->P[0], left_camera_info->P[5]};
-     double left_center[] = {left_camera_info->P[2], left_camera_info->P[6]};
-     double right_f[] = {right_camera_info->P[0], right_camera_info->P[5]};
-     double right_center[] = {right_camera_info->P[2], right_camera_info->P[6]};
-
-     camera_odo_ptr_left->initUndistortRectifyMap(
-       mapx_l, mapy_l, left_f[0], left_f[1], cv::Size(0, 0),
-       left_center[0], left_center[1], rect_R_l);
-     camera_odo_ptr_right->initUndistortRectifyMap(
-       mapx_r, mapy_r, right_f[0], right_f[1], cv::Size(0, 0),
-       right_center[0], right_center[1], rect_R_r);
+      double left_f[] = {left_camera_info->P[0], left_camera_info->P[5]};
+      double left_center[] = {left_camera_info->P[2], left_camera_info->P[6]};
+      double right_f[] = {right_camera_info->P[0], right_camera_info->P[5]};
+      double right_center[] = {right_camera_info->P[2],
+                                right_camera_info->P[6]};
+      _camera_odo_ptr_left->initUndistortRectifyMap(
+        _mapx_l, _mapy_l, left_f[0], left_f[1], cv::Size(0, 0),
+        left_center[0], left_center[1], rect_R_l);
+      _camera_odo_ptr_right->initUndistortRectifyMap(
+        _mapx_r, _mapy_r, right_f[0], right_f[1], cv::Size(0, 0),
+        right_center[0], right_center[1], rect_R_r);
+      }
 
     cv::remap(
-        left_img, left_img, mapx_l, mapy_l,
+        left_img, left_img, _mapx_l, _mapy_l,
         cv::INTER_LINEAR);
     cv::remap(
-        right_img, right_img, mapx_r, mapy_r,
+        right_img, right_img, _mapx_r, _mapy_r,
         cv::INTER_LINEAR);
+
     auto &&left_msg = cv_bridge::CvImage(
       setHeader(img_left_ptr->header, _left_rect_frame_id),
       sensor_msgs::image_encodings::MONO8, left_img);
@@ -253,6 +260,10 @@ class Rectify : public nodelet::Nodelet {
   std::string _left_rect_frame_id;
   std::string _right_rect_frame_id;
   std::string _project_model;
+
+  camodocal::CameraPtr _camera_odo_ptr_left;
+  camodocal::CameraPtr _camera_odo_ptr_right;
+  cv::Mat _mapx_l, _mapy_l, _mapx_r, _mapy_r;
 };
 PLUGINLIB_EXPORT_CLASS(mynteye_image_pipeline::Rectify, nodelet::Nodelet);
 }  // namespace mynteye_image_pipeline

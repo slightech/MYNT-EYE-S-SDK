@@ -16,6 +16,7 @@
 <arg name="right_frame_id" default="right_frame" />
 <arg name="points_frame_id" default="points_frame" />
 <arg name="laser_scan_depth_frame_id" default="laser_scan_depth_frame" />
+<arg name="imu_frame_id" default="imu_frame" />
 
 
 <arg name="left_rect_topic" default="left/image_rect" />
@@ -73,14 +74,31 @@
   <param name="depth_frame_id" value="$(arg ns)_$(arg depth_frame_id)" />
   <param name="points_frame_id" value="$(arg ns)_$(arg points_frame_id)" />
   <param name="laser_scan_depth_frame_id" value="$(arg laser_scan_depth_frame_id)" />
+  <param name="imu_frame_id" value="$(arg ns)_$(arg imu_frame_id)" />
 
   <param name="square_size" value="$(arg square_size)" />
   <param name="approx_sync" value="$(arg approx_sync)" />
+
+  <rosparam param="T_cam0_imu">
+  [-0.006466202896688589, 0.9999790928242052, 4.6201501546103314e-05, 0.04306176701337289,
+   -0.9999499413002586, -0.006465661586142424, -0.007636105935805694, 0.005233852889544896,
+   -0.007635647563122737, -9.557579908053794e-05, 0.9999708434507271, -0.022993935630638365,
+   0.0, 0.0, 0.0, 1.0
+  ]
+  </rosparam>
+  <rosparam param="T_cam1_imu">
+  [ 0.0024080682653805363, 0.9999970986572325, -6.232452366934389e-05, -0.076913248014734,
+    -0.999985474960574, 0.002407739738629733, -0.004822100914133722, 0.004722134947998456,
+    -0.004821936862333781, 7.393556658696811e-05, 0.9999883716616047, -0.02277829466524315,
+    0.0, 0.0, 0.0, 1.0
+  ]
+  </rosparam>
 
   <param name="left_camera_yaml" value="$(arg stereo_calibration_params_path)/$(arg relative_camera_path)/camera_left.yaml"/>
   <param name="right_camera_yaml" value="$(arg stereo_calibration_params_path)/$(arg relative_camera_path)/camera_right.yaml" />
   <param name="extrinsics_yaml" value="$(arg stereo_calibration_params_path)/$(arg relative_camera_path)/extrinsics.yaml" />
 </node>
+
 <node pkg="nodelet" type="nodelet" name="rectify_nodelet_node" args="load mynteye_image_pipeline/Rectify standalone_nodelet" respawn="false" output="screen">
   <param name="left_topic" value="$(arg ns)/$(arg left_image_topic)" />
   <param name="right_topic" value="$(arg ns)/$(arg right_image_topic)" />
@@ -97,6 +115,7 @@
   <param name="square_size" value="$(arg square_size)" />
   <param name="approx_sync" value="$(arg approx_sync)" />
   <param name="project_model" value="$(arg project_model)" />
+
 </node>
 
 <node pkg="nodelet" type="nodelet" name="disparity_nodelet" args="load mynteye_image_pipeline/Disparity standalone_nodelet" respawn="false" output="screen">
@@ -139,4 +158,6 @@
   <param name="square_size" value="$(arg square_size)" />
   <param name="approx_sync" value="$(arg approx_sync)" />
 </node>
+
 </launch>
+

@@ -158,19 +158,23 @@ catkin_package(
 ###########
 ## Build ##
 ###########
-set (EIGEN_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/third_party/extend_install/eigen_extend/include/eigen3)
+#set (EIGEN_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/third_party/extend_install/eigen_extend/include/eigen3)
+set (EIGEN_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/eigen3)
 set(Ceres_DIR ${PROJECT_SOURCE_DIR}/third_party/extend_install/ceres_extend/share/Ceres)
 MESSAGE(STATUS "+++${Ceres_DIR}")
 find_package(Ceres REQUIRED)
 include_directories(${CERES_INCLUDE_DIRS})
 MESSAGE(STATUS "+++++${CERES_INCLUDE_DIRS}")
 MESSAGE(STATUS "+++++${CERES_LIBRARIES}")
+MESSAGE(STATUS "++eigen_include: +++${EIGEN_INCLUDE_DIRS}")
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
   include
+  include/eigen3
   ${catkin_INCLUDE_DIRS}
+  ${EIGEN_INCLUDE_DIRS}
 )
 
 
@@ -194,6 +198,7 @@ add_library(${PROJECT_NAME}
   src/nodelets/disparity_to_depth.cc
   src/nodelets/point_cloud_xyz.cc
   src/nodelets/pub_camera.cc
+  src/nodelets/check_rectify.cc
   ${TOOLS}
 )
 target_link_libraries(${PROJECT_NAME}
@@ -213,7 +218,7 @@ add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
 # Add cmake target dependencies of the library
 # as an example, code may need to be generated before libraries
 # either from message generation or dynamic reconfigure
-add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_message_cpp)
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context

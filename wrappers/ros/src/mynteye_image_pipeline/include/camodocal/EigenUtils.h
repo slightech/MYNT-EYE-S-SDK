@@ -14,7 +14,7 @@
 #ifndef EIGENUTILS_H
 #define EIGENUTILS_H
 
-#include <Eigen/Dense>
+#include "Eigen/Dense"
 #include <iostream>
 
 #include "ceres/rotation.h"

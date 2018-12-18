@@ -126,9 +126,9 @@ if (NOT WIN32)
 endif(NOT WIN32)
 option(EXPORT_BUILD_DIR
   "Export build directory using CMake (enables external use without install)." OFF)
-option(BUILD_TESTING "Enable tests" ON)
+option(BUILD_TESTING "Enable tests" OFF)
 option(BUILD_DOCUMENTATION "Build User's Guide (html)" OFF)
-option(BUILD_EXAMPLES "Build examples" ON)
+option(BUILD_EXAMPLES "Build examples" OFF)
 option(BUILD_SHARED_LIBS "Build Ceres as a shared library." OFF)
 if (MSVC)
   option(MSVC_USE_STATIC_CRT
@@ -173,7 +173,8 @@ endif (IOS)
 unset(CERES_COMPILE_OPTIONS)
 
 # Eigen.
-set (EIGEN_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/../extend_install/eigen_extend/include/eigen3)
+#set (EIGEN_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/../extend_install/eigen_extend/include/eigen3)
+set (EIGEN_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/../../include/eigen3)
 message(STATUS "+++++EIGEN_INCLUDE_DIR: ${EIGEN_INCLUDE_DIR}")
 find_package(Eigen REQUIRED)
 if (EIGEN_FOUND)

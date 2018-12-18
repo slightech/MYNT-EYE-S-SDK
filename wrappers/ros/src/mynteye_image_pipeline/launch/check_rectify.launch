@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<launch>
+<arg name = "ns" default="stereo" />
+<arg name = "view_image" default="view_image" />
+
+<!--subscribe topic -->
+<arg name="left_rect_topic" default="$(arg ns)/left/image_rect" />
+<arg name="right_rect_topic" default="$(arg ns)/right/image_rect" />
+
+<arg name="pub_stereo_image_topic" default="$(arg view_image)/stereo/image_rect" />
+<!-- public parameters-->
+<arg name="queue_size" default="5" />
+<arg name="approx_sync" default="false" />
+
+<node pkg="nodelet" type="nodelet" name="view_standalone"  args="manager" output="screen"/>
+<node pkg="nodelet" type="nodelet" name="view_rectify" args="load mynteye_image_pipeline/CheckRectify view_standalone" output="screen" >
+  <param name="left_rect_topic" value="$(arg left_rect_topic)" />
+  <param name="right_rect_topic" value="$(arg right_rect_topic)" />
+
+  <param name="pub_stereo_image_topic" value="$(arg pub_stereo_image_topic)" />
+
+  <param name="queue_size" value="$(arg queue_size)" />
+  <param name="approx_sync" value="$(arg approx_sync)" />
+</node>
+
+<node pkg="image_view" type="image_view" name="check_image" output="screen" >
+  <remap from="image" to="$(arg pub_stereo_image_topic)" />
+</node>
+
+</launch>

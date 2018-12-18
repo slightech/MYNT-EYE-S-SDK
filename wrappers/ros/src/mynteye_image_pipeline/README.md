@@ -1,8 +1,8 @@
 ## install dependency
 
 ```
-chmod a+x build.sh
-./build.sh
+chmod a+x ceres.sh
+./ceres.sh
 ```
 ## compile wrapper
 
@@ -22,4 +22,10 @@ roslaunch mynteye_image_pipeline stereo_img_sub_pro.launch
 
 ```
 roslaunch mynteye_image_pipeline view.launch
+```
+
+## check rectify image result
+
+```
+roslaunch mynteye_image_pipeline check_rectify.launch
 ```
