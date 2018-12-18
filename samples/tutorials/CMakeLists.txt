@@ -124,7 +124,6 @@ make_executable2(ctrl_manual_exposure
   SRCS control/manual_exposure.cc util/cv_painter.cc
   WITH_OPENCV
 )
-make_executable2(ctrl_infrared SRCS control/infrared.cc WITH_OPENCV)
 
 # intermediate level
 

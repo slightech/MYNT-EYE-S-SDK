@@ -24,25 +24,20 @@ int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
   if (!api)
     return 1;
+  api->SetStreamRequest(Format::BGR888, FrameRate::RATE_30_FPS);
 
   // manual-exposure: 1
   api->SetOptionValue(Option::EXPOSURE_MODE, 1);
 
-  // gain: range [0,48], default 24
-  api->SetOptionValue(Option::GAIN, 24);
   // brightness/exposure_time: range [0,240], default 120
   api->SetOptionValue(Option::BRIGHTNESS, 120);
-  // contrast/black_level_calibration: range [0,255], default 127
-  api->SetOptionValue(Option::CONTRAST, 127);
 
   LOG(INFO) << "Enable manual-exposure";
-  LOG(INFO) << "Set GAIN to " << api->GetOptionValue(Option::GAIN);
   LOG(INFO) << "Set BRIGHTNESS to " << api->GetOptionValue(Option::BRIGHTNESS);
-  LOG(INFO) << "Set CONTRAST to " << api->GetOptionValue(Option::CONTRAST);
 
   api->Start(Source::VIDEO_STREAMING);
 
-  CVPainter painter(api->GetOptionValue(Option::FRAME_RATE));
+  CVPainter painter(30);
 
   cv::namedWindow("frame");
 
