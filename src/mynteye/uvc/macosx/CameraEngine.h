@@ -12,21 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef CAMERAENGINE_H
-#define CAMERAENGINE_H
+#ifndef SRC_MYNTEYE_UVC_MACOSX_CAMERAENGINE_H_
+#define SRC_MYNTEYE_UVC_MACOSX_CAMERAENGINE_H_
+
+#include <limits.h>
+#include <math.h>
+#include <CoreFoundation/CFBundle.h>
 
 #include <list>
 #include <fstream>
 #include <iostream>
 #include <algorithm>
-
-#include <limits.h>
-#include <math.h>
-
-#include <CoreFoundation/CFBundle.h>
+#include <vector>
 
 #define SAT(c) \
-if (c & (~255)) { if (c < 0) c = 0; else c = 255; }
+if (c & (~255)) { \
+  if (c < 0) { \
+    c = 0; \
+  } else { \
+    c = 255; \
+  } \
+}
 #define HBT(x) (unsigned char)((x)>>8)
 
 #define KEY_A 4
@@ -79,9 +85,9 @@ if (c & (~255)) { if (c < 0) c = 0; else c = 255; }
 #define FORMAT_RGB16    4
 #define FORMAT_GRAY16S  5
 #define FORMAT_RGB16S   6
-#define FORMAT_RAW8		7
+#define FORMAT_RAW8     7
 #define FORMAT_RAW16    8
-#define FORMAT_RGBA		9
+#define FORMAT_RGBA     9
 #define FORMAT_YUYV    10
 #define FORMAT_UYVY    11
 #define FORMAT_YUV411  12
@@ -117,190 +123,219 @@ extern const char* dstr[];
 #define SETTING_NEXT     81
 #define SETTING_PREVIOUS 82
 
-enum CameraSetting { BRIGHTNESS, CONTRAST, SHARPNESS, AUTO_GAIN, GAIN, AUTO_EXPOSURE, EXPOSURE, SHUTTER, AUTO_FOCUS, FOCUS, AUTO_WHITE, WHITE, GAMMA, POWERLINE, BACKLIGHT, SATURATION, AUTO_HUE, COLOR_HUE, COLOR_RED, COLOR_GREEN, COLOR_BLUE };
+enum CameraSetting {
+    BRIGHTNESS,
+    CONTRAST,
+    SHARPNESS,
+    AUTO_GAIN,
+    GAIN,
+    AUTO_EXPOSURE,
+    EXPOSURE,
+    SHUTTER,
+    AUTO_FOCUS,
+    FOCUS,
+    AUTO_WHITE,
+    WHITE,
+    GAMMA,
+    POWERLINE,
+    BACKLIGHT,
+    SATURATION,
+    AUTO_HUE,
+    COLOR_HUE,
+    COLOR_RED,
+    COLOR_GREEN,
+    COLOR_BLUE };
 #define MODE_MIN BRIGHTNESS
 #define MODE_MAX COLOR_BLUE
 
 struct CameraConfig {
+  char path[256];
 
-    char path[256];
+  int driver;
+  int device;
 
-    int driver;
-    int device;
+  char name[256];
+  char src[256];
 
-	char name[256];
-    char src[256];
+  bool color;
+  bool frame;
 
-    bool color;
-    bool frame;
+  int cam_format;
+  int src_format;
+  int buf_format;
 
-    int cam_format;
-    int src_format;
-    int buf_format;
+  int cam_width;
+  int cam_height;
+  float cam_fps;
 
-    int cam_width;
-    int cam_height;
-    float cam_fps;
+  int frame_width;
+  int frame_height;
+  int frame_xoff;
+  int frame_yoff;
+  int frame_mode;
 
-    int frame_width;
-    int frame_height;
-    int frame_xoff;
-    int frame_yoff;
-    int frame_mode;
+  int brightness;
+  int contrast;
+  int sharpness;
 
-    int brightness;
-    int contrast;
-    int sharpness;
+  int gain;
+  int shutter;
+  int exposure;
+  int focus;
+  int gamma;
+  int white;
+  int powerline;
+  int backlight;
 
-    int gain;
-    int shutter;
-    int exposure;
-    int focus;
-    int gamma;
-    int white;
-    int powerline;
-    int backlight;
+  int saturation;
+  int hue;
+  int red;
+  int blue;
+  int green;
+  bool force;
 
-	int saturation;
-    int hue;
-    int red;
-    int blue;
-    int green;
-	
-	bool force;
+  bool operator < (const CameraConfig& c) const {
+      // if (device < c.device) return true;
+      // if (cam_format < c.cam_format) return true;
 
-    bool operator < (const CameraConfig& c) const {
+    if (cam_width > c.cam_width ||
+        (cam_width == c.cam_width && cam_height < c.cam_height))
+      return true;
 
-       //if (device < c.device) return true;
-       //if (cam_format < c.cam_format) return true;
-
-       if (cam_width > c.cam_width || (cam_width == c.cam_width && cam_height < c.cam_height))
-                return true;
-
-       if (cam_width == c.cam_width && cam_height == c.cam_height) {
-                return (cam_fps > c.cam_fps);
-       } else return false;
-
-    }
+    if (cam_width == c.cam_width && cam_height == c.cam_height) {
+      return (cam_fps > c.cam_fps);
+    } else {return false;}
+  }
 };
 
-class CameraEngine
-{
-public:
+class CameraEngine {
+ public:
+  explicit CameraEngine(CameraConfig *cam_cfg) {
+    cfg = cam_cfg;
+    settingsDialog = false;
 
-    CameraEngine(CameraConfig *cam_cfg) {
-        cfg = cam_cfg;
-        settingsDialog=false;
-
-        if (cfg->color) cfg->buf_format=FORMAT_RGB;
-        else cfg->buf_format=FORMAT_GRAY;
+    if (cfg->color) {
+      cfg->buf_format = FORMAT_RGB;
+    } else {
+      cfg->buf_format = FORMAT_GRAY;
     }
+  }
 
-    virtual ~CameraEngine() {};
+  virtual ~CameraEngine() {}
 
-    virtual bool initCamera() = 0;
-    virtual bool startCamera() = 0;
-    virtual unsigned char* getFrame() = 0;
-    virtual bool stopCamera() = 0;
-    virtual bool resetCamera() = 0;
-    virtual bool closeCamera() = 0;
-    virtual bool stillRunning() = 0;
+  virtual bool initCamera() = 0;
+  virtual bool startCamera() = 0;
+  virtual unsigned char* getFrame() = 0;
+  virtual bool stopCamera() = 0;
+  virtual bool resetCamera() = 0;
+  virtual bool closeCamera() = 0;
+  virtual bool stillRunning() = 0;
 
-    void printInfo();
-    static void setMinMaxConfig(CameraConfig *cam_cfg, std::vector<CameraConfig> cfg_list);
+  void printInfo();
+  static void setMinMaxConfig(CameraConfig *cam_cfg,
+      std::vector<CameraConfig> cfg_list);
 
-    virtual int getCameraSettingStep(int mode) = 0;
-    virtual int getMinCameraSetting(int mode) = 0;
-    virtual int getMaxCameraSetting(int mode) = 0;
-    virtual int getCameraSetting(int mode) = 0;
-    virtual bool setCameraSetting(int mode, int value) = 0;
-    virtual bool setCameraSettingAuto(int mode, bool flag) = 0;
-    virtual bool getCameraSettingAuto(int mode) = 0;
-    virtual bool setDefaultCameraSetting(int mode) = 0;
-    virtual int getDefaultCameraSetting(int mode) = 0;
-    virtual bool hasCameraSetting(int mode) = 0;
-    virtual bool hasCameraSettingAuto(int mode) = 0;
+  virtual int getCameraSettingStep(int mode) = 0;
+  virtual int getMinCameraSetting(int mode) = 0;
+  virtual int getMaxCameraSetting(int mode) = 0;
+  virtual int getCameraSetting(int mode) = 0;
+  virtual bool setCameraSetting(int mode, int value) = 0;
+  virtual bool setCameraSettingAuto(int mode, bool flag) = 0;
+  virtual bool getCameraSettingAuto(int mode) = 0;
+  virtual bool setDefaultCameraSetting(int mode) = 0;
+  virtual int getDefaultCameraSetting(int mode) = 0;
+  virtual bool hasCameraSetting(int mode) = 0;
+  virtual bool hasCameraSettingAuto(int mode) = 0;
 
-    virtual bool showSettingsDialog(bool lock);
-    virtual void control(unsigned char key);
+  virtual bool showSettingsDialog(bool lock);
+  virtual void control(unsigned char key);
 
-    int getId() { return cfg->device; }
-    int getFps() { return (int)floor(cfg->cam_fps+0.5f); }
-    int getWidth() { return cfg->frame_width; }
-    int getHeight() { return cfg->frame_height; }
-    int getFormat() { return cfg->buf_format; }
-    char* getName() { return cfg->name; }
+  inline int getId() { return cfg->device; }
+  inline int getFps() { return static_cast<int>(floor(cfg->cam_fps+0.5f)); }
+  inline int getWidth() { return cfg->frame_width; }
+  inline int getHeight() { return cfg->frame_height; }
+  inline int getFormat() { return cfg->buf_format; }
+  inline char* getName() { return cfg->name; }
 
-protected:
+ protected:
+  CameraConfig *cfg;
 
-    CameraConfig *cfg;
+  unsigned char* frm_buffer;
+  unsigned char* cam_buffer;
 
-    unsigned char* frm_buffer;
-    unsigned char* cam_buffer;
+  int lost_frames, timeout;
 
-    int lost_frames, timeout;
+  bool running;
+  bool settingsDialog;
+  int currentCameraSetting;
 
-    bool running;
-    bool settingsDialog;
-    int currentCameraSetting;
+  void crop(int width, int height, unsigned char *src,
+      unsigned char *dest, int bytes);
+  void flip(int width, int height, unsigned char *src,
+      unsigned char *dest, int bytes);
+  void flip_crop(int width, int height, unsigned char *src,
+      unsigned char *dest, int bytes);
 
-    void crop(int width, int height, unsigned char *src, unsigned char *dest, int bytes);
-    void flip(int width, int height, unsigned char *src, unsigned char *dest, int bytes);
-    void flip_crop(int width, int height, unsigned char *src, unsigned char *dest, int bytes);
+  void rgb2gray(int width, int height, unsigned char *src,
+      unsigned char *dest);
+  void crop_rgb2gray(int width, unsigned char *src, unsigned char *dest);
+  void flip_rgb2gray(int width, int height, unsigned char *src,
+      unsigned char *dest);
+  void flip_crop_rgb2gray(int width, unsigned char *src,
+      unsigned char *dest);
 
-    void rgb2gray(int width, int height, unsigned char *src, unsigned char *dest);
-    void crop_rgb2gray(int width, unsigned char *src, unsigned char *dest);
-    void flip_rgb2gray(int width, int height, unsigned char *src, unsigned char *dest);
-    void flip_crop_rgb2gray(int width, unsigned char *src, unsigned char *dest);
+  void uyvy2gray(int width, int height, unsigned char *src,
+      unsigned char *dest);
+  void crop_uyvy2gray(int width, unsigned char *src, unsigned char *dest);
+  void yuyv2gray(int width, int height, unsigned char *src,
+      unsigned char *dest);
+  void crop_yuyv2gray(int width, unsigned char *src, unsigned char *dest);
+  void yuv2gray(int width, int height, unsigned char *src, unsigned char *dest);
+  void crop_yuv2gray(int width, unsigned char *src, unsigned char *dest);
 
-    void uyvy2gray(int width, int height, unsigned char *src, unsigned char *dest);
-    void crop_uyvy2gray(int width, unsigned char *src, unsigned char *dest);
-    void yuyv2gray(int width, int height, unsigned char *src, unsigned char *dest);
-    void crop_yuyv2gray(int width, unsigned char *src, unsigned char *dest);
-    void yuv2gray(int width, int height, unsigned char *src, unsigned char *dest);
-    void crop_yuv2gray(int width, unsigned char *src, unsigned char *dest);
+  void gray2rgb(int width, int height, unsigned char *src, unsigned char *dest);
+  void crop_gray2rgb(int width, unsigned char *src, unsigned char *dest);
+  void uyvy2rgb(int width, int height, unsigned char *src, unsigned char *dest);
+  void crop_uyvy2rgb(int width, unsigned char *src, unsigned char *dest);
+  void yuyv2rgb(int width, int height, unsigned char *src, unsigned char *dest);
+  void crop_yuyv2rgb(int width, unsigned char *src, unsigned char *dest);
 
-    void gray2rgb(int width, int height, unsigned char *src, unsigned char *dest);
-    void crop_gray2rgb(int width, unsigned char *src, unsigned char *dest);
-    void uyvy2rgb(int width, int height, unsigned char *src, unsigned char *dest);
-    void crop_uyvy2rgb(int width, unsigned char *src, unsigned char *dest);
-    void yuyv2rgb(int width, int height, unsigned char *src, unsigned char *dest);
-    void crop_yuyv2rgb(int width, unsigned char *src, unsigned char *dest);
+  void grayw2rgb(int width, int height, unsigned char *src,
+      unsigned char *dest);
+  void crop_grayw2rgb(int width, unsigned char *src, unsigned char *dest);
+  void grayw2gray(int width, int height, unsigned char *src,
+      unsigned char *dest);
+  void crop_grayw2gray(int width, unsigned char *src, unsigned char *dest);
 
-    void grayw2rgb(int width, int height, unsigned char *src, unsigned char *dest);
-    void crop_grayw2rgb(int width, unsigned char *src, unsigned char *dest);
-    void grayw2gray(int width, int height, unsigned char *src, unsigned char *dest);
-    void crop_grayw2gray(int width, unsigned char *src, unsigned char *dest);
+  void resetCameraSettings();
+  void applyCameraSettings();
+  void applyCameraSetting(int mode, int value);
+  void updateSettings();
+  int updateSetting(int mode);
 
-    void resetCameraSettings();
-    void applyCameraSettings();
-    void applyCameraSetting(int mode, int value);
-    void updateSettings();
-    int updateSetting(int mode);
+  void setupFrame();
 
-    void setupFrame();
+  int default_brightness;
+  int default_contrast;
+  int default_sharpness;
 
-    int default_brightness;
-    int default_contrast;
-    int default_sharpness;
+  int default_gain;
+  int default_shutter;
+  int default_exposure;
+  int default_focus;
+  int default_gamma;
+  int default_powerline;
+  int default_white;
+  int default_backlight;
 
-    int default_gain;
-    int default_shutter;
-    int default_exposure;
-    int default_focus;
-    int default_gamma;
-    int default_powerline;
-    int default_white;
-    int default_backlight;
+  int default_saturation;
+  int default_hue;
+  int default_red;
+  int default_blue;
+  int default_green;
 
-    int default_saturation;
-    int default_hue;
-    int default_red;
-    int default_blue;
-    int default_green;
-
-    int ctrl_min;
-    int ctrl_max;
-    int ctrl_val;
+  int ctrl_min;
+  int ctrl_max;
+  int ctrl_val;
 };
-#endif
+#endif  // SRC_MYNTEYE_UVC_MACOSX_CAMERAENGINE_H_
