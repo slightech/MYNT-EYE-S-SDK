@@ -252,7 +252,7 @@ struct device : public AVfoundationCamera{
     return _product_id;
   }
   std::string get_video_name() const {
-    return std::string("video name is not supported on osx.");
+    return std::string("[video name is not supported on osx]");
   }
 
   void setup_camera() {
@@ -302,6 +302,7 @@ struct device : public AVfoundationCamera{
       return;
     }
     start_capture();
+    showSettingsDialog(false);
     thread = std::thread([this]() {
       while (!stop)
         poll();
@@ -317,6 +318,13 @@ struct device : public AVfoundationCamera{
       stop_capture();
     }
   }
+
+  // void reset_options_to_default() {
+  //   setCameraSetting(BRIGHTNESS, 120);
+  //   setCameraSetting(CONTRAST, 127);
+  //   setCameraSetting(GAIN, 24);
+  //   setCameraSetting(SATURATION, 192);
+  // }
 };
 
 std::vector <struct device*> device::s_devices;
