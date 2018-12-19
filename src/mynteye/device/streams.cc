@@ -78,13 +78,27 @@ bool unpack_left_img_pixels(
   CHECK_NOTNULL(frame);
   CHECK_EQ(request.format, frame->format());
   auto data_new = reinterpret_cast<const std::uint8_t *>(data);
-  if (request.format == Format::YUYV || request.format == Format::BGR888) {
-    std::size_t n = request.format == Format::YUYV ? 2 : 3;
+  if (request.format == Format::YUYV) {
+    std::size_t n = 2;
     std::size_t w = frame->width() * n;
     std::size_t h = frame->height();
     for (std::size_t i = 0; i < h; i++) {
       for (std::size_t j = 0; j < w; j++) {
         frame->data()[i * w + j] = *(data_new + 2 * i * w + j);
+      }
+    }
+  } else if (request.format == Format::BGR888) {
+    std::size_t n = 3;
+    std::size_t w = frame->width();
+    std::size_t h = frame->height();
+    for (std::size_t i = 0; i < h; i++) {
+      for (std::size_t j = 0; j < w; j++) {
+        frame->data()[(i * w + j) * n] =
+          *(data_new + (2 * i * w + j) * n + 2);
+        frame->data()[(i * w + j) * n + 1] =
+          *(data_new + (2 * i * w + j) * n + 1);
+        frame->data()[(i * w + j) * n + 2] =
+          *(data_new + (2 * i * w + j) * n);
       }
     }
   } else if (request.format == Format::GREY) {
@@ -105,13 +119,27 @@ bool unpack_right_img_pixels(
   CHECK_NOTNULL(frame);
   CHECK_EQ(request.format, frame->format());
   auto data_new = reinterpret_cast<const std::uint8_t *>(data);
-  if (request.format == Format::YUYV || request.format == Format::BGR888) {
-    std::size_t n = request.format == Format::YUYV ? 2 : 3;
+  if (request.format == Format::YUYV) {
+    std::size_t n = 2;
     std::size_t w = frame->width() * n;
     std::size_t h = frame->height();
     for (std::size_t i = 0; i < h; i++) {
       for (std::size_t j = 0; j < w; j++) {
         frame->data()[i * w + j] = *(data_new + (2 * i + 1) * w + j);
+      }
+    }
+  } else if (request.format == Format::BGR888) {
+    std::size_t n = 3;
+    std::size_t w = frame->width();
+    std::size_t h = frame->height();
+    for (std::size_t i = 0; i < h; i++) {
+      for (std::size_t j = 0; j < w; j++) {
+        frame->data()[(i * w + j) * n] =
+          *(data_new + ((2 * i + 1) * w + j) * n + 2);
+        frame->data()[(i * w + j) * n + 1] =
+          *(data_new + ((2 * i + 1) * w + j) * n + 1);
+        frame->data()[(i * w + j) * n + 2] =
+          *(data_new + ((2 * i + 1) * w + j) * n);
       }
     }
   } else if (request.format == Format::GREY) {
