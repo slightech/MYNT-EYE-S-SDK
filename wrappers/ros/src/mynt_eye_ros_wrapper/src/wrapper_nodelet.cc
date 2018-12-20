@@ -81,9 +81,13 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
   }
 
-  ros::Time hardTimeToSoftTime(double _hard_time) {
+  ros::Time hardTimeToSoftTime(std::uint32_t _hard_time) {
     static bool isInited = false;
-    static double soft_time_begin(0), hard_time_begin(0);
+    static uint32_t soft_time_begin(0), hard_time_begin(0);
+    static uint32_t hard_time_now(0);
+    static std::uint64_t unit_hard_time =
+      std::numeric_limits<std::uint32_t>::max();
+    static std::uint32_t acc(0);
 
     if (false == isInited) {
       soft_time_begin = ros::Time::now().toSec();
@@ -91,8 +95,13 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       isInited = true;
     }
 
+    if (_hard_time < hard_time_now) { acc++; }
+    hard_time_now = _hard_time;
+
     return ros::Time(
-        soft_time_begin + (_hard_time - hard_time_begin) * 0.00001f);
+        soft_time_begin +
+        static_cast<double>(acc * unit_hard_time +
+         _hard_time - hard_time_begin) * 0.00001f);
   }
 
   void onInit() override {
