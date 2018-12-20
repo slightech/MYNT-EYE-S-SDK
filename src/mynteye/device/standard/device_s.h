@@ -30,6 +30,8 @@ class StandardDevice : public Device {
   Capabilities GetKeyStreamCapability() const override;
   std::shared_ptr<StreamsAdapter> CreateStreamsAdapter() const override;
 
+  void StartVideoStreaming() override;
+
   void OnStereoStreamUpdate() override;
 };
 
