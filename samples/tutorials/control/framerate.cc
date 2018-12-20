@@ -22,11 +22,14 @@
 MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
-  auto &&api = API::Create(Resolution::RES_1280x400);
-  // auto &&api = API::Create(argc, argv);
-  if (!api)
-    return 1;
-  api->SetStreamRequest(Format::BGR888, FrameRate::RATE_30_FPS);
+  auto &&api = API::Create(argc, argv);
+  if (!api) return 1;
+
+  bool ok;
+  auto &&request = api->SelectStreamRequest(&ok);
+  if (!ok) return 1;
+  api->ConfigStreamRequest(request);
+
   // Count img
   std::atomic_uint img_count(0);
   api->SetStreamCallback(

@@ -28,6 +28,8 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
+struct DeviceInfo;
+
 class Device;
 class Synthetic;
 
@@ -95,25 +97,6 @@ class MYNTEYE_API API {
 
   /**
    * Create the API instance.
-   * @return the API instance.
-   * @note This will call device::select() to select a device.
-   */
-  static std::shared_ptr<API> Create(Resolution res);
-  /**
-   * Create the API instance.
-   * @param device the selected device.
-   * @return the API instance.
-   */
-  static std::shared_ptr<API> Create(
-      std::shared_ptr<Device> device, Resolution res);
-  /**
-   * Create the API instance.
-   * @param device the selected device.
-   * @return the API instance.
-   */
-  static std::shared_ptr<API> Create(std::shared_ptr<Device> device);
-  /**
-   * Create the API instance.
    * @param argc the arg count.
    * @param argv the arg values.
    * @return the API instance.
@@ -130,7 +113,7 @@ class MYNTEYE_API API {
    * @note This will init glog with args.
    */
   static std::shared_ptr<API> Create(
-      int argc, char *argv[], std::shared_ptr<Device> device);
+      int argc, char *argv[], const std::shared_ptr<Device> &device);
 
   /**
    * Get the model.
@@ -155,9 +138,10 @@ class MYNTEYE_API API {
   bool Supports(const AddOns &addon) const;
 
   /**
-   * set the stream request.
+   * Log all stream requests and prompt user to select one.
    */
-  void SetStreamRequest(const Format &format, const FrameRate &rate);
+  StreamRequest SelectStreamRequest(bool *ok) const;
+
   /**
    * Get all stream requests of the capability.
    */
@@ -168,7 +152,28 @@ class MYNTEYE_API API {
    */
   void ConfigStreamRequest(
       const Capabilities &capability, const StreamRequest &request);
+  /**
+   * Get the config stream requests of the capability.
+   */
+  const StreamRequest &GetStreamRequest(const Capabilities &capability) const;
 
+  /**
+   * Get all stream requests of the key stream capability.
+   */
+  const std::vector<StreamRequest> &GetStreamRequests() const;
+  /**
+   * Config the stream request to the key stream capability.
+   */
+  void ConfigStreamRequest(const StreamRequest &request);
+  /**
+   * Get the config stream requests of the key stream capability.
+   */
+  const StreamRequest &GetStreamRequest() const;
+
+  /**
+   * Get the device info.
+   */
+  std::shared_ptr<DeviceInfo> GetInfo() const;
   /**
    * Get the device info.
    */
@@ -213,11 +218,6 @@ class MYNTEYE_API API {
    * Run the option action.
    */
   bool RunOptionAction(const Option &option) const;
-
-  /**
-   * Init device resolution.
-   */
-  void InitResolution(const Resolution &res);
 
   /**
    * Set the callback of stream.

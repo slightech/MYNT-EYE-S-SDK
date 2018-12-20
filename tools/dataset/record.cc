@@ -24,10 +24,13 @@ MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
-  if (!api)
-    return 1;
-  api->InitResolution(Resolution::RES_1280x400);
-  api->SetStreamRequest(Format::BGR888, FrameRate::RATE_30_FPS);
+  if (!api) return 1;
+
+  bool ok;
+  auto &&request = api->SelectStreamRequest(&ok);
+  if (!ok) return 1;
+  api->ConfigStreamRequest(request);
+
   api->LogOptionInfos();
 
   // Enable this will cache the motion datas until you get them.

@@ -27,6 +27,7 @@ class StandardDevice : public Device {
   explicit StandardDevice(std::shared_ptr<uvc::device> device);
   virtual ~StandardDevice();
 
+  Capabilities GetKeyStreamCapability() const override;
   std::vector<Stream> GetKeyStreams() const override;
 
   void OnStereoStreamUpdate() override;

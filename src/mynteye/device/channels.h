@@ -68,23 +68,9 @@ class MYNTEYE_API Channels {
 
   using device_info_t = DeviceInfo;
 
+  using img_params_t = std::map<Resolution, device::img_params_t>;
   using imu_params_t = device::imu_params_t;
-  using img_params_t = device::img_params_t;
-/*
-  typedef struct ImgParams {
-    bool ok;
-    std::map<Resolution, Intrinsics> in_left_map;
-    std::map<Resolution, Intrinsics> in_right_map;
-    Extrinsics ex_right_to_left;
-  } img_params_t;
 
-  typedef struct ImuParams {
-    bool ok;
-    ImuIntrinsics in_accel;
-    ImuIntrinsics in_gyro;
-    Extrinsics ex_left_to_imu;
-  } imu_params_t;
-*/
   explicit Channels(std::shared_ptr<uvc::device> device);
   ~Channels();
 

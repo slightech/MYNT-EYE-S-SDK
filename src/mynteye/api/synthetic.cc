@@ -161,7 +161,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
   auto &&mode = GetStreamEnabledMode(stream);
   if (mode == MODE_NATIVE) {
     auto &&device = api_->device();
-    return data2api(device->GetLatestStreamData(stream));
+    return data2api(device->GetStreamData(stream));
   } else if (mode == MODE_SYNTHETIC) {
     if (stream == Stream::LEFT_RECTIFIED || stream == Stream::RIGHT_RECTIFIED) {
       static std::shared_ptr<ObjMat2> output = nullptr;

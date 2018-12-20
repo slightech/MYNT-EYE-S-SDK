@@ -29,6 +29,7 @@ const char *to_string(const Model &value) {
     return "Model::" #X;
   switch (value) {
     CASE(STANDARD)
+    CASE(STANDARD2)
     default:
       CHECK(is_valid(value));
       return "Model::UNKNOWN";
@@ -62,6 +63,7 @@ const char *to_string(const Capabilities &value) {
     return "Capabilities::" #X;
   switch (value) {
     CASE(STEREO)
+    CASE(STEREO_COLOR)
     CASE(COLOR)
     CASE(DEPTH)
     CASE(POINTS)
@@ -109,16 +111,16 @@ const char *to_string(const Option &value) {
     CASE(EXPOSURE_MODE)
     CASE(MAX_GAIN)
     CASE(MAX_EXPOSURE_TIME)
+    CASE(MIN_EXPOSURE_TIME)
     CASE(DESIRED_BRIGHTNESS)
     CASE(IR_CONTROL)
     CASE(HDR_MODE)
-    CASE(ZERO_DRIFT_CALIBRATION)
-    CASE(ERASE_CHIP)
-    CASE(MIN_EXPOSURE_TIME)
     CASE(ACCELEROMETER_RANGE)
     CASE(GYROSCOPE_RANGE)
     CASE(ACCELEROMETER_LOW_PASS_FILTER)
     CASE(GYROSCOPE_LOW_PASS_FILTER)
+    CASE(ZERO_DRIFT_CALIBRATION)
+    CASE(ERASE_CHIP)
     default:
       CHECK(is_valid(value));
       return "Option::UNKNOWN";
@@ -160,6 +162,7 @@ const char *to_string(const Format &value) {
   switch (value) {
     CASE(GREY)
     CASE(YUYV)
+    CASE(BGR888)
     default:
       return "Format::UNKNOWN";
   }

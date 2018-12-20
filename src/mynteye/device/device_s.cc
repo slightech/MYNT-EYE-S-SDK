@@ -19,12 +19,16 @@
 MYNTEYE_BEGIN_NAMESPACE
 
 StandardDevice::StandardDevice(std::shared_ptr<uvc::device> device)
-    : Device(Model::STANDARD, device) {
+    : Device(Model::STANDARD2, device) {
   VLOG(2) << __func__;
 }
 
 StandardDevice::~StandardDevice() {
   VLOG(2) << __func__;
+}
+
+Capabilities StandardDevice::GetKeyStreamCapability() const {
+  return Capabilities::STEREO_COLOR;
 }
 
 std::vector<Stream> StandardDevice::GetKeyStreams() const {

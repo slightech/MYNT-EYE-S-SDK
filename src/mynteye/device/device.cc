@@ -172,6 +172,33 @@ void Device::ConfigStreamRequest(
     return;
   }
   stream_config_requests_[capability] = request;
+  UpdateStreamIntrinsics(capability, request);
+}
+
+const StreamRequest &Device::GetStreamRequest(
+    const Capabilities &capability) const {
+  try {
+    return stream_config_requests_.at(capability);
+  } catch (const std::out_of_range &e) {
+    auto &&requests = GetStreamRequests(capability);
+    if (requests.size() >= 1) {
+      return requests[0];
+    } else {
+      LOG(FATAL) << "Please config the stream request of " << capability;
+    }
+  }
+}
+
+const std::vector<StreamRequest> &Device::GetStreamRequests() const {
+  return GetStreamRequests(GetKeyStreamCapability());
+}
+
+void Device::ConfigStreamRequest(const StreamRequest &request) {
+  ConfigStreamRequest(GetKeyStreamCapability(), request);
+}
+
+const StreamRequest &Device::GetStreamRequest() const {
+  return GetStreamRequest(GetKeyStreamCapability());
 }
 
 std::shared_ptr<DeviceInfo> Device::GetInfo() const {
@@ -406,20 +433,20 @@ void Device::WaitForStreams() {
   streams_->WaitForStreams();
 }
 
+device::StreamData Device::GetStreamData(const Stream &stream) {
+  CHECK(video_streaming_);
+  CHECK_NOTNULL(streams_);
+  CheckSupports(this, stream);
+  std::lock_guard<std::mutex> _(mtx_streams_);
+  return streams_->GetLatestStreamData(stream);
+}
+
 std::vector<device::StreamData> Device::GetStreamDatas(const Stream &stream) {
   CHECK(video_streaming_);
   CHECK_NOTNULL(streams_);
   CheckSupports(this, stream);
   std::lock_guard<std::mutex> _(mtx_streams_);
   return streams_->GetStreamDatas(stream);
-}
-
-device::StreamData Device::GetLatestStreamData(const Stream &stream) {
-  CHECK(video_streaming_);
-  CHECK_NOTNULL(streams_);
-  CheckSupports(this, stream);
-  std::lock_guard<std::mutex> _(mtx_streams_);
-  return streams_->GetLatestStreamData(stream);
 }
 
 void Device::EnableMotionDatas() {
@@ -435,33 +462,6 @@ std::vector<device::MotionData> Device::GetMotionDatas() {
   CHECK(motion_tracking_);
   CHECK_NOTNULL(motions_);
   return motions_->GetMotionDatas();
-}
-
-void Device::InitResolution(const Resolution &res) {
-  res_ = res;
-  ConfigIntrinsics(res_);
-}
-
-void Device::SetStreamRequest(const Format &format, const FrameRate &rate) {
-  StreamRequest request(res_, format, rate);
-  request_ = request;
-}
-
-const StreamRequest &Device::GetStreamRequest(const Capabilities &capability) {
-  try {
-    return stream_config_requests_.at(capability);
-  } catch (const std::out_of_range &e) {
-    auto &&requests = GetStreamRequests(capability);
-    if (requests.size() >= 1) {
-      for (auto &&request : requests) {
-        if (request == request_)
-          return request;
-      }
-      return requests[0];
-    } else {
-      LOG(FATAL) << "Please config the stream request of " << capability;
-    }
-  }
 }
 
 void Device::StartVideoStreaming() {
@@ -557,8 +557,9 @@ void Device::ReadAllInfos() {
   device_info_ = std::make_shared<DeviceInfo>();
 
   CHECK_NOTNULL(channels_);
+  all_img_params_.clear();
   Device::imu_params_t imu_params;
-  if (!channels_->GetFiles(device_info_.get(), &img_params_, &imu_params)) {
+  if (!channels_->GetFiles(device_info_.get(), &all_img_params_, &imu_params)) {
 #if defined(WITH_DEVICE_INFO_REQUIRED)
     LOG(FATAL)
 #else
@@ -579,14 +580,28 @@ void Device::ReadAllInfos() {
           << ", nominal_baseline: " << device_info_->nominal_baseline << "}";
 
   device_info_->name = uvc::get_name(*device_);
-  if (img_params_.ok) {
-    SetExtrinsics(Stream::LEFT, Stream::RIGHT, img_params_.ex_right_to_left);
-    VLOG(2) << "Extrinsics left to right: {"
-            << GetExtrinsics(Stream::LEFT, Stream::RIGHT) << "}";
-  } else {
+
+  bool img_params_ok = false;
+  for (auto &&params : all_img_params_) {
+    auto &&img_params = params.second;
+    if (img_params.ok) {
+      img_params_ok = true;
+      SetIntrinsics(Stream::LEFT, img_params.in_left);
+      SetIntrinsics(Stream::RIGHT, img_params.in_right);
+      SetExtrinsics(Stream::LEFT, Stream::RIGHT, img_params.ex_right_to_left);
+      VLOG(2) << "Intrinsics left: {" << GetIntrinsics(Stream::LEFT) << "}";
+      VLOG(2) << "Intrinsics right: {" << GetIntrinsics(Stream::RIGHT) << "}";
+      VLOG(2) << "Extrinsics left to right: {"
+              << GetExtrinsics(Stream::LEFT, Stream::RIGHT) << "}";
+      break;
+    }
+  }
+  if (!img_params_ok) {
     LOG(WARNING) << "Intrinsics & extrinsics not exist";
   }
+
   if (imu_params.ok) {
+    imu_params_ = imu_params;
     SetMotionIntrinsics({imu_params.in_accel, imu_params.in_gyro});
     SetMotionExtrinsics(Stream::LEFT, imu_params.ex_left_to_imu);
     VLOG(2) << "Motion intrinsics: {" << GetMotionIntrinsics() << "}";
@@ -597,12 +612,25 @@ void Device::ReadAllInfos() {
   }
 }
 
-void Device::ConfigIntrinsics(const Resolution &res) {
-  if (img_params_.ok) {
-    SetIntrinsics(Stream::LEFT, img_params_.in_left_map[res]);
-    SetIntrinsics(Stream::RIGHT, img_params_.in_right_map[res]);
-    VLOG(2) << "Intrinsics left: {" << GetIntrinsics(Stream::LEFT) << "}";
-    VLOG(2) << "Intrinsics right: {" << GetIntrinsics(Stream::RIGHT) << "}";
+void Device::UpdateStreamIntrinsics(
+    const Capabilities &capability, const StreamRequest &request) {
+  if (capability != GetKeyStreamCapability()) {
+    return;
+  }
+
+  for (auto &&params : all_img_params_) {
+    auto &&img_res = params.first;
+    auto &&img_params = params.second;
+    if (img_params.ok && img_res == request.GetResolution()) {
+      SetIntrinsics(Stream::LEFT, img_params.in_left);
+      SetIntrinsics(Stream::RIGHT, img_params.in_right);
+      SetExtrinsics(Stream::LEFT, Stream::RIGHT, img_params.ex_right_to_left);
+      VLOG(2) << "Intrinsics left: {" << GetIntrinsics(Stream::LEFT) << "}";
+      VLOG(2) << "Intrinsics right: {" << GetIntrinsics(Stream::RIGHT) << "}";
+      VLOG(2) << "Extrinsics left to right: {"
+              << GetExtrinsics(Stream::LEFT, Stream::RIGHT) << "}";
+      break;
+    }
   }
 }
 
@@ -627,10 +655,6 @@ void Device::CallbackMotionData(const device::MotionData &data) {
       motion_callback_(data);
     }
   }
-}
-
-Device::img_params_t Device::GetImgParams() {
-  return img_params_;
 }
 
 MYNTEYE_END_NAMESPACE

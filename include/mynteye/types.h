@@ -37,6 +37,8 @@ MYNTEYE_BEGIN_NAMESPACE
 enum class Model : std::uint8_t {
   /** Standard */
   STANDARD,
+  /** Standard 2 */
+  STANDARD2,
   /** Last guard */
   LAST
 };
@@ -74,10 +76,10 @@ enum class Stream : std::uint8_t {
 enum class Capabilities : std::uint8_t {
   /** Provides stereo stream */
   STEREO,
+  /** Provide stereo color stream */
+  STEREO_COLOR,
   /** Provides color stream */
   COLOR,
-  /** Provide stereo color  stream */
-  STEREO_COLOR,
   /** Provides depth stream */
   DEPTH,
   /** Provides point cloud stream */
@@ -143,6 +145,7 @@ enum class Option : std::uint8_t {
    *   range: [0,255], default: 127
    */
   CONTRAST,
+
   /**
    * Image frame rate, must set IMU_FREQUENCY together
    *
@@ -155,6 +158,7 @@ enum class Option : std::uint8_t {
    *   values: {100,200,250,333,500}, default: 200
    */
   IMU_FREQUENCY,
+
   /**
    * Exposure mode
    *
@@ -175,11 +179,18 @@ enum class Option : std::uint8_t {
    */
   MAX_EXPOSURE_TIME,
   /**
+   * min exposure time, valid if auto-exposure
+   *
+   *   range: [0,1000], default: 0
+   */
+  MIN_EXPOSURE_TIME,
+  /**
    * Desired brightness, valid if auto-exposure
    *
    *   range: [1,255], default: 122
    */
   DESIRED_BRIGHTNESS,
+
   /**
    * IR control
    *
@@ -193,16 +204,7 @@ enum class Option : std::uint8_t {
    *   1: 12-bit
    */
   HDR_MODE,
-  /** Zero drift calibration */
-  ZERO_DRIFT_CALIBRATION,
-  /** Erase chip */
-  ERASE_CHIP,
-  /**
-   * min exposure time, valid if auto-exposure
-   *
-   *   range: [0,1000], default: 0
-   */
-  MIN_EXPOSURE_TIME,
+
   /**
    * The range of accelerometer
    *
@@ -227,6 +229,12 @@ enum class Option : std::uint8_t {
    *   values: {23,64}, default: 64
    */
   GYROSCOPE_LOW_PASS_FILTER,
+
+  /** Zero drift calibration */
+  ZERO_DRIFT_CALIBRATION,
+  /** Erase chip */
+  ERASE_CHIP,
+
   /** Last guard */
   LAST
 };
@@ -259,40 +267,6 @@ enum class AddOns : std::uint8_t {
   LAST
 };
 
-/**
- * @ingroup enumerations
- * @brief Camera supported resolution.
- */
-enum class Resolution : std::uint8_t {
-  /** 752x480 */
-  RES_752x480,
-  /** 1280x400 */
-  RES_1280x400,
-  /** 2560x800 */
-  RES_2560x800,
-  /** Last guard */
-  LAST
-};
-
-/**
- * @ingroup enumerations
- * @brief Camera supported frame rate.
- */
-enum class FrameRate : std::uint8_t {
-  /** 10 fps */
-  RATE_10_FPS = 10,
-  /** 20 fps */
-  RATE_20_FPS = 20,
-  /** 20 fps */
-  RATE_25_FPS = 25,
-  /** 30 fps */
-  RATE_30_FPS = 30,
-  /** 60 fps */
-  RATE_60_FPS = 60,
-  /** Last guard */
-  LAST
-};
-
 #define MYNTEYE_ENUM_HELPERS(TYPE)                                       \
   MYNTEYE_API const char *to_string(const TYPE &value);                  \
   inline bool is_valid(const TYPE &value) {                              \
@@ -316,8 +290,6 @@ MYNTEYE_ENUM_HELPERS(Info)
 MYNTEYE_ENUM_HELPERS(Option)
 MYNTEYE_ENUM_HELPERS(Source)
 MYNTEYE_ENUM_HELPERS(AddOns)
-MYNTEYE_ENUM_HELPERS(Resolution)
-MYNTEYE_ENUM_HELPERS(FrameRate)
 
 #undef MYNTEYE_ENUM_HELPERS
 
@@ -351,6 +323,26 @@ inline std::ostream &operator<<(std::ostream &os, const Format &value) {
 MYNTEYE_API std::size_t bytes_per_pixel(const Format &value);
 
 /**
+ * Resolution.
+ */
+struct MYNTEYE_API Resolution {
+  /** Width */
+  std::uint16_t width;
+  /** Height */
+  std::uint16_t height;
+
+  bool operator==(const Resolution &other) const {
+    return width == other.width && height == other.height;
+  }
+  bool operator!=(const Resolution &other) const {
+    return !(*this == other);
+  }
+  bool operator<(const Resolution &other) const {
+    return (width * height) < (other.width * other.height);
+  }
+};
+
+/**
  * Stream request.
  */
 struct MYNTEYE_API StreamRequest {
@@ -370,25 +362,10 @@ struct MYNTEYE_API StreamRequest {
       std::uint16_t fps)
       : width(width), height(height), format(format), fps(fps) {}
 
-  StreamRequest(Resolution res, Format format, FrameRate rate)
-      : format(format) {
-    fps = static_cast<uint16_t>(rate);
+  StreamRequest(const Resolution &res, Format format, std::uint16_t fps)
+      : width(res.width), height(res.height), format(format), fps(fps) {}
 
-    switch (res) {
-      case Resolution::RES_752x480:
-        width = 480, height = 752;
-        break;
-      case Resolution::RES_1280x400:
-        width = 1280, height = 400;
-        break;
-      case Resolution::RES_2560x800:
-        width = 2560, height = 800;
-        break;
-      default:
-        width = 480, height = 752;
-        break;
-    }
-  }
+  Resolution GetResolution() const { return {width, height}; }
 
   bool operator==(const StreamRequest &other) const {
     return width == other.width && height == other.height &&

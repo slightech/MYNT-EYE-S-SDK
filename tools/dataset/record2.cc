@@ -27,10 +27,13 @@ int main(int argc, char *argv[]) {
   glog_init _(argc, argv);
 
   auto &&device = device::select();
-  if (!device)
-    return 1;
-  device->InitResolution(Resolution::RES_1280x400);
-  device->SetStreamRequest(Format::BGR888, FrameRate::RATE_30_FPS);
+  if (!device) return 1;
+
+  bool ok;
+  auto &&request = device::select_request(device, &ok);
+  if (!ok) return 1;
+  device->ConfigStreamRequest(request);
+
   device->LogOptionInfos();
 
   // Enable this will cache the motion datas until you get them.

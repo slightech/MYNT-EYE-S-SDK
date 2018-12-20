@@ -563,44 +563,43 @@ std::size_t from_data(
   return i;
 }
 
-// TODO(Kalman): Is there a more elegant way?
 std::size_t from_data(
-    device::img_params_t *img_params, const std::uint8_t *data,
+    Channels::img_params_t *img_params, const std::uint8_t *data,
     const Version *spec_version) {
   std::size_t i = 0;
 
+  // TODO(JohnZhao)
+  Intrinsics in_left, in_right;
+  Extrinsics ex_right_to_left;
+
   if (spec_version->major() == 1) {
     if (spec_version->minor() == 0) {
-      i += from_data(
-          &img_params->in_left_map[Resolution::RES_752x480], data + i,
-          spec_version);
-      i += from_data(
-          &img_params->in_right_map[Resolution::RES_752x480], data + i,
-          spec_version);
+      i += from_data(&in_left, data + i, spec_version);
+      i += from_data(&in_right, data + i, spec_version);
+      i += from_data(&ex_right_to_left, data + i, spec_version);
+      (*img_params)[{752, 480}] = {true, in_left, in_right, ex_right_to_left};
     }
 
     if (spec_version->minor() == 1) {
-      i += from_data(
-          &img_params->in_left_map[Resolution::RES_1280x400], data + i,
-          spec_version);
-      i += from_data(
-          &img_params->in_right_map[Resolution::RES_1280x400], data + i,
-          spec_version);
-      i += from_data(
-          &img_params->in_left_map[Resolution::RES_2560x800], data + i,
-          spec_version);
-      i += from_data(
-          &img_params->in_right_map[Resolution::RES_2560x800], data + i,
-          spec_version);
+      i += from_data(&in_left, data + i, spec_version);
+      i += from_data(&in_right, data + i, spec_version);
+      (*img_params)[{1280, 400}] = {true, in_left, in_right, ex_right_to_left};
+
+      i += from_data(&in_left, data + i, spec_version);
+      i += from_data(&in_right, data + i, spec_version);
+      (*img_params)[{2560, 800}] = {true, in_left, in_right, ex_right_to_left};
+
+      i += from_data(&ex_right_to_left, data + i, spec_version);
+      (*img_params)[{1280, 400}].ex_right_to_left = ex_right_to_left;
+      (*img_params)[{2560, 800}].ex_right_to_left = ex_right_to_left;
     }
   }
 
-  i += from_data(&img_params->ex_right_to_left, data + i, spec_version);
   return i;
 }
 
 std::size_t from_data(
-    device::imu_params_t *imu_params, const std::uint8_t *data,
+    Channels::imu_params_t *imu_params, const std::uint8_t *data,
     const Version *spec_version) {
   std::size_t i = 0;
   i += from_data(&imu_params->in_accel, data + i, spec_version);
@@ -674,8 +673,7 @@ bool Channels::GetFiles(
           CheckSpecVersion(spec_ver);
         } break;
         case FID_IMG_PARAMS: {
-          img_params->ok = file_size > 0;
-          if (img_params->ok) {
+          if (file_size > 0) {
             CheckSpecVersion(spec_ver);
             from_data(img_params, data + i, spec_ver);
             // Considering the upgrade, comment this
@@ -864,38 +862,34 @@ std::size_t to_data(
 }
 
 std::size_t to_data(
-    const device::img_params_t *img_params, std::uint8_t *data,
+    const Channels::img_params_t *img_params, std::uint8_t *data,
     const Version *spec_version) {
   std::size_t i = 3;  // skip id, size
 
+  // TODO(JohnZhao)
   if (spec_version->major() == 1) {
     if (spec_version->minor() == 0) {
-      i += to_data(
-          &img_params->in_left_map.at(Resolution::RES_752x480), data + i,
-          spec_version);
-      i += to_data(
-          &img_params->in_right_map.at(Resolution::RES_752x480), data + i,
-          spec_version);
+      auto &&params = (*img_params).at({752, 480});
+      i += to_data(&params.in_left, data + i, spec_version);
+      i += to_data(&params.in_right, data + i, spec_version);
+      i += to_data(&params.ex_right_to_left, data + i, spec_version);
     }
 
     if (spec_version->minor() == 1) {
-      i += to_data(
-          &img_params->in_left_map.at(Resolution::RES_1280x400), data + i,
-          spec_version);
-      i += to_data(
-          &img_params->in_right_map.at(Resolution::RES_1280x400), data + i,
-          spec_version);
-
-      i += to_data(
-          &img_params->in_left_map.at(Resolution::RES_2560x800), data + i,
-          spec_version);
-      i += to_data(
-          &img_params->in_right_map.at(Resolution::RES_2560x800), data + i,
-          spec_version);
+      {
+        auto &&params = (*img_params).at({1280, 400});
+        i += to_data(&params.in_left, data + i, spec_version);
+        i += to_data(&params.in_right, data + i, spec_version);
+      }
+      {
+        auto &&params = (*img_params).at({2560, 800});
+        i += to_data(&params.in_left, data + i, spec_version);
+        i += to_data(&params.in_right, data + i, spec_version);
+        i += to_data(&params.ex_right_to_left, data + i, spec_version);
+      }
     }
   }
 
-  i += to_data(&img_params->ex_right_to_left, data + i, spec_version);
   // others
   std::size_t size = i - 3;
   data[0] = Channels::FID_IMG_PARAMS;

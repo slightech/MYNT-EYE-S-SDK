@@ -32,8 +32,8 @@ namespace device {
 
 typedef struct ImgParams {
   bool ok;
-  std::map<Resolution, Intrinsics> in_left_map;
-  std::map<Resolution, Intrinsics> in_right_map;
+  Intrinsics in_left;
+  Intrinsics in_right;
   Extrinsics ex_right_to_left;
 } img_params_t;
 

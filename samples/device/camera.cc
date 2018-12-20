@@ -25,12 +25,14 @@ int main(int argc, char *argv[]) {
   glog_init _(argc, argv);
 
   auto &&device = device::select();
-  if (!device)
-    return 1;
+  if (!device) return 1;
+
+  bool ok;
+  auto &&request = device::select_request(device, &ok);
+  if (!ok) return 1;
+  device->ConfigStreamRequest(request);
 
   std::size_t left_count = 0;
-  device->InitResolution(Resolution::RES_1280x400);
-  device->SetStreamRequest(Format::BGR888, FrameRate::RATE_30_FPS);
   device->SetStreamCallback(
       Stream::LEFT, [&left_count](const device::StreamData &data) {
         CHECK_NOTNULL(data.img);
@@ -77,8 +79,8 @@ int main(int argc, char *argv[]) {
   while (true) {
     device->WaitForStreams();
 
-    device::StreamData left_data = device->GetLatestStreamData(Stream::LEFT);
-    device::StreamData right_data = device->GetLatestStreamData(Stream::RIGHT);
+    device::StreamData left_data = device->GetStreamData(Stream::LEFT);
+    device::StreamData right_data = device->GetStreamData(Stream::RIGHT);
 
     auto &&motion_datas = device->GetMotionDatas();
     motion_count += motion_datas.size();
