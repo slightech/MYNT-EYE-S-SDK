@@ -48,7 +48,7 @@ cv::Mat frame2mat(const std::shared_ptr<device::Frame> &frame) {
   } else if (frame->format() == Format::BGR888) {
     cv::Mat img(frame->height(), frame->width(), CV_8UC3, frame->data());
     return img;
-  } else {
+  } else {  // Format::GRAY
     return cv::Mat(frame->height(), frame->width(), CV_8UC1, frame->data());
   }
 }

@@ -26,7 +26,6 @@
 #include "mynteye/api/plugin.h"
 #include "mynteye/api/synthetic.h"
 #include "mynteye/device/device.h"
-#include "mynteye/device/device_s.h"
 #include "mynteye/device/utils.h"
 
 #if defined(WITH_FILESYSTEM) && defined(WITH_NATIVE_FILESYSTEM)

@@ -23,8 +23,9 @@
 #include "mynteye/device/async_callback.h"
 #include "mynteye/device/channels.h"
 #include "mynteye/device/config.h"
-#include "mynteye/device/device_s.h"
 #include "mynteye/device/motions.h"
+#include "mynteye/device/standard/device_s.h"
+#include "mynteye/device/standard2/device_s2.h"
 #include "mynteye/device/streams.h"
 #include "mynteye/device/types.h"
 #include "mynteye/util/strings.h"
@@ -108,7 +109,7 @@ std::shared_ptr<Device> Device::Create(
         case '1':
           return std::make_shared<StandardDevice>(device);
         case '2':
-          return std::make_shared<StandardDevice>(device);
+          return std::make_shared<Standard2Device>(device);
         default:
           LOG(FATAL) << "No such generation now";
       }
@@ -470,51 +471,54 @@ void Device::StartVideoStreaming() {
     return;
   }
 
-  streams_ = std::make_shared<Streams>(GetKeyStreams());
+  streams_ = std::make_shared<Streams>(CreateStreamsAdapter());
 
   // if stream capabilities are supported with subdevices of device_
+  /*
   Capabilities stream_capabilities[] = {
-      Capabilities::STEREO,       Capabilities::COLOR,
-      Capabilities::STEREO_COLOR, Capabilities::DEPTH,
+      Capabilities::STEREO,       Capabilities::STEREO_COLOR,
+      Capabilities::COLOR,        Capabilities::DEPTH,
       Capabilities::POINTS,       Capabilities::FISHEYE,
       Capabilities::INFRARED,     Capabilities::INFRARED2};
   for (auto &&capability : stream_capabilities) {
-    if (Supports(capability)) {
-      // do stream request selection if more than one request of each stream
-      auto &&stream_request = GetStreamRequest(capability);
-
-      streams_->ConfigStream(capability, stream_request);
-      uvc::set_device_mode(
-          *device_, stream_request.width, stream_request.height,
-          static_cast<int>(stream_request.format), stream_request.fps,
-          [this, capability](
-              const void *data, std::function<void()> continuation) {
-            // drop the first stereo stream data
-            static std::uint8_t drop_count = 1;
-            if (drop_count > 0) {
-              --drop_count;
-              continuation();
-              return;
-            }
-            // auto &&time_beg = times::now();
-            {
-              std::lock_guard<std::mutex> _(mtx_streams_);
-              if (streams_->PushStream(capability, data)) {
-                CallbackPushedStreamData(Stream::LEFT);
-                CallbackPushedStreamData(Stream::RIGHT);
-              }
-            }
-            continuation();
-            OnStereoStreamUpdate();
-            // VLOG(2) << "Stereo video callback cost "
-            //     << times::count<times::milliseconds>(times::now() - time_beg)
-            //     << " ms";
-          });
-    } else {
-      // LOG(FATAL) << "Not any stream capabilities are supported by this
-      // device";
-    }
   }
+  */
+  auto &&stream_cap = GetKeyStreamCapability();
+  if (Supports(stream_cap)) {
+    // do stream request selection if more than one request of each stream
+    auto &&stream_request = GetStreamRequest(stream_cap);
+    streams_->ConfigStream(stream_cap, stream_request);
+
+    uvc::set_device_mode(
+        *device_, stream_request.width, stream_request.height,
+        static_cast<int>(stream_request.format), stream_request.fps,
+        [this, stream_cap](
+            const void *data, std::function<void()> continuation) {
+          // drop the first stereo stream data
+          static std::uint8_t drop_count = 1;
+          if (drop_count > 0) {
+            --drop_count;
+            continuation();
+            return;
+          }
+          // auto &&time_beg = times::now();
+          {
+            std::lock_guard<std::mutex> _(mtx_streams_);
+            if (streams_->PushStream(stream_cap, data)) {
+              CallbackPushedStreamData(Stream::LEFT);
+              CallbackPushedStreamData(Stream::RIGHT);
+            }
+          }
+          continuation();
+          OnStereoStreamUpdate();
+          // VLOG(2) << "Stereo video callback cost "
+          //     << times::count<times::milliseconds>(times::now() - time_beg)
+          //     << " ms";
+        });
+  } else {
+    LOG(FATAL) << "Not any stream capabilities are supported by this device";
+  }
+
   uvc::start_streaming(*device_, 0);
   video_streaming_ = true;
 }

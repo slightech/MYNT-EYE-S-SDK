@@ -45,6 +45,7 @@ class API;
 class Channels;
 class Motions;
 class Streams;
+class StreamsAdapter;
 
 template <class Data>
 class AsyncCallback;
@@ -300,7 +301,7 @@ class MYNTEYE_API Device {
   virtual void OnStereoStreamUpdate();
 
   virtual Capabilities GetKeyStreamCapability() const = 0;
-  virtual std::vector<Stream> GetKeyStreams() const = 0;
+  virtual std::shared_ptr<StreamsAdapter> CreateStreamsAdapter() const = 0;
 
   std::map<Resolution, device::img_params_t> GetImgParams() const {
     return all_img_params_;

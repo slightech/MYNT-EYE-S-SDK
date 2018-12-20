@@ -37,7 +37,7 @@ MYNTEYE_BEGIN_NAMESPACE
 enum class Model : std::uint8_t {
   /** Standard */
   STANDARD,
-  /** Standard 2 */
+  /** Standard 2 generation */
   STANDARD2,
   /** Last guard */
   LAST

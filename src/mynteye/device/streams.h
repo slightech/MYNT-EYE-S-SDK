@@ -18,6 +18,7 @@
 #include <condition_variable>
 #include <functional>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <vector>
 
@@ -26,6 +27,11 @@
 #include "mynteye/device/callbacks.h"
 
 MYNTEYE_BEGIN_NAMESPACE
+
+extern bool unpack_stereo_img_data(
+    const void *data, const StreamRequest &request, ImgData *img);
+
+class StreamsAdapter;
 
 class Streams {
  public:
@@ -38,7 +44,7 @@ class Streams {
   using unpack_img_pixels_t = std::function<bool(
       const void *data, const StreamRequest &request, frame_t *frame)>;
 
-  explicit Streams(const std::vector<Stream> key_streams);
+  explicit Streams(const std::shared_ptr<StreamsAdapter> &adapter);
   ~Streams();
 
   void ConfigStream(
@@ -65,8 +71,9 @@ class Streams {
 
   bool HasStreamDatas(const Stream &stream) const;
 
-  void AllocStreamData(const Stream &stream, const StreamRequest &request);
-  void AllocStreamData(
+  void AllocStreamData(const Capabilities &capability,
+      const Stream &stream, const StreamRequest &request);
+  void AllocStreamData(const Capabilities &capability,
       const Stream &stream, const StreamRequest &request, const Format &format);
 
   void DiscardStreamData(const Stream &stream);
@@ -86,6 +93,19 @@ class Streams {
 
   std::mutex mtx_;
   std::condition_variable cv_;
+};
+
+class StreamsAdapter {
+ public:
+  virtual ~StreamsAdapter() {}
+
+  virtual std::vector<Stream> GetKeyStreams() = 0;
+  virtual std::vector<Capabilities> GetStreamCapabilities() = 0;
+
+  virtual std::map<Stream, Streams::unpack_img_data_t>
+  GetUnpackImgDataMap() = 0;
+  virtual std::map<Stream, Streams::unpack_img_pixels_t>
+  GetUnpackImgPixelsMap() = 0;
 };
 
 MYNTEYE_END_NAMESPACE
