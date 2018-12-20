@@ -22,6 +22,7 @@ _output/
 /*.exe
 
 /node_modules/
+/package-lock.json
 
 # ros
 
