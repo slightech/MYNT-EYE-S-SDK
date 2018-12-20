@@ -226,16 +226,15 @@ fi  # _INIT_LINTER_
 if [ -n "${_INIT_COMMITIZEN_}" ]; then
 
 if _detect_cmd npm; then
-  _echo_d "npm install commitizen -g"
-  npm install commitizen -g
-  if _detect_cmd node; then
-    commitizen init cz-conventional-changelog --save-dev --save-exact
-
-    npm install --save-dev @commitlint/{config-conventional,cli}
-    npm install husky --save-dev
-  else
-    _echo_en "Skipped commitizen init, as node not found"
-  fi
+  _echo_d "npm install commitizen -g; npm install"
+  npm install commitizen -g; npm install
+  # if _detect_cmd node; then
+  #   commitizen init cz-conventional-changelog --save-dev --save-exact
+  #   npm install --save-dev @commitlint/{config-conventional,cli}
+  #   npm install husky --save-dev
+  # else
+  #   _echo_en "Skipped commitizen init, as node not found"
+  # fi
 else
   _echo_en "Skipped npm install packages, as npm not found"
   _echo
@@ -245,7 +244,5 @@ else
   _echo
   _echo_e "p.s. not \"apt-get install npm\", it's too old."
 fi
-
-# npm install
 
 fi  # _INIT_COMMITIZEN_
