@@ -105,15 +105,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   void onInit() override {
     nh_ = getMTNodeHandle();
     private_nh_ = getMTPrivateNodeHandle();
-    int resolution = 0;
-    int format = 0;
-    int framerate = 20;
-    private_nh_.getParam("resolution", resolution);
-    private_nh_.getParam("framerate", framerate);
-    private_nh_.getParam("format", format);
-    frame_rate_ = framerate;
+    int request_index = 0;
+    private_nh_.getParam("request_index", request_index);
 
-    initDevice(resolution, format, framerate);
+    initDevice(request_index);
     NODELET_FATAL_COND(api_ == nullptr, "No MYNT EYE device selected :(");
 
     // node params
@@ -255,7 +250,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     NODELET_INFO_STREAM("Advertized service " << DEVICE_INFO_SERVICE);
 
     publishStaticTransforms();
-    ros::Rate loop_rate(frame_rate_);
+    ros::Rate loop_rate(60);
     while (private_nh_.ok()) {
       publishTopics();
       loop_rate.sleep();
@@ -724,7 +719,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
  private:
-  void initDevice(int resolution, int format, int framerate) {
+  void initDevice(int request_index) {
     NODELET_INFO_STREAM("Detecting MYNT EYE devices");
 
     Context context;
@@ -759,9 +754,23 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       }
     }
 
-    api_ = API::Create(device, static_cast<Resolution>(resolution));
-    api_->SetStreamRequest(static_cast<Format>(format),
-                            static_cast<FrameRate>(framerate));
+    api_ = API::Create(device);
+    auto &&requests = device->GetStreamRequests();
+    std::size_t m = requests.size();
+
+    NODELET_FATAL_COND(m <= 0, "No MYNT EYE devices :(");
+    if (m <= 1) {
+      NODELET_INFO_STREAM("Only one stream request, select index: 0");
+      api_->ConfigStreamRequest(requests[0]);
+    } else {
+      if (request_index >= m) {
+        NODELET_WARN_STREAM("Resquest_index out of range");
+        api_->ConfigStreamRequest(requests[0]);
+      } else {
+        NODELET_WARN_STREAM("request_index: " << request_index);
+        api_->ConfigStreamRequest(requests[request_index]);
+      }
+    }
 
     computeRectTransforms();
   }

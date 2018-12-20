@@ -227,6 +227,10 @@ std::shared_ptr<API> API::Create(int argc, char *argv[]) {
 std::shared_ptr<API> API::Create(
     int argc, char *argv[], const std::shared_ptr<Device> &device) {
   static glog_init _(argc, argv);
+  return Create(device);
+}
+
+std::shared_ptr<API> API::Create(const std::shared_ptr<Device> &device) {
   return std::make_shared<API>(device);
 }
 

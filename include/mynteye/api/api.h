@@ -114,6 +114,12 @@ class MYNTEYE_API API {
    */
   static std::shared_ptr<API> Create(
       int argc, char *argv[], const std::shared_ptr<Device> &device);
+  /**
+   * Create the API instance.
+   * @param device the selected device.
+   * @return the API instance.
+   */
+  static std::shared_ptr<API> Create(const std::shared_ptr<Device> &device);
 
   /**
    * Get the model.
