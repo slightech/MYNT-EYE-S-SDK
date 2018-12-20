@@ -210,7 +210,7 @@ std::vector<std::string> get_plugin_paths() {
 
 API::API(std::shared_ptr<Device> device) : device_(device) {
   VLOG(2) << __func__;
-  std::dynamic_pointer_cast<StandardDevice>(device_);
+  // std::dynamic_pointer_cast<StandardDevice>(device_);
   synthetic_.reset(new Synthetic(this));
 }
 
@@ -266,6 +266,7 @@ const std::vector<StreamRequest> &API::GetStreamRequests(
 void API::ConfigStreamRequest(
     const Capabilities &capability, const StreamRequest &request) {
   device_->ConfigStreamRequest(capability, request);
+  synthetic_->NotifyImageParamsChanged();
 }
 
 const StreamRequest &API::GetStreamRequest(
@@ -279,6 +280,7 @@ const std::vector<StreamRequest> &API::GetStreamRequests() const {
 
 void API::ConfigStreamRequest(const StreamRequest &request) {
   device_->ConfigStreamRequest(request);
+  synthetic_->NotifyImageParamsChanged();
 }
 
 const StreamRequest &API::GetStreamRequest() const {

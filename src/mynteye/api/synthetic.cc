@@ -83,6 +83,11 @@ Synthetic::~Synthetic() {
   }
 }
 
+void Synthetic::NotifyImageParamsChanged() {
+  auto &&processor = find_processor<RectifyProcessor>(processor_);
+  if (processor) processor->NotifyImageParamsChanged();
+}
+
 bool Synthetic::Supports(const Stream &stream) const {
   return stream_supports_mode_.find(stream) != stream_supports_mode_.end();
 }
@@ -311,42 +316,35 @@ void Synthetic::EnableStreamData(const Stream &stream, std::uint32_t depth) {
         break;
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       CHECK(ActivateProcessor<RectifyProcessor>());
-    }
-      return;
+    } return;
     case Stream::RIGHT_RECTIFIED: {
       if (!IsStreamDataEnabled(Stream::RIGHT))
         break;
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       CHECK(ActivateProcessor<RectifyProcessor>());
-    }
-      return;
+    } return;
     case Stream::DISPARITY: {
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       EnableStreamData(Stream::LEFT_RECTIFIED, depth + 1);
       EnableStreamData(Stream::RIGHT_RECTIFIED, depth + 1);
       CHECK(ActivateProcessor<DisparityProcessor>());
-    }
-      return;
+    } return;
     case Stream::DISPARITY_NORMALIZED: {
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       EnableStreamData(Stream::DISPARITY, depth + 1);
       CHECK(ActivateProcessor<DisparityNormalizedProcessor>());
-    }
-      return;
+    } return;
     case Stream::POINTS: {
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       EnableStreamData(Stream::DISPARITY, depth + 1);
       CHECK(ActivateProcessor<PointsProcessor>());
-    }
-      return;
+    } return;
     case Stream::DEPTH: {
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       EnableStreamData(Stream::POINTS, depth + 1);
       CHECK(ActivateProcessor<DepthProcessor>());
-    }
-      return;
-    default:
-      break;
+    } return;
+    default: break;
   }
   if (depth == 0) {
     LOG(WARNING) << "Enable stream data of " << stream << " failed";
@@ -399,8 +397,7 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
       case Stream::DEPTH: {
         DeactivateProcessor<DepthProcessor>();
       } break;
-      default:
-        return;
+      default: return;
     }
     if (depth > 0) {
       LOG(WARNING) << "Disable synthetic stream data of " << stream << " too";
