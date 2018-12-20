@@ -21,6 +21,8 @@ _output/
 /*.nsi
 /*.exe
 
+/node_modules/
+
 # ros
 
 /wrappers/ros/build
