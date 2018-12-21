@@ -140,7 +140,7 @@ struct MYNTEYE_API DeviceInfo {
 
 /**
  * @ingroup datatypes
- * Image packet for standand 2.
+ * Image packet for standard 2.
  */
 #pragma pack(push, 1)
 struct ImagePacketS2 {
@@ -176,7 +176,7 @@ struct ImagePacketS2 {
 
 /**
  * @ingroup datatypes
- * Image packet for standand 1.
+ * Image packet for standard 1.
  */
 #pragma pack(push, 1)
 struct ImagePacketS1 {
@@ -230,18 +230,49 @@ struct ImuReqPacket {
 
 /**
  * @ingroup datatypes
- * Imu segment.
+ * Imu group for standard 1.
  */
 #pragma pack(push, 1)
-struct ImuSegment {
-  std::uint32_t serial_number;
+struct ImuGroupS1 {
+  std::int16_t offset;
+  std::uint16_t frame_id;
+  std::int16_t accel[3];
+  std::int16_t temperature;
+  std::int16_t gyro[3];
+
+  ImuGroupS1() = default;
+  explicit ImuGroupS1(std::uint8_t *data) {
+    from_data(data);
+  }
+
+  void from_data(std::uint8_t *data) {
+    offset = (*(data) << 8) | *(data + 1);
+    frame_id = (*(data + 2) << 8) | *(data + 3);
+    accel[0] = (*(data + 4) << 8) | *(data + 5);
+    accel[1] = (*(data + 6) << 8) | *(data + 7);
+    accel[2] = (*(data + 8) << 8) | *(data + 9);
+    temperature = (*(data + 10) << 8) | *(data + 11);
+    gyro[0] = (*(data + 12) << 8) | *(data + 13);
+    gyro[1] = (*(data + 14) << 8) | *(data + 15);
+    gyro[2] = (*(data + 16) << 8) | *(data + 17);
+  }
+};
+#pragma pack(pop)
+
+/**
+ * @ingroup datatypes
+ * Imu group for standard 2.
+ */
+#pragma pack(push, 1)
+struct ImuGroupS2 {
+  std::uint32_t frame_id;
   std::uint64_t timestamp;
   std::uint8_t flag;
   std::int16_t temperature;
   std::int16_t accel_or_gyro[3];
 
-  ImuSegment() = default;
-  explicit ImuSegment(std::uint8_t *data) {
+  ImuGroupS2() = default;
+  explicit ImuGroupS2(std::uint8_t *data) {
     from_data(data);
   }
 
@@ -249,7 +280,7 @@ struct ImuSegment {
     std::uint32_t timestamp_l;
     std::uint32_t timestamp_h;
 
-    serial_number = (*(data) << 24) | (*(data + 1) << 16) | (*(data + 2) << 8) |
+    frame_id = (*(data) << 24) | (*(data + 1) << 16) | (*(data + 2) << 8) |
                     *(data + 3);
     timestamp_h = (*(data + 4) << 24) | (*(data + 5) << 16) |
                   (*(data + 6) << 8) | *(data + 7);
@@ -267,22 +298,84 @@ struct ImuSegment {
 
 /**
  * @ingroup datatypes
+ * Imu segment.
+ */
+#pragma pack(push, 1)
+struct ImuSegment {
+  std::uint32_t frame_id;
+  std::uint64_t timestamp;
+  std::uint8_t flag;
+  std::int16_t temperature;
+  std::int16_t accel[3];
+  std::int16_t gyro[3];
+
+  ImuSegment() = default;
+
+  explicit ImuSegment(ImuGroupS2 group)
+    : frame_id(group.frame_id), timestamp(group.timestamp),
+      flag(group.flag), temperature(group.temperature) {
+    accel[0] = (flag == 1)?group.accel_or_gyro[0]:0;
+    accel[1] = (flag == 1)?group.accel_or_gyro[1]:0;
+    accel[2] = (flag == 1)?group.accel_or_gyro[2]:0;
+    gyro[0] = (flag == 2)?group.accel_or_gyro[0]:0;
+    gyro[1] = (flag == 2)?group.accel_or_gyro[1]:0;
+    gyro[2] = (flag == 2)?group.accel_or_gyro[2]:0;
+  }
+
+  explicit ImuSegment(std::uint32_t timestamp, ImuGroupS1 group) {
+    frame_id = static_cast<uint32_t> (group.frame_id);
+    this->timestamp = static_cast<uint64_t> (timestamp + group.offset);
+    flag = 3;
+    temperature = group.temperature;
+    accel[0] = group.accel[0];
+    accel[1] = group.accel[1];
+    accel[2] = group.accel[2];
+    gyro[0] = group.gyro[0];
+    gyro[1] = group.gyro[1];
+    gyro[2] = group.gyro[2];
+  }
+};
+#pragma pack(pop)
+
+/**
+ * @ingroup datatypes
  * Imu packet.
  */
 #pragma pack(push, 1)
 struct ImuPacket {
+  std::uint8_t model;
   std::uint8_t count;
+  std::uint32_t serial_number;
   std::vector<ImuSegment> segments;
 
   ImuPacket() = default;
-  explicit ImuPacket(std::uint8_t seg_count, std::uint8_t *data) {
-    count = seg_count;
-    from_data(data);
-  }
+  explicit ImuPacket(
+      std::uint8_t model, std::uint8_t seg_count, std::uint8_t *data)
+        : model(model), count(seg_count) {
+          from_data(data);
+        }
   void from_data(std::uint8_t *data) {
-        std::size_t seg_n = sizeof(ImuSegment);  // 21
-        for (std::size_t i = 0; i < count; i++) {
-          segments.push_back(ImuSegment(data + seg_n * i));
+        if (model == 1) {
+          serial_number =
+              (*(data) << 24) | (*(data + 1) << 16) |
+              (*(data + 2) << 8) | *(data + 3);
+          int timestamp =
+              (*(data + 4) << 24) | (*(data + 5) << 16)|
+              (*(data + 6) << 8) | *(data + 7);
+          count = *(data + 8);
+
+          std::size_t seg_n = sizeof(ImuGroupS1);  // 18
+          for (std::size_t i = 0; i < count; i++) {
+            ImuGroupS1 group(data + 9 + (seg_n * i));
+            segments.push_back(ImuSegment(timestamp, group));
+          }
+        } else if (model == 2) {
+          std::size_t seg_n = sizeof(ImuGroupS2);  // 21
+          for (std::size_t i = 0; i < count; i++) {
+            ImuGroupS2 group(data + seg_n * i);
+            segments.push_back(ImuSegment(group));
+          }
+          serial_number = segments.back().frame_id;
         }
   }
 };
@@ -294,6 +387,7 @@ struct ImuPacket {
  */
 #pragma pack(push, 1)
 struct ImuResPacket {
+  std::uint8_t model;
   std::uint8_t header;
   std::uint8_t state;
   std::uint16_t size;
@@ -301,21 +395,31 @@ struct ImuResPacket {
   std::uint8_t checksum;
 
   ImuResPacket() = default;
-  explicit ImuResPacket(std::uint8_t *data) {
-    from_data(data);
-  }
+  explicit ImuResPacket(std::uint8_t model) : model(model) {}
 
   void from_data(std::uint8_t *data) {
     header = *data;
     state = *(data + 1);
     size = (*(data + 2) << 8) | *(data + 3);
 
-    std::size_t seg_n = sizeof(ImuSegment);  // 21
-    std::uint8_t seg_count = size / seg_n;
-    ImuPacket packet(seg_count, data + 4);
-    packets.push_back(packet);
-    // packet(2);
-    checksum = *(data + 4 + size);
+    if (model == 1) {
+      std::size_t seg_n = sizeof(ImuGroupS1);  // 18
+      for (std::size_t i = 4; i < size;) {
+        ImuPacket packet(model, 0, data + i);
+        packets.push_back(packet);
+        i += 9 + (packet.count * seg_n);
+      }
+      checksum = *(data + 4 + size);
+    }
+
+    if (model == 2) {
+      std::size_t seg_n = sizeof(ImuGroupS2);  // 21
+      std::uint8_t seg_count = size / seg_n;
+      ImuPacket packet(model, seg_count, data + 4);
+      packets.push_back(packet);
+      // packet(2);
+      checksum = *(data + 4 + size);
+    }
   }
 };
 #pragma pack(pop)

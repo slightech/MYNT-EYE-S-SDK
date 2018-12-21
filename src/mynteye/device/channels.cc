@@ -333,7 +333,7 @@ void Channels::SetImuCallback(imu_callback_t callback) {
 
 void Channels::DoImuTrack() {
   static ImuReqPacket req_packet{0};
-  static ImuResPacket res_packet;
+  static ImuResPacket res_packet(model_);
 
   req_packet.serial_number = imu_sn_;
   if (!XuImuWrite(req_packet)) {
@@ -360,7 +360,7 @@ void Channels::DoImuTrack() {
     return n;
   }();
 
-  auto &&sn = res_packet.packets.back().segments.back().serial_number;
+  auto &&sn = res_packet.packets.back().serial_number;
   if (imu_sn_ == sn) {
     VLOG(2) << "New imu not ready, dropped";
     return;

@@ -71,6 +71,8 @@ class MYNTEYE_API Channels {
   using img_params_t = std::map<Resolution, device::img_params_t>;
   using imu_params_t = device::imu_params_t;
 
+  std::uint8_t model_;
+
   explicit Channels(std::shared_ptr<uvc::device> device);
   ~Channels();
 

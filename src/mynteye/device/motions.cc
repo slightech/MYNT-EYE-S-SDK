@@ -36,7 +36,7 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
   if (motion_callback_) {
     accel_range = channels_->GetControlValue(Option::ACCELEROMETER_RANGE);
     if (accel_range == -1)
-      accel_range = 12;
+      accel_range = (channels_->model_) ? 8 : 12;  // ugly
 
     gyro_range = channels_->GetControlValue(Option::GYROSCOPE_RANGE);
     if (gyro_range == -1)
@@ -53,28 +53,16 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
         //     static_cast<uint32_t>(-seg.offset) > packet.timestamp) {
         //   LOG(WARNING) << "Imu timestamp offset is incorrect";
         // }
-        imu->serial_number = seg.serial_number;
+        imu->frame_id = seg.frame_id;
         imu->timestamp = seg.timestamp;
         imu->flag = seg.flag;
         imu->temperature = seg.temperature / 326.8f + 25;
-
-        if (imu->flag == 1) {
-          imu->accel[0] = seg.accel_or_gyro[0] * 1.f * accel_range / 0x10000;
-          imu->accel[1] = seg.accel_or_gyro[1] * 1.f * accel_range / 0x10000;
-          imu->accel[2] = seg.accel_or_gyro[2] * 1.f * accel_range / 0x10000;
-          imu->gyro[0] = 0;
-          imu->gyro[1] = 0;
-          imu->gyro[2] = 0;
-        } else if (imu->flag == 2) {
-          imu->accel[0] = 0;
-          imu->accel[1] = 0;
-          imu->accel[2] = 0;
-          imu->gyro[0] = seg.accel_or_gyro[0] * 1.f * gyro_range / 0x10000;
-          imu->gyro[1] = seg.accel_or_gyro[1] * 1.f * gyro_range / 0x10000;
-          imu->gyro[2] = seg.accel_or_gyro[2] * 1.f * gyro_range / 0x10000;
-        } else {
-          imu->Reset();
-        }
+        imu->accel[0] = seg.accel[0] * 1.f * accel_range / 0x10000;
+        imu->accel[1] = seg.accel[1] * 1.f * accel_range / 0x10000;
+        imu->accel[2] = seg.accel[2] * 1.f * accel_range / 0x10000;
+        imu->gyro[0] = seg.gyro[0] * 1.f * gyro_range / 0x10000;
+        imu->gyro[1] = seg.gyro[1] * 1.f * gyro_range / 0x10000;
+        imu->gyro[2] = seg.gyro[2] * 1.f * gyro_range / 0x10000;
 
         std::lock_guard<std::mutex> _(mtx_datas_);
         motion_data_t data = {imu};
@@ -90,7 +78,8 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
   }
 }
 
-void Motions::DoMotionTrack() {
+void Motions::DoMotionTrack(std::uint8_t model) {
+  channels_->model_ = model;
   channels_->DoImuTrack();
 }
 

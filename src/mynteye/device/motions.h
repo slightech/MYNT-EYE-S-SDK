@@ -37,7 +37,7 @@ class Motions {
   ~Motions();
 
   void SetMotionCallback(motion_callback_t callback);
-  void DoMotionTrack();
+  void DoMotionTrack(std::uint8_t model);
 
   void StartMotionTracking();
   void StopMotionTracking();

@@ -39,7 +39,7 @@ std::shared_ptr<StreamsAdapter> Standard2Device::CreateStreamsAdapter() const {
 void Standard2Device::OnStereoStreamUpdate() {
   if (motion_tracking_) {
     auto &&motions = this->motions();
-    motions->DoMotionTrack();
+    motions->DoMotionTrack(2);
   }
 }
 
