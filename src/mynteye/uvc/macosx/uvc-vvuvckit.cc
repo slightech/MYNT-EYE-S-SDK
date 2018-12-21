@@ -122,59 +122,6 @@ void pv_sleep(int ms = 1) {
   usleep(ms*1000);
 }
 
-/*
-		struct CameraConfig {
-
-    char path[256];
-
-    int driver;
-    int device;
-
-	char name[256];
-    char src[256];
-
-    bool color;
-    bool frame;
-
-    int cam_format;
-    int src_format;
-    int buf_format;
-
-    int cam_width;
-    int cam_height;
-    float cam_fps;
-
-    int frame_width;
-    int frame_height;
-    int frame_xoff;
-    int frame_yoff;
-    int frame_mode;
-
-    int brightness;
-    int contrast;
-    int sharpness;
-
-    int gain;
-    int shutter;
-    int exposure;
-    int focus;
-    int gamma;
-    int white;
-    int powerline;
-    int backlight;
-
-	int saturation;
-    int hue;
-    int red;
-    int blue;
-    int green;
-	
-	bool force;
-
-    bool operator < (const CameraConfig& c) const;
-};
-*/
-
 struct device;
 
 struct device : public AVfoundationCamera{
@@ -267,17 +214,8 @@ struct device : public AVfoundationCamera{
 
   void poll() {
     if (is_capturing) {
-      // long start_time = VisionEngine::currentMicroSeconds();
       cameraBuffer = getFrame();
       if (cameraBuffer != NULL) {
-// cameraWriteBuffer = engine->ringBuffer->getNextBufferToWrite();
-// if (cameraWriteBuffer!=NULL) {
-//  memcpy(cameraWriteBuffer,cameraBuffer,engine->ringBuffer->size());
-//  engine->framenumber_++;
-//  engine->ringBuffer->writeFinished();
-// long driver_time = VisionEngine::currentMicroSeconds() - start_time;
-// std::cout << "camera latency: " << driver_time/1000.0f << "ms" << std::endl;
-// }
         if (callback) {
           callback(cameraBuffer, [this]() mutable {
             // todo
@@ -340,6 +278,10 @@ MYNTEYE_API std::vector<std::shared_ptr<device>> query_devices(
   auto camerasConfig = findDevicesConfig();
   printConfig(camerasConfig);
   for (unsigned int i = 0; i < camerasConfig.size(); i++) {
+    // if (strcmp(fstr[camerasConfig[i].cam_format], "yuyv") == 0) {
+    //   printf("change fomat to buf_format 2\n");
+    //   camerasConfig[i].buf_format = 2;
+    // }
     auto dev = std::make_shared<device>(context, camerasConfig[i]);
     devices.push_back(dev);
   }

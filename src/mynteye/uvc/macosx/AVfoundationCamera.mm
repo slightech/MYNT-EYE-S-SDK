@@ -35,7 +35,7 @@
     if(bytes==3) color = true;
     else color = false;
     
-    buffer = new unsigned char[cam_width*cam_height*bytes];
+    buffer = new unsigned char[cam_width*cam_height*4];
     return self;
 }
 
@@ -110,12 +110,14 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                 
             } else {
                 
-                int size = cam_width*cam_height/2;
+                int size = cam_width*cam_height;
                 for (int i=size;i>0;i--) {
+                    // yu
                     *dest++ = *src++;
-                    src++;
+                    // src++;
+                    // yv
                     *dest++ = *src++;
-                    src++;
+                    // src++;
                 }
             }
         }
