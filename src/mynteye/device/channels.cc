@@ -127,7 +127,7 @@ Channels::Channels(std::shared_ptr<uvc::device> device)
       imu_sn_(0),
       imu_callback_(nullptr) {
   VLOG(2) << __func__;
-  UpdateControlInfos();
+  // UpdateControlInfos();
 }
 
 Channels::~Channels() {

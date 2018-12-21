@@ -51,17 +51,7 @@ const std::map<Model, std::map<Capabilities, StreamRequests>>
 stream_requests_map = {
   {Model::STANDARD,
     {{Capabilities::STEREO, {
-      {752, 480, Format::YUYV, 10},
-      {752, 480, Format::YUYV, 15},
-      {752, 480, Format::YUYV, 20},
-      {752, 480, Format::YUYV, 25},
-      {752, 480, Format::YUYV, 30},
-      {752, 480, Format::YUYV, 35},
-      {752, 480, Format::YUYV, 40},
-      {752, 480, Format::YUYV, 45},
-      {752, 480, Format::YUYV, 50},
-      {752, 480, Format::YUYV, 55},
-      {752, 480, Format::YUYV, 60}}
+      {752, 480, Format::YUYV, 25}}
     }}
   },
   {Model::STANDARD2,

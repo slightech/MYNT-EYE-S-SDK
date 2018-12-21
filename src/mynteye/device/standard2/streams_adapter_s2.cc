@@ -13,7 +13,10 @@
 // limitations under the License.
 #include "mynteye/device/standard2/streams_adapter_s2.h"
 
+#include <iomanip>
+
 #include "mynteye/logger.h"
+#include "mynteye/device/types.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -60,6 +63,55 @@ bool unpack_right_img_pixels(
         *(data_new + ((2 * i + 1) * w + j) * n);
     }
   }
+  return true;
+}
+
+bool unpack_stereo_img_data(
+    const void *data, const StreamRequest &request, ImgData *img) {
+  CHECK_NOTNULL(img);
+
+  auto data_new = reinterpret_cast<const std::uint8_t *>(data);
+  std::size_t data_n =
+      request.width * request.height * bytes_per_pixel(request.format);
+  auto data_end = data_new + data_n;
+
+  std::size_t packet_n = sizeof(ImagePacketS2);
+  std::vector<std::uint8_t> packet(packet_n);
+  std::reverse_copy(data_end - packet_n, data_end, packet.begin());
+
+  ImagePacketS2 img_packet(packet.data());
+  // LOG(INFO) << "ImagePacket: header=0x" << std::hex <<
+  // static_cast<int>(img_packet.header)
+  //   << ", size=0x" << std::hex << static_cast<int>(img_packet.size)
+  //   << ", frame_id="<< std::dec << img_packet.frame_id
+  //   << ", timestamp="<< std::dec << img_packet.timestamp
+  //   << ", exposure_time="<< std::dec << img_packet.exposure_time
+  //   << ", checksum=0x" << std::hex << static_cast<int>(img_packet.checksum);
+
+  if (img_packet.header != 0x3B) {
+    VLOG(2) << "Image packet header must be 0x3B, but 0x" << std::hex
+            << std::uppercase << std::setw(2) << std::setfill('0')
+            << static_cast<int>(img_packet.header) << " now";
+    return false;
+  }
+
+  std::uint8_t checksum = 0;
+  for (std::size_t i = 2, n = packet_n - 2; i <= n; i++) {  // content: [2,9]
+    checksum = (checksum ^ packet[i]);
+  }
+/*
+  if (img_packet.checksum != checksum) {
+    VLOG(2) << "Image packet checksum should be 0x" << std::hex
+            << std::uppercase << std::setw(2) << std::setfill('0')
+            << static_cast<int>(img_packet.checksum) << ", but 0x"
+            << std::setw(2) << std::setfill('0') << static_cast<int>(checksum)
+            << " now";
+    return false;
+  }
+*/
+  img->frame_id = img_packet.frame_id;
+  img->timestamp = img_packet.timestamp;
+  img->exposure_time = img_packet.exposure_time;
   return true;
 }
 

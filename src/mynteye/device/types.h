@@ -140,10 +140,10 @@ struct MYNTEYE_API DeviceInfo {
 
 /**
  * @ingroup datatypes
- * Image packet.
+ * Image packet for standand 2.
  */
 #pragma pack(push, 1)
-struct ImagePacket {
+struct ImagePacketS2 {
   std::uint8_t header;
   std::uint8_t size;
   std::uint16_t frame_id;
@@ -151,8 +151,8 @@ struct ImagePacket {
   std::uint16_t exposure_time;
   std::uint8_t checksum;
 
-  ImagePacket() = default;
-  explicit ImagePacket(std::uint8_t *data) {
+  ImagePacketS2() = default;
+  explicit ImagePacketS2(std::uint8_t *data) {
     from_data(data);
   }
 
@@ -170,6 +170,36 @@ struct ImagePacket {
     timestamp = (static_cast<std::uint64_t>(timestamp_h) << 32) | timestamp_l;
     exposure_time = (*(data + 12) << 8) | *(data + 13);
     checksum = *(data + 14);
+  }
+};
+#pragma pack(pop)
+
+/**
+ * @ingroup datatypes
+ * Image packet for standand 1.
+ */
+#pragma pack(push, 1)
+struct ImagePacketS1 {
+  std::uint8_t header;
+  std::uint8_t size;
+  std::uint16_t frame_id;
+  std::uint32_t timestamp;
+  std::uint16_t exposure_time;
+  std::uint8_t checksum;
+
+  ImagePacketS1() = default;
+  explicit ImagePacketS1(std::uint8_t *data) {
+    from_data(data);
+  }
+
+  void from_data(std::uint8_t *data) {
+    header = *data;
+    size = *(data + 1);
+    frame_id = (*(data + 2) << 8) | *(data + 3);
+    timestamp = (*(data + 4) << 24) | (*(data + 5) << 16) | (*(data + 6) << 8) |
+                *(data + 7);
+    exposure_time = (*(data + 8) << 8) | *(data + 9);
+    checksum = *(data + 10);
   }
 };
 #pragma pack(pop)
