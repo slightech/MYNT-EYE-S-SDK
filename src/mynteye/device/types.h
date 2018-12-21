@@ -314,12 +314,12 @@ struct ImuSegment {
   explicit ImuSegment(ImuGroupS2 group)
     : frame_id(group.frame_id), timestamp(group.timestamp),
       flag(group.flag), temperature(group.temperature) {
-    accel[0] = (flag == 1)?group.accel_or_gyro[0]:0;
-    accel[1] = (flag == 1)?group.accel_or_gyro[1]:0;
-    accel[2] = (flag == 1)?group.accel_or_gyro[2]:0;
-    gyro[0] = (flag == 2)?group.accel_or_gyro[0]:0;
-    gyro[1] = (flag == 2)?group.accel_or_gyro[1]:0;
-    gyro[2] = (flag == 2)?group.accel_or_gyro[2]:0;
+    accel[0] = (flag == 1) ? group.accel_or_gyro[0] : 0;
+    accel[1] = (flag == 1) ? group.accel_or_gyro[1] : 0;
+    accel[2] = (flag == 1) ? group.accel_or_gyro[2] : 0;
+    gyro[0] = (flag == 2) ? group.accel_or_gyro[0] : 0;
+    gyro[1] = (flag == 2) ? group.accel_or_gyro[1] : 0;
+    gyro[2] = (flag == 2) ? group.accel_or_gyro[2] : 0;
   }
 
   explicit ImuSegment(std::uint32_t timestamp, ImuGroupS1 group) {
