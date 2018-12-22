@@ -19,7 +19,9 @@
 #include <iterator>
 #include <sstream>
 #include <stdexcept>
+#include <vector>
 
+#include "mynteye/device/config.h"
 #include "mynteye/logger.h"
 #include "mynteye/util/strings.h"
 #include "mynteye/util/times.h"
@@ -129,7 +131,7 @@ Channels::Channels(const Model &model, std::shared_ptr<uvc::device> device)
       imu_callback_(nullptr) {
   VLOG(2) << __func__;
   imu_res_version_ = (model == Model::STANDARD) ? 1 : 2;
-  // UpdateControlInfos();
+  UpdateControlInfos();
 }
 
 Channels::~Channels() {
@@ -145,19 +147,25 @@ void Channels::LogControlInfos() const {
   }
 }
 
-// TODO(Kalman): Compatible with two generation
 void Channels::UpdateControlInfos() {
-  for (auto &&option : std::vector<Option>{Option::BRIGHTNESS}) {
-    control_infos_[option] = PuControlInfo(option);
+  auto &&supports = option_supports_map.at(model_);
+  for (auto &&option : std::vector<Option>{
+    Option::GAIN, Option::BRIGHTNESS,
+    Option::CONTRAST}) {
+    if (supports.find(option) != supports.end())
+      control_infos_[option] = PuControlInfo(option);
     }
 
     for (auto &&option : std::vector<Option>{
-             Option::EXPOSURE_MODE, Option::DESIRED_BRIGHTNESS,
-             Option::MAX_GAIN, Option::MAX_EXPOSURE_TIME,
-             Option::MIN_EXPOSURE_TIME, Option::ACCELEROMETER_RANGE,
+             Option::FRAME_RATE, Option::IMU_FREQUENCY,
+             Option::EXPOSURE_MODE, Option::MAX_GAIN,
+             Option::MAX_EXPOSURE_TIME, Option::MIN_EXPOSURE_TIME,
+             Option::DESIRED_BRIGHTNESS, Option::IR_CONTROL,
+             Option::HDR_MODE, Option::ACCELEROMETER_RANGE,
              Option::GYROSCOPE_RANGE, Option::ACCELEROMETER_LOW_PASS_FILTER,
              Option::GYROSCOPE_LOW_PASS_FILTER}) {
-      control_infos_[option] = XuControlInfo(option);
+      if (supports.find(option) != supports.end())
+        control_infos_[option] = XuControlInfo(option);
     }
 
     if (VLOG_IS_ON(2)) {
@@ -260,13 +268,25 @@ void Channels::SetControlValue(const Option &option, std::int32_t value) {
       XuCamCtrlSet(option, value);
     } break;
     case Option::ACCELEROMETER_RANGE: {
-      if (!in_range() || !in_values({6, 12, 24, 48}))
-        break;
+      if (model_ == Model::STANDARD) {
+        if (!in_range() || !in_values({4, 8, 16, 32}))
+          break;
+      }
+      if (model_ == Model::STANDARD2) {
+        if (!in_range() || !in_values({6, 12, 24, 48}))
+          break;
+      }
       XuCamCtrlSet(option, value);
     } break;
     case Option::GYROSCOPE_RANGE: {
-      if (!in_range() || !in_values({250, 500, 1000, 2000, 4000}))
-        break;
+      if (model_ == Model::STANDARD) {
+        if (!in_range() || !in_values({500, 1000, 2000, 4000}))
+          break;
+      }
+      if (model_ == Model::STANDARD2) {
+        if (!in_range() || !in_values({250, 500, 1000, 2000, 4000}))
+          break;
+      }
       XuCamCtrlSet(option, value);
     } break;
     case Option::ACCELEROMETER_LOW_PASS_FILTER: {

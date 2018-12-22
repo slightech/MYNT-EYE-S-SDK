@@ -169,13 +169,15 @@ enum class Option : std::uint8_t {
   /**
    * Max gain, valid if auto-exposure
    *
-   *   range: [0,255], default: 8
+   *   range of standard 1: [0,48], default: 48
+   *   range of standard 2: [0,255], default: 8
    */
   MAX_GAIN,
   /**
    * Max exposure time, valid if auto-exposure
    *
-   *   range: [0,1000], default: 333
+   *   range of standard 1: [0,240], default: 240
+   *   range of standard 2: [0,1000], default: 333
    */
   MAX_EXPOSURE_TIME,
   /**
@@ -187,7 +189,8 @@ enum class Option : std::uint8_t {
   /**
    * Desired brightness, valid if auto-exposure
    *
-   *   range: [1,255], default: 122
+   *   range of standard 1: [0,255], default: 192
+   *   range of standard 2: [1,255], default: 122
    */
   DESIRED_BRIGHTNESS,
 
@@ -208,13 +211,15 @@ enum class Option : std::uint8_t {
   /**
    * The range of accelerometer
    *
-   *   values: {6,12,24,48}, default: 6
+   *   value of standard 1: 4,8,16,32}, default: 8
+   *   value of standard 2: {6,12,24,48}, default: 6
    */
   ACCELEROMETER_RANGE,
   /**
    * The range of gyroscope
    *
-   *   values: {250,500,1000,2000,4000}, default: 1000
+   *   value of standard 1: {500,1000,2000,4000}, default: 1000
+   *   value of standard 2: {250,500,1000,2000,4000}, default: 1000
    */
   GYROSCOPE_RANGE,
   /**
