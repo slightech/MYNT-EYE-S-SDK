@@ -85,7 +85,7 @@ Device::Device(const Model &model, std::shared_ptr<uvc::device> device)
       model_(model),
       device_(device),
       streams_(nullptr),
-      channels_(std::make_shared<Channels>(device)),
+      channels_(std::make_shared<Channels>(model_, device)),
       motions_(std::make_shared<Motions>(channels_)) {
   VLOG(2) << __func__;
   ReadAllInfos();

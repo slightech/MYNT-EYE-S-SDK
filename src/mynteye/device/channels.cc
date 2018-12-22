@@ -120,13 +120,15 @@ void CheckSpecVersion(const Version *spec_version) {
 
 }  // namespace
 
-Channels::Channels(std::shared_ptr<uvc::device> device)
+Channels::Channels(const Model &model, std::shared_ptr<uvc::device> device)
     : device_(device),
+      model_(model),
       is_imu_tracking_(false),
       imu_track_stop_(false),
       imu_sn_(0),
       imu_callback_(nullptr) {
   VLOG(2) << __func__;
+  imu_res_version_ = (model == Model::STANDARD) ? 1 : 2;
   // UpdateControlInfos();
 }
 
@@ -327,13 +329,17 @@ bool Channels::RunControlAction(const Option &option) const {
   }
 }
 
+std::uint8_t Channels::GetImuResVersion() {
+  return imu_res_version_;
+}
+
 void Channels::SetImuCallback(imu_callback_t callback) {
   imu_callback_ = callback;
 }
 
 void Channels::DoImuTrack() {
   static ImuReqPacket req_packet{0};
-  static ImuResPacket res_packet(model_);
+  static ImuResPacket res_packet(imu_res_version_);
 
   req_packet.serial_number = imu_sn_;
   if (!XuImuWrite(req_packet)) {

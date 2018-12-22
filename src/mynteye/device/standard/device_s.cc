@@ -44,7 +44,7 @@ void StandardDevice::StartVideoStreaming() {
 void StandardDevice::OnStereoStreamUpdate() {
   if (motion_tracking_) {
     auto &&motions = this->motions();
-    motions->DoMotionTrack(1);
+    motions->DoMotionTrack();
   }
 }
 

@@ -36,7 +36,7 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
   if (motion_callback_) {
     accel_range = channels_->GetControlValue(Option::ACCELEROMETER_RANGE);
     if (accel_range == -1)
-      accel_range = (channels_->model_) ? 8 : 12;  // ugly
+      accel_range = (channels_->GetImuResVersion() == 1) ? 8 : 12;
 
     gyro_range = channels_->GetControlValue(Option::GYROSCOPE_RANGE);
     if (gyro_range == -1)
@@ -78,8 +78,7 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
   }
 }
 
-void Motions::DoMotionTrack(std::uint8_t model) {
-  channels_->model_ = model;
+void Motions::DoMotionTrack() {
   channels_->DoImuTrack();
 }
 

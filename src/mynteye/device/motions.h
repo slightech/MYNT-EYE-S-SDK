@@ -37,7 +37,7 @@ class Motions {
   ~Motions();
 
   void SetMotionCallback(motion_callback_t callback);
-  void DoMotionTrack(std::uint8_t model);
+  void DoMotionTrack();
 
   void StartMotionTracking();
   void StopMotionTracking();
@@ -58,8 +58,8 @@ class Motions {
 
   std::mutex mtx_datas_;
 
-  int accel_range = 12;
-  int gyro_range = 1000;
+  int accel_range;
+  int gyro_range;
 };
 
 MYNTEYE_END_NAMESPACE

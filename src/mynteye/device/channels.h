@@ -71,9 +71,8 @@ class MYNTEYE_API Channels {
   using img_params_t = std::map<Resolution, device::img_params_t>;
   using imu_params_t = device::imu_params_t;
 
-  std::uint8_t model_;
-
-  explicit Channels(std::shared_ptr<uvc::device> device);
+  explicit Channels(
+      const Model &model, std::shared_ptr<uvc::device> device);
   ~Channels();
 
   void LogControlInfos() const;
@@ -84,6 +83,8 @@ class MYNTEYE_API Channels {
   void SetControlValue(const Option &option, std::int32_t value);
 
   bool RunControlAction(const Option &option) const;
+
+  std::uint8_t GetImuResVersion();
 
   void SetImuCallback(imu_callback_t callback);
   void DoImuTrack();
@@ -130,6 +131,10 @@ class MYNTEYE_API Channels {
 
   control_info_t PuControlInfo(Option option) const;
   control_info_t XuControlInfo(Option option) const;
+
+  std::uint8_t imu_res_version_;
+
+  Model model_;
 
   std::shared_ptr<uvc::device> device_;
 
