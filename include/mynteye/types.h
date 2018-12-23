@@ -211,7 +211,7 @@ enum class Option : std::uint8_t {
   /**
    * The range of accelerometer
    *
-   *   value of standard 1: 4,8,16,32}, default: 8
+   *   value of standard 1: {4,8,16,32}, default: 8
    *   value of standard 2: {6,12,24,48}, default: 6
    */
   ACCELEROMETER_RANGE,
@@ -520,9 +520,9 @@ struct MYNTEYE_API ImgData {
  * IMU data.
  */
 struct MYNTEYE_API ImuData {
-  /** Imu frame id */
+  /** IMU frame id */
   std::uint32_t frame_id;
-  /** accel or gyro flag:1 for accel,2 for gyro,3 for both */
+  /** IMU accel or gyro flag: 1 for accel, 2 for gyro, 3 for both */
   std::uint8_t flag;
   /** IMU timestamp in 1us */
   std::uint64_t timestamp;
