@@ -94,7 +94,8 @@ bool unpack_stereo_img_data(
   }
 
   img->frame_id = img_packet.frame_id;
-  img->timestamp = static_cast<uint64_t>(img_packet.timestamp * 10);
+  // make timestamp unit from 10us to 1us
+  img->timestamp = static_cast<uint64_t>(img_packet.timestamp) * 10;
   img->exposure_time = img_packet.exposure_time;
   return true;
 }
