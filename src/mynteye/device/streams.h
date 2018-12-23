@@ -28,11 +28,6 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
-/*
-extern bool unpack_stereo_img_data(
-    const void *data, const StreamRequest &request, ImgData *img);
-*/
-
 class StreamsAdapter;
 
 class Streams {
