@@ -29,8 +29,6 @@ class StandardDevice : public Device {
 
   Capabilities GetKeyStreamCapability() const override;
 
-  void StartVideoStreaming() override;
-
   void OnStereoStreamUpdate() override;
 };
 

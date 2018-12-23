@@ -35,11 +35,6 @@ Capabilities StandardDevice::GetKeyStreamCapability() const {
   return Capabilities::STEREO;
 }
 
-void StandardDevice::StartVideoStreaming() {
-  // TODO(John) Set img framerate, imu frequency according to stream request
-  Device::StartVideoStreaming();
-}
-
 void StandardDevice::OnStereoStreamUpdate() {
   if (motion_tracking_) {
     auto &&motions = this->motions();
