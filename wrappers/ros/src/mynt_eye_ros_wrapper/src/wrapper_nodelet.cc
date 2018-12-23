@@ -98,21 +98,33 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
   inline bool is_overflow(std::uint32_t now,
-      std::uint32_t last) {
+      std::uint32_t pre) {
     static std::uint64_t unit =
       std::numeric_limits<std::uint32_t>::max();
-    return static_cast<std::int32_t>(last - now)
-      > static_cast<std::int32_t>(unit / 2);
+    /*
+    std::cout << "pre:: " << pre << " now:: " << now << std::endl;
+    std::cout << "pre - now:: " << (long)(pre - now) << std::endl;
+    std::cout << "unit / 2:: " << unit / 2 << std::endl;
+    // std::cout << "abs:: " << labs(529 - 4280606083) << std::endl;
+    return static_cast<std::int64_t>(pre - now)
+      > static_cast<std::int64_t>(unit / 2);
+    // return labs(pre - now) > (unit / 2);
+    */
+
+    return (now < pre) && ((pre - now) > (unit / 2));
   }
 
   inline bool is_repeated(std::uint32_t now,
-      std::uint32_t last) {
-    return now == last;
+      std::uint32_t pre) {
+    return now == pre;
   }
 
-  inline bool is_error(std::uint32_t now,
-      std::uint32_t last) {
-    return last > now && !is_overflow(now, last);
+  inline bool is_annormal(std::uint32_t now,
+      std::uint32_t pre) {
+    static std::uint64_t unit =
+      std::numeric_limits<std::uint32_t>::max();
+
+    return (now < pre) && ((pre - now) < (unit / 4));
   }
 
   ros::Time checkUpTimeStamp(std::uint32_t _hard_time,
@@ -126,15 +138,18 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       std::cout << "img_hard_time_now:: " << hard_time_now[stream] << std::endl;
       std::cout << "_hard_time:: " << _hard_time << std::endl;
       std::cout << "img_acc:: " << acc[stream] << std::endl;
+      std::cout << "overflow stream:: " << stream << std::endl;
       acc[stream]++;
     } else if (is_repeated(_hard_time, hard_time_now[stream])) {
       std::cout << "img_hard_time_now:: " << hard_time_now[stream] << std::endl;
       std::cout << "_hard_time:: " << _hard_time << std::endl;
+      std::cout << "repeated stream:: " << stream << std::endl;
       NODELET_INFO_STREAM("WARNING:: Image time stamp is repeated.");
-    } else if (is_error(_hard_time, hard_time_now[stream])) {
+    } else if (is_annormal(_hard_time, hard_time_now[stream])) {
       std::cout << "img_hard_time_now:: " << hard_time_now[stream] << std::endl;
       std::cout << "_hard_time:: " << _hard_time << std::endl;
-      NODELET_INFO_STREAM("WARNING:: Image time stamp is error.");
+      std::cout << "annormal stream:: " << stream << std::endl;
+      NODELET_INFO_STREAM("WARNING:: Image time stamp is annormal.");
     }
     hard_time_now[stream] = _hard_time;
 
@@ -156,10 +171,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       std::cout << "imu_hard_time_now:: " << hard_time_now << std::endl;
       std::cout << "_hard_time:: " << _hard_time << std::endl;
       NODELET_INFO_STREAM("WARNING:: Imu time stamp is repeated.");
-    } else if (is_error(_hard_time, hard_time_now)) {
+    } else if (is_annormal(_hard_time, hard_time_now)) {
       std::cout << "imu_hard_time_now:: " << hard_time_now << std::endl;
       std::cout << "_hard_time:: " << _hard_time << std::endl;
-      NODELET_INFO_STREAM("WARNING:: Imu time stamp is error.");
+      NODELET_INFO_STREAM("WARNING:: Imu time stamp is annormal.");
     }
     hard_time_now = _hard_time;
 
