@@ -43,6 +43,7 @@ struct DeviceInfo;
 
 class API;
 class Channels;
+class ChannelsAdapter;
 class Motions;
 class Streams;
 class StreamsAdapter;
@@ -70,7 +71,13 @@ class MYNTEYE_API Device {
   using img_params_t = device::img_params_t;
   using imu_params_t = device::imu_params_t;
 
-  Device(const Model &model, std::shared_ptr<uvc::device> device);
+ protected:
+  Device(const Model &model,
+      const std::shared_ptr<uvc::device> &device,
+      const std::shared_ptr<StreamsAdapter> &streams_adapter,
+      const std::shared_ptr<ChannelsAdapter> &channels_adapter);
+
+ public:
   virtual ~Device();
 
   /**
@@ -301,7 +308,6 @@ class MYNTEYE_API Device {
   virtual void OnStereoStreamUpdate();
 
   virtual Capabilities GetKeyStreamCapability() const = 0;
-  virtual std::shared_ptr<StreamsAdapter> CreateStreamsAdapter() const = 0;
 
   std::map<Resolution, device::img_params_t> GetImgParams() const {
     return all_img_params_;

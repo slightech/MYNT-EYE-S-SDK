@@ -15,12 +15,15 @@
 
 #include "mynteye/logger.h"
 #include "mynteye/device/motions.h"
+#include "mynteye/device/standard/channels_adapter_s.h"
 #include "mynteye/device/standard/streams_adapter_s.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
 StandardDevice::StandardDevice(std::shared_ptr<uvc::device> device)
-    : Device(Model::STANDARD, device) {
+  : Device(Model::STANDARD, device,
+           std::make_shared<StandardStreamsAdapter>(),
+           std::make_shared<StandardChannelsAdapter>()) {
   VLOG(2) << __func__;
 }
 
@@ -30,10 +33,6 @@ StandardDevice::~StandardDevice() {
 
 Capabilities StandardDevice::GetKeyStreamCapability() const {
   return Capabilities::STEREO;
-}
-
-std::shared_ptr<StreamsAdapter> StandardDevice::CreateStreamsAdapter() const {
-  return std::make_shared<StandardStreamsAdapter>();
 }
 
 void StandardDevice::StartVideoStreaming() {

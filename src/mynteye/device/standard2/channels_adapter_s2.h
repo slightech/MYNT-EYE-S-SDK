@@ -11,29 +11,34 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef MYNTEYE_DEVICE_STANDARD_DEVICE_S_H_
-#define MYNTEYE_DEVICE_STANDARD_DEVICE_S_H_
+#ifndef MYNTEYE_DEVICE_STANDARD2_CHANNELS_ADAPTER_S2_H_
+#define MYNTEYE_DEVICE_STANDARD2_CHANNELS_ADAPTER_S2_H_
 #pragma once
 
-#include <memory>
+#include <cstdint>
+#include <set>
 #include <vector>
 
-#include "mynteye/device/device.h"
+#include "mynteye/device/channels.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
-class StandardDevice : public Device {
+class Standard2ChannelsAdapter : public ChannelsAdapter {
  public:
-  explicit StandardDevice(std::shared_ptr<uvc::device> device);
-  virtual ~StandardDevice();
+  Standard2ChannelsAdapter();
+  virtual ~Standard2ChannelsAdapter();
 
-  Capabilities GetKeyStreamCapability() const override;
+  std::set<Option> GetOptionSupports() override;
 
-  void StartVideoStreaming() override;
+  std::int32_t GetAccelRangeDefault() override;
+  std::vector<std::int32_t> GetAccelRangeValues() override;
 
-  void OnStereoStreamUpdate() override;
+  std::int32_t GetGyroRangeDefault() override;
+  std::vector<std::int32_t> GetGyroRangeValues() override;
+
+  void GetImuResPacket(const std::uint8_t *data, ImuResPacket *res) override;
 };
 
 MYNTEYE_END_NAMESPACE
 
-#endif  // MYNTEYE_DEVICE_STANDARD_DEVICE_S_H_
+#endif  // MYNTEYE_DEVICE_STANDARD2_CHANNELS_ADAPTER_S2_H_

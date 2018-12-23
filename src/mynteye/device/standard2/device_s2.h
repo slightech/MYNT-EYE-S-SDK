@@ -28,7 +28,6 @@ class Standard2Device : public Device {
   virtual ~Standard2Device();
 
   Capabilities GetKeyStreamCapability() const override;
-  std::shared_ptr<StreamsAdapter> CreateStreamsAdapter() const override;
 
   void OnStereoStreamUpdate() override;
 };

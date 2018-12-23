@@ -21,12 +21,9 @@
 #include <stdexcept>
 #include <vector>
 
-#include "mynteye/device/config.h"
 #include "mynteye/logger.h"
 #include "mynteye/util/strings.h"
 #include "mynteye/util/times.h"
-
-#include "mynteye/logger.h"
 
 #define IMU_TRACK_PERIOD 25  // ms
 
@@ -34,12 +31,12 @@ MYNTEYE_BEGIN_NAMESPACE
 
 namespace {
 
-const uvc::xu mynteye_xu = {3,
-                            2,
-                            {0x947a6d9f,
-                             0x8a2f,
-                             0x418d,
-                             {0x85, 0x9e, 0x6c, 0x9a, 0xa0, 0x38, 0x10, 0x14}}};
+const uvc::xu mynteye_xu = {3, 2,
+  {
+    0x947a6d9f, 0x8a2f, 0x418d,
+    {0x85, 0x9e, 0x6c, 0x9a, 0xa0, 0x38, 0x10, 0x14}
+  }
+};
 
 int XuCamCtrlId(Option option) {
   switch (option) {
@@ -122,21 +119,29 @@ void CheckSpecVersion(const Version *spec_version) {
 
 }  // namespace
 
-Channels::Channels(const Model &model, std::shared_ptr<uvc::device> device)
-    : device_(device),
-      model_(model),
-      is_imu_tracking_(false),
-      imu_track_stop_(false),
-      imu_sn_(0),
-      imu_callback_(nullptr) {
+Channels::Channels(const std::shared_ptr<uvc::device> &device,
+    const std::shared_ptr<ChannelsAdapter> &adapter)
+  : device_(device),
+    adapter_(adapter),
+    is_imu_tracking_(false),
+    imu_track_stop_(false),
+    imu_sn_(0),
+    imu_callback_(nullptr) {
   VLOG(2) << __func__;
-  imu_res_version_ = (model == Model::STANDARD) ? 1 : 2;
   UpdateControlInfos();
 }
 
 Channels::~Channels() {
   VLOG(2) << __func__;
   StopImuTracking();
+}
+
+std::int32_t Channels::GetAccelRangeDefault() {
+  return adapter_->GetAccelRangeDefault();
+}
+
+std::int32_t Channels::GetGyroRangeDefault() {
+  return adapter_->GetGyroRangeDefault();
 }
 
 void Channels::LogControlInfos() const {
@@ -148,34 +153,32 @@ void Channels::LogControlInfos() const {
 }
 
 void Channels::UpdateControlInfos() {
-  auto &&supports = option_supports_map.at(model_);
+  auto &&supports = adapter_->GetOptionSupports();
   for (auto &&option : std::vector<Option>{
-    Option::GAIN, Option::BRIGHTNESS,
-    Option::CONTRAST}) {
+      Option::GAIN, Option::BRIGHTNESS, Option::CONTRAST}) {
     if (supports.find(option) != supports.end())
       control_infos_[option] = PuControlInfo(option);
-    }
+  }
 
-    for (auto &&option : std::vector<Option>{
-             Option::FRAME_RATE, Option::IMU_FREQUENCY,
-             Option::EXPOSURE_MODE, Option::MAX_GAIN,
-             Option::MAX_EXPOSURE_TIME, Option::MIN_EXPOSURE_TIME,
-             Option::DESIRED_BRIGHTNESS, Option::IR_CONTROL,
-             Option::HDR_MODE, Option::ACCELEROMETER_RANGE,
-             Option::GYROSCOPE_RANGE, Option::ACCELEROMETER_LOW_PASS_FILTER,
-             Option::GYROSCOPE_LOW_PASS_FILTER}) {
-      if (supports.find(option) != supports.end())
-        control_infos_[option] = XuControlInfo(option);
-    }
+  for (auto &&option : std::vector<Option>{
+      Option::FRAME_RATE, Option::IMU_FREQUENCY,
+      Option::EXPOSURE_MODE, Option::MAX_GAIN,
+      Option::MAX_EXPOSURE_TIME, Option::MIN_EXPOSURE_TIME,
+      Option::DESIRED_BRIGHTNESS, Option::IR_CONTROL,
+      Option::HDR_MODE, Option::ACCELEROMETER_RANGE,
+      Option::GYROSCOPE_RANGE, Option::ACCELEROMETER_LOW_PASS_FILTER,
+      Option::GYROSCOPE_LOW_PASS_FILTER}) {
+    if (supports.find(option) != supports.end())
+      control_infos_[option] = XuControlInfo(option);
+  }
 
-    if (VLOG_IS_ON(2)) {
-      for (auto &&it = control_infos_.begin(); it != control_infos_.end();
-           it++) {
-        VLOG(2) << it->first << ": min=" << it->second.min
-                << ", max=" << it->second.max << ", def=" << it->second.def
-                << ", cur=" << GetControlValue(it->first);
-      }
+  if (VLOG_IS_ON(2)) {
+    for (auto &&it = control_infos_.begin(); it != control_infos_.end(); it++) {
+      VLOG(2) << it->first << ": min=" << it->second.min
+              << ", max=" << it->second.max << ", def=" << it->second.def
+              << ", cur=" << GetControlValue(it->first);
     }
+  }
 }
 
 Channels::control_info_t Channels::GetControlInfo(const Option &option) const {
@@ -268,25 +271,13 @@ void Channels::SetControlValue(const Option &option, std::int32_t value) {
       XuCamCtrlSet(option, value);
     } break;
     case Option::ACCELEROMETER_RANGE: {
-      if (model_ == Model::STANDARD) {
-        if (!in_range() || !in_values({4, 8, 16, 32}))
-          break;
-      }
-      if (model_ == Model::STANDARD2) {
-        if (!in_range() || !in_values({6, 12, 24, 48}))
-          break;
-      }
+      if (!in_range() || !in_values(adapter_->GetAccelRangeValues()))
+        break;
       XuCamCtrlSet(option, value);
     } break;
     case Option::GYROSCOPE_RANGE: {
-      if (model_ == Model::STANDARD) {
-        if (!in_range() || !in_values({500, 1000, 2000, 4000}))
-          break;
-      }
-      if (model_ == Model::STANDARD2) {
-        if (!in_range() || !in_values({250, 500, 1000, 2000, 4000}))
-          break;
-      }
+      if (!in_range() || !in_values(adapter_->GetGyroRangeValues()))
+        break;
       XuCamCtrlSet(option, value);
     } break;
     case Option::ACCELEROMETER_LOW_PASS_FILTER: {
@@ -349,17 +340,13 @@ bool Channels::RunControlAction(const Option &option) const {
   }
 }
 
-std::uint8_t Channels::GetImuResVersion() {
-  return imu_res_version_;
-}
-
 void Channels::SetImuCallback(imu_callback_t callback) {
   imu_callback_ = callback;
 }
 
 void Channels::DoImuTrack() {
   static ImuReqPacket req_packet{0};
-  static ImuResPacket res_packet(imu_res_version_);
+  static ImuResPacket res_packet;
 
   req_packet.serial_number = imu_sn_;
   if (!XuImuWrite(req_packet)) {
@@ -1094,7 +1081,7 @@ bool Channels::XuImuRead(ImuResPacket *res) const {
   static std::uint8_t data[2000]{};
   // std::fill(data, data + 2000, 0);  // reset
   if (XuControlQuery(CHANNEL_IMU_READ, uvc::XU_QUERY_GET, 2000, data)) {
-    res->from_data(data);
+    adapter_->GetImuResPacket(data, res);
 
     if (res->header != 0x5B) {
       LOG(WARNING) << "Imu response packet header must be 0x5B, but 0x"

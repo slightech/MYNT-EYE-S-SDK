@@ -212,7 +212,7 @@ enum class Option : std::uint8_t {
    * The range of accelerometer
    *
    *   value of standard 1: {4,8,16,32}, default: 8
-   *   value of standard 2: {6,12,24,48}, default: 6
+   *   value of standard 2: {6,12,24,48}, default: 12
    */
   ACCELEROMETER_RANGE,
   /**
@@ -357,7 +357,7 @@ struct MYNTEYE_API StreamRequest {
   std::uint16_t height;
   /** Stream pixel format */
   Format format;
-  /** Stream frames per second (unused) */
+  /** Stream frames per second */
   std::uint16_t fps;
 
   StreamRequest() {}
@@ -522,7 +522,13 @@ struct MYNTEYE_API ImgData {
 struct MYNTEYE_API ImuData {
   /** IMU frame id */
   std::uint32_t frame_id;
-  /** IMU accel or gyro flag: 1 for accel, 2 for gyro, 3 for both */
+  /**
+   * IMU accel or gyro flag
+   *
+   *   0: accel and gyro are both valid
+   *   1: accel is valid
+   *   2: gyro is valid
+   */
   std::uint8_t flag;
   /** IMU timestamp in 1us */
   std::uint64_t timestamp;

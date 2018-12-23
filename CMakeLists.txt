@@ -172,8 +172,10 @@ set(MYNTEYE_SRCS
   src/mynteye/device/context.cc
   src/mynteye/device/device.cc
   src/mynteye/device/motions.cc
+  src/mynteye/device/standard/channels_adapter_s.cc
   src/mynteye/device/standard/device_s.cc
   src/mynteye/device/standard/streams_adapter_s.cc
+  src/mynteye/device/standard2/channels_adapter_s2.cc
   src/mynteye/device/standard2/device_s2.cc
   src/mynteye/device/standard2/streams_adapter_s2.cc
   src/mynteye/device/streams.cc

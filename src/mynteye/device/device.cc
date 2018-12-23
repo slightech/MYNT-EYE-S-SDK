@@ -79,14 +79,17 @@ bool CheckSupports(
 
 }  // namespace
 
-Device::Device(const Model &model, std::shared_ptr<uvc::device> device)
-    : video_streaming_(false),
-      motion_tracking_(false),
-      model_(model),
-      device_(device),
-      streams_(nullptr),
-      channels_(std::make_shared<Channels>(model_, device)),
-      motions_(std::make_shared<Motions>(channels_)) {
+Device::Device(const Model &model,
+    const std::shared_ptr<uvc::device> &device,
+    const std::shared_ptr<StreamsAdapter> &streams_adapter,
+    const std::shared_ptr<ChannelsAdapter> &channels_adapter)
+  : video_streaming_(false),
+    motion_tracking_(false),
+    model_(model),
+    device_(device),
+    streams_(std::make_shared<Streams>(streams_adapter)),
+    channels_(std::make_shared<Channels>(device_, channels_adapter)),
+    motions_(std::make_shared<Motions>(channels_)) {
   VLOG(2) << __func__;
   ReadAllInfos();
 }
@@ -470,8 +473,6 @@ void Device::StartVideoStreaming() {
     LOG(WARNING) << "Cannot start video streaming without first stopping it";
     return;
   }
-
-  streams_ = std::make_shared<Streams>(CreateStreamsAdapter());
 
   // if stream capabilities are supported with subdevices of device_
   /*

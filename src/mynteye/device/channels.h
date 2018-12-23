@@ -17,7 +17,9 @@
 
 #include <map>
 #include <memory>
+#include <set>
 #include <thread>
+#include <vector>
 
 #include "mynteye/mynteye.h"
 #include "mynteye/types.h"
@@ -33,6 +35,8 @@ struct device;
 struct xu;
 
 }  // namespace uvc
+
+class ChannelsAdapter;
 
 class MYNTEYE_API Channels {
  public:
@@ -71,9 +75,12 @@ class MYNTEYE_API Channels {
   using img_params_t = std::map<Resolution, device::img_params_t>;
   using imu_params_t = device::imu_params_t;
 
-  explicit Channels(
-      const Model &model, std::shared_ptr<uvc::device> device);
+  Channels(const std::shared_ptr<uvc::device> &device,
+           const std::shared_ptr<ChannelsAdapter> &adapter);
   ~Channels();
+
+  std::int32_t GetAccelRangeDefault();
+  std::int32_t GetGyroRangeDefault();
 
   void LogControlInfos() const;
   void UpdateControlInfos();
@@ -83,8 +90,6 @@ class MYNTEYE_API Channels {
   void SetControlValue(const Option &option, std::int32_t value);
 
   bool RunControlAction(const Option &option) const;
-
-  std::uint8_t GetImuResVersion();
 
   void SetImuCallback(imu_callback_t callback);
   void DoImuTrack();
@@ -132,11 +137,8 @@ class MYNTEYE_API Channels {
   control_info_t PuControlInfo(Option option) const;
   control_info_t XuControlInfo(Option option) const;
 
-  std::uint8_t imu_res_version_;
-
-  Model model_;
-
   std::shared_ptr<uvc::device> device_;
+  std::shared_ptr<ChannelsAdapter> adapter_;
 
   std::map<Option, control_info_t> control_infos_;
 
@@ -146,6 +148,21 @@ class MYNTEYE_API Channels {
 
   std::uint32_t imu_sn_;
   imu_callback_t imu_callback_;
+};
+
+class ChannelsAdapter {
+ public:
+  virtual ~ChannelsAdapter() {}
+
+  virtual std::set<Option> GetOptionSupports() = 0;
+
+  virtual std::int32_t GetAccelRangeDefault() = 0;
+  virtual std::vector<std::int32_t> GetAccelRangeValues() = 0;
+
+  virtual std::int32_t GetGyroRangeDefault() = 0;
+  virtual std::vector<std::int32_t> GetGyroRangeValues() = 0;
+
+  virtual void GetImuResPacket(const std::uint8_t *data, ImuResPacket *res) = 0;
 };
 
 MYNTEYE_END_NAMESPACE
