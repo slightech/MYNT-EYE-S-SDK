@@ -22,6 +22,42 @@ MYNTEYE_BEGIN_NAMESPACE
 
 namespace {
 
+// image info
+
+#pragma pack(push, 1)
+struct ImagePacket {
+  std::uint8_t header;
+  std::uint8_t size;
+  std::uint16_t frame_id;
+  std::uint64_t timestamp;
+  std::uint16_t exposure_time;
+  std::uint8_t checksum;
+
+  ImagePacket() = default;
+  explicit ImagePacket(std::uint8_t *data) {
+    from_data(data);
+  }
+
+  void from_data(std::uint8_t *data) {
+    std::uint32_t timestamp_l;
+    std::uint32_t timestamp_h;
+
+    header = *data;
+    size = *(data + 1);
+    frame_id = (*(data + 2) << 8) | *(data + 3);
+    timestamp_h = (*(data + 4) << 24) | (*(data + 5) << 16) |
+                  (*(data + 6) << 8) | *(data + 7);
+    timestamp_l = (*(data + 8) << 24) | (*(data + 9) << 16) |
+                  (*(data + 10) << 8) | *(data + 11);
+    timestamp = (static_cast<std::uint64_t>(timestamp_h) << 32) | timestamp_l;
+    exposure_time = (*(data + 12) << 8) | *(data + 13);
+    checksum = *(data + 14);
+  }
+};
+#pragma pack(pop)
+
+// image pixels
+
 bool unpack_left_img_pixels(
     const void *data, const StreamRequest &request, Streams::frame_t *frame) {
   CHECK_NOTNULL(frame);
@@ -75,11 +111,11 @@ bool unpack_stereo_img_data(
       request.width * request.height * bytes_per_pixel(request.format);
   auto data_end = data_new + data_n;
 
-  std::size_t packet_n = sizeof(ImagePacketS2);
+  std::size_t packet_n = sizeof(ImagePacket);
   std::vector<std::uint8_t> packet(packet_n);
   std::reverse_copy(data_end - packet_n, data_end, packet.begin());
 
-  ImagePacketS2 img_packet(packet.data());
+  ImagePacket img_packet(packet.data());
   // LOG(INFO) << "ImagePacket: header=0x" << std::hex <<
   // static_cast<int>(img_packet.header)
   //   << ", size=0x" << std::hex << static_cast<int>(img_packet.size)

@@ -22,31 +22,33 @@ MYNTEYE_BEGIN_NAMESPACE
 
 namespace {
 
-bool unpack_left_img_pixels(
-    const void *data, const StreamRequest &request, Streams::frame_t *frame) {
-  CHECK_NOTNULL(frame);
-  CHECK_EQ(request.format, Format::YUYV);
-  CHECK_EQ(frame->format(), Format::GREY);
-  auto data_new = reinterpret_cast<const std::uint8_t *>(data);
-  std::size_t n = frame->width() * frame->height();
-  for (std::size_t i = 0; i < n; i++) {
-    frame->data()[i] = *(data_new + (i * 2));
-  }
-  return true;
-}
+// image info
 
-bool unpack_right_img_pixels(
-    const void *data, const StreamRequest &request, Streams::frame_t *frame) {
-  CHECK_NOTNULL(frame);
-  CHECK_EQ(request.format, Format::YUYV);
-  CHECK_EQ(frame->format(), Format::GREY);
-  auto data_new = reinterpret_cast<const std::uint8_t *>(data);
-  std::size_t n = frame->width() * frame->height();
-  for (std::size_t i = 0; i < n; i++) {
-    frame->data()[i] = *(data_new + (i * 2 + 1));
+#pragma pack(push, 1)
+struct ImagePacket {
+  std::uint8_t header;
+  std::uint8_t size;
+  std::uint16_t frame_id;
+  std::uint32_t timestamp;
+  std::uint16_t exposure_time;
+  std::uint8_t checksum;
+
+  ImagePacket() = default;
+  explicit ImagePacket(std::uint8_t *data) {
+    from_data(data);
   }
-  return true;
-}
+
+  void from_data(std::uint8_t *data) {
+    header = *data;
+    size = *(data + 1);
+    frame_id = (*(data + 2) << 8) | *(data + 3);
+    timestamp = (*(data + 4) << 24) | (*(data + 5) << 16) | (*(data + 6) << 8) |
+                *(data + 7);
+    exposure_time = (*(data + 8) << 8) | *(data + 9);
+    checksum = *(data + 10);
+  }
+};
+#pragma pack(pop)
 
 bool unpack_stereo_img_data(
     const void *data, const StreamRequest &request, ImgData *img) {
@@ -57,11 +59,11 @@ bool unpack_stereo_img_data(
       request.width * request.height * bytes_per_pixel(request.format);
   auto data_end = data_new + data_n;
 
-  std::size_t packet_n = sizeof(ImagePacketS1);
+  std::size_t packet_n = sizeof(ImagePacket);
   std::vector<std::uint8_t> packet(packet_n);
   std::reverse_copy(data_end - packet_n, data_end, packet.begin());
 
-  ImagePacketS1 img_packet(packet.data());
+  ImagePacket img_packet(packet.data());
   // LOG(INFO) << "ImagePacket: header=0x" << std::hex <<
   // static_cast<int>(img_packet.header)
   //   << ", size=0x" << std::hex << static_cast<int>(img_packet.size)
@@ -94,6 +96,34 @@ bool unpack_stereo_img_data(
   img->frame_id = img_packet.frame_id;
   img->timestamp = static_cast<uint64_t>(img_packet.timestamp * 10);
   img->exposure_time = img_packet.exposure_time;
+  return true;
+}
+
+// image pixels
+
+bool unpack_left_img_pixels(
+    const void *data, const StreamRequest &request, Streams::frame_t *frame) {
+  CHECK_NOTNULL(frame);
+  CHECK_EQ(request.format, Format::YUYV);
+  CHECK_EQ(frame->format(), Format::GREY);
+  auto data_new = reinterpret_cast<const std::uint8_t *>(data);
+  std::size_t n = frame->width() * frame->height();
+  for (std::size_t i = 0; i < n; i++) {
+    frame->data()[i] = *(data_new + (i * 2));
+  }
+  return true;
+}
+
+bool unpack_right_img_pixels(
+    const void *data, const StreamRequest &request, Streams::frame_t *frame) {
+  CHECK_NOTNULL(frame);
+  CHECK_EQ(request.format, Format::YUYV);
+  CHECK_EQ(frame->format(), Format::GREY);
+  auto data_new = reinterpret_cast<const std::uint8_t *>(data);
+  std::size_t n = frame->width() * frame->height();
+  for (std::size_t i = 0; i < n; i++) {
+    frame->data()[i] = *(data_new + (i * 2 + 1));
+  }
   return true;
 }
 
