@@ -15,9 +15,11 @@
 #define MYNTEYE_DEVICE_CHANNELS_H_
 #pragma once
 
+#include <algorithm>
 #include <map>
 #include <memory>
 #include <set>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -163,7 +165,87 @@ class ChannelsAdapter {
   virtual std::vector<std::int32_t> GetGyroRangeValues() = 0;
 
   virtual void GetImuResPacket(const std::uint8_t *data, ImuResPacket *res) = 0;
+
+  virtual std::size_t GetImgParamsFromData(
+      const std::uint8_t *data, const Version *version,
+      Channels::img_params_t *img_params) = 0;
+  virtual std::size_t SetImgParamsToData(
+      const Channels::img_params_t *img_params, const Version *version,
+      std::uint8_t *data) = 0;
+
+  virtual std::size_t GetImuParamsFromData(
+      const std::uint8_t *data, const Version *version,
+      Channels::imu_params_t *imu_params);
+  virtual std::size_t SetImuParamsToData(
+      const Channels::imu_params_t *imu_params, const Version *version,
+      std::uint8_t *data);
 };
+
+namespace bytes {
+
+// from
+
+template <typename T>
+T _from_data(const std::uint8_t *data) {
+  std::size_t size = sizeof(T) / sizeof(std::uint8_t);
+  T value = 0;
+  for (std::size_t i = 0; i < size; i++) {
+    value |= data[i] << (8 * (size - i - 1));
+  }
+  return value;
+}
+
+template <>
+inline double _from_data(const std::uint8_t *data) {
+  return *(reinterpret_cast<const double *>(data));
+}
+
+std::string _from_data(const std::uint8_t *data, std::size_t count);
+
+std::size_t from_data(Channels::device_info_t *info, const std::uint8_t *data);
+
+std::size_t from_data(Intrinsics *in, const std::uint8_t *data,
+    const Version *spec_version);
+
+std::size_t from_data(ImuIntrinsics *in, const std::uint8_t *data,
+    const Version *spec_version);
+
+std::size_t from_data(Extrinsics *ex, const std::uint8_t *data,
+    const Version *spec_version);
+
+// to
+
+template <typename T>
+std::size_t _to_data(T value, std::uint8_t *data) {
+  std::size_t size = sizeof(T) / sizeof(std::uint8_t);
+  for (std::size_t i = 0; i < size; i++) {
+    data[i] = static_cast<std::uint8_t>((value >> (8 * (size - i - 1))) & 0xFF);
+  }
+  return size;
+}
+
+template <>
+inline std::size_t _to_data(double value, std::uint8_t *data) {
+  std::uint8_t *val = reinterpret_cast<std::uint8_t *>(&value);
+  std::copy(val, val + 8, data);
+  return 8;
+}
+
+std::size_t _to_data(std::string value, std::uint8_t *data, std::size_t count);
+
+std::size_t to_data(const Channels::device_info_t *info, std::uint8_t *data,
+    const Version *spec_version);
+
+std::size_t to_data(const Intrinsics *in, std::uint8_t *data,
+    const Version *spec_version);
+
+std::size_t to_data(const ImuIntrinsics *in, std::uint8_t *data,
+    const Version *spec_version);
+
+std::size_t to_data(const Extrinsics *ex, std::uint8_t *data,
+    const Version *spec_version);
+
+}  // namespace bytes
 
 MYNTEYE_END_NAMESPACE
 

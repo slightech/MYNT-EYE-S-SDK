@@ -126,4 +126,38 @@ void StandardChannelsAdapter::GetImuResPacket(
   unpack_imu_res_packet(data, res);
 }
 
+std::size_t StandardChannelsAdapter::GetImgParamsFromData(
+    const std::uint8_t *data, const Version *version,
+    Channels::img_params_t *img_params) {
+  std::size_t i = 0;
+
+  Intrinsics in_left, in_right;
+  Extrinsics ex_right_to_left;
+
+  i += bytes::from_data(&in_left, data + i, version);
+  i += bytes::from_data(&in_right, data + i, version);
+  i += bytes::from_data(&ex_right_to_left, data + i, version);
+  (*img_params)[{752, 480}] = {true, in_left, in_right, ex_right_to_left};
+
+  return i;
+}
+
+std::size_t StandardChannelsAdapter::SetImgParamsToData(
+    const Channels::img_params_t *img_params, const Version *version,
+    std::uint8_t *data) {
+  std::size_t i = 3;  // skip id, size
+
+  auto &&params = (*img_params).at({752, 480});
+  i += bytes::to_data(&params.in_left, data + i, version);
+  i += bytes::to_data(&params.in_right, data + i, version);
+  i += bytes::to_data(&params.ex_right_to_left, data + i, version);
+
+  // others
+  std::size_t size = i - 3;
+  data[0] = Channels::FID_IMG_PARAMS;
+  data[1] = static_cast<std::uint8_t>((size >> 8) & 0xFF);
+  data[2] = static_cast<std::uint8_t>(size & 0xFF);
+  return size + 3;
+}
+
 MYNTEYE_END_NAMESPACE
