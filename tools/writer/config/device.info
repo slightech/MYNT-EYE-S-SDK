@@ -1,10 +1,10 @@
 %YAML:1.0
 ---
-device_name: MYNT-EYE-S1000
+device_name: MYNT-EYE-S210A
 serial_number: "0386322C0009070E"
-firmware_version: "2.2"
-hardware_version: "2.0"
-spec_version: "1.0"
+firmware_version: "1.0"
+hardware_version: "1.0"
+spec_version: "1.1"
 lens_type: "0000"
 imu_type: "0000"
 nominal_baseline: 120

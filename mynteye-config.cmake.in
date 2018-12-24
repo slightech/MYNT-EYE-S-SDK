@@ -13,6 +13,8 @@
 # limitations under the License.
 
 @PACKAGE_INIT@
+set(mynteye_WITH_API @WITH_API@)
+set(mynteye_WITH_GLOG @WITH_GLOG@)
 
 set(mynteye_WITH_API @WITH_API@)
 set(mynteye_WITH_GLOG @WITH_GLOG@)

@@ -19,6 +19,7 @@
 #include <string>
 
 #include "mynteye/mynteye.h"
+#include "mynteye/types.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -39,6 +40,16 @@ namespace device {
  */
 MYNTEYE_API std::shared_ptr<Device> select();
 
+/**
+ * @ingroup utils
+ *
+ * List stream requests and prompt user to select one.
+ *
+ * @return the selected request.
+ */
+MYNTEYE_API MYNTEYE_NAMESPACE::StreamRequest select_request(
+    const std::shared_ptr<Device> &device, bool *ok);
+
 }  // namespace device
 
 namespace utils {
@@ -58,14 +69,14 @@ MYNTEYE_API float get_real_exposure_time(
 
 /**
  * @ingroup utils
- * 
+ *
  * Get sdk root dir.
  */
 MYNTEYE_API std::string get_sdk_root_dir();
 
 /**
  * @ingroup utils
- * 
+ *
  * Get sdk install dir.
  */
 MYNTEYE_API std::string get_sdk_install_dir();

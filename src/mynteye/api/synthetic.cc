@@ -17,6 +17,8 @@
 #include <functional>
 #include <stdexcept>
 
+#include <opencv2/imgproc/imgproc.hpp>
+
 #include "mynteye/logger.h"
 #include "mynteye/api/object.h"
 #include "mynteye/api/plugin.h"
@@ -39,9 +41,16 @@ MYNTEYE_BEGIN_NAMESPACE
 namespace {
 
 cv::Mat frame2mat(const std::shared_ptr<device::Frame> &frame) {
-  // TODO(JohnZhao) Support different format frame to cv::Mat
-  CHECK_EQ(frame->format(), Format::GREY);
-  return cv::Mat(frame->height(), frame->width(), CV_8UC1, frame->data());
+  if (frame->format() == Format::YUYV) {
+    cv::Mat img(frame->height(), frame->width(), CV_8UC2, frame->data());
+    cv::cvtColor(img, img, cv::COLOR_YUV2BGR_YUY2);
+    return img;
+  } else if (frame->format() == Format::BGR888) {
+    cv::Mat img(frame->height(), frame->width(), CV_8UC3, frame->data());
+    return img;
+  } else {  // Format::GRAY
+    return cv::Mat(frame->height(), frame->width(), CV_8UC1, frame->data());
+  }
 }
 
 api::StreamData data2api(const device::StreamData &data) {
@@ -72,6 +81,11 @@ Synthetic::~Synthetic() {
     processor_->Deactivate(true);
     processor_ = nullptr;
   }
+}
+
+void Synthetic::NotifyImageParamsChanged() {
+  auto &&processor = find_processor<RectifyProcessor>(processor_);
+  if (processor) processor->NotifyImageParamsChanged();
 }
 
 bool Synthetic::Supports(const Stream &stream) const {
@@ -152,7 +166,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
   auto &&mode = GetStreamEnabledMode(stream);
   if (mode == MODE_NATIVE) {
     auto &&device = api_->device();
-    return data2api(device->GetLatestStreamData(stream));
+    return data2api(device->GetStreamData(stream));
   } else if (mode == MODE_SYNTHETIC) {
     if (stream == Stream::LEFT_RECTIFIED || stream == Stream::RIGHT_RECTIFIED) {
       static std::shared_ptr<ObjMat2> output = nullptr;
@@ -302,42 +316,35 @@ void Synthetic::EnableStreamData(const Stream &stream, std::uint32_t depth) {
         break;
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       CHECK(ActivateProcessor<RectifyProcessor>());
-    }
-      return;
+    } return;
     case Stream::RIGHT_RECTIFIED: {
       if (!IsStreamDataEnabled(Stream::RIGHT))
         break;
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       CHECK(ActivateProcessor<RectifyProcessor>());
-    }
-      return;
+    } return;
     case Stream::DISPARITY: {
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       EnableStreamData(Stream::LEFT_RECTIFIED, depth + 1);
       EnableStreamData(Stream::RIGHT_RECTIFIED, depth + 1);
       CHECK(ActivateProcessor<DisparityProcessor>());
-    }
-      return;
+    } return;
     case Stream::DISPARITY_NORMALIZED: {
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       EnableStreamData(Stream::DISPARITY, depth + 1);
       CHECK(ActivateProcessor<DisparityNormalizedProcessor>());
-    }
-      return;
+    } return;
     case Stream::POINTS: {
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       EnableStreamData(Stream::DISPARITY, depth + 1);
       CHECK(ActivateProcessor<PointsProcessor>());
-    }
-      return;
+    } return;
     case Stream::DEPTH: {
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       EnableStreamData(Stream::POINTS, depth + 1);
       CHECK(ActivateProcessor<DepthProcessor>());
-    }
-      return;
-    default:
-      break;
+    } return;
+    default: break;
   }
   if (depth == 0) {
     LOG(WARNING) << "Enable stream data of " << stream << " failed";
@@ -390,8 +397,7 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
       case Stream::DEPTH: {
         DeactivateProcessor<DepthProcessor>();
       } break;
-      default:
-        return;
+      default: return;
     }
     if (depth > 0) {
       LOG(WARNING) << "Disable synthetic stream data of " << stream << " too";

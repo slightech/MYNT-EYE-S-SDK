@@ -106,7 +106,6 @@ set_outdir(
 )
 
 ## main
-
 if(WITH_GLOG)
   add_executable(main src/main.cc)
   target_link_libraries(main glog::glog)
@@ -123,6 +122,11 @@ if(NOT WITH_GLOG AND NOT OS_WIN)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${__MINIGLOG_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${__MINIGLOG_FLAGS}")
   unset(__MINIGLOG_FLAGS)
+endif()
+if(NOT WITH_GLOG)
+  list(APPEND MYNTEYE_PUBLIC_H
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/miniglog.h
+  )
 endif()
 
 if(OS_WIN)
@@ -146,7 +150,7 @@ elseif(OS_MAC)
   SET(OSX_EXTRA_LIBS ${VVUVCKIT_LIBRARY} ${USB_LIBRARY})
 
   set(UVC_SRC src/mynteye/uvc/macosx/CameraEngine.cpp src/mynteye/uvc/macosx/AVfoundationCamera.mm src/mynteye/uvc/macosx/uvc-vvuvckit.cc )
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework CoreFoundation -framework AVFoundation -framework IOKit -framework AppKit -framework Cocoa -framework CoreMedia -framework CoreData -framework Foundation -framework CoreVideo ${__MACUVCLOG_FLAGS}") 
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework CoreFoundation -framework AVFoundation -framework IOKit -framework AppKit -framework Cocoa -framework CoreMedia -framework CoreData -framework Foundation -framework CoreVideo ${__MACUVCLOG_FLAGS}")
 
   find_package(libuvc REQUIRED)
   set(UVC_LIB ${libuvc_LIBRARIES})
@@ -167,8 +171,13 @@ set(MYNTEYE_SRCS
   src/mynteye/device/config.cc
   src/mynteye/device/context.cc
   src/mynteye/device/device.cc
-  src/mynteye/device/device_s.cc
   src/mynteye/device/motions.cc
+  src/mynteye/device/standard/channels_adapter_s.cc
+  src/mynteye/device/standard/device_s.cc
+  src/mynteye/device/standard/streams_adapter_s.cc
+  src/mynteye/device/standard2/channels_adapter_s2.cc
+  src/mynteye/device/standard2/device_s2.cc
+  src/mynteye/device/standard2/streams_adapter_s2.cc
   src/mynteye/device/streams.cc
   src/mynteye/device/types.cc
   src/mynteye/device/utils.cc

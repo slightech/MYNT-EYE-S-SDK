@@ -23,20 +23,12 @@ MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
-  if (!api)
-    return 1;
+  if (!api) return 1;
 
-  // Attention: must set FRAME_RATE and IMU_FREQUENCY together, otherwise won't
-  // succeed.
-
-  // FRAME_RATE values: 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60
-  api->SetOptionValue(Option::FRAME_RATE, 25);
-  // IMU_FREQUENCY values: 100, 200, 250, 333, 500
-  api->SetOptionValue(Option::IMU_FREQUENCY, 500);
-
-  LOG(INFO) << "Set FRAME_RATE to " << api->GetOptionValue(Option::FRAME_RATE);
-  LOG(INFO) << "Set IMU_FREQUENCY to "
-            << api->GetOptionValue(Option::IMU_FREQUENCY);
+  bool ok;
+  auto &&request = api->SelectStreamRequest(&ok);
+  if (!ok) return 1;
+  api->ConfigStreamRequest(request);
 
   // Count img
   std::atomic_uint img_count(0);
@@ -45,13 +37,6 @@ int main(int argc, char *argv[]) {
         CHECK_NOTNULL(data.img);
         ++img_count;
       });
-
-  // Count imu
-  std::atomic_uint imu_count(0);
-  api->SetMotionCallback([&imu_count](const api::MotionData &data) {
-    CHECK_NOTNULL(data.imu);
-    ++imu_count;
-  });
 
   api->Start(Source::ALL);
 
@@ -85,7 +70,5 @@ int main(int argc, char *argv[]) {
             << ", cost: " << elapsed_ms << "ms";
   LOG(INFO) << "Img count: " << img_count
             << ", fps: " << (1000.f * img_count / elapsed_ms);
-  LOG(INFO) << "Imu count: " << imu_count
-            << ", hz: " << (1000.f * imu_count / elapsed_ms);
   return 0;
 }

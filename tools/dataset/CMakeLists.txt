@@ -20,13 +20,17 @@ set_outdir(
   "${OUT_DIR}/bin/${DIR_NAME}"
 )
 
+include_directories(
+  ${PRO_DIR}/src
+)
+
 ## record
 
-make_executable(record
-  SRCS record.cc dataset.cc
-  LINK_LIBS mynteye ${OpenCV_LIBS}
-  DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
-)
+# make_executable(record
+#  SRCS record.cc dataset.cc
+#  LINK_LIBS mynteye ${OpenCV_LIBS}
+#  DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
+#)
 
 make_executable(record2
   SRCS record2.cc dataset.cc

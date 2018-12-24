@@ -46,9 +46,10 @@ namespace uvc {
   } while (0)
 
 #define NO_DATA_MAX_COUNT 200
+#define LIVING_MAX_COUNT 9000
 
 int no_data_count = 0;
-
+int living_count = 0;
 /*
 class device_error : public std::exception {
  public:
@@ -394,6 +395,12 @@ struct device {
           if (xioctl(fd, VIDIOC_QBUF, &buf) < 0)
             throw_error("VIDIOC_QBUF");
         });
+        if (living_count < LIVING_MAX_COUNT) {
+          living_count++;
+        } else {
+          living_count = 0;
+          // LOG(INFO) << "UVC pulse detection,Please ignore.";
+        }
       }
 
       no_data_count = 0;
@@ -402,7 +409,12 @@ struct device {
     }
 
     if (no_data_count > NO_DATA_MAX_COUNT) {
-      throw_error("v4l2 get stream time out!");
+      no_data_count = 0;
+      living_count = 0;
+      LOG(WARNING) << __func__
+                   << " failed: v4l2 get stream time out, Try to reboot!";
+      stop_capture();
+      start_capture();
     }
   }
 

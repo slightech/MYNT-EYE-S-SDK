@@ -24,25 +24,13 @@ MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
-  if (!api)
-    return 1;
-  /*
-  {  // auto-exposure
-    api->SetOptionValue(Option::EXPOSURE_MODE, 0);
-    api->SetOptionValue(Option::MAX_GAIN, 40);  // [0.48]
-    api->SetOptionValue(Option::MAX_EXPOSURE_TIME, 120);  // [0,240]
-    api->SetOptionValue(Option::DESIRED_BRIGHTNESS, 200);  // [0,255]
-  }
-  {  // manual-exposure
-    api->SetOptionValue(Option::EXPOSURE_MODE, 1);
-    api->SetOptionValue(Option::GAIN, 20);  // [0.48]
-    api->SetOptionValue(Option::BRIGHTNESS, 20);  // [0,240]
-    api->SetOptionValue(Option::CONTRAST, 20);  // [0,255]
-  }
-  api->SetOptionValue(Option::IR_CONTROL, 80);
-  api->SetOptionValue(Option::FRAME_RATE, 25);
-  api->SetOptionValue(Option::IMU_FREQUENCY, 500);
-  */
+  if (!api) return 1;
+
+  bool ok;
+  auto &&request = api->SelectStreamRequest(&ok);
+  if (!ok) return 1;
+  api->ConfigStreamRequest(request);
+
   api->LogOptionInfos();
 
   // Enable this will cache the motion datas until you get them.
@@ -72,14 +60,42 @@ int main(int argc, char *argv[]) {
     auto &&motion_datas = api->GetMotionDatas();
     imu_count += motion_datas.size();
 
-    auto &&left_img = left_datas.back().frame;
-    auto &&right_img = right_datas.back().frame;
+    auto &&left_frame = left_datas.back().frame;
+    auto &&right_frame = right_datas.back().frame;
 
     cv::Mat img;
-    cv::hconcat(left_img, right_img, img);
-    cv::imshow("frame", img);
 
-    {  // save
+    if (left_frame->format() == Format::GREY) {
+      cv::Mat left_img(
+          left_frame->height(), left_frame->width(), CV_8UC1,
+          left_frame->data());
+      cv::Mat right_img(
+          right_frame->height(), right_frame->width(), CV_8UC1,
+          right_frame->data());
+      cv::hconcat(left_img, right_img, img);
+    } else if (left_frame->format() == Format::YUYV) {
+      cv::Mat left_img(
+          left_frame->height(), left_frame->width(), CV_8UC2,
+          left_frame->data());
+      cv::Mat right_img(
+          right_frame->height(), right_frame->width(), CV_8UC2,
+          right_frame->data());
+      cv::cvtColor(left_img, left_img, cv::COLOR_YUV2BGR_YUY2);
+      cv::cvtColor(right_img, right_img, cv::COLOR_YUV2BGR_YUY2);
+      cv::hconcat(left_img, right_img, img);
+    } else if (left_frame->format() == Format::BGR888) {
+      cv::Mat left_img(
+          left_frame->height(), left_frame->width(), CV_8UC3,
+          left_frame->data());
+      cv::Mat right_img(
+          right_frame->height(), right_frame->width(), CV_8UC3,
+          right_frame->data());
+      cv::hconcat(left_img, right_img, img);
+    } else {
+      return -1;
+    }
+    cv::imshow("frame", img);
+    if (img_count > 10 && imu_count > 50) {  // save
       for (auto &&left : left_datas) {
         dataset.SaveStreamData(Stream::LEFT, left);
       }

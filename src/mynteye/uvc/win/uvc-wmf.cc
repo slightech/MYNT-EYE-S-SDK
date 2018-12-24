@@ -64,7 +64,8 @@ namespace uvc {
 
 const std::map<uint32_t, uint32_t> fourcc_map = {
   { 0x56595559, 0x32595559 },  // 'VYUY' => '2YUY'
-  { 0x59555956, 0x59555932 }   // 'YUYV' => 'YUY2'
+  { 0x59555956, 0x59555932 },  // 'YUYV' => 'YUY2'
+  { 0x33524742, 0x14 }
 };
 
 struct throw_error {
@@ -756,6 +757,7 @@ void set_device_mode(device &device, int width, int height, int fourcc, int fps,
     check("IMFMediaType::GetGUID", media_type->GetGUID(MF_MT_SUBTYPE, &subtype));
     if (subtype.Data1 != fourcc) continue;
 
+    check("MFSetAttributeRatio", MFSetAttributeRatio(media_type, MF_MT_FRAME_RATE, fps, 1));
     check("MFGetAttributeRatio", MFGetAttributeRatio(media_type, MF_MT_FRAME_RATE, &uvc_fps_num, &uvc_fps_denom));
     if (uvc_fps_denom == 0) continue;
     //int uvc_fps = uvc_fps_num / uvc_fps_denom;

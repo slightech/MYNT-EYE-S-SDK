@@ -71,8 +71,15 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                   << (right_count_ / compute_time(time_end, right_time_beg_));
       }
       if (imu_time_beg_ != -1) {
-        LOG(INFO) << "Imu count: " << imu_count_ << ", hz: "
-                  << (imu_count_ / compute_time(time_end, imu_time_beg_));
+        if (publish_imu_by_sync_) {
+          LOG(INFO) << "imu_sync_count: " << imu_sync_count_ << ", hz: "
+                    << (imu_sync_count_ /
+                    compute_time(time_end, imu_time_beg_));
+        } else {
+          LOG(INFO) << "Imu count: " << imu_count_ << ", hz: "
+                    << (imu_count_ /
+                    compute_time(time_end, imu_time_beg_));
+        }
       }
 
       // ROS messages could not be reliably printed here, using glog instead :(
@@ -92,15 +99,17 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
 
     return ros::Time(
-        soft_time_begin + (_hard_time - hard_time_begin) * 0.00001f);
+        soft_time_begin + (_hard_time - hard_time_begin) * 0.000001f);
   }
 
   void onInit() override {
-    initDevice();
-    NODELET_FATAL_COND(api_ == nullptr, "No MYNT EYE device selected :(");
-
     nh_ = getMTNodeHandle();
     private_nh_ = getMTPrivateNodeHandle();
+    int request_index = 0;
+    private_nh_.getParam("request_index", request_index);
+
+    initDevice(request_index);
+    NODELET_FATAL_COND(api_ == nullptr, "No MYNT EYE device selected :(");
 
     // node params
 
@@ -124,6 +133,15 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
     is_motion_published_ = false;
     is_started_ = false;
+
+    std::map<Stream, std::string> mono_names{{Stream::LEFT, "left_mono"},
+                                             {Stream::RIGHT, "right_mono"}};
+
+    std::map<Stream, std::string> mono_topics{};
+    for (auto &&it = mono_names.begin(); it != mono_names.end(); ++it) {
+      mono_topics[it->first] = it->second;
+      private_nh_.getParam(it->second + "_topic", mono_topics[it->first]);
+    }
 
     std::string imu_topic = "imu";
     std::string temp_topic = "temp";
@@ -149,20 +167,16 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     // device options
 
     std::map<Option, std::string> option_names = {
-        {Option::GAIN, "gain"},
         {Option::BRIGHTNESS, "brightness"},
-        {Option::CONTRAST, "contrast"},
-        {Option::FRAME_RATE, "frame_rate"},
-        {Option::IMU_FREQUENCY, "imu_frequency"},
         {Option::EXPOSURE_MODE, "exposure_mode"},
         {Option::MAX_GAIN, "max_gain"},
         {Option::MAX_EXPOSURE_TIME, "max_exposure_time"},
         {Option::DESIRED_BRIGHTNESS, "desired_brightness"},
-        {Option::IR_CONTROL, "ir_control"},
-        {Option::HDR_MODE, "hdr_mode"},
+        {Option::MIN_EXPOSURE_TIME, "min_exposure_time"},
         {Option::ACCELEROMETER_RANGE, "accel_range"},
-        {Option::GYROSCOPE_RANGE, "gyro_range"}
-    };
+        {Option::GYROSCOPE_RANGE, "gyro_range"},
+        {Option::ACCELEROMETER_LOW_PASS_FILTER, "accel_low_filter"},
+        {Option::GYROSCOPE_LOW_PASS_FILTER, "gyro_low_filter"}};
     for (auto &&it = option_names.begin(); it != option_names.end(); ++it) {
       if (!api_->Supports(it->first))
         continue;
@@ -174,7 +188,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       }
       NODELET_INFO_STREAM(it->first << ": " << api_->GetOptionValue(it->first));
     }
-    frame_rate_ = api_->GetOptionValue(Option::FRAME_RATE);
 
     // publishers
 
@@ -190,10 +203,18 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       NODELET_INFO_STREAM("Advertized on topic " << topic);
     }
 
-    camera_encodings_ = {{Stream::LEFT, enc::MONO8},
-                         {Stream::RIGHT, enc::MONO8},
-                         {Stream::LEFT_RECTIFIED, enc::MONO8},
-                         {Stream::RIGHT_RECTIFIED, enc::MONO8},
+    for (auto &&it = mono_topics.begin(); it != mono_topics.end(); ++it) {
+      auto &&topic = mono_topics[it->first];
+      if (it->first == Stream::LEFT || it->first == Stream::RIGHT) {  // camera
+        mono_publishers_[it->first] = it_mynteye.advertiseCamera(topic, 1);
+      }
+      NODELET_INFO_STREAM("Advertized on topic " << topic);
+    }
+
+    camera_encodings_ = {{Stream::LEFT, enc::BGR8},
+                         {Stream::RIGHT, enc::BGR8},
+                         {Stream::LEFT_RECTIFIED, enc::BGR8},
+                         {Stream::RIGHT_RECTIFIED, enc::BGR8},
                          {Stream::DISPARITY, enc::MONO8},  // float
                          {Stream::DISPARITY_NORMALIZED, enc::MONO8},
                          {Stream::DEPTH, enc::MONO16}};
@@ -229,7 +250,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     NODELET_INFO_STREAM("Advertized service " << DEVICE_INFO_SERVICE);
 
     publishStaticTransforms();
-    ros::Rate loop_rate(frame_rate_);
+    ros::Rate loop_rate(60);
     while (private_nh_.ok()) {
       publishTopics();
       loop_rate.sleep();
@@ -352,7 +373,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
   void publishTopics() {
-    if (camera_publishers_[Stream::LEFT].getNumSubscribers() > 0 &&
+    if ((camera_publishers_[Stream::LEFT].getNumSubscribers() > 0 ||
+        mono_publishers_[Stream::LEFT].getNumSubscribers() > 0) &&
         !is_published_[Stream::LEFT]) {
       api_->SetStreamCallback(
           Stream::LEFT, [this](const api::StreamData &data) {
@@ -371,6 +393,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
             ++left_count_;
             publishCamera(Stream::LEFT, data, left_count_, stamp);
+            publishMono(Stream::LEFT, data, left_count_, stamp);
             NODELET_DEBUG_STREAM(
                 Stream::LEFT << ", count: " << left_count_
                              << ", frame_id: " << data.img->frame_id
@@ -381,7 +404,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       is_published_[Stream::LEFT] = true;
     }
 
-    if (camera_publishers_[Stream::RIGHT].getNumSubscribers() > 0 &&
+    if ((camera_publishers_[Stream::RIGHT].getNumSubscribers() > 0 ||
+        mono_publishers_[Stream::RIGHT].getNumSubscribers() > 0) &&
         !is_published_[Stream::RIGHT]) {
       api_->SetStreamCallback(
           Stream::RIGHT, [this](const api::StreamData &data) {
@@ -389,6 +413,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
             ++right_count_;
             publishCamera(Stream::RIGHT, data, right_count_, stamp);
+            publishMono(Stream::RIGHT, data, right_count_, stamp);
             NODELET_DEBUG_STREAM(
                 Stream::RIGHT
                 << ", count: " << right_count_ << ", frame_id: "
@@ -414,33 +439,47 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     if (!is_motion_published_) {
       api_->SetMotionCallback([this](const api::MotionData &data) {
-        ros::Time stamp = hardTimeToSoftTime(data.imu->timestamp);
+      ros::Time stamp = hardTimeToSoftTime(data.imu->timestamp);
 
-        // static double imu_time_prev = -1;
-        // NODELET_INFO_STREAM("ros_time_beg: " << FULL_PRECISION <<
-        // ros_time_beg
-        //     << ", imu_time_elapsed: " << FULL_PRECISION
-        //     << ((data.imu->timestamp - imu_time_beg) * 0.00001f)
-        //     << ", imu_time_diff: " << FULL_PRECISION
-        //     << ((imu_time_prev < 0) ? 0
-        //         : (data.imu->timestamp - imu_time_prev) * 0.01f) << " ms");
-        // imu_time_prev = data.imu->timestamp;
+      // static double imu_time_prev = -1;
+      // NODELET_INFO_STREAM("ros_time_beg: " << FULL_PRECISION << ros_time_beg
+      //     << ", imu_time_elapsed: " << FULL_PRECISION
+      //     << ((data.imu->timestamp - imu_time_beg) * 0.00001f)
+      //     << ", imu_time_diff: " << FULL_PRECISION
+      //     << ((imu_time_prev < 0) ? 0
+      //         : (data.imu->timestamp - imu_time_prev) * 0.01f) << " ms");
+      // imu_time_prev = data.imu->timestamp;
 
-        ++imu_count_;
+      ++imu_count_;
+      if (publish_imu_by_sync_) {
+        if (data.imu) {
+          if (data.imu->flag == 1) {  // accelerometer
+            imu_accel_ = data.imu;
+            publishImuBySync(stamp);
+          } else if (data.imu->flag == 2) {  // gyroscope
+            imu_gyro_ = data.imu;
+            publishImuBySync(stamp);
+          } else {
+            NODELET_WARN_STREAM("Imu type is unknown");
+          }
+        } else {
+          NODELET_WARN_STREAM("Motion data is empty");
+        }
+      } else {
         publishImu(data, imu_count_, stamp);
         publishTemp(data.imu->temperature, imu_count_, stamp);
-        NODELET_DEBUG_STREAM(
-            "Imu count: " << imu_count_ << ", frame_id: " << data.imu->frame_id
-                          << ", timestamp: " << data.imu->timestamp
-                          << ", accel_x: " << data.imu->accel[0]
-                          << ", accel_y: " << data.imu->accel[1]
-                          << ", accel_z: " << data.imu->accel[2]
-                          << ", gyro_x: " << data.imu->gyro[0]
-                          << ", gyro_y: " << data.imu->gyro[1]
-                          << ", gyro_z: " << data.imu->gyro[2]
-                          << ", temperature: " << data.imu->temperature);
-        // Sleep 1ms, otherwise publish may drop some datas.
-        ros::Duration(0.001).sleep();
+      }
+      NODELET_DEBUG_STREAM(
+          "Imu count: " << imu_count_ << ", timestamp: " << data.imu->timestamp
+                        << ", accel_x: " << data.imu->accel[0]
+                        << ", accel_y: " << data.imu->accel[1]
+                        << ", accel_z: " << data.imu->accel[2]
+                        << ", gyro_x: " << data.imu->gyro[0]
+                        << ", gyro_y: " << data.imu->gyro[1]
+                        << ", gyro_z: " << data.imu->gyro[2]
+                        << ", temperature: " << data.imu->temperature);
+      // Sleep 1ms, otherwise publish may drop some datas.
+      ros::Duration(0.001).sleep();
       });
       imu_time_beg_ = ros::Time::now().toSec();
       is_motion_published_ = true;
@@ -492,6 +531,23 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     image_publishers_[stream].publish(msg);
   }
   */
+
+  void publishMono(
+      const Stream &stream, const api::StreamData &data, std::uint32_t seq,
+      ros::Time stamp) {
+    if (mono_publishers_[stream].getNumSubscribers() == 0)
+      return;
+    std_msgs::Header header;
+    header.seq = seq;
+    header.stamp = stamp;
+    header.frame_id = frame_ids_[stream];
+    cv::Mat mono;
+    cv::cvtColor(data.frame, mono, CV_RGB2GRAY);
+    auto &&msg = cv_bridge::CvImage(header, enc::MONO8, mono).toImageMsg();
+    auto &&info = getCameraInfo(stream);
+    info->header.stamp = msg->header.stamp;
+    mono_publishers_[stream].publish(msg, info);
+  }
 
   void publishPoints(
       const api::StreamData &data, std::uint32_t seq, ros::Time stamp) {
@@ -598,6 +654,59 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     pub_imu_.publish(msg);
   }
 
+  void publishImuBySync(ros::Time stamp) {
+    if (imu_accel_ == nullptr || imu_gyro_ == nullptr) {
+      return;
+    }
+    sensor_msgs::Imu msg;
+
+    msg.header.seq = imu_sync_count_;
+    msg.header.stamp = stamp;
+    msg.header.frame_id = imu_frame_id_;
+
+    // acceleration should be in m/s^2 (not in g's)
+    msg.linear_acceleration.x = imu_accel_->accel[0] * gravity_;
+    msg.linear_acceleration.y = imu_accel_->accel[1] * gravity_;
+    msg.linear_acceleration.z = imu_accel_->accel[2] * gravity_;
+
+    msg.linear_acceleration_covariance[0] = 0;
+    msg.linear_acceleration_covariance[1] = 0;
+    msg.linear_acceleration_covariance[2] = 0;
+
+    msg.linear_acceleration_covariance[3] = 0;
+    msg.linear_acceleration_covariance[4] = 0;
+    msg.linear_acceleration_covariance[5] = 0;
+
+    msg.linear_acceleration_covariance[6] = 0;
+    msg.linear_acceleration_covariance[7] = 0;
+    msg.linear_acceleration_covariance[8] = 0;
+
+    // velocity should be in rad/sec
+    msg.angular_velocity.x = imu_gyro_->gyro[0] * M_PI / 180;
+    msg.angular_velocity.y = imu_gyro_->gyro[1] * M_PI / 180;
+    msg.angular_velocity.z = imu_gyro_->gyro[2] * M_PI / 180;
+
+    msg.angular_velocity_covariance[0] = 0;
+    msg.angular_velocity_covariance[1] = 0;
+    msg.angular_velocity_covariance[2] = 0;
+
+    msg.angular_velocity_covariance[3] = 0;
+    msg.angular_velocity_covariance[4] = 0;
+    msg.angular_velocity_covariance[5] = 0;
+
+    msg.angular_velocity_covariance[6] = 0;
+    msg.angular_velocity_covariance[7] = 0;
+    msg.angular_velocity_covariance[8] = 0;
+
+    pub_imu_.publish(msg);
+
+    publishTemp(imu_accel_->temperature, imu_sync_count_, stamp);
+
+    ++imu_sync_count_;
+    imu_accel_ = nullptr;
+    imu_gyro_ = nullptr;
+  }
+
   void publishTemp(float temperature, std::uint32_t seq, ros::Time stamp) {
     if (pub_temp_.getNumSubscribers() == 0)
       return;
@@ -610,7 +719,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
  private:
-  void initDevice() {
+  void initDevice(int request_index) {
     NODELET_INFO_STREAM("Detecting MYNT EYE devices");
 
     Context context;
@@ -646,6 +755,22 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
 
     api_ = API::Create(device);
+    auto &&requests = device->GetStreamRequests();
+    std::size_t m = requests.size();
+
+    NODELET_FATAL_COND(m <= 0, "No MYNT EYE devices :(");
+    if (m <= 1) {
+      NODELET_INFO_STREAM("Only one stream request, select index: 0");
+      api_->ConfigStreamRequest(requests[0]);
+    } else {
+      if (request_index >= m) {
+        NODELET_WARN_STREAM("Resquest_index out of range");
+        api_->ConfigStreamRequest(requests[0]);
+      } else {
+        NODELET_WARN_STREAM("request_index: " << request_index);
+        api_->ConfigStreamRequest(requests[request_index]);
+      }
+    }
 
     computeRectTransforms();
   }
@@ -657,7 +782,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     auto &&ex_right_to_left = api_->GetExtrinsics(Stream::RIGHT, Stream::LEFT);
 
     cv::Size size{in_left.width, in_left.height};
-
     cv::Mat M1 =
         (cv::Mat_<double>(3, 3) << in_left.fx, 0, in_left.cx, 0, in_left.fy,
          in_left.cy, 0, 0, 1);
@@ -910,6 +1034,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   std::map<Stream, sensor_msgs::CameraInfoPtr> camera_info_ptrs_;
   std::map<Stream, std::string> camera_encodings_;
 
+  // image: LEFT_RECTIFIED, RIGHT_RECTIFIED, DISPARITY, DISPARITY_NORMALIZED,
+  // DEPTH
+  std::map<Stream, image_transport::Publisher> image_publishers_;
+  std::map<Stream, std::string> image_encodings_;
+
+  // mono: LEFT, RIGHT
+  std::map<Stream, image_transport::CameraPublisher> mono_publishers_;
+
   // pointcloud: POINTS
   ros::Publisher points_publisher_;
 
@@ -944,7 +1076,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   std::size_t left_count_ = 0;
   std::size_t right_count_ = 0;
   std::size_t imu_count_ = 0;
-
+  std::size_t imu_sync_count_ = 0;
+  std::shared_ptr<ImuData> imu_accel_;
+  std::shared_ptr<ImuData> imu_gyro_;
+  bool publish_imu_by_sync_ = false;
   std::map<Stream, bool> is_published_;
   bool is_motion_published_;
   bool is_started_;
