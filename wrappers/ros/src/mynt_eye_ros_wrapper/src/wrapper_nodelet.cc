@@ -88,9 +88,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
   }
 
-  ros::Time hardTimeToSoftTime(double _hard_time) {
+  ros::Time hardTimeToSoftTime(std::uint64_t _hard_time) {
     static bool isInited = false;
-    static double soft_time_begin(0), hard_time_begin(0);
+    static double soft_time_begin(0);
+    static std::uint64_t hard_time_begin(0);
 
     if (false == isInited) {
       soft_time_begin = ros::Time::now().toSec();
@@ -99,7 +100,67 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
 
     return ros::Time(
-        soft_time_begin + (_hard_time - hard_time_begin) * 0.000001f);
+        static_cast<double>(soft_time_begin +
+        static_cast<double>(_hard_time - hard_time_begin) * 0.000001f));
+  }
+
+  inline bool is_overflow(std::uint32_t now,
+      std::uint32_t pre) {
+    static std::uint64_t unit =
+      std::numeric_limits<std::uint32_t>::max();
+
+    return (now < pre) && ((pre - now) > (unit / 2));
+  }
+
+  inline bool is_repeated(std::uint32_t now,
+      std::uint32_t pre) {
+    return now == pre;
+  }
+
+  inline bool is_annormal(std::uint32_t now,
+      std::uint32_t pre) {
+    static std::uint64_t unit =
+      std::numeric_limits<std::uint32_t>::max();
+
+    return (now < pre) && ((pre - now) < (unit / 4));
+  }
+
+  ros::Time checkUpTimeStamp(std::uint32_t _hard_time,
+      const Stream &stream) {
+    static std::map<Stream, std::uint32_t> hard_time_now;
+    static std::map<Stream, std::uint32_t> acc;
+    static std::uint64_t unit_hard_time =
+      std::numeric_limits<std::uint32_t>::max();
+
+    if (is_overflow(_hard_time, hard_time_now[stream])) {
+      acc[stream]++;
+    } else if (is_repeated(_hard_time, hard_time_now[stream])) {
+      NODELET_INFO_STREAM("WARNING:: Image time stamp is repeated.");
+    } else if (is_annormal(_hard_time, hard_time_now[stream])) {
+      NODELET_INFO_STREAM("WARNING:: Image time stamp is annormal.");
+    }
+    hard_time_now[stream] = _hard_time;
+
+    return hardTimeToSoftTime(
+        acc[stream] * unit_hard_time + _hard_time);
+  }
+
+  ros::Time checkUpImuTimeStamp(std::uint32_t _hard_time) {
+    static std::uint32_t hard_time_now(0), acc(0);
+    static std::uint64_t unit_hard_time =
+      std::numeric_limits<std::uint32_t>::max();
+
+    if (is_overflow(_hard_time, hard_time_now)) {
+      acc++;
+    } else if (is_repeated(_hard_time, hard_time_now)) {
+      NODELET_INFO_STREAM("WARNING:: Imu time stamp is repeated.");
+    } else if (is_annormal(_hard_time, hard_time_now)) {
+      NODELET_INFO_STREAM("WARNING:: Imu time stamp is annormal.");
+    }
+    hard_time_now = _hard_time;
+
+    return hardTimeToSoftTime(
+        acc * unit_hard_time + _hard_time);
   }
 
   void onInit() override {
@@ -343,7 +404,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       api_->EnableStreamData(Stream::POINTS);
       api_->SetStreamCallback(
           Stream::POINTS, [this](const api::StreamData &data) {
-            ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
+            // ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
+            ros::Time stamp = checkUpTimeStamp(
+                data.img->timestamp, Stream::POINTS);
             static std::size_t count = 0;
             ++count;
             publishPoints(data, count, stamp);
@@ -363,7 +426,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       api_->EnableStreamData(stream);
       api_->SetStreamCallback(
           stream, [this, stream](const api::StreamData &data) {
-            ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
+            // ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
+            ros::Time stamp = checkUpTimeStamp(
+                data.img->timestamp, stream);
             static std::size_t count = 0;
             ++count;
             publishCamera(stream, data, count, stamp);
@@ -378,7 +443,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         !is_published_[Stream::LEFT]) {
       api_->SetStreamCallback(
           Stream::LEFT, [this](const api::StreamData &data) {
-            ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
+            // ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
+            ros::Time stamp = checkUpTimeStamp(
+                data.img->timestamp, Stream::LEFT);
 
             // static double img_time_prev = -1;
             // NODELET_INFO_STREAM("ros_time_beg: " << FULL_PRECISION <<
@@ -409,7 +476,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         !is_published_[Stream::RIGHT]) {
       api_->SetStreamCallback(
           Stream::RIGHT, [this](const api::StreamData &data) {
-            ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
+            // ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
+            ros::Time stamp = checkUpTimeStamp(
+                data.img->timestamp, Stream::RIGHT);
 
             ++right_count_;
             publishCamera(Stream::RIGHT, data, right_count_, stamp);
@@ -439,7 +508,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     if (!is_motion_published_) {
       api_->SetMotionCallback([this](const api::MotionData &data) {
-      ros::Time stamp = hardTimeToSoftTime(data.imu->timestamp);
+      ros::Time stamp = checkUpImuTimeStamp(data.imu->timestamp);
 
       // static double imu_time_prev = -1;
       // NODELET_INFO_STREAM("ros_time_beg: " << FULL_PRECISION << ros_time_beg
@@ -460,7 +529,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
             imu_gyro_ = data.imu;
             publishImuBySync(stamp);
           } else {
-            NODELET_WARN_STREAM("Imu type is unknown");
+            publishImu(data, imu_count_, stamp);
+            publishTemp(data.imu->temperature, imu_count_, stamp);
           }
         } else {
           NODELET_WARN_STREAM("Motion data is empty");
