@@ -101,15 +101,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       std::uint32_t pre) {
     static std::uint64_t unit =
       std::numeric_limits<std::uint32_t>::max();
-    /*
-    std::cout << "pre:: " << pre << " now:: " << now << std::endl;
-    std::cout << "pre - now:: " << (long)(pre - now) << std::endl;
-    std::cout << "unit / 2:: " << unit / 2 << std::endl;
-    // std::cout << "abs:: " << labs(529 - 4280606083) << std::endl;
-    return static_cast<std::int64_t>(pre - now)
-      > static_cast<std::int64_t>(unit / 2);
-    // return labs(pre - now) > (unit / 2);
-    */
 
     return (now < pre) && ((pre - now) > (unit / 2));
   }
@@ -135,20 +126,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       std::numeric_limits<std::uint32_t>::max();
 
     if (is_overflow(_hard_time, hard_time_now[stream])) {
-      std::cout << "img_hard_time_now:: " << hard_time_now[stream] << std::endl;
-      std::cout << "_hard_time:: " << _hard_time << std::endl;
-      std::cout << "img_acc:: " << acc[stream] << std::endl;
-      std::cout << "overflow stream:: " << stream << std::endl;
       acc[stream]++;
     } else if (is_repeated(_hard_time, hard_time_now[stream])) {
-      std::cout << "img_hard_time_now:: " << hard_time_now[stream] << std::endl;
-      std::cout << "_hard_time:: " << _hard_time << std::endl;
-      std::cout << "repeated stream:: " << stream << std::endl;
       NODELET_INFO_STREAM("WARNING:: Image time stamp is repeated.");
     } else if (is_annormal(_hard_time, hard_time_now[stream])) {
-      std::cout << "img_hard_time_now:: " << hard_time_now[stream] << std::endl;
-      std::cout << "_hard_time:: " << _hard_time << std::endl;
-      std::cout << "annormal stream:: " << stream << std::endl;
       NODELET_INFO_STREAM("WARNING:: Image time stamp is annormal.");
     }
     hard_time_now[stream] = _hard_time;
@@ -163,17 +144,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       std::numeric_limits<std::uint32_t>::max();
 
     if (is_overflow(_hard_time, hard_time_now)) {
-      std::cout << "imu_hard_time_now:: " << hard_time_now << std::endl;
-      std::cout << "_hard_time:: " << _hard_time << std::endl;
-      std::cout << "imu_acc:: " << acc << std::endl;
       acc++;
     } else if (is_repeated(_hard_time, hard_time_now)) {
-      std::cout << "imu_hard_time_now:: " << hard_time_now << std::endl;
-      std::cout << "_hard_time:: " << _hard_time << std::endl;
       NODELET_INFO_STREAM("WARNING:: Imu time stamp is repeated.");
     } else if (is_annormal(_hard_time, hard_time_now)) {
-      std::cout << "imu_hard_time_now:: " << hard_time_now << std::endl;
-      std::cout << "_hard_time:: " << _hard_time << std::endl;
       NODELET_INFO_STREAM("WARNING:: Imu time stamp is annormal.");
     }
     hard_time_now = _hard_time;
