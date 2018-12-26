@@ -27,11 +27,9 @@ const char RectifyProcessor::NAME[] = "RectifyProcessor";
 
 RectifyProcessor::RectifyProcessor(
     std::shared_ptr<Device> device, std::int32_t proc_period)
-    : Processor(std::move(proc_period)) {
+    : Processor(std::move(proc_period)), device_(device) {
   VLOG(2) << __func__ << ": proc_period=" << proc_period;
-  InitParams(
-      device->GetIntrinsics(Stream::LEFT), device->GetIntrinsics(Stream::RIGHT),
-      device->GetExtrinsics(Stream::RIGHT, Stream::LEFT));
+  NotifyImageParamsChanged();
 }
 
 RectifyProcessor::~RectifyProcessor() {
@@ -40,6 +38,13 @@ RectifyProcessor::~RectifyProcessor() {
 
 std::string RectifyProcessor::Name() {
   return NAME;
+}
+
+void RectifyProcessor::NotifyImageParamsChanged() {
+  InitParams(
+      device_->GetIntrinsics(Stream::LEFT),
+      device_->GetIntrinsics(Stream::RIGHT),
+      device_->GetExtrinsics(Stream::RIGHT, Stream::LEFT));
 }
 
 Object *RectifyProcessor::OnCreateOutput() {

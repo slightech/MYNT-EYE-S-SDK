@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.0)
 
-project(mynteye VERSION 2.2.2 LANGUAGES C CXX)
+project(mynteye VERSION 2.2.3 LANGUAGES C CXX)
 
 include(cmake/Common.cmake)
 
@@ -106,7 +106,6 @@ set_outdir(
 )
 
 ## main
-
 if(WITH_GLOG)
   add_executable(main src/main.cc)
   target_link_libraries(main glog::glog)
@@ -123,6 +122,11 @@ if(NOT WITH_GLOG AND NOT OS_WIN)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${__MINIGLOG_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${__MINIGLOG_FLAGS}")
   unset(__MINIGLOG_FLAGS)
+endif()
+if(NOT WITH_GLOG)
+  list(APPEND MYNTEYE_PUBLIC_H
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/miniglog.h
+  )
 endif()
 
 if(OS_WIN)
@@ -165,8 +169,13 @@ set(MYNTEYE_SRCS
   src/mynteye/device/config.cc
   src/mynteye/device/context.cc
   src/mynteye/device/device.cc
-  src/mynteye/device/device_s.cc
   src/mynteye/device/motions.cc
+  src/mynteye/device/standard/channels_adapter_s.cc
+  src/mynteye/device/standard/device_s.cc
+  src/mynteye/device/standard/streams_adapter_s.cc
+  src/mynteye/device/standard2/channels_adapter_s2.cc
+  src/mynteye/device/standard2/device_s2.cc
+  src/mynteye/device/standard2/streams_adapter_s2.cc
   src/mynteye/device/streams.cc
   src/mynteye/device/types.cc
   src/mynteye/device/utils.cc

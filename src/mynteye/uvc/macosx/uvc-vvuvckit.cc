@@ -254,7 +254,6 @@ struct device : public AVfoundationCamera{
       stop = true;
       thread.join();
       stop = false;
-
       stop_capture();
     }
   }

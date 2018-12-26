@@ -11,27 +11,31 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "mynteye/device/device_s.h"
+#include "mynteye/device/standard2/device_s2.h"
 
 #include "mynteye/logger.h"
 #include "mynteye/device/motions.h"
+#include "mynteye/device/standard2/channels_adapter_s2.h"
+#include "mynteye/device/standard2/streams_adapter_s2.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
-StandardDevice::StandardDevice(std::shared_ptr<uvc::device> device)
-    : Device(Model::STANDARD, device) {
+Standard2Device::Standard2Device(std::shared_ptr<uvc::device> device)
+  : Device(Model::STANDARD2, device,
+           std::make_shared<Standard2StreamsAdapter>(),
+           std::make_shared<Standard2ChannelsAdapter>()) {
   VLOG(2) << __func__;
 }
 
-StandardDevice::~StandardDevice() {
+Standard2Device::~Standard2Device() {
   VLOG(2) << __func__;
 }
 
-std::vector<Stream> StandardDevice::GetKeyStreams() const {
-  return {Stream::LEFT, Stream::RIGHT};
+Capabilities Standard2Device::GetKeyStreamCapability() const {
+  return Capabilities::STEREO_COLOR;
 }
 
-void StandardDevice::OnStereoStreamUpdate() {
+void Standard2Device::OnStereoStreamUpdate() {
   if (motion_tracking_) {
     auto &&motions = this->motions();
     motions->DoMotionTrack();

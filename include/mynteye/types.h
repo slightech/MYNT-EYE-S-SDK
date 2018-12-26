@@ -37,6 +37,8 @@ MYNTEYE_BEGIN_NAMESPACE
 enum class Model : std::uint8_t {
   /** Standard */
   STANDARD,
+  /** Standard 2 generation */
+  STANDARD2,
   /** Last guard */
   LAST
 };
@@ -74,6 +76,8 @@ enum class Stream : std::uint8_t {
 enum class Capabilities : std::uint8_t {
   /** Provides stereo stream */
   STEREO,
+  /** Provide stereo color stream */
+  STEREO_COLOR,
   /** Provides color stream */
   COLOR,
   /** Provides depth stream */
@@ -141,6 +145,7 @@ enum class Option : std::uint8_t {
    *   range: [0,255], default: 127
    */
   CONTRAST,
+
   /**
    * Image frame rate, must set IMU_FREQUENCY together
    *
@@ -153,6 +158,7 @@ enum class Option : std::uint8_t {
    *   values: {100,200,250,333,500}, default: 200
    */
   IMU_FREQUENCY,
+
   /**
    * Exposure mode
    *
@@ -163,21 +169,31 @@ enum class Option : std::uint8_t {
   /**
    * Max gain, valid if auto-exposure
    *
-   *   range: [0,48], default: 48
+   *   range of standard 1: [0,48], default: 48
+   *   range of standard 2: [0,255], default: 8
    */
   MAX_GAIN,
   /**
    * Max exposure time, valid if auto-exposure
    *
-   *   range: [0,240], default: 240
+   *   range of standard 1: [0,240], default: 240
+   *   range of standard 2: [0,1000], default: 333
    */
   MAX_EXPOSURE_TIME,
   /**
+   * min exposure time, valid if auto-exposure
+   *
+   *   range: [0,1000], default: 0
+   */
+  MIN_EXPOSURE_TIME,
+  /**
    * Desired brightness, valid if auto-exposure
    *
-   *   range: [0,255], default: 192
+   *   range of standard 1: [0,255], default: 192
+   *   range of standard 2: [1,255], default: 122
    */
   DESIRED_BRIGHTNESS,
+
   /**
    * IR control
    *
@@ -191,22 +207,39 @@ enum class Option : std::uint8_t {
    *   1: 12-bit
    */
   HDR_MODE,
-  /** Zero drift calibration */
-  ZERO_DRIFT_CALIBRATION,
-  /** Erase chip */
-  ERASE_CHIP,
+
   /**
    * The range of accelerometer
    *
-   *   values: {4,8,16,32}, default: 8
+   *   value of standard 1: {4,8,16,32}, default: 8
+   *   value of standard 2: {6,12,24,48}, default: 12
    */
   ACCELEROMETER_RANGE,
   /**
    * The range of gyroscope
    *
-   *   values: {500,1000,2000,4000}, default: 1000
+   *   value of standard 1: {500,1000,2000,4000}, default: 1000
+   *   value of standard 2: {250,500,1000,2000,4000}, default: 1000
    */
   GYROSCOPE_RANGE,
+  /**
+   * The parameter of accelerometer low pass filter
+   *
+   *   values: {0,1,2}, default: 2
+   */
+  ACCELEROMETER_LOW_PASS_FILTER,
+  /**
+   * The parameter of gyroscope low pass filter
+   *
+   *   values: {23,64}, default: 64
+   */
+  GYROSCOPE_LOW_PASS_FILTER,
+
+  /** Zero drift calibration */
+  ZERO_DRIFT_CALIBRATION,
+  /** Erase chip */
+  ERASE_CHIP,
+
   /** Last guard */
   LAST
 };
@@ -278,6 +311,8 @@ enum class Format : std::uint32_t {
   GREY = MYNTEYE_FOURCC('G', 'R', 'E', 'Y'),
   /** YUV 4:2:2, 16 bits per pixel */
   YUYV = MYNTEYE_FOURCC('Y', 'U', 'Y', 'V'),
+  /** BGR 8:8:8, 24 bits per pixel */
+  BGR888 = MYNTEYE_FOURCC('B', 'G', 'R', '3'),
   /** Last guard */
   LAST
 };
@@ -293,6 +328,26 @@ inline std::ostream &operator<<(std::ostream &os, const Format &value) {
 MYNTEYE_API std::size_t bytes_per_pixel(const Format &value);
 
 /**
+ * Resolution.
+ */
+struct MYNTEYE_API Resolution {
+  /** Width */
+  std::uint16_t width;
+  /** Height */
+  std::uint16_t height;
+
+  bool operator==(const Resolution &other) const {
+    return width == other.width && height == other.height;
+  }
+  bool operator!=(const Resolution &other) const {
+    return !(*this == other);
+  }
+  bool operator<(const Resolution &other) const {
+    return (width * height) < (other.width * other.height);
+  }
+};
+
+/**
  * Stream request.
  */
 struct MYNTEYE_API StreamRequest {
@@ -302,8 +357,20 @@ struct MYNTEYE_API StreamRequest {
   std::uint16_t height;
   /** Stream pixel format */
   Format format;
-  /** Stream frames per second (unused) */
+  /** Stream frames per second */
   std::uint16_t fps;
+
+  StreamRequest() {}
+
+  StreamRequest(
+      std::uint16_t width, std::uint16_t height, Format format,
+      std::uint16_t fps)
+      : width(width), height(height), format(format), fps(fps) {}
+
+  StreamRequest(const Resolution &res, Format format, std::uint16_t fps)
+      : width(res.width), height(res.height), format(format), fps(fps) {}
+
+  Resolution GetResolution() const { return {width, height}; }
 
   bool operator==(const StreamRequest &other) const {
     return width == other.width && height == other.height &&
@@ -421,8 +488,8 @@ std::ostream &operator<<(std::ostream &os, const Extrinsics &ex);
 struct MYNTEYE_API ImgData {
   /** Image frame id */
   std::uint16_t frame_id;
-  /** Image timestamp in 0.01ms */
-  std::uint32_t timestamp;
+  /** Image timestamp in 1us */
+  std::uint64_t timestamp;
   /** Image exposure time, virtual value in [1, 480] */
   std::uint16_t exposure_time;
 
@@ -453,10 +520,18 @@ struct MYNTEYE_API ImgData {
  * IMU data.
  */
 struct MYNTEYE_API ImuData {
-  /** Image frame id */
-  std::uint16_t frame_id;
-  /** IMU timestamp in 0.01ms */
-  std::uint32_t timestamp;
+  /** IMU frame id */
+  std::uint32_t frame_id;
+  /**
+   * IMU accel or gyro flag
+   *
+   *   0: accel and gyro are both valid
+   *   1: accel is valid
+   *   2: gyro is valid
+   */
+  std::uint8_t flag;
+  /** IMU timestamp in 1us */
+  std::uint64_t timestamp;
   /** IMU accelerometer data for 3-axis: X, Y, Z. */
   double accel[3];
   /** IMU gyroscope data for 3-axis: X, Y, Z. */
@@ -465,7 +540,7 @@ struct MYNTEYE_API ImuData {
   double temperature;
 
   void Reset() {
-    frame_id = 0;
+    flag = 0;
     timestamp = 0;
     std::fill(accel, accel + 3, 0);
     std::fill(gyro, gyro + 3, 0);

@@ -21,7 +21,6 @@ include(${CMAKE_CURRENT_LIST_DIR}/Utils.cmake)
 # build components
 
 option(WITH_API "Build with API layer, need OpenCV" ON)
-
 option(WITH_DEVICE_INFO_REQUIRED "Build with device info required" ON)
 
 # 3rdparty components
@@ -31,7 +30,6 @@ option(WITH_BOOST "Include Boost support" ON)
 # How to install glog?
 #   Ubuntu: `sudo apt-get install libgoogle-glog-dev`
 option(WITH_GLOG "Include glog support" OFF)
-
 
 # packages
 

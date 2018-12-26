@@ -58,8 +58,8 @@ class Motions {
 
   std::mutex mtx_datas_;
 
-  int accel_range = 8;
-  int gyro_range = 1000;
+  int accel_range;
+  int gyro_range;
 };
 
 MYNTEYE_END_NAMESPACE

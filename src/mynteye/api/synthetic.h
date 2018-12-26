@@ -43,6 +43,8 @@ class Synthetic {
   explicit Synthetic(API *api);
   ~Synthetic();
 
+  void NotifyImageParamsChanged();
+
   bool Supports(const Stream &stream) const;
   mode_t SupportsMode(const Stream &stream) const;
 

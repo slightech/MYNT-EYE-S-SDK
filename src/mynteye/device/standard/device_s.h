@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef MYNTEYE_DEVICE_DEVICE_S_H_
-#define MYNTEYE_DEVICE_DEVICE_S_H_
+#ifndef MYNTEYE_DEVICE_STANDARD_DEVICE_S_H_
+#define MYNTEYE_DEVICE_STANDARD_DEVICE_S_H_
 #pragma once
 
 #include <memory>
@@ -27,11 +27,11 @@ class StandardDevice : public Device {
   explicit StandardDevice(std::shared_ptr<uvc::device> device);
   virtual ~StandardDevice();
 
-  std::vector<Stream> GetKeyStreams() const override;
+  Capabilities GetKeyStreamCapability() const override;
 
   void OnStereoStreamUpdate() override;
 };
 
 MYNTEYE_END_NAMESPACE
 
-#endif  // MYNTEYE_DEVICE_DEVICE_S_H_
+#endif  // MYNTEYE_DEVICE_STANDARD_DEVICE_S_H_

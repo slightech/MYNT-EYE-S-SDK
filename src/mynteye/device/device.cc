@@ -23,8 +23,9 @@
 #include "mynteye/device/async_callback.h"
 #include "mynteye/device/channels.h"
 #include "mynteye/device/config.h"
-#include "mynteye/device/device_s.h"
 #include "mynteye/device/motions.h"
+#include "mynteye/device/standard/device_s.h"
+#include "mynteye/device/standard2/device_s2.h"
 #include "mynteye/device/streams.h"
 #include "mynteye/device/types.h"
 #include "mynteye/util/strings.h"
@@ -78,14 +79,17 @@ bool CheckSupports(
 
 }  // namespace
 
-Device::Device(const Model &model, std::shared_ptr<uvc::device> device)
-    : video_streaming_(false),
-      motion_tracking_(false),
-      model_(model),
-      device_(device),
-      streams_(nullptr),
-      channels_(std::make_shared<Channels>(device)),
-      motions_(std::make_shared<Motions>(channels_)) {
+Device::Device(const Model &model,
+    const std::shared_ptr<uvc::device> &device,
+    const std::shared_ptr<StreamsAdapter> &streams_adapter,
+    const std::shared_ptr<ChannelsAdapter> &channels_adapter)
+  : video_streaming_(false),
+    motion_tracking_(false),
+    model_(model),
+    device_(device),
+    streams_(std::make_shared<Streams>(streams_adapter)),
+    channels_(std::make_shared<Channels>(device_, channels_adapter)),
+    motions_(std::make_shared<Motions>(channels_)) {
   VLOG(2) << __func__;
   ReadAllInfos();
 }
@@ -100,14 +104,20 @@ std::shared_ptr<Device> Device::Create(
     return std::make_shared<StandardDevice>(device);
   } else if (strings::starts_with(name, "MYNT-EYE-")) {
     // TODO(JohnZhao): Create different device by name, such as MYNT-EYE-S1000
-    std::string model_s = name.substr(9);
+    std::string model_s = name.substr(9, 5);
     VLOG(2) << "MYNE EYE Model: " << model_s;
     DeviceModel model(model_s);
-    switch (model.type) {
-      case 'S':
-        return std::make_shared<StandardDevice>(device);
-      default:
-        LOG(FATAL) << "MYNT EYE model is not supported now";
+    if (model.type == 'S') {
+      switch (model.generation) {
+        case '1':
+          return std::make_shared<StandardDevice>(device);
+        case '2':
+          return std::make_shared<Standard2Device>(device);
+        default:
+          LOG(FATAL) << "No such generation now";
+      }
+    } else {
+      LOG(FATAL) << "MYNT EYE model is not supported now";
     }
   }
   return nullptr;
@@ -166,6 +176,33 @@ void Device::ConfigStreamRequest(
     return;
   }
   stream_config_requests_[capability] = request;
+  UpdateStreamIntrinsics(capability, request);
+}
+
+const StreamRequest &Device::GetStreamRequest(
+    const Capabilities &capability) const {
+  try {
+    return stream_config_requests_.at(capability);
+  } catch (const std::out_of_range &e) {
+    auto &&requests = GetStreamRequests(capability);
+    if (requests.size() >= 1) {
+      return requests[0];
+    } else {
+      LOG(FATAL) << "Please config the stream request of " << capability;
+    }
+  }
+}
+
+const std::vector<StreamRequest> &Device::GetStreamRequests() const {
+  return GetStreamRequests(GetKeyStreamCapability());
+}
+
+void Device::ConfigStreamRequest(const StreamRequest &request) {
+  ConfigStreamRequest(GetKeyStreamCapability(), request);
+}
+
+const StreamRequest &Device::GetStreamRequest() const {
+  return GetStreamRequest(GetKeyStreamCapability());
 }
 
 std::shared_ptr<DeviceInfo> Device::GetInfo() const {
@@ -400,20 +437,20 @@ void Device::WaitForStreams() {
   streams_->WaitForStreams();
 }
 
+device::StreamData Device::GetStreamData(const Stream &stream) {
+  CHECK(video_streaming_);
+  CHECK_NOTNULL(streams_);
+  CheckSupports(this, stream);
+  std::lock_guard<std::mutex> _(mtx_streams_);
+  return streams_->GetLatestStreamData(stream);
+}
+
 std::vector<device::StreamData> Device::GetStreamDatas(const Stream &stream) {
   CHECK(video_streaming_);
   CHECK_NOTNULL(streams_);
   CheckSupports(this, stream);
   std::lock_guard<std::mutex> _(mtx_streams_);
   return streams_->GetStreamDatas(stream);
-}
-
-device::StreamData Device::GetLatestStreamData(const Stream &stream) {
-  CHECK(video_streaming_);
-  CHECK_NOTNULL(streams_);
-  CheckSupports(this, stream);
-  std::lock_guard<std::mutex> _(mtx_streams_);
-  return streams_->GetLatestStreamData(stream);
 }
 
 void Device::EnableMotionDatas() {
@@ -431,51 +468,33 @@ std::vector<device::MotionData> Device::GetMotionDatas() {
   return motions_->GetMotionDatas();
 }
 
-const StreamRequest &Device::GetStreamRequest(const Capabilities &capability) {
-  try {
-    return stream_config_requests_.at(capability);
-  } catch (const std::out_of_range &e) {
-    auto &&requests = GetStreamRequests(capability);
-    if (requests.size() >= 1) {
-      VLOG(2) << "Select the first one stream request of " << capability;
-      return requests[0];
-    } else {
-      LOG(FATAL) << "Please config the stream request of " << capability;
-    }
-  }
-}
-
 void Device::StartVideoStreaming() {
   if (video_streaming_) {
     LOG(WARNING) << "Cannot start video streaming without first stopping it";
     return;
   }
 
-  streams_ = std::make_shared<Streams>(GetKeyStreams());
-
   // if stream capabilities are supported with subdevices of device_
   /*
   Capabilities stream_capabilities[] = {
-    Capabilities::STEREO,
-    Capabilities::COLOR,
-    Capabilities::DEPTH,
-    Capabilities::POINTS,
-    Capabilities::FISHEYE,
-    Capabilities::INFRARED,
-    Capabilities::INFRARED2
-  };
+      Capabilities::STEREO,       Capabilities::STEREO_COLOR,
+      Capabilities::COLOR,        Capabilities::DEPTH,
+      Capabilities::POINTS,       Capabilities::FISHEYE,
+      Capabilities::INFRARED,     Capabilities::INFRARED2};
   for (auto &&capability : stream_capabilities) {
   }
   */
-  if (Supports(Capabilities::STEREO)) {
+  auto &&stream_cap = GetKeyStreamCapability();
+  if (Supports(stream_cap)) {
     // do stream request selection if more than one request of each stream
-    auto &&stream_request = GetStreamRequest(Capabilities::STEREO);
+    auto &&stream_request = GetStreamRequest(stream_cap);
+    streams_->ConfigStream(stream_cap, stream_request);
 
-    streams_->ConfigStream(Capabilities::STEREO, stream_request);
     uvc::set_device_mode(
         *device_, stream_request.width, stream_request.height,
         static_cast<int>(stream_request.format), stream_request.fps,
-        [this](const void *data, std::function<void()> continuation) {
+        [this, stream_cap](
+            const void *data, std::function<void()> continuation) {
           // drop the first stereo stream data
           static std::uint8_t drop_count = 1;
           if (drop_count > 0) {
@@ -486,7 +505,7 @@ void Device::StartVideoStreaming() {
           // auto &&time_beg = times::now();
           {
             std::lock_guard<std::mutex> _(mtx_streams_);
-            if (streams_->PushStream(Capabilities::STEREO, data)) {
+            if (streams_->PushStream(stream_cap, data)) {
               CallbackPushedStreamData(Stream::LEFT);
               CallbackPushedStreamData(Stream::RIGHT);
             }
@@ -543,9 +562,9 @@ void Device::ReadAllInfos() {
   device_info_ = std::make_shared<DeviceInfo>();
 
   CHECK_NOTNULL(channels_);
-  Channels::img_params_t img_params;
-  Channels::imu_params_t imu_params;
-  if (!channels_->GetFiles(device_info_.get(), &img_params, &imu_params)) {
+  all_img_params_.clear();
+  Device::imu_params_t imu_params;
+  if (!channels_->GetFiles(device_info_.get(), &all_img_params_, &imu_params)) {
 #if defined(WITH_DEVICE_INFO_REQUIRED)
     LOG(FATAL)
 #else
@@ -566,18 +585,28 @@ void Device::ReadAllInfos() {
           << ", nominal_baseline: " << device_info_->nominal_baseline << "}";
 
   device_info_->name = uvc::get_name(*device_);
-  if (img_params.ok) {
-    SetIntrinsics(Stream::LEFT, img_params.in_left);
-    SetIntrinsics(Stream::RIGHT, img_params.in_right);
-    SetExtrinsics(Stream::RIGHT, Stream::LEFT, img_params.ex_right_to_left);
-    VLOG(2) << "Intrinsics left: {" << GetIntrinsics(Stream::LEFT) << "}";
-    VLOG(2) << "Intrinsics right: {" << GetIntrinsics(Stream::RIGHT) << "}";
-    VLOG(2) << "Extrinsics right to left: {"
-            << GetExtrinsics(Stream::RIGHT, Stream::LEFT) << "}";
-  } else {
+
+  bool img_params_ok = false;
+  for (auto &&params : all_img_params_) {
+    auto &&img_params = params.second;
+    if (img_params.ok) {
+      img_params_ok = true;
+      SetIntrinsics(Stream::LEFT, img_params.in_left);
+      SetIntrinsics(Stream::RIGHT, img_params.in_right);
+      SetExtrinsics(Stream::LEFT, Stream::RIGHT, img_params.ex_right_to_left);
+      VLOG(2) << "Intrinsics left: {" << GetIntrinsics(Stream::LEFT) << "}";
+      VLOG(2) << "Intrinsics right: {" << GetIntrinsics(Stream::RIGHT) << "}";
+      VLOG(2) << "Extrinsics left to right: {"
+              << GetExtrinsics(Stream::LEFT, Stream::RIGHT) << "}";
+      break;
+    }
+  }
+  if (!img_params_ok) {
     LOG(WARNING) << "Intrinsics & extrinsics not exist";
   }
+
   if (imu_params.ok) {
+    imu_params_ = imu_params;
     SetMotionIntrinsics({imu_params.in_accel, imu_params.in_gyro});
     SetMotionExtrinsics(Stream::LEFT, imu_params.ex_left_to_imu);
     VLOG(2) << "Motion intrinsics: {" << GetMotionIntrinsics() << "}";
@@ -585,6 +614,28 @@ void Device::ReadAllInfos() {
             << GetMotionExtrinsics(Stream::LEFT) << "}";
   } else {
     VLOG(2) << "Motion intrinsics & extrinsics not exist";
+  }
+}
+
+void Device::UpdateStreamIntrinsics(
+    const Capabilities &capability, const StreamRequest &request) {
+  if (capability != GetKeyStreamCapability()) {
+    return;
+  }
+
+  for (auto &&params : all_img_params_) {
+    auto &&img_res = params.first;
+    auto &&img_params = params.second;
+    if (img_params.ok && img_res == request.GetResolution()) {
+      SetIntrinsics(Stream::LEFT, img_params.in_left);
+      SetIntrinsics(Stream::RIGHT, img_params.in_right);
+      SetExtrinsics(Stream::LEFT, Stream::RIGHT, img_params.ex_right_to_left);
+      VLOG(2) << "Intrinsics left: {" << GetIntrinsics(Stream::LEFT) << "}";
+      VLOG(2) << "Intrinsics right: {" << GetIntrinsics(Stream::RIGHT) << "}";
+      VLOG(2) << "Extrinsics left to right: {"
+              << GetExtrinsics(Stream::LEFT, Stream::RIGHT) << "}";
+      break;
+    }
   }
 }
 

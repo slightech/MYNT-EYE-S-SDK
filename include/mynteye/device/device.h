@@ -43,8 +43,10 @@ struct DeviceInfo;
 
 class API;
 class Channels;
+class ChannelsAdapter;
 class Motions;
 class Streams;
+class StreamsAdapter;
 
 template <class Data>
 class AsyncCallback;
@@ -66,7 +68,16 @@ class MYNTEYE_API Device {
   using stream_async_callback_ptr_t = std::shared_ptr<stream_async_callback_t>;
   using motion_async_callback_ptr_t = std::shared_ptr<motion_async_callback_t>;
 
-  Device(const Model &model, std::shared_ptr<uvc::device> device);
+  using img_params_t = device::img_params_t;
+  using imu_params_t = device::imu_params_t;
+
+ protected:
+  Device(const Model &model,
+      const std::shared_ptr<uvc::device> &device,
+      const std::shared_ptr<StreamsAdapter> &streams_adapter,
+      const std::shared_ptr<ChannelsAdapter> &channels_adapter);
+
+ public:
   virtual ~Device();
 
   /**
@@ -112,6 +123,23 @@ class MYNTEYE_API Device {
    */
   void ConfigStreamRequest(
       const Capabilities &capability, const StreamRequest &request);
+  /**
+   * Get the config stream requests of the capability.
+   */
+  const StreamRequest &GetStreamRequest(const Capabilities &capability) const;
+
+  /**
+   * Get all stream requests of the key stream capability.
+   */
+  const std::vector<StreamRequest> &GetStreamRequests() const;
+  /**
+   * Config the stream request to the key stream capability.
+   */
+  void ConfigStreamRequest(const StreamRequest &request);
+  /**
+   * Get the config stream requests of the key stream capability.
+   */
+  const StreamRequest &GetStreamRequest() const;
 
   /**
    * Get the device info.
@@ -232,14 +260,14 @@ class MYNTEYE_API Device {
   void WaitForStreams();
 
   /**
+   * Get the latest data of stream.
+   */
+  device::StreamData GetStreamData(const Stream &stream);
+  /**
    * Get the datas of stream.
    * @note default cache 4 datas at most.
    */
   std::vector<device::StreamData> GetStreamDatas(const Stream &stream);
-  /**
-   * Get the latest data of stream.
-   */
-  device::StreamData GetLatestStreamData(const Stream &stream);
 
   /**
    * Enable cache motion datas.
@@ -271,8 +299,6 @@ class MYNTEYE_API Device {
     return motions_;
   }
 
-  const StreamRequest &GetStreamRequest(const Capabilities &capability);
-
   virtual void StartVideoStreaming();
   virtual void StopVideoStreaming();
 
@@ -281,7 +307,14 @@ class MYNTEYE_API Device {
 
   virtual void OnStereoStreamUpdate();
 
-  virtual std::vector<Stream> GetKeyStreams() const = 0;
+  virtual Capabilities GetKeyStreamCapability() const = 0;
+
+  std::map<Resolution, device::img_params_t> GetImgParams() const {
+    return all_img_params_;
+  }
+  device::imu_params_t GetImuParams() const {
+    return imu_params_;
+  }
 
   bool video_streaming_;
   bool motion_tracking_;
@@ -290,6 +323,9 @@ class MYNTEYE_API Device {
   Model model_;
   std::shared_ptr<uvc::device> device_;
   std::shared_ptr<DeviceInfo> device_info_;
+
+  std::map<Resolution, device::img_params_t> all_img_params_;
+  device::imu_params_t imu_params_;
 
   std::map<Stream, Intrinsics> stream_intrinsics_;
   std::map<Stream, std::map<Stream, Extrinsics>> stream_from_extrinsics_;
@@ -314,6 +350,8 @@ class MYNTEYE_API Device {
   std::shared_ptr<Motions> motions_;
 
   void ReadAllInfos();
+  void UpdateStreamIntrinsics(
+      const Capabilities &capability, const StreamRequest &request);
 
   void CallbackPushedStreamData(const Stream &stream);
   void CallbackMotionData(const device::MotionData &data);

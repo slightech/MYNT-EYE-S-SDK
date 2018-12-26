@@ -58,6 +58,8 @@ class Dataset {
 
   std::map<Stream, std::size_t> stream_counts_;
   std::size_t motion_count_;
+  std::size_t accel_count_;
+  std::size_t gyro_count_;
 };
 
 }  // namespace tools

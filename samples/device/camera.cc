@@ -25,35 +25,19 @@ int main(int argc, char *argv[]) {
   glog_init _(argc, argv);
 
   auto &&device = device::select();
-  if (!device)
-    return 1;
-  /*
-  {  // auto-exposure
-    device->SetOptionValue(Option::EXPOSURE_MODE, 0);
-    device->SetOptionValue(Option::MAX_GAIN, 40);  // [0.48]
-    device->SetOptionValue(Option::MAX_EXPOSURE_TIME, 120);  // [0,240]
-    device->SetOptionValue(Option::DESIRED_BRIGHTNESS, 200);  // [0,255]
-  }
-  {  // manual-exposure
-    device->SetOptionValue(Option::EXPOSURE_MODE, 1);
-    device->SetOptionValue(Option::GAIN, 20);  // [0.48]
-    device->SetOptionValue(Option::BRIGHTNESS, 20);  // [0,240]
-    device->SetOptionValue(Option::CONTRAST, 20);  // [0,255]
-  }
-  device->SetOptionValue(Option::IR_CONTROL, 80);
-  device->SetOptionValue(Option::FRAME_RATE, 25);
-  device->SetOptionValue(Option::IMU_FREQUENCY, 500);
-  */
-  device->LogOptionInfos();
+  if (!device) return 1;
 
-  // device->RunOptionAction(Option::ZERO_DRIFT_CALIBRATION);
+  bool ok;
+  auto &&request = device::select_request(device, &ok);
+  if (!ok) return 1;
+  device->ConfigStreamRequest(request);
 
   std::size_t left_count = 0;
   device->SetStreamCallback(
       Stream::LEFT, [&left_count](const device::StreamData &data) {
         CHECK_NOTNULL(data.img);
         ++left_count;
-        VLOG(2) << Stream::LEFT << ", count: " << left_count;
+        VLOG(2) << Stream::LEFT << "count: " << left_count;
         VLOG(2) << "  frame_id: " << data.img->frame_id
                 << ", timestamp: " << data.img->timestamp
                 << ", exposure_time: " << data.img->exposure_time;
@@ -63,19 +47,19 @@ int main(int argc, char *argv[]) {
       Stream::RIGHT, [&right_count](const device::StreamData &data) {
         CHECK_NOTNULL(data.img);
         ++right_count;
-        VLOG(2) << Stream::RIGHT << ", count: " << right_count;
+        VLOG(2) << Stream::RIGHT << "count: " << right_count;
         VLOG(2) << "  frame_id: " << data.img->frame_id
                 << ", timestamp: " << data.img->timestamp
                 << ", exposure_time: " << data.img->exposure_time;
       });
 
   std::size_t imu_count = 0;
+
   device->SetMotionCallback([&imu_count](const device::MotionData &data) {
     CHECK_NOTNULL(data.imu);
     ++imu_count;
     VLOG(2) << "Imu count: " << imu_count;
-    VLOG(2) << "  frame_id: " << data.imu->frame_id
-            << ", timestamp: " << data.imu->timestamp
+    VLOG(2) << ", timestamp: " << data.imu->timestamp
             << ", accel_x: " << data.imu->accel[0]
             << ", accel_y: " << data.imu->accel[1]
             << ", accel_z: " << data.imu->accel[2]
@@ -88,7 +72,6 @@ int main(int argc, char *argv[]) {
   // Enable this will cache the motion datas until you get them.
   device->EnableMotionDatas();
   device->Start(Source::ALL);
-
   cv::namedWindow("frame");
 
   std::size_t motion_count = 0;
@@ -96,14 +79,13 @@ int main(int argc, char *argv[]) {
   while (true) {
     device->WaitForStreams();
 
-    device::StreamData left_data = device->GetLatestStreamData(Stream::LEFT);
-    device::StreamData right_data = device->GetLatestStreamData(Stream::RIGHT);
+    device::StreamData left_data = device->GetStreamData(Stream::LEFT);
+    device::StreamData right_data = device->GetStreamData(Stream::RIGHT);
 
     auto &&motion_datas = device->GetMotionDatas();
     motion_count += motion_datas.size();
     for (auto &&data : motion_datas) {
-      LOG(INFO) << "Imu frame_id: " << data.imu->frame_id
-                << ", timestamp: " << data.imu->timestamp
+      LOG(INFO) << "timestamp: " << data.imu->timestamp
                 << ", accel_x: " << data.imu->accel[0]
                 << ", accel_y: " << data.imu->accel[1]
                 << ", accel_z: " << data.imu->accel[2]
@@ -113,15 +95,39 @@ int main(int argc, char *argv[]) {
                 << ", temperature: " << data.imu->temperature;
     }
 
-    cv::Mat left_img(
-        left_data.frame->height(), left_data.frame->width(), CV_8UC1,
-        left_data.frame->data());
-    cv::Mat right_img(
-        right_data.frame->height(), right_data.frame->width(), CV_8UC1,
-        right_data.frame->data());
-
     cv::Mat img;
-    cv::hconcat(left_img, right_img, img);
+
+    // TODO(Kalman): Extract into public or internal method
+    if (left_data.frame->format() == Format::GREY) {
+      cv::Mat left_img(
+          left_data.frame->height(), left_data.frame->width(), CV_8UC1,
+          left_data.frame->data());
+      cv::Mat right_img(
+          right_data.frame->height(), right_data.frame->width(), CV_8UC1,
+          right_data.frame->data());
+      cv::hconcat(left_img, right_img, img);
+    } else if (left_data.frame->format() == Format::YUYV) {
+      cv::Mat left_img(
+          left_data.frame->height(), left_data.frame->width(), CV_8UC2,
+          left_data.frame->data());
+      cv::Mat right_img(
+          right_data.frame->height(), right_data.frame->width(), CV_8UC2,
+          right_data.frame->data());
+      cv::cvtColor(left_img, left_img, cv::COLOR_YUV2BGR_YUY2);
+      cv::cvtColor(right_img, right_img, cv::COLOR_YUV2BGR_YUY2);
+      cv::hconcat(left_img, right_img, img);
+    } else if (left_data.frame->format() == Format::BGR888) {
+      cv::Mat left_img(
+          left_data.frame->height(), left_data.frame->width(), CV_8UC3,
+          left_data.frame->data());
+      cv::Mat right_img(
+          right_data.frame->height(), right_data.frame->width(), CV_8UC3,
+          right_data.frame->data());
+      cv::hconcat(left_img, right_img, img);
+    } else {
+      return -1;
+    }
+
     cv::imshow("frame", img);
 
     char key = static_cast<char>(cv::waitKey(1));
@@ -144,7 +150,7 @@ int main(int argc, char *argv[]) {
             << ", fps: " << (1000.f * right_count / elapsed_ms);
   LOG(INFO) << "Imu count: " << imu_count
             << ", hz: " << (1000.f * imu_count / elapsed_ms);
-  // LOG(INFO) << "Motion count: " << motion_count
-  //           << ", hz: " << (1000.f * motion_count / elapsed_ms);
+  LOG(INFO) << "Motion count: " << motion_count
+            << ", hz: " << (1000.f * motion_count / elapsed_ms);
   return 0;
 }

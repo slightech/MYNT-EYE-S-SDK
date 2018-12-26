@@ -18,8 +18,7 @@ MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
-  if (!api)
-    return 1;
+  if (!api) return 1;
 
   LOG(INFO) << "Motion intrinsics: {" << api->GetMotionIntrinsics() << "}";
   LOG(INFO) << "Motion extrinsics left to imu: {"

@@ -27,25 +27,13 @@ int main(int argc, char *argv[]) {
   glog_init _(argc, argv);
 
   auto &&device = device::select();
-  if (!device)
-    return 1;
-  /*
-  {  // auto-exposure
-    device->SetOptionValue(Option::EXPOSURE_MODE, 0);
-    device->SetOptionValue(Option::MAX_GAIN, 40);  // [0.48]
-    device->SetOptionValue(Option::MAX_EXPOSURE_TIME, 120);  // [0,240]
-    device->SetOptionValue(Option::DESIRED_BRIGHTNESS, 200);  // [0,255]
-  }
-  {  // manual-exposure
-    device->SetOptionValue(Option::EXPOSURE_MODE, 1);
-    device->SetOptionValue(Option::GAIN, 20);  // [0.48]
-    device->SetOptionValue(Option::BRIGHTNESS, 20);  // [0,240]
-    device->SetOptionValue(Option::CONTRAST, 20);  // [0,255]
-  }
-  device->SetOptionValue(Option::IR_CONTROL, 80);
-  device->SetOptionValue(Option::FRAME_RATE, 25);
-  device->SetOptionValue(Option::IMU_FREQUENCY, 500);
-  */
+  if (!device) return 1;
+
+  bool ok;
+  auto &&request = device::select_request(device, &ok);
+  if (!ok) return 1;
+  device->ConfigStreamRequest(request);
+
   device->LogOptionInfos();
 
   // Enable this will cache the motion datas until you get them.
@@ -77,17 +65,40 @@ int main(int argc, char *argv[]) {
 
     auto &&left_frame = left_datas.back().frame;
     auto &&right_frame = right_datas.back().frame;
-    cv::Mat left_img(
-        left_frame->height(), left_frame->width(), CV_8UC1, left_frame->data());
-    cv::Mat right_img(
-        right_frame->height(), right_frame->width(), CV_8UC1,
-        right_frame->data());
 
     cv::Mat img;
-    cv::hconcat(left_img, right_img, img);
-    cv::imshow("frame", img);
 
-    {  // save
+    if (left_frame->format() == Format::GREY) {
+      cv::Mat left_img(
+          left_frame->height(), left_frame->width(), CV_8UC1,
+          left_frame->data());
+      cv::Mat right_img(
+          right_frame->height(), right_frame->width(), CV_8UC1,
+          right_frame->data());
+      cv::hconcat(left_img, right_img, img);
+    } else if (left_frame->format() == Format::YUYV) {
+      cv::Mat left_img(
+          left_frame->height(), left_frame->width(), CV_8UC2,
+          left_frame->data());
+      cv::Mat right_img(
+          right_frame->height(), right_frame->width(), CV_8UC2,
+          right_frame->data());
+      cv::cvtColor(left_img, left_img, cv::COLOR_YUV2BGR_YUY2);
+      cv::cvtColor(right_img, right_img, cv::COLOR_YUV2BGR_YUY2);
+      cv::hconcat(left_img, right_img, img);
+    } else if (left_frame->format() == Format::BGR888) {
+      cv::Mat left_img(
+          left_frame->height(), left_frame->width(), CV_8UC3,
+          left_frame->data());
+      cv::Mat right_img(
+          right_frame->height(), right_frame->width(), CV_8UC3,
+          right_frame->data());
+      cv::hconcat(left_img, right_img, img);
+    } else {
+      return -1;
+    }
+    cv::imshow("frame", img);
+    if (img_count > 10 && imu_count > 50) {  // save
       for (auto &&left : left_datas) {
         dataset.SaveStreamData(Stream::LEFT, left);
       }

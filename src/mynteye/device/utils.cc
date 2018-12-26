@@ -20,6 +20,8 @@
 #include "mynteye/device/context.h"
 #include "mynteye/device/device.h"
 
+#include "mynteye/logger.h"
+
 MYNTEYE_BEGIN_NAMESPACE
 
 namespace device {
@@ -29,14 +31,14 @@ std::shared_ptr<Device> select() {
   Context context;
   auto &&devices = context.devices();
 
-  size_t n = devices.size();
+  std::size_t n = devices.size();
   if (n <= 0) {
     LOG(ERROR) << "No MYNT EYE devices :(";
     return nullptr;
   }
 
   LOG(INFO) << "MYNT EYE devices:";
-  for (size_t i = 0; i < n; i++) {
+  for (std::size_t i = 0; i < n; i++) {
     auto &&device = devices[i];
     LOG(INFO) << "  index: " << i
               << ", name: " << device->GetInfo(Info::DEVICE_NAME)
@@ -49,7 +51,7 @@ std::shared_ptr<Device> select() {
     LOG(INFO) << "Only one MYNT EYE device, select index: 0";
   } else {
     while (true) {
-      size_t i;
+      std::size_t i;
       LOG(INFO) << "There are " << n << " MYNT EYE devices, select index: ";
       std::cin >> i;
       if (i >= n) {
@@ -62,6 +64,42 @@ std::shared_ptr<Device> select() {
   }
 
   return device;
+}
+
+MYNTEYE_NAMESPACE::StreamRequest select_request(
+    const std::shared_ptr<Device> &device, bool *ok) {
+  auto &&requests = device->GetStreamRequests();
+  std::size_t n = requests.size();
+  if (n <= 0) {
+    LOG(ERROR) << "No MYNT EYE devices :(";
+    *ok = false;
+    return {};
+  }
+
+  LOG(INFO) << "MYNT EYE devices:";
+  for (std::size_t i = 0; i < n; i++) {
+    auto &&request = requests[i];
+    LOG(INFO) << "  index: " << i
+              << ", request: " << request;
+  }
+
+  if (n <= 1) {
+    LOG(INFO) << "Only one stream request, select index: 0";
+    *ok = true;
+    return requests[0];
+  } else {
+    while (true) {
+      std::size_t i;
+      LOG(INFO) << "There are " << n << " stream requests, select index: ";
+      std::cin >> i;
+      if (i >= n) {
+        LOG(WARNING) << "Index out of range :(";
+        continue;
+      }
+      *ok = true;
+      return requests[i];
+    }
+  }
 }
 
 }  // namespace device
