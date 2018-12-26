@@ -53,6 +53,10 @@ message(STATUS "Found mynteye: ${mynteye_VERSION}")
 
 include(${PRO_DIR}/cmake/DetectOpenCV.cmake)
 
+if(mynteye_WITH_GLOG)
+  include(${PRO_DIR}/cmake/DetectGLog.cmake)
+endif()
+
 #LIST(APPEND CMAKE_MODULE_PATH ${PRO_DIR}/cmake)
 
 # targets

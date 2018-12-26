@@ -15,6 +15,7 @@
 
 _INIT_BUILD_=1
 # _INIT_LINTER_=1
+# _INIT_COMMITIZEN_=1
 # _FORCE_INSRALL_=1
 # _INSTALL_OPTIONS_=-y
 
@@ -146,6 +147,7 @@ else  # unexpected
   exit 1
 fi
 
+
 ## init linter - optional
 
 if [ -n "${_INIT_LINTER_}" ]; then
@@ -217,3 +219,30 @@ else
 fi
 
 fi  # _INIT_LINTER_
+
+
+## init commitizen - optional
+
+if [ -n "${_INIT_COMMITIZEN_}" ]; then
+
+if _detect_cmd npm; then
+  _echo_d "npm install commitizen -g; npm install"
+  npm install commitizen -g; npm install
+  # if _detect_cmd node; then
+  #   commitizen init cz-conventional-changelog --save-dev --save-exact
+  #   npm install --save-dev @commitlint/{config-conventional,cli}
+  #   npm install husky --save-dev
+  # else
+  #   _echo_en "Skipped commitizen init, as node not found"
+  # fi
+else
+  _echo_en "Skipped npm install packages, as npm not found"
+  _echo
+  _echo_e "Download Node.js from https://nodejs.org/, then add to \`~/.bashrc\`."
+  _echo
+  _echo_e "  export PATH=\"/home/john/node-v10.14.2-linux-x64/bin:\$PATH\""
+  _echo
+  _echo_e "p.s. not \"apt-get install npm\", it's too old."
+fi
+
+fi  # _INIT_COMMITIZEN_

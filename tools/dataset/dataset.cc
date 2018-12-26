@@ -13,11 +13,8 @@
 // limitations under the License.
 #include "dataset/dataset.h"
 
-#ifdef WITH_OPENCV2
 #include <opencv2/highgui/highgui.hpp>
-#else
-#include <opencv2/imgcodecs/imgcodecs.hpp>
-#endif
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include <iomanip>
 #include <limits>
@@ -68,23 +65,52 @@ void Dataset::SaveStreamData(
     std::stringstream ss;
     ss << writer->outdir << MYNTEYE_OS_SEP << std::dec
        << std::setw(IMAGE_FILENAME_WIDTH) << std::setfill('0') << seq << ".png";
-    cv::Mat img(
-        data.frame->height(), data.frame->width(), CV_8UC1, data.frame->data());
-    cv::imwrite(ss.str(), img);
+    if (data.frame->format() == Format::GREY) {
+      cv::Mat img(
+          data.frame->height(), data.frame->width(), CV_8UC1,
+          data.frame->data());
+      cv::imwrite(ss.str(), img);
+    } else if (data.frame->format() == Format::YUYV) {
+      cv::Mat img(
+          data.frame->height(), data.frame->width(), CV_8UC2,
+          data.frame->data());
+      cv::cvtColor(img, img, cv::COLOR_YUV2BGR_YUY2);
+      cv::imwrite(ss.str(), img);
+    } else if (data.frame->format() == Format::BGR888) {
+      cv::Mat img(
+          data.frame->height(), data.frame->width(), CV_8UC3,
+          data.frame->data());
+      cv::imwrite(ss.str(), img);
+    } else {
+      cv::Mat img(
+          data.frame->height(), data.frame->width(), CV_8UC1,
+          data.frame->data());
+      cv::imwrite(ss.str(), img);
+    }
   }
   ++stream_counts_[stream];
 }
 
 void Dataset::SaveMotionData(const device::MotionData &data) {
   auto &&writer = GetMotionWriter();
+  // auto seq = data.imu->serial_number;
   auto seq = motion_count_;
-  writer->ofs << seq << ", " << data.imu->frame_id << ", "
-              << data.imu->timestamp << ", " << data.imu->accel[0] << ", "
-              << data.imu->accel[1] << ", " << data.imu->accel[2] << ", "
-              << data.imu->gyro[0] << ", " << data.imu->gyro[1] << ", "
-              << data.imu->gyro[2] << ", " << data.imu->temperature
-              << std::endl;
-  ++motion_count_;
+  if (data.imu->flag == 1 || data.imu->flag == 2) {
+    writer->ofs << seq << ", " << static_cast<int>(data.imu->flag) << ", "
+                << data.imu->timestamp << ", " << data.imu->accel[0] << ", "
+                << data.imu->accel[1] << ", " << data.imu->accel[2] << ", "
+                << data.imu->gyro[0] << ", " << data.imu->gyro[1] << ", "
+                << data.imu->gyro[2] << ", " << data.imu->temperature
+                << std::endl;
+    ++motion_count_;
+  }
+  /*
+  if(motion_count_ != seq) {
+    LOG(INFO) << "motion_count_ != seq !" << " motion_count_: " << motion_count_
+  << " seq: " << seq;
+    motion_count_ = seq;
+  }
+  */
 }
 
 void Dataset::SaveStreamData(
@@ -105,14 +131,24 @@ void Dataset::SaveStreamData(
 
 void Dataset::SaveMotionData(const api::MotionData &data) {
   auto &&writer = GetMotionWriter();
+  // auto seq = data.imu->serial_number;
   auto seq = motion_count_;
-  writer->ofs << seq << ", " << data.imu->frame_id << ", "
-              << data.imu->timestamp << ", " << data.imu->accel[0] << ", "
-              << data.imu->accel[1] << ", " << data.imu->accel[2] << ", "
-              << data.imu->gyro[0] << ", " << data.imu->gyro[1] << ", "
-              << data.imu->gyro[2] << ", " << data.imu->temperature
-              << std::endl;
-  ++motion_count_;
+  if (data.imu->flag == 1 || data.imu->flag == 2) {
+    writer->ofs << seq << ", " << static_cast<int>(data.imu->flag) << ", "
+                << data.imu->timestamp << ", " << data.imu->accel[0] << ", "
+                << data.imu->accel[1] << ", " << data.imu->accel[2] << ", "
+                << data.imu->gyro[0] << ", " << data.imu->gyro[1] << ", "
+                << data.imu->gyro[2] << ", " << data.imu->temperature
+                << std::endl;
+    ++motion_count_;
+  }
+  /*
+  if(motion_count_ != seq) {
+    LOG(INFO) << "motion_count_ != seq !" << " motion_count_: " << motion_count_
+  << " seq: " << seq;
+    motion_count_ = seq;
+  }
+  */
 }
 
 Dataset::writer_t Dataset::GetStreamWriter(const Stream &stream) {
@@ -151,13 +187,15 @@ Dataset::writer_t Dataset::GetMotionWriter() {
 
     files::mkdir(writer->outdir);
     writer->ofs.open(writer->outfile, std::ofstream::out);
-    writer->ofs << "seq, frame_id, timestamp, accel_x, accel_y, accel_z, "
+    writer->ofs << "seq, flag, timestamp, accel_x, accel_y, accel_z, "
                    "gyro_x, gyro_y, gyro_z, temperature"
                 << std::endl;
     writer->ofs << FULL_PRECISION;
 
     motion_writer_ = writer;
     motion_count_ = 0;
+    accel_count_ = 0;
+    gyro_count_ = 0;
   }
   return motion_writer_;
 }

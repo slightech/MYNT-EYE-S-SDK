@@ -10,7 +10,7 @@
 
 ## IMU 响应数据包
 
-IMU 响应数据包里会包含多个 IMU 包，而每个 IMU 包又带有多个 IMU 段。
+IMU 响应数据包里会包含1个 IMU 包，而每个 IMU 包又带有多个 IMU 段。
 
 | Name | Header | State | Size | IMU Packets | Checksum |
 | :--- | :----- | :---- | :--- | :---------- | :------- |
@@ -22,21 +22,21 @@ IMU 响应数据包里会包含多个 IMU 包，而每个 IMU 包又带有多个
 
 IMU 包/小包，是一组 IMU 数据。
 
-| Name | Serial Number | Timestamp | Count | IMU Datas |
-| :--- | :------------ | :-------- | :---- | :-------- |
-| 字节数 | 4 | 4 | 1 | ... |
-| 类型 | uint32_t | uint32_t | uint8_t | - |
-| 描述 | 序列号 | IMU 基准时间戳 | IMU 段数量 | 所包含的 IMU 段 |
+| Name | Count | IMU Datas |
+| :--- | :-----| :-------- |
+| 字节数 | 2 | ... |
+| 类型 | uint16_t | - |
+| 描述 | IMU 段数量 | 所包含的 IMU 段 |
 
 ### IMU 段
 
-| Name | Offset | Frame ID | Accelerometer | Temperature | Gyroscope |
-| :--- | :----- | :------- | :------------ | :---------- | :-------- |
-| 字节数 | 2 | 2 | 6 | 2 | 6 |
-| 类型 | int16_t | uint16_t | int16_t * 3 | int16_t | int16_t * 3 |
-| 描述 | 相对基准时间戳的偏移量 | 图像帧 ID | 加速度计 x y z 三轴的值 | IMU 的温度 | 陀螺仪 x y z 三轴的值 |
+| Name | Serial Number | Timestamp | flag |  Temperature | Accelerometer or Gyroscope |
+| :--- | :------------ | :-------- | :----| :----------- | :------------------------- |
+| 字节数 | 4 | 8 | 1 | 2 | 6 |
+| 类型 | uint32_t | uint64_t | int8_t | int16_t | int16_t * 3 |
+| Description | 序列号 | 时间戳 | 指定传感器类型 | IMU 的温度 | 陀螺仪或陀螺仪 x y z 三轴的值 |
 
 * 加速度计和陀螺仪的计量值换算成物理值公式： **real = data * range / 0x10000** 。
-  * 加速度计量程默认值为 **8 g** ，陀螺仪量程默认值为 **1000 deg/s** 。
+  * 加速度计量程默认值为 **12 g** ，陀螺仪量程默认值为 **1000 deg/s** 。
 * 温度计量值换算成物理值公式： **real = data / ratio + offset** 。
   * ``ratio`` 默认值为 **326.8** ， ``offset`` 默认值为 **25℃** 。

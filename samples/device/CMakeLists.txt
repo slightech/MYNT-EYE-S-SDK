@@ -14,6 +14,10 @@
 
 get_filename_component(DIR_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 
+include_directories(
+  ${PRO_DIR}/src
+)
+
 set_outdir(
   "${OUT_DIR}/lib/${DIR_NAME}"
   "${OUT_DIR}/lib/${DIR_NAME}"

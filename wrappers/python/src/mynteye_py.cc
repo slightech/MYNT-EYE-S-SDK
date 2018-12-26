@@ -104,8 +104,7 @@ struct MYNTEYE_API MotionData {
   ImuData imu;
 
   bool operator==(const MotionData &other) const {
-    return imu.frame_id == other.imu.frame_id &&
-           imu.timestamp == other.imu.timestamp;
+    return imu.timestamp == other.imu.timestamp;           
   }
 };
 
@@ -364,7 +363,6 @@ BOOST_PYTHON_MODULE(mynteye_py) {
   // bp::register_ptr_to_python<std::shared_ptr<ImgData>>();
 
   bp::class_<ImuData>("ImuData")
-      .def_readonly("frame_id", &ImuData::frame_id)
       .def_readonly("timestamp", &ImuData::timestamp)
       .add_property(
           "accel", +[](ImuData *o) { return array_ref<double>{o->accel}; })

@@ -16,12 +16,12 @@
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
 #define GLOG_NO_ABBREVIATED_SEVERITIES
 #endif
-#include <glog/logging.h>
 
 #ifdef HAVE_LIB_GFLAGS
 #include <gflags/gflags.h>
 #endif
 
+#include "mynteye/logger.h"
 #include "mynteye/mynteye.h"
 
 int main(int /*argc*/, char *argv[]) {

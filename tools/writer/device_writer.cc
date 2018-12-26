@@ -13,6 +13,7 @@
 // limitations under the License.
 #include "writer/device_writer.h"
 
+#include <map>
 #include <vector>
 
 #include <opencv2/core/core.hpp>
@@ -69,9 +70,9 @@ bool DeviceWriter::WriteImgParams(const img_params_t &params) {
           nullptr, const_cast<img_params_t *>(&params), nullptr,
           &dev_info->spec_version)) {
     LOG(INFO) << "Write img params success";
-    LOG(INFO) << "Intrinsics left: {" << params.in_left << "}";
-    LOG(INFO) << "Intrinsics right: {" << params.in_right << "}";
-    LOG(INFO) << "Extrinsics right to left: {" << params.ex_right_to_left
+    // LOG(INFO) << "Intrinsics left: {" << params.in_left << "}";
+    // LOG(INFO) << "Intrinsics right: {" << params.in_right << "}";
+    LOG(INFO) << "Extrinsics left to right: {" << params.ex_right_to_left
               << "}";
     return true;
   } else {
@@ -121,6 +122,16 @@ cv::FileStorage &operator<<(
   fs << "[";
   for (auto &&in : vec)
     fs << in;
+  fs << "]";
+  return fs;
+}
+
+cv::FileStorage &operator<<(
+    cv::FileStorage &fs, const std::map<Resolution, Intrinsics> &mapIn) {
+  fs << "[";
+  std::map<Resolution, Intrinsics>::const_iterator it;
+  for (it = mapIn.begin(); it != mapIn.end(); it++)
+    fs << (*it).second;
   fs << "]";
   return fs;
 }
@@ -176,18 +187,25 @@ bool DeviceWriter::SaveDeviceInfo(
 }
 
 bool DeviceWriter::SaveImgParams(
-    const img_params_t &params, const std::string &filepath) {
+    const dev_info_t &info, const img_params_t &params,
+    const std::string &filepath) {
   using FileStorage = cv::FileStorage;
   FileStorage fs(filepath, FileStorage::WRITE);
   if (!fs.isOpened()) {
     LOG(ERROR) << "Failed to save file: " << filepath;
     return false;
   }
-  fs << "in_left" << std::vector<Intrinsics>{params.in_left} << "in_right"
-     << std::vector<Intrinsics>{params.in_right} << "ex_right_to_left"
-     << params.ex_right_to_left;
-  fs.release();
-  return true;
+
+  if (params.in_left_map.size() == params.in_right_map.size()) {
+    fs << "version" << info.spec_version.to_string() << "in_left_map"
+       << params.in_left_map << "in_right_map" << params.in_right_map
+       << "ex_right_to_left" << params.ex_right_to_left;
+    fs.release();
+    return true;
+  } else {
+    fs.release();
+    return false;
+  }
 }
 
 bool DeviceWriter::SaveImuParams(
@@ -210,9 +228,7 @@ void DeviceWriter::SaveAllInfos(const std::string &dir) {
   }
   SaveDeviceInfo(*device_->GetInfo(), dir + MYNTEYE_OS_SEP "device.info");
   SaveImgParams(
-      {false, device_->GetIntrinsics(Stream::LEFT),
-       device_->GetIntrinsics(Stream::RIGHT),
-       device_->GetExtrinsics(Stream::RIGHT, Stream::LEFT)},
+      *device_->GetInfo(), device_->GetImgParams(),
       dir + MYNTEYE_OS_SEP "img.params");
   auto &&m_in = device_->GetMotionIntrinsics();
   SaveImuParams(
@@ -326,34 +342,51 @@ DeviceWriter::img_params_t DeviceWriter::LoadImgParams(
   }
 
   img_params_t params;
-  if (fs["in_left"].isNone()) {
-    std::uint16_t w = 752;
-    std::uint16_t h = 480;
-    std::uint8_t m = 0;
-    if (!fs["width"].isNone())
-      w = static_cast<int>(fs["width"]);
-    if (!fs["height"].isNone())
-      h = static_cast<int>(fs["height"]);
-    if (!fs["model"].isNone())
-      m = static_cast<int>(fs["model"]);
+  if (fs["version"].isNone()) {
+    if (fs["in_left"].isNone()) {
+      std::uint16_t w = 752;
+      std::uint16_t h = 480;
+      std::uint8_t m = 0;
+      if (!fs["width"].isNone())
+        w = static_cast<int>(fs["width"]);
+      if (!fs["height"].isNone())
+        h = static_cast<int>(fs["height"]);
+      if (!fs["model"].isNone())
+        m = static_cast<int>(fs["model"]);
 
-    cv::Mat M1, D1, M2, D2, R, T;
-    fs["M1"] >> M1;
-    fs["D1"] >> D1;
-    fs["M2"] >> M2;
-    fs["D2"] >> D2;
-    fs["R"] >> R;
-    fs["T"] >> T;
+      cv::Mat M1, D1, M2, D2, R, T;
+      fs["M1"] >> M1;
+      fs["D1"] >> D1;
+      fs["M2"] >> M2;
+      fs["D2"] >> D2;
+      fs["R"] >> R;
+      fs["T"] >> T;
 
-    to_intrinsics(w, h, m, M1, D1, &params.in_left);
-    to_intrinsics(w, h, m, M2, D2, &params.in_right);
-    to_extrinsics(R, T, &params.ex_right_to_left);
+      to_intrinsics(
+          w, h, m, M1, D1, &params.in_left_map[Resolution::RES_752x480]);
+      to_intrinsics(
+          w, h, m, M2, D2, &params.in_right_map[Resolution::RES_752x480]);
+      to_extrinsics(R, T, &params.ex_right_to_left);
+    } else {
+      fs["in_left"][0] >> params.in_left_map[Resolution::RES_752x480];
+      fs["in_right"][0] >> params.in_right_map[Resolution::RES_752x480];
+      fs["ex_right_to_left"] >> params.ex_right_to_left;
+    }
   } else {
-    fs["in_left"][0] >> params.in_left;
-    fs["in_right"][0] >> params.in_right;
-    fs["ex_right_to_left"] >> params.ex_right_to_left;
+    // TODO(Kalman): Is there a more reasonable way?
+    if (static_cast<std::string>(fs["version"]) == "1.0") {
+      fs["in_left_map"][0] >> params.in_left_map[Resolution::RES_752x480];
+      fs["in_right_map"][0] >> params.in_right_map[Resolution::RES_752x480];
+      fs["ex_right_to_left"] >> params.ex_right_to_left;
+    }
+    if (static_cast<std::string>(fs["version"]) == "1.1") {
+      fs["in_left_map"][0] >> params.in_left_map[Resolution::RES_1280x400];
+      fs["in_left_map"][1] >> params.in_left_map[Resolution::RES_2560x800];
+      fs["in_right_map"][0] >> params.in_right_map[Resolution::RES_1280x400];
+      fs["in_right_map"][1] >> params.in_right_map[Resolution::RES_2560x800];
+      fs["ex_right_to_left"] >> params.ex_right_to_left;
+    }
   }
-
   fs.release();
   return params;
 }

@@ -15,7 +15,6 @@
 
 #include <algorithm>
 #include <chrono>
-#include <iomanip>
 #include <stdexcept>
 
 #include "mynteye/logger.h"
@@ -23,97 +22,11 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
-namespace {
-
-bool unpack_stereo_img_data(
-    const void *data, const StreamRequest &request, ImgData *img) {
-  CHECK_NOTNULL(img);
-  CHECK_EQ(request.format, Format::YUYV);
-
-  auto data_new = reinterpret_cast<const std::uint8_t *>(data);
-  std::size_t data_n =
-      request.width * request.height * bytes_per_pixel(request.format);
-  auto data_end = data_new + data_n;
-
-  std::size_t packet_n = sizeof(ImagePacket);
-  std::vector<std::uint8_t> packet(packet_n);
-  std::reverse_copy(data_end - packet_n, data_end, packet.begin());
-
-  ImagePacket img_packet(packet.data());
-  // LOG(INFO) << "ImagePacket: header=0x" << std::hex <<
-  // static_cast<int>(img_packet.header)
-  //   << ", size=0x" << std::hex << static_cast<int>(img_packet.size)
-  //   << ", frame_id="<< std::dec << img_packet.frame_id
-  //   << ", timestamp="<< std::dec << img_packet.timestamp
-  //   << ", exposure_time="<< std::dec << img_packet.exposure_time
-  //   << ", checksum=0x" << std::hex << static_cast<int>(img_packet.checksum);
-
-  if (img_packet.header != 0x3B) {
-    VLOG(2) << "Image packet header must be 0x3B, but 0x" << std::hex
-            << std::uppercase << std::setw(2) << std::setfill('0')
-            << static_cast<int>(img_packet.header) << " now";
-    return false;
-  }
-
-  std::uint8_t checksum = 0;
-  for (std::size_t i = 2, n = packet_n - 2; i <= n; i++) {  // content: [2,9]
-    checksum = (checksum ^ packet[i]);
-  }
-  if (img_packet.checksum != checksum) {
-    VLOG(2) << "Image packet checksum should be 0x" << std::hex
-            << std::uppercase << std::setw(2) << std::setfill('0')
-            << static_cast<int>(img_packet.checksum) << ", but 0x"
-            << std::setw(2) << std::setfill('0') << static_cast<int>(checksum)
-            << " now";
-    return false;
-  }
-
-  img->frame_id = img_packet.frame_id;
-  img->timestamp = img_packet.timestamp;
-  img->exposure_time = img_packet.exposure_time;
-  return true;
-}
-
-bool unpack_left_img_pixels(
-    const void *data, const StreamRequest &request, Streams::frame_t *frame) {
-  CHECK_NOTNULL(frame);
-  CHECK_EQ(request.format, Format::YUYV);
-  CHECK_EQ(frame->format(), Format::GREY);
-  auto data_new = reinterpret_cast<const std::uint8_t *>(data);
-  std::size_t n = frame->width() * frame->height();
-  for (std::size_t i = 0; i < n; i++) {
-    frame->data()[i] = *(data_new + (i * 2));
-  }
-  return true;
-}
-
-bool unpack_right_img_pixels(
-    const void *data, const StreamRequest &request, Streams::frame_t *frame) {
-  CHECK_NOTNULL(frame);
-  CHECK_EQ(request.format, Format::YUYV);
-  CHECK_EQ(frame->format(), Format::GREY);
-  auto data_new = reinterpret_cast<const std::uint8_t *>(data);
-  std::size_t n = frame->width() * frame->height();
-  for (std::size_t i = 0; i < n; i++) {
-    frame->data()[i] = *(data_new + (i * 2 + 1));
-  }
-  return true;
-}
-
-}  // namespace
-
-Streams::Streams(const std::vector<Stream> key_streams)
-    : key_streams_(key_streams),
-      stream_capabilities_(
-          {Capabilities::STEREO, Capabilities::COLOR, Capabilities::DEPTH,
-           Capabilities::POINTS, Capabilities::FISHEYE, Capabilities::INFRARED,
-           Capabilities::INFRARED2}),
-      unpack_img_data_map_(
-          {{Stream::LEFT, unpack_stereo_img_data},
-           {Stream::RIGHT, unpack_stereo_img_data}}),
-      unpack_img_pixels_map_(
-          {{Stream::LEFT, unpack_left_img_pixels},
-           {Stream::RIGHT, unpack_right_img_pixels}}) {
+Streams::Streams(const std::shared_ptr<StreamsAdapter> &adapter)
+    : key_streams_(std::move(adapter->GetKeyStreams())),
+      stream_capabilities_(std::move(adapter->GetStreamCapabilities())),
+      unpack_img_data_map_(std::move(adapter->GetUnpackImgDataMap())),
+      unpack_img_pixels_map_(std::move(adapter->GetUnpackImgPixelsMap())) {
   VLOG(2) << __func__;
 }
 
@@ -139,16 +52,17 @@ bool Streams::PushStream(const Capabilities &capability, const void *data) {
   auto &&request = GetStreamConfigRequest(capability);
   bool pushed = false;
   switch (capability) {
-    case Capabilities::STEREO: {
+    case Capabilities::STEREO:
+    case Capabilities::STEREO_COLOR: {
       // alloc left
-      AllocStreamData(Stream::LEFT, request, Format::GREY);
+      AllocStreamData(capability, Stream::LEFT, request);
       auto &&left_data = stream_datas_map_[Stream::LEFT].back();
       // unpack img data
       if (unpack_img_data_map_[Stream::LEFT](
               data, request, left_data.img.get())) {
         left_data.frame_id = left_data.img->frame_id;
         // alloc right
-        AllocStreamData(Stream::RIGHT, request, Format::GREY);
+        AllocStreamData(capability, Stream::RIGHT, request);
         auto &&right_data = stream_datas_map_[Stream::RIGHT].back();
         *right_data.img = *left_data.img;
         right_data.frame_id = left_data.img->frame_id;
@@ -252,12 +166,16 @@ bool Streams::HasStreamDatas(const Stream &stream) const {
          !stream_datas_map_.at(stream).empty();
 }
 
-void Streams::AllocStreamData(
+void Streams::AllocStreamData(const Capabilities &capability,
     const Stream &stream, const StreamRequest &request) {
-  AllocStreamData(stream, request, request.format);
+  auto format = request.format;
+  if (capability == Capabilities::STEREO) {
+    format = Format::GREY;
+  }
+  AllocStreamData(capability, stream, request, format);
 }
 
-void Streams::AllocStreamData(
+void Streams::AllocStreamData(const Capabilities &capability,
     const Stream &stream, const StreamRequest &request, const Format &format) {
   stream_data_t data;
 
@@ -282,8 +200,12 @@ void Streams::AllocStreamData(
     data.img = nullptr;
   }
   if (!data.frame) {
-    data.frame = std::make_shared<frame_t>(
-        request.width, request.height, format, nullptr);
+    auto width = request.width;
+    if (capability == Capabilities::STEREO_COLOR) {
+      width /= 2;  // split to half
+    }
+    data.frame =
+      std::make_shared<frame_t>(width, request.height, format, nullptr);
   }
   data.frame_id = 0;
   stream_datas_map_[stream].push_back(data);

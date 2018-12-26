@@ -31,8 +31,8 @@ namespace tools {
 class DeviceWriter {
  public:
   using dev_info_t = DeviceInfo;
-  using img_params_t = Channels::img_params_t;
-  using imu_params_t = Channels::imu_params_t;
+  using img_params_t = device::img_params_t;
+  using imu_params_t = device::imu_params_t;
 
   explicit DeviceWriter(std::shared_ptr<Device> device);
   ~DeviceWriter();
@@ -47,7 +47,9 @@ class DeviceWriter {
   bool WriteImuParams(const std::string &filepath);
 
   bool SaveDeviceInfo(const dev_info_t &info, const std::string &filepath);
-  bool SaveImgParams(const img_params_t &params, const std::string &filepath);
+  bool SaveImgParams(
+      const dev_info_t &info, const img_params_t &params,
+      const std::string &filepath);
   bool SaveImuParams(const imu_params_t &params, const std::string &filepath);
 
   /** Save all infos of this device */

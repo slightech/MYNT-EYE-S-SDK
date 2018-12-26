@@ -19,8 +19,12 @@ MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
-  if (!api)
-    return 1;
+  if (!api) return 1;
+
+  bool ok;
+  auto &&request = api->SelectStreamRequest(&ok);
+  if (!ok) return 1;
+  api->ConfigStreamRequest(request);
 
   api->Start(Source::VIDEO_STREAMING);
 
