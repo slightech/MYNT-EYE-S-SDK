@@ -137,6 +137,9 @@ elseif(OS_MAC)
   ## set_target_properties(usbBusProber PROPERTIES FRAMEWORK TRUE )
   ## add_library(vvuvckit SHARED ${MAC_VVUVCKIT_SRC_LIST})
   ## set_target_properties(vvuvckit PROPERTIES FRAMEWORK TRUE )
+  ## find_package(libuvc REQUIRED)
+  ## set(UVC_LIB ${libuvc_LIBRARIES})
+  ## include_directories(${libuvc_INCLUDE_DIRS})
 
   INCLUDE_DIRECTORIES(src/mynteye/uvc/macosx/USBBusProber.framework/Headers)
   INCLUDE_DIRECTORIES(src/mynteye/uvc/macosx/VVUVCKit.framework/Headers)
@@ -147,11 +150,6 @@ elseif(OS_MAC)
 
   set(UVC_SRC src/mynteye/uvc/macosx/CameraEngine.cpp src/mynteye/uvc/macosx/AVfoundationCamera.mm src/mynteye/uvc/macosx/uvc-vvuvckit.cc )
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework CoreFoundation -framework AVFoundation -framework IOKit -framework AppKit -framework Cocoa -framework CoreMedia -framework CoreData -framework Foundation -framework CoreVideo ${__MACUVCLOG_FLAGS}") 
-
-  find_package(libuvc REQUIRED)
-  set(UVC_LIB ${libuvc_LIBRARIES})
-
-  include_directories(${libuvc_INCLUDE_DIRS})
 elseif(OS_LINUX)
   set(UVC_SRC src/mynteye/uvc/linux/uvc-v4l2.cc)
 else()

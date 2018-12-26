@@ -168,6 +168,7 @@ struct device : public AVfoundationCamera{
       }
     }
     pause_ = true;
+    teardown();
   }
 
   void open() {
@@ -187,6 +188,7 @@ struct device : public AVfoundationCamera{
     if (!is_capturing)
       return;
     is_capturing = false;
+    stopCamera();
   }
 
   std::string get_name() const {
@@ -224,7 +226,7 @@ struct device : public AVfoundationCamera{
         pv_sleep();
       } else {
         if ((is_capturing) && (!stillRunning())) {
-            LOG(ERROR) << "error status in camera running.";
+          LOG(ERROR) << "error status in camera running.";
         } else { pv_sleep(); }
       }
     } else { pv_sleep(5); }
@@ -255,6 +257,12 @@ struct device : public AVfoundationCamera{
 
       stop_capture();
     }
+  }
+
+  void teardown() {
+    pause_ = true;
+    stopCamera();
+    closeCamera();
   }
 
   // void reset_options_to_default() {
@@ -310,6 +318,7 @@ MYNTEYE_API bool pu_control_range(
   MYNTEYE_UNUSED(option);
   MYNTEYE_UNUSED(min);
   MYNTEYE_UNUSED(max);
+  return true;
 }
 MYNTEYE_API bool pu_control_query(
     const device &device, Option option, pu_query query, int32_t *value) {
@@ -317,6 +326,7 @@ MYNTEYE_API bool pu_control_query(
   MYNTEYE_UNUSED(option);
   MYNTEYE_UNUSED(query);
   MYNTEYE_UNUSED(value);
+  return true;
 }
 
 // Access XU (Extension Unit) controls
@@ -326,6 +336,7 @@ MYNTEYE_API bool xu_control_range(
     int32_t * /*min*/, int32_t * /*max*/, int32_t * /*def*/) {
   // not supported on osx
   LOG(WARNING) << __func__ << " failed: this API is not supported on osx";
+  return false;
 }
 MYNTEYE_API bool xu_control_query(  // XU_QUERY_SET, XU_QUERY_GET
     const device &/*device*/, const xu &/*xu*/,
@@ -333,6 +344,7 @@ MYNTEYE_API bool xu_control_query(  // XU_QUERY_SET, XU_QUERY_GET
     uint16_t /*size*/, uint8_t * /*data*/) {
   // not supported on osx
   LOG(WARNING) << __func__ << " failed: this API is not supported on osx";
+  return false;
 }
 
 MYNTEYE_API void set_device_mode(
