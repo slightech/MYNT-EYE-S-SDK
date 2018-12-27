@@ -108,7 +108,11 @@ int main(int argc, char *argv[]) {
   const auto frame_empty = [&frame]() { return frame == nullptr; };
 
   uvc::set_device_mode(
+#ifdef MYNTEYE_OS_MAC
+      *device, 752, 480, static_cast<int>(Format::YUYV), 25,
+#else
       *device, 1280, 400, static_cast<int>(Format::BGR888), 20,
+#endif
       [&mtx, &cv, &frame, &frame_ready](
           const void *data, std::function<void()> continuation) {
         // reinterpret_cast<const std::uint8_t *>(data);
@@ -143,7 +147,12 @@ int main(int argc, char *argv[]) {
     }
 
     // only lastest frame is valid
+#ifdef MYNTEYE_OS_MAC
+    cv::Mat img(480, 752, CV_8UC2, const_cast<void *>(frame->data));
+    cv::cvtColor(img, img, cv::COLOR_YUV2BGR_YUY2);
+#else
     cv::Mat img(400, 1280, CV_8UC3, const_cast<void *>(frame->data));
+#endif
     cv::imshow("frame", img);
 
     frame = nullptr;
