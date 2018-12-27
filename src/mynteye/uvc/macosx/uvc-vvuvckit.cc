@@ -141,10 +141,15 @@ struct device : public AVfoundationCamera{
   volatile bool pause_ = false;
   volatile bool stop = false;
 
-  unsigned char *cameraBuffer = NULL;
-  unsigned char *cameraWriteBuffer = NULL;
+  unsigned char *camera_buffer = NULL;
+  unsigned char *camera_write_buffer = NULL;
 
   std::mutex _devices_mutex;
+
+  CameraConfig get_camera_config() const {
+    return _config;
+  }
+
   device(std::shared_ptr<context> parent, const CameraConfig &config)
       : AVfoundationCamera(& const_cast<CameraConfig&>(config)),
       parent(parent), _config(config) {
@@ -216,10 +221,10 @@ struct device : public AVfoundationCamera{
 
   void poll() {
     if (is_capturing) {
-      cameraBuffer = getFrame();
-      if (cameraBuffer != NULL) {
+      camera_buffer = getFrame();
+      if (camera_buffer != NULL) {
         if (callback) {
-          callback(cameraBuffer, [this]() mutable {
+          callback(camera_buffer, [this]() mutable {
             // todo
           });
         }
@@ -263,13 +268,6 @@ struct device : public AVfoundationCamera{
     stopCamera();
     closeCamera();
   }
-
-  // void reset_options_to_default() {
-  //   setCameraSetting(BRIGHTNESS, 120);
-  //   setCameraSetting(CONTRAST, 127);
-  //   setCameraSetting(GAIN, 24);
-  //   setCameraSetting(SATURATION, 192);
-  // }
 };
 
 std::vector <struct device*> device::s_devices;
@@ -281,6 +279,7 @@ MYNTEYE_API std::shared_ptr<context> create_context() {
 
 MYNTEYE_API std::vector<std::shared_ptr<device>> query_devices(
     std::shared_ptr<context> context) {
+
   std::vector<std::shared_ptr<device>> devices;
   auto camerasConfig = findDevicesConfig();
   printConfig(camerasConfig);
@@ -379,7 +378,7 @@ MYNTEYE_API bool pu_control_query(
   return true;
 }
 
-// Access XU (Extension Unit) controls
+// Access XU (Extension Unit) controls , Not supported on osx
 MYNTEYE_API bool xu_control_range(
     const device &/*device*/, const xu &/*xu*/,
     uint8_t /*selector*/, uint8_t /*id*/,
@@ -398,10 +397,30 @@ MYNTEYE_API bool xu_control_query(  // XU_QUERY_SET, XU_QUERY_GET
 }
 
 MYNTEYE_API void set_device_mode(
-    device &device, int /*width*/, int /*height*/, int fourcc, int fps,  // NOLINT
+    device &device, int width, int height, int fourcc, int fps,  // NOLINT
     video_channel_callback callback) {
-  MYNTEYE_UNUSED(fourcc);
-  MYNTEYE_UNUSED(fps);
+  if (width != device.get_camera_config().cam_width ||
+      height != device.get_camera_config().cam_height) {
+    LOG(ERROR) << __func__
+                 << width << "x" << height << "|"
+                 << device.get_camera_config().cam_width << "x"
+                 << device.get_camera_config().cam_height << std::endl
+                 << " failed: the different size can't be set to get frame.";
+    return;
+  }
+  if (fps < device.getFps()) {
+    LOG(WARNING) << __func__
+                 << " The fps requied is less than the sdk support.";
+  } else if (fps > device.getFps()) {
+    LOG(WARNING) << __func__
+                 << " The fps requied is more than the"
+                 << " sdk max support, use the max fps instead.";
+  }
+
+  if (fourcc != static_cast<int>(Format::YUYV)) {
+    LOG(WARNING) << __func__
+                 << " sdk max just support yuyv video mode.";
+  }
   device.callback = callback;
 }
 MYNTEYE_API void start_streaming(device &device, int num_transfer_bufs) { // NOLINT
