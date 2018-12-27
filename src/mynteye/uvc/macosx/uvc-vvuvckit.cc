@@ -313,18 +313,69 @@ MYNTEYE_API std::string get_video_name(const device &device) {
 MYNTEYE_API bool pu_control_range(
     const device &device, Option option, int32_t *min, int32_t *max,
     int32_t *def) {
-  MYNTEYE_UNUSED(device);
-  MYNTEYE_UNUSED(option);
-  MYNTEYE_UNUSED(min);
-  MYNTEYE_UNUSED(max);
+  struct device &dev = const_cast<struct device &> (device);
+  switch (option) {
+    case Option::GAIN: {
+      *max = dev.getMaxCameraSetting(GAIN);
+      *min = dev.getMinCameraSetting(GAIN);
+      *def = dev.getDefaultCameraSetting(GAIN);
+    } break;
+    case Option::BRIGHTNESS: {
+      *max = dev.getMaxCameraSetting(BRIGHTNESS);
+      *min = dev.getMinCameraSetting(BRIGHTNESS);
+      *def = dev.getDefaultCameraSetting(BRIGHTNESS);
+    } break;
+    case Option::CONTRAST: {
+      *max = dev.getMaxCameraSetting(CONTRAST);
+      *min = dev.getMinCameraSetting(CONTRAST);
+      *def = dev.getDefaultCameraSetting(CONTRAST);
+    } break;
+    default: {
+      LOG(WARNING) << __func__
+                   << " failed: the option "
+                   << static_cast<int>(option) << "is invalid!";
+    } break;
+  }
   return true;
 }
 MYNTEYE_API bool pu_control_query(
     const device &device, Option option, pu_query query, int32_t *value) {
-  MYNTEYE_UNUSED(device);
-  MYNTEYE_UNUSED(option);
-  MYNTEYE_UNUSED(query);
-  MYNTEYE_UNUSED(value);
+  struct device &dev = const_cast<struct device &> (device);
+  if (query == PU_QUERY_SET) {
+    switch (option) {
+      case Option::GAIN:
+        return dev.setCameraSetting(GAIN, *value);
+      case Option::BRIGHTNESS:
+        return dev.setCameraSetting(BRIGHTNESS, *value);
+      case Option::CONTRAST:
+        return dev.setCameraSetting(CONTRAST, *value);
+      default: {
+        LOG(WARNING) << __func__
+                    << " failed: the option "
+                    << static_cast<int>(option) << "is invalid!";
+      } return false;
+    }
+  } else if (query == PU_QUERY_GET) {
+    switch (option) {
+      case Option::GAIN:
+        *value = dev.getCameraSetting(GAIN);
+      case Option::BRIGHTNESS:
+        *value = dev.getCameraSetting(BRIGHTNESS);
+      case Option::CONTRAST:
+        *value = dev.getCameraSetting(CONTRAST);
+      default: {
+        LOG(WARNING) << __func__
+                    << " failed: the option "
+                    << static_cast<int>(option) << "is invalid!";
+      } return false;
+    }
+    return true;
+  } else {
+    LOG(WARNING) << __func__
+                   << " failed: the query "
+                   << static_cast<int>(query) << "is invalid!";
+    return false;
+  }
   return true;
 }
 
