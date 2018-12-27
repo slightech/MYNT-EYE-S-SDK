@@ -1,0 +1,10 @@
+%YAML:1.0
+---
+device_name: MYNT-EYE-S1030
+serial_number: "02811F3B00090807"
+firmware_version: "2.2"
+hardware_version: "2.0"
+spec_version: "1.0"
+lens_type: "0000"
+imu_type: "0000"
+nominal_baseline: 120

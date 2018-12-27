@@ -13,7 +13,6 @@
 // limitations under the License.
 #include "writer/device_writer.h"
 
-#include <map>
 #include <vector>
 
 #include <opencv2/core/core.hpp>
@@ -63,17 +62,22 @@ bool DeviceWriter::WriteDeviceInfo(const std::string &filepath) {
   return WriteDeviceInfo(LoadDeviceInfo(filepath));
 }
 
-bool DeviceWriter::WriteImgParams(const img_params_t &params) {
+bool DeviceWriter::WriteImgParams(const img_params_map_t &img_params_map) {
   auto &&channels = device_->channels();
   auto &&dev_info = device_->GetInfo();
   if (channels->SetFiles(
-          nullptr, const_cast<img_params_t *>(&params), nullptr,
+          nullptr, const_cast<img_params_map_t *>(&img_params_map), nullptr,
           &dev_info->spec_version)) {
     LOG(INFO) << "Write img params success";
-    // LOG(INFO) << "Intrinsics left: {" << params.in_left << "}";
-    // LOG(INFO) << "Intrinsics right: {" << params.in_right << "}";
-    LOG(INFO) << "Extrinsics left to right: {" << params.ex_right_to_left
-              << "}";
+    std::map<Resolution, device::img_params_t>::const_iterator it;
+    for (it = img_params_map.begin(); it != img_params_map.end(); it++) {
+      LOG(INFO) << "Image params for resolution "
+                << (*it).first.width << "x" << (*it).first.height << " :";
+      LOG(INFO) << "Intrinsics left: {" << (*it).second.in_left << "}";
+      LOG(INFO) << "Intrinsics right: {" << (*it).second.in_right << "}";
+      LOG(INFO) << "Extrinsics left to right: {"
+                << (*it).second.ex_right_to_left << "}";
+    }
     return true;
   } else {
     LOG(ERROR) << "Write img params failed";
@@ -117,25 +121,6 @@ cv::FileStorage &operator<<(cv::FileStorage &fs, const Intrinsics &in) {
   return fs;
 }
 
-cv::FileStorage &operator<<(
-    cv::FileStorage &fs, const std::vector<Intrinsics> &vec) {
-  fs << "[";
-  for (auto &&in : vec)
-    fs << in;
-  fs << "]";
-  return fs;
-}
-
-cv::FileStorage &operator<<(
-    cv::FileStorage &fs, const std::map<Resolution, Intrinsics> &mapIn) {
-  fs << "[";
-  std::map<Resolution, Intrinsics>::const_iterator it;
-  for (it = mapIn.begin(); it != mapIn.end(); it++)
-    fs << (*it).second;
-  fs << "]";
-  return fs;
-}
-
 cv::FileStorage &operator<<(cv::FileStorage &fs, const ImuIntrinsics &in) {
   std::vector<double> scales;
   for (std::size_t i = 0; i < 3; i++) {
@@ -164,6 +149,25 @@ cv::FileStorage &operator<<(cv::FileStorage &fs, const Extrinsics &ex) {
   return fs;
 }
 
+cv::FileStorage &operator<<(
+    cv::FileStorage &fs, const device::img_params_t &params) {
+  fs << "{"
+     << "in_left" << params.in_left
+     << "in_right" << params.in_right
+     << "ex_right_to_left" << params.ex_right_to_left << "}";
+  return fs;
+}
+
+cv::FileStorage &operator<<(
+    cv::FileStorage &fs, const DeviceWriter::img_params_map_t &img_params_map) {
+  fs << "[";
+  std::map<Resolution, device::img_params_t>::const_iterator it;
+  for (it = img_params_map.begin(); it != img_params_map.end(); it++)
+    fs << (*it).second;
+  fs << "]";
+  return fs;
+}
+
 }  // namespace
 
 bool DeviceWriter::SaveDeviceInfo(
@@ -187,7 +191,7 @@ bool DeviceWriter::SaveDeviceInfo(
 }
 
 bool DeviceWriter::SaveImgParams(
-    const dev_info_t &info, const img_params_t &params,
+    const dev_info_t &info, const img_params_map_t &img_params_map,
     const std::string &filepath) {
   using FileStorage = cv::FileStorage;
   FileStorage fs(filepath, FileStorage::WRITE);
@@ -195,17 +199,10 @@ bool DeviceWriter::SaveImgParams(
     LOG(ERROR) << "Failed to save file: " << filepath;
     return false;
   }
-
-  if (params.in_left_map.size() == params.in_right_map.size()) {
-    fs << "version" << info.spec_version.to_string() << "in_left_map"
-       << params.in_left_map << "in_right_map" << params.in_right_map
-       << "ex_right_to_left" << params.ex_right_to_left;
-    fs.release();
-    return true;
-  } else {
-    fs.release();
-    return false;
-  }
+  fs << "version" << info.spec_version.to_string();
+  fs << "img_params_map" << img_params_map;
+  fs.release();
+  return true;
 }
 
 bool DeviceWriter::SaveImuParams(
@@ -316,6 +313,12 @@ void operator>>(const cv::FileNode &n, Extrinsics &ex) {
   }
 }
 
+void operator>>(const cv::FileNode &n, DeviceWriter::img_params_t &paramas) {
+  n["in_left"] >> paramas.in_left;
+  n["in_right"] >> paramas.in_right;
+  n["ex_right_to_left"] >> paramas.ex_right_to_left;
+}
+
 }  // namespace
 
 DeviceWriter::dev_info_t DeviceWriter::LoadDeviceInfo(
@@ -333,7 +336,7 @@ DeviceWriter::dev_info_t DeviceWriter::LoadDeviceInfo(
   return info;
 }
 
-DeviceWriter::img_params_t DeviceWriter::LoadImgParams(
+DeviceWriter::img_params_map_t DeviceWriter::LoadImgParams(
     const std::string &filepath) {
   using FileStorage = cv::FileStorage;
   FileStorage fs(filepath, FileStorage::READ);
@@ -341,7 +344,7 @@ DeviceWriter::img_params_t DeviceWriter::LoadImgParams(
     LOG(FATAL) << "Failed to load file: " << filepath;
   }
 
-  img_params_t params;
+  img_params_map_t img_params_map;
   if (fs["version"].isNone()) {
     if (fs["in_left"].isNone()) {
       std::uint16_t w = 752;
@@ -363,32 +366,26 @@ DeviceWriter::img_params_t DeviceWriter::LoadImgParams(
       fs["T"] >> T;
 
       to_intrinsics(
-          w, h, m, M1, D1, &params.in_left_map[Resolution::RES_752x480]);
+          w, h, m, M1, D1, &img_params_map[{752, 480}].in_left);
       to_intrinsics(
-          w, h, m, M2, D2, &params.in_right_map[Resolution::RES_752x480]);
-      to_extrinsics(R, T, &params.ex_right_to_left);
+          w, h, m, M2, D2, &img_params_map[{752, 480}].in_right);
+      to_extrinsics(R, T, &img_params_map[{752, 480}].ex_right_to_left);
     } else {
-      fs["in_left"][0] >> params.in_left_map[Resolution::RES_752x480];
-      fs["in_right"][0] >> params.in_right_map[Resolution::RES_752x480];
-      fs["ex_right_to_left"] >> params.ex_right_to_left;
+      fs["in_left"][0] >> img_params_map[{752, 480}].in_left;
+      fs["in_right"][0] >> img_params_map[{752, 480}].in_right;
+      fs["ex_right_to_left"] >> img_params_map[{752, 480}].ex_right_to_left;
     }
   } else {
-    // TODO(Kalman): Is there a more reasonable way?
     if (static_cast<std::string>(fs["version"]) == "1.0") {
-      fs["in_left_map"][0] >> params.in_left_map[Resolution::RES_752x480];
-      fs["in_right_map"][0] >> params.in_right_map[Resolution::RES_752x480];
-      fs["ex_right_to_left"] >> params.ex_right_to_left;
+      fs["img_params_map"][0] >> img_params_map[{752, 480}];
     }
     if (static_cast<std::string>(fs["version"]) == "1.1") {
-      fs["in_left_map"][0] >> params.in_left_map[Resolution::RES_1280x400];
-      fs["in_left_map"][1] >> params.in_left_map[Resolution::RES_2560x800];
-      fs["in_right_map"][0] >> params.in_right_map[Resolution::RES_1280x400];
-      fs["in_right_map"][1] >> params.in_right_map[Resolution::RES_2560x800];
-      fs["ex_right_to_left"] >> params.ex_right_to_left;
+      fs["img_params_map"][0] >> img_params_map[{1280, 400}];
+      fs["img_params_map"][1] >> img_params_map[{2560, 800}];
     }
   }
   fs.release();
-  return params;
+  return img_params_map;
 }
 
 DeviceWriter::imu_params_t DeviceWriter::LoadImuParams(
