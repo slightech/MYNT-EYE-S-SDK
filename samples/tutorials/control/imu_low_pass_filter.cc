@@ -32,26 +32,23 @@ int main(int argc, char *argv[]) {
 
   Model model = api->GetModel();
 
-  // Set frame rate options for s1030
+  // MYNTEYE-S1030 don't support this option
   if (model == Model::STANDARD) {
-    // Attention: must set FRAME_RATE and IMU_FREQUENCY together,
-    // otherwise won't.
-    // succeed.
-
-    // FRAME_RATE values: 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60
-    api->SetOptionValue(Option::FRAME_RATE, 25);
-    // IMU_FREQUENCY values: 100, 200, 250, 333, 500
-    api->SetOptionValue(Option::IMU_FREQUENCY, 500);
-
-    LOG(INFO) << "Set FRAME_RATE to "
-              << api->GetOptionValue(Option::FRAME_RATE);
-    LOG(INFO) << "Set IMU_FREQUENCY to "
-              << api->GetOptionValue(Option::IMU_FREQUENCY);
+    LOG(INFO) << "Sorry,MYNTEYE-S1030 don't support imu low pass settings";
+    return 0;
   }
 
-  // You should set frame rate for S210A by 'SelectStreamRequest()'
+  // Set imu low pass filter for s210a
   if (model == Model::STANDARD2) {
-    LOG(INFO) << "Please set frame rate by 'SelectStreamRequest()'";
+    // ACCELEROMETER_RANGE values: 0, 1, 2
+    api->SetOptionValue(Option::ACCELEROMETER_LOW_PASS_FILTER, 2);
+    // GYROSCOPE_RANGE values: 23, 64
+    api->SetOptionValue(Option::GYROSCOPE_LOW_PASS_FILTER, 64);
+
+    LOG(INFO) << "Set ACCELEROMETER_LOW_PASS_FILTER to "
+              << api->GetOptionValue(Option::ACCELEROMETER_LOW_PASS_FILTER);
+    LOG(INFO) << "Set GYROSCOPE_LOW_PASS_FILTER to "
+              << api->GetOptionValue(Option::GYROSCOPE_LOW_PASS_FILTER);
   }
 
   // Count img
