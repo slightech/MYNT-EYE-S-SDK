@@ -50,7 +50,9 @@ inline double compute_time(const double end, const double start) {
 
 class ROSWrapperNodelet : public nodelet::Nodelet {
  public:
-  ROSWrapperNodelet() {}
+    ROSWrapperNodelet() {
+      pthread_mutex_init(&mutex_data, nullptr);
+    }
 
   ~ROSWrapperNodelet() {
     // std::cout << __func__ << std::endl;
@@ -420,7 +422,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     if (camera_publishers_[Stream::LEFT].getNumSubscribers() > 0 &&
         !is_published_[Stream::LEFT]) {
       api_->SetStreamCallback(
-          Stream::LEFT, [this](const api::StreamData &data) {
+          Stream::LEFT, [&](const api::StreamData &data) {
             // ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
             ros::Time stamp = checkUpTimeStamp(
                 data.img->timestamp, Stream::LEFT);
@@ -437,7 +439,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
             // img_time_prev = data.img->timestamp;
 
             ++left_count_;
+            pthread_mutex_lock(&mutex_data);
             publishCamera(Stream::LEFT, data, left_count_, stamp);
+            pthread_mutex_unlock(&mutex_data);
             NODELET_DEBUG_STREAM(
                 Stream::LEFT << ", count: " << left_count_
                              << ", frame_id: " << data.img->frame_id
@@ -451,13 +455,15 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     if (camera_publishers_[Stream::RIGHT].getNumSubscribers() > 0 &&
         !is_published_[Stream::RIGHT]) {
       api_->SetStreamCallback(
-          Stream::RIGHT, [this](const api::StreamData &data) {
+          Stream::RIGHT, [&](const api::StreamData &data) {
             // ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
             ros::Time stamp = checkUpTimeStamp(
                 data.img->timestamp, Stream::RIGHT);
 
             ++right_count_;
+            pthread_mutex_lock(&mutex_data);
             publishCamera(Stream::RIGHT, data, right_count_, stamp);
+            pthread_mutex_unlock(&mutex_data);
             NODELET_DEBUG_STREAM(
                 Stream::RIGHT
                 << ", count: " << right_count_ << ", frame_id: "
@@ -971,6 +977,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;
+
+  pthread_mutex_t mutex_data;
 
   // camera:
   //   LEFT, RIGHT, LEFT_RECTIFIED, RIGHT_RECTIFIED,
