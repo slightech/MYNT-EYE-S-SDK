@@ -30,10 +30,23 @@ int main(int argc, char *argv[]) {
   if (!ok) return 1;
   api->ConfigStreamRequest(request);
 
-  // ACCELEROMETER_RANGE values: 6, 12, 24, 32
-  api->SetOptionValue(Option::ACCELEROMETER_RANGE, 6);
-  // GYROSCOPE_RANGE values: 250, 500, 1000, 2000, 4000
-  api->SetOptionValue(Option::GYROSCOPE_RANGE, 1000);
+  Model model = api->GetModel();
+
+  // Set imu range for s1030
+  if (model == Model::STANDARD) {
+    // ACCELEROMETER_RANGE values: 4, 8, 16, 32
+    api->SetOptionValue(Option::ACCELEROMETER_RANGE, 8);
+    // GYROSCOPE_RANGE values: 500, 1000, 2000, 4000
+    api->SetOptionValue(Option::GYROSCOPE_RANGE, 1000);
+  }
+
+  // Set imu range for s210a
+  if (model == Model::STANDARD2) {
+    // ACCELEROMETER_RANGE values: 6, 12, 24, 32
+    api->SetOptionValue(Option::ACCELEROMETER_RANGE, 6);
+    // GYROSCOPE_RANGE values: 250, 500, 1000, 2000, 4000
+    api->SetOptionValue(Option::GYROSCOPE_RANGE, 1000);
+  }
 
   LOG(INFO) << "Set ACCELEROMETER_RANGE to "
             << api->GetOptionValue(Option::ACCELEROMETER_RANGE);
