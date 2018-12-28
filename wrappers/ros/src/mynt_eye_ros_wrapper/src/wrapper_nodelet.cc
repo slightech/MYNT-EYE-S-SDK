@@ -343,7 +343,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     NODELET_INFO_STREAM("Advertized service " << DEVICE_INFO_SERVICE);
 
     publishStaticTransforms();
-    ros::Rate loop_rate(60);
+    ros::Rate loop_rate(frame_rate_);
     while (private_nh_.ok()) {
       publishTopics();
       loop_rate.sleep();
@@ -867,8 +867,30 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     int request_index = 0;
 
     model_ = api_->GetModel();
-    if (model_ == Model::STANDARD2)
+    if (model_ == Model::STANDARD2) {
       private_nh_.getParam("request_index", request_index);
+      switch (request_index) {
+        case 0:
+        case 4:
+          frame_rate_ = 10;
+          break;
+        case 1:
+        case 5:
+          frame_rate_ = 20;
+          break;
+        case 2:
+        case 6:
+          frame_rate_ = 30;
+          break;
+        case 3:
+          frame_rate_ = 60;
+          break;
+      }
+    }
+    if (model_ == Model::STANDARD) {
+      request_index = 0;
+      frame_rate_ = api_->GetOptionValue(Option::FRAME_RATE);
+    }
 
     NODELET_FATAL_COND(m <= 0, "No MYNT EYE devices :(");
     if (m <= 1) {
