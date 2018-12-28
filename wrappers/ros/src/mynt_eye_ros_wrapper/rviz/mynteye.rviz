@@ -82,34 +82,6 @@ Visualization Manager:
           Displays:
             - Class: rviz/Image
               Enabled: true
-              Image Topic: /mynteye/left/image_mono
-              Max Value: 1
-              Median window: 5
-              Min Value: 0
-              Name: LeftMono
-              Normalize Range: true
-              Queue Size: 2
-              Transport Hint: raw
-              Unreliable: false
-              Value: true
-            - Class: rviz/Image
-              Enabled: true
-              Image Topic: /mynteye/right/image_mono
-              Max Value: 1
-              Median window: 5
-              Min Value: 0
-              Name: RightMono
-              Normalize Range: true
-              Queue Size: 2
-              Transport Hint: raw
-              Unreliable: false
-              Value: true
-          Enabled: true
-          Name: Mono
-        - Class: rviz/Group
-          Displays:
-            - Class: rviz/Image
-              Enabled: true
               Image Topic: /mynteye/left/image_rect
               Max Value: 1
               Median window: 5

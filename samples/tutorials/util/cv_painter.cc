@@ -82,7 +82,7 @@ cv::Rect CVPainter::DrawImgData(
 
   std::ostringstream ss;
   ss << "frame_id: " << data.frame_id;
-  ss << ", stamp: " << fmt_time << (0.01f * data.timestamp);  // ms
+  ss << ", stamp: " << fmt_time << (0.001f * data.timestamp);  // ms
   ss << ", expo: ";
   if (frame_rate_ == 0) {
     ss << data.exposure_time;

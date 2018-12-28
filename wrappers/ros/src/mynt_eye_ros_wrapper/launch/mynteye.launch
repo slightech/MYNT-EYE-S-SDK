@@ -52,9 +52,6 @@
   <!-- MYNTEYE-S210A, Reslution: 2560x800, Format: BGR888, Fps: 30 -->
   <arg name="index_s210a_6"   default="6" />
 
-  <!-- MYNTEYE-S1030, Reslution: 752x480, Format: YUYV, Fps: 25 -->
-  <arg name="index_s1030_0"   default="0" />
-
   <arg name="request_index" default="$(arg index_s210a_2)" />
 
   <arg name="enable_left_rect" default="false" />
@@ -64,47 +61,101 @@
   <arg name="enable_points" default="false" />
   <arg name="enable_depth" default="false" />
 
-  <!-- device options, -1 will not set the value -->
+  <!-- device options of standard, -1 will not set the value -->
 
-  <!-- brightness range: [0,240] -->
-  <arg name="brightness" default="-1" />
-  <!-- <arg name="brightness" default="120" /> -->
+  <!-- standard/gain range: [0,48] -->
+  <arg name="standard/gain" default="-1" />
+  <!-- <arg name="standard/gain" default="24" /> -->
 
-  <!-- exposure_mode, 0: auto-exposure, 1: manual-exposure -->
-  <arg name="exposure_mode" default="-1" />
-  <!-- <arg name="exposure_mode" default="0" /> -->
+  <!-- standard/brightness range: [0,240] -->
+  <arg name="standard/brightness" default="-1" />
+  <!-- <arg name="standard/brightness" default="120" /> -->
 
-  <!-- max_gain range: [0,255] -->
-  <arg name="max_gain" default="-1" />
-  <!-- <arg name="max_gain" default="8" /> -->
+  <!-- contrast range: [0,255] -->
+  <arg name="standard/contrast" default="-1" />
+  <!-- <arg name="standard/contrast" default="127" /> -->
 
-  <!-- max_exposure_time range: [0,1000] -->
-  <arg name="max_exposure_time" default="-1" />
-  <!-- <arg name="max_exposure_time" default="333" /> -->
+  <!-- standard/frame_rate range: {10,15,20,25,30,35,40,45,50,55,60} -->
+  <arg name="standard/frame_rate" default="-1" />
+  <!-- <arg name="standard/frame_rate" default="25" /> -->
 
-  <!-- desired_brightness range: [1,255] -->
-  <arg name="desired_brightness" default="-1" />
-  <!-- <arg name="desired_brightness" default="122" /> -->
+  <!-- standard/imu_frequency range: {100,200,250,333,500} -->
+  <arg name="standard/imu_frequency" default="-1" />
+  <!-- <arg name="standard/imu_frequency" default="200" /> -->
 
-  <!-- min_exposure_time range: [0,1000] -->
-  <arg name="min_exposure_time" default="-1" />
-  <!-- <arg name="min_exposure_time" default="0" /> -->
+  <!-- standard/exposure_mode, 0: auto-exposure, 1: manual-exposure -->
+  <arg name="standard/exposure_mode" default="-1" />
+  <!-- <arg name="standard/exposure_mode" default="0" /> -->
 
-  <!-- accel_range range: [6,48] -->
-  <arg name="accel_range" default="-1" />
-  <!-- <arg name="accel_range" default="6" /> -->
+  <!-- standard/max_gain range: [0,48] -->
+  <arg name="standard/max_gain" default="-1" />
+  <!-- <arg name="standard/max_gain" default="48" /> -->
 
-  <!-- gyro_range range: [250,4000] -->
-  <arg name="gyro_range" default="-1" />
-  <!-- <arg name="gyro_range" default="1000" /> -->
+  <!-- standard/max_exposure_time range: [0,240] -->
+  <arg name="standard/max_exposure_time" default="-1" />
+  <!-- <arg name="standard/max_exposure_time" default="240" /> -->
 
-  <!-- accel_low_filter range: [0,2] -->
-  <arg name="accel_low_filter" default="-1" />
-  <!-- <arg name="accel_low_filter" default="2" /> -->
+  <!-- standard/desired_brightness range: [0,255] -->
+  <arg name="standard/desired_brightness" default="-1" />
+  <!-- <arg name="standard/desired_brightness" default="192" /> -->
 
-  <!-- gyro_low_filter range: [23,64] -->
-  <arg name="gyro_low_filter" default="-1" />
-  <!-- <arg name="gyro_low_filter" default="64" /> -->
+  <!-- standard/ir_control range: [0,160] -->
+  <arg name="standard/ir_control" default="80" />
+  <!-- <arg name="standard/ir_control" default="0" /> -->
+
+  <!-- standard/hdr_mode, 0: 10-bit, 1: 12-bit -->
+  <arg name="standard/hdr_mode" default="-1" />
+  <!-- <arg name="standard/hdr_mode" default="0" /> -->
+
+  <!-- standard/accel_range range: {4,8,16,32} -->
+  <arg name="standard/accel_range" default="-1" />
+  <!-- <arg name="standard/accel_range" default="8" /> -->
+
+  <!-- standard/gyro_range range: {500,1000,2000,4000} -->
+  <arg name="standard/gyro_range" default="-1" />
+  <!-- <arg name="standard/gyro_range" default="1000" /> -->
+
+  <!-- device options of standard2, -1 will not set the value -->
+
+  <!-- standard2/brightness range: [0,240] -->
+  <arg name="standard2/brightness" default="-1" />
+  <!-- <arg name="standard2/brightness" default="120" /> -->
+
+  <!-- standard2/exposure_mode, 0: auto-exposure, 1: manual-exposure -->
+  <arg name="standard2/exposure_mode" default="-1" />
+  <!-- <arg name="standard2/exposure_mode" default="0" /> -->
+
+  <!-- standard2/max_gain range: [0,255] -->
+  <arg name="standard2/max_gain" default="-1" />
+  <!-- <arg name="standard2/max_gain" default="8" /> -->
+
+  <!-- standard2/max_exposure_time range: [0,1000] -->
+  <arg name="standard2/max_exposure_time" default="-1" />
+  <!-- <arg name="standard2/max_exposure_time" default="333" /> -->
+
+  <!-- standard2/desired_brightness range: [1,255] -->
+  <arg name="standard2/desired_brightness" default="-1" />
+  <!-- <arg name="standard2/desired_brightness" default="122" /> -->
+
+  <!-- standard2/min_exposure_time range: [0,1000] -->
+  <arg name="standard2/min_exposure_time" default="-1" />
+  <!-- <arg name="standard2/min_exposure_time" default="0" /> -->
+
+  <!-- standard2/accel_range range: [6,48] -->
+  <arg name="standard2/accel_range" default="-1" />
+  <!-- <arg name="standard2/accel_range" default="6" /> -->
+
+  <!-- standard2/gyro_range range: [250,4000] -->
+  <arg name="standard2/gyro_range" default="-1" />
+  <!-- <arg name="standard2/gyro_range" default="1000" /> -->
+
+  <!-- standard2/accel_low_filter range: [0,2] -->
+  <arg name="standard2/accel_low_filter" default="-1" />
+  <!-- <arg name="standard2/accel_low_filter" default="2" /> -->
+
+  <!-- standard2/gyro_low_filter range: [23,64] -->
+  <arg name="standard2/gyro_low_filter" default="-1" />
+  <!-- <arg name="standard2/gyro_low_filter" default="64" /> -->
 
   <!-- Push down all topics/nodelets into "mynteye" namespace -->
   <group ns="$(arg mynteye)">
@@ -155,18 +206,18 @@
       <!-- stream request index -->
       <param name="request_index" value="$(arg request_index)" />
 
-      <!-- device options -->
+      <!-- device options of standard2-->
 
-      <param name="brightness" value="$(arg brightness)" />
-      <param name="exposure_mode" value="$(arg exposure_mode)" />
-      <param name="max_gain" value="$(arg max_gain)" />
-      <param name="max_exposure_time" value="$(arg max_exposure_time)" />
-      <param name="desired_brightness" value="$(arg desired_brightness)" />
-      <param name="min_exposure_time" value="$(arg max_exposure_time)" />
-      <param name="accel_range" value="$(arg accel_range)" />
-      <param name="gyro_range" value="$(arg gyro_range)" />
-      <param name="accel_low_filter" value="$(arg accel_low_filter)" />
-      <param name="gyro_low_filter" value="$(arg gyro_low_filter)" />
+      <param name="standard2/brightness" value="$(arg standard2/brightness)" />
+      <param name="standard2/exposure_mode" value="$(arg standard2/exposure_mode)" />
+      <param name="standard2/max_gain" value="$(arg standard2/max_gain)" />
+      <param name="standard2/max_exposure_time" value="$(arg standard2/max_exposure_time)" />
+      <param name="standard2/desired_brightness" value="$(arg standard2/desired_brightness)" />
+      <param name="standard2/min_exposure_time" value="$(arg standard2/max_exposure_time)" />
+      <param name="standard2/accel_range" value="$(arg standard2/accel_range)" />
+      <param name="standard2/gyro_range" value="$(arg standard2/gyro_range)" />
+      <param name="standard2/accel_low_filter" value="$(arg standard2/accel_low_filter)" />
+      <param name="standard2/gyro_low_filter" value="$(arg standard2/gyro_low_filter)" />
     </node>
 
     <!-- disable compressed depth plugin for image topics -->

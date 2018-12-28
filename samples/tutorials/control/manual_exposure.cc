@@ -24,6 +24,7 @@ int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
   if (!api) return 1;
 
+  std::int32_t frame_rate = 0;
   bool ok;
   auto &&request = api->SelectStreamRequest(&ok);
   if (!ok) return 1;
@@ -41,6 +42,8 @@ int main(int argc, char *argv[]) {
     api->SetOptionValue(Option::BRIGHTNESS, 120);
     // contrast/black_level_calibration: range [0,255], default 127
     api->SetOptionValue(Option::CONTRAST, 127);
+
+    frame_rate = api->GetOptionValue(Option::FRAME_RATE);
 
     LOG(INFO) << "Enable manual-exposure";
     LOG(INFO) << "Set EXPOSURE_MODE to "
@@ -68,7 +71,7 @@ int main(int argc, char *argv[]) {
 
   api->Start(Source::VIDEO_STREAMING);
 
-  CVPainter painter(30);
+  CVPainter painter(frame_rate);
 
   cv::namedWindow("frame");
 

@@ -104,31 +104,31 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         static_cast<double>(_hard_time - hard_time_begin) * 0.000001f));
   }
 
-  inline bool is_overflow(std::uint32_t now,
-      std::uint32_t pre) {
+  inline bool is_overflow(std::uint64_t now,
+      std::uint64_t pre) {
     static std::uint64_t unit =
       std::numeric_limits<std::uint32_t>::max();
 
     return (now < pre) && ((pre - now) > (unit / 2));
   }
 
-  inline bool is_repeated(std::uint32_t now,
-      std::uint32_t pre) {
+  inline bool is_repeated(std::uint64_t now,
+      std::uint64_t pre) {
     return now == pre;
   }
 
-  inline bool is_annormal(std::uint32_t now,
-      std::uint32_t pre) {
+  inline bool is_annormal(std::uint64_t now,
+      std::uint64_t pre) {
     static std::uint64_t unit =
       std::numeric_limits<std::uint32_t>::max();
 
     return (now < pre) && ((pre - now) < (unit / 4));
   }
 
-  ros::Time checkUpTimeStamp(std::uint32_t _hard_time,
+  ros::Time checkUpTimeStamp(std::uint64_t _hard_time,
       const Stream &stream) {
-    static std::map<Stream, std::uint32_t> hard_time_now;
-    static std::map<Stream, std::uint32_t> acc;
+    static std::map<Stream, std::uint64_t> hard_time_now;
+    static std::map<Stream, std::uint64_t> acc;
     static std::uint64_t unit_hard_time =
       std::numeric_limits<std::uint32_t>::max();
 
@@ -145,18 +145,21 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         acc[stream] * unit_hard_time + _hard_time);
   }
 
-  ros::Time checkUpImuTimeStamp(std::uint32_t _hard_time) {
-    static std::uint32_t hard_time_now(0), acc(0);
+  ros::Time checkUpImuTimeStamp(std::uint64_t _hard_time) {
+    static std::uint64_t hard_time_now(0), acc(0);
     static std::uint64_t unit_hard_time =
       std::numeric_limits<std::uint32_t>::max();
 
     if (is_overflow(_hard_time, hard_time_now)) {
       acc++;
-    } else if (is_repeated(_hard_time, hard_time_now)) {
+    }
+    /*
+    else if (is_repeated(_hard_time, hard_time_now)) {
       NODELET_INFO_STREAM("WARNING:: Imu time stamp is repeated.");
     } else if (is_annormal(_hard_time, hard_time_now)) {
       NODELET_INFO_STREAM("WARNING:: Imu time stamp is annormal.");
     }
+    */
     hard_time_now = _hard_time;
 
     return hardTimeToSoftTime(
@@ -166,10 +169,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   void onInit() override {
     nh_ = getMTNodeHandle();
     private_nh_ = getMTPrivateNodeHandle();
-    int request_index = 0;
-    private_nh_.getParam("request_index", request_index);
 
-    initDevice(request_index);
+    initDevice();
     NODELET_FATAL_COND(api_ == nullptr, "No MYNT EYE device selected :(");
 
     // node params
@@ -225,20 +226,39 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     gravity_ = 9.8;
     private_nh_.getParam("gravity", gravity_);
 
-    // device options
+    // device options of standard2
+    if (model_ == Model::STANDARD2) {
+      option_names_ = {
+          {Option::BRIGHTNESS, "standard2/brightness"},
+          {Option::EXPOSURE_MODE, "standard2/exposure_mode"},
+          {Option::MAX_GAIN, "standard2/max_gain"},
+          {Option::MAX_EXPOSURE_TIME, "standard2/max_exposure_time"},
+          {Option::DESIRED_BRIGHTNESS, "standard2/desired_brightness"},
+          {Option::MIN_EXPOSURE_TIME, "standard2/min_exposure_time"},
+          {Option::ACCELEROMETER_RANGE, "standard2/accel_range"},
+          {Option::GYROSCOPE_RANGE, "standard2/gyro_range"},
+          {Option::ACCELEROMETER_LOW_PASS_FILTER, "standard2/accel_low_filter"},
+          {Option::GYROSCOPE_LOW_PASS_FILTER, "standard2/gyro_low_filter"}};
+    }
+    // device options of standard
+    if (model_ == Model::STANDARD) {
+      option_names_ = {
+          {Option::GAIN, "STANDARD/gain"},
+          {Option::BRIGHTNESS, "STANDARD/brightness"},
+          {Option::CONTRAST, "STANDARD/contrast"},
+          {Option::FRAME_RATE, "STANDARD/frame_rate"},
+          {Option::IMU_FREQUENCY, "STANDARD/imu_frequency"},
+          {Option::EXPOSURE_MODE, "STANDARD/exposure_mode"},
+          {Option::MAX_GAIN, "STANDARD/max_gain"},
+          {Option::MAX_EXPOSURE_TIME, "STANDARD/max_exposure_time"},
+          {Option::DESIRED_BRIGHTNESS, "STANDARD/desired_brightness"},
+          {Option::IR_CONTROL, "STANDARD/ir_control"},
+          {Option::HDR_MODE, "STANDARD/hdr_mode"},
+          {Option::ACCELEROMETER_RANGE, "STANDARD/accel_range"},
+          {Option::GYROSCOPE_RANGE, "STANDARD/gyro_range"}};
+    }
 
-    std::map<Option, std::string> option_names = {
-        {Option::BRIGHTNESS, "brightness"},
-        {Option::EXPOSURE_MODE, "exposure_mode"},
-        {Option::MAX_GAIN, "max_gain"},
-        {Option::MAX_EXPOSURE_TIME, "max_exposure_time"},
-        {Option::DESIRED_BRIGHTNESS, "desired_brightness"},
-        {Option::MIN_EXPOSURE_TIME, "min_exposure_time"},
-        {Option::ACCELEROMETER_RANGE, "accel_range"},
-        {Option::GYROSCOPE_RANGE, "gyro_range"},
-        {Option::ACCELEROMETER_LOW_PASS_FILTER, "accel_low_filter"},
-        {Option::GYROSCOPE_LOW_PASS_FILTER, "gyro_low_filter"}};
-    for (auto &&it = option_names.begin(); it != option_names.end(); ++it) {
+    for (auto &&it = option_names_.begin(); it != option_names_.end(); ++it) {
       if (!api_->Supports(it->first))
         continue;
       int value = -1;
@@ -264,22 +284,34 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       NODELET_INFO_STREAM("Advertized on topic " << topic);
     }
 
-    for (auto &&it = mono_topics.begin(); it != mono_topics.end(); ++it) {
-      auto &&topic = mono_topics[it->first];
-      if (it->first == Stream::LEFT || it->first == Stream::RIGHT) {  // camera
-        mono_publishers_[it->first] = it_mynteye.advertiseCamera(topic, 1);
+    // Only STANDARD2 need publish mono_topics
+    if (model_ == Model::STANDARD2) {
+      for (auto &&it = mono_topics.begin(); it != mono_topics.end(); ++it) {
+        auto &&topic = mono_topics[it->first];
+        if (it->first == Stream::LEFT || it->first == Stream::RIGHT) {
+          mono_publishers_[it->first] = it_mynteye.advertiseCamera(topic, 1);
+        }
+        NODELET_INFO_STREAM("Advertized on topic " << topic);
       }
-      NODELET_INFO_STREAM("Advertized on topic " << topic);
     }
-
-    camera_encodings_ = {{Stream::LEFT, enc::BGR8},
-                         {Stream::RIGHT, enc::BGR8},
-                         {Stream::LEFT_RECTIFIED, enc::BGR8},
-                         {Stream::RIGHT_RECTIFIED, enc::BGR8},
-                         {Stream::DISPARITY, enc::MONO8},  // float
-                         {Stream::DISPARITY_NORMALIZED, enc::MONO8},
-                         {Stream::DEPTH, enc::MONO16}};
-
+    if (model_ == Model::STANDARD2) {
+      camera_encodings_ = {{Stream::LEFT, enc::BGR8},
+                          {Stream::RIGHT, enc::BGR8},
+                          {Stream::LEFT_RECTIFIED, enc::BGR8},
+                          {Stream::RIGHT_RECTIFIED, enc::BGR8},
+                          {Stream::DISPARITY, enc::MONO8},  // float
+                          {Stream::DISPARITY_NORMALIZED, enc::MONO8},
+                          {Stream::DEPTH, enc::MONO16}};
+    }
+    if (model_ == Model::STANDARD) {
+      camera_encodings_ = {{Stream::LEFT, enc::MONO8},
+                          {Stream::RIGHT, enc::MONO8},
+                          {Stream::LEFT_RECTIFIED, enc::MONO8},
+                          {Stream::RIGHT_RECTIFIED, enc::MONO8},
+                          {Stream::DISPARITY, enc::MONO8},  // float
+                          {Stream::DISPARITY_NORMALIZED, enc::MONO8},
+                          {Stream::DEPTH, enc::MONO16}};
+    }
     pub_imu_ = nh_.advertise<sensor_msgs::Imu>(imu_topic, 100);
     NODELET_INFO_STREAM("Advertized on topic " << imu_topic);
 
@@ -443,29 +475,31 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         !is_published_[Stream::LEFT]) {
       api_->SetStreamCallback(
           Stream::LEFT, [this](const api::StreamData &data) {
-            // ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
-            ros::Time stamp = checkUpTimeStamp(
-                data.img->timestamp, Stream::LEFT);
-
-            // static double img_time_prev = -1;
-            // NODELET_INFO_STREAM("ros_time_beg: " << FULL_PRECISION <<
-            // ros_time_beg
-            //     << ", img_time_elapsed: " << FULL_PRECISION
-            //     << ((data.img->timestamp - img_time_beg) * 0.00001f)
-            //     << ", img_time_diff: " << FULL_PRECISION
-            //     << ((img_time_prev < 0) ? 0
-            //         : (data.img->timestamp - img_time_prev) * 0.01f) << "
-            //         ms");
-            // img_time_prev = data.img->timestamp;
-
             ++left_count_;
-            publishCamera(Stream::LEFT, data, left_count_, stamp);
-            publishMono(Stream::LEFT, data, left_count_, stamp);
-            NODELET_DEBUG_STREAM(
-                Stream::LEFT << ", count: " << left_count_
-                             << ", frame_id: " << data.img->frame_id
-                             << ", timestamp: " << data.img->timestamp
-                             << ", exposure_time: " << data.img->exposure_time);
+            if (left_count_ > 10) {
+              // ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
+              ros::Time stamp = checkUpTimeStamp(
+                  data.img->timestamp, Stream::LEFT);
+
+              // static double img_time_prev = -1;
+              // NODELET_INFO_STREAM("ros_time_beg: " << FULL_PRECISION <<
+              // ros_time_beg
+              //     << ", img_time_elapsed: " << FULL_PRECISION
+              //     << ((data.img->timestamp - img_time_beg) * 0.00001f)
+              //     << ", img_time_diff: " << FULL_PRECISION
+              //     << ((img_time_prev < 0) ? 0
+              //         : (data.img->timestamp - img_time_prev) * 0.01f) << "
+              //         ms");
+              // img_time_prev = data.img->timestamp;
+              publishCamera(Stream::LEFT, data, left_count_, stamp);
+              publishMono(Stream::LEFT, data, left_count_, stamp);
+              NODELET_DEBUG_STREAM(
+                  Stream::LEFT << ", count: " << left_count_
+                              << ", frame_id: " << data.img->frame_id
+                              << ", timestamp: " << data.img->timestamp
+                              << ", exposure_time: "
+                              << data.img->exposure_time);
+            }
           });
       left_time_beg_ = ros::Time::now().toSec();
       is_published_[Stream::LEFT] = true;
@@ -476,11 +510,11 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         !is_published_[Stream::RIGHT]) {
       api_->SetStreamCallback(
           Stream::RIGHT, [this](const api::StreamData &data) {
+            ++right_count_;
+            if (right_count_ > 10) {
             // ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
             ros::Time stamp = checkUpTimeStamp(
                 data.img->timestamp, Stream::RIGHT);
-
-            ++right_count_;
             publishCamera(Stream::RIGHT, data, right_count_, stamp);
             publishMono(Stream::RIGHT, data, right_count_, stamp);
             NODELET_DEBUG_STREAM(
@@ -488,6 +522,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                 << ", count: " << right_count_ << ", frame_id: "
                 << data.img->frame_id << ", timestamp: " << data.img->timestamp
                 << ", exposure_time: " << data.img->exposure_time);
+            }
           });
       right_time_beg_ = ros::Time::now().toSec();
       is_published_[Stream::RIGHT] = true;
@@ -518,38 +553,40 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       //     << ((imu_time_prev < 0) ? 0
       //         : (data.imu->timestamp - imu_time_prev) * 0.01f) << " ms");
       // imu_time_prev = data.imu->timestamp;
-
       ++imu_count_;
-      if (publish_imu_by_sync_) {
-        if (data.imu) {
-          if (data.imu->flag == 1) {  // accelerometer
-            imu_accel_ = data.imu;
-            publishImuBySync(stamp);
-          } else if (data.imu->flag == 2) {  // gyroscope
-            imu_gyro_ = data.imu;
-            publishImuBySync(stamp);
+      if (imu_count_ > 50) {
+        if (publish_imu_by_sync_) {
+          if (data.imu) {
+            if (data.imu->flag == 1) {  // accelerometer
+              imu_accel_ = data.imu;
+              publishImuBySync(stamp);
+            } else if (data.imu->flag == 2) {  // gyroscope
+              imu_gyro_ = data.imu;
+              publishImuBySync(stamp);
+            } else {
+              publishImu(data, imu_count_, stamp);
+              publishTemp(data.imu->temperature, imu_count_, stamp);
+            }
           } else {
-            publishImu(data, imu_count_, stamp);
-            publishTemp(data.imu->temperature, imu_count_, stamp);
+            NODELET_WARN_STREAM("Motion data is empty");
           }
         } else {
-          NODELET_WARN_STREAM("Motion data is empty");
+          publishImu(data, imu_count_, stamp);
+          publishTemp(data.imu->temperature, imu_count_, stamp);
         }
-      } else {
-        publishImu(data, imu_count_, stamp);
-        publishTemp(data.imu->temperature, imu_count_, stamp);
+        NODELET_DEBUG_STREAM(
+            "Imu count: " << imu_count_
+                          << ", timestamp: " << data.imu->timestamp
+                          << ", accel_x: " << data.imu->accel[0]
+                          << ", accel_y: " << data.imu->accel[1]
+                          << ", accel_z: " << data.imu->accel[2]
+                          << ", gyro_x: " << data.imu->gyro[0]
+                          << ", gyro_y: " << data.imu->gyro[1]
+                          << ", gyro_z: " << data.imu->gyro[2]
+                          << ", temperature: " << data.imu->temperature);
+        // Sleep 1ms, otherwise publish may drop some datas.
+        ros::Duration(0.001).sleep();
       }
-      NODELET_DEBUG_STREAM(
-          "Imu count: " << imu_count_ << ", timestamp: " << data.imu->timestamp
-                        << ", accel_x: " << data.imu->accel[0]
-                        << ", accel_y: " << data.imu->accel[1]
-                        << ", accel_z: " << data.imu->accel[2]
-                        << ", gyro_x: " << data.imu->gyro[0]
-                        << ", gyro_y: " << data.imu->gyro[1]
-                        << ", gyro_z: " << data.imu->gyro[2]
-                        << ", temperature: " << data.imu->temperature);
-      // Sleep 1ms, otherwise publish may drop some datas.
-      ros::Duration(0.001).sleep();
       });
       imu_time_beg_ = ros::Time::now().toSec();
       is_motion_published_ = true;
@@ -789,7 +826,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
  private:
-  void initDevice(int request_index) {
+  void initDevice() {
     NODELET_INFO_STREAM("Detecting MYNT EYE devices");
 
     Context context;
@@ -827,6 +864,11 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     api_ = API::Create(device);
     auto &&requests = device->GetStreamRequests();
     std::size_t m = requests.size();
+    int request_index = 0;
+
+    model_ = api_->GetModel();
+    if (model_ == Model::STANDARD2)
+      private_nh_.getParam("request_index", request_index);
 
     NODELET_FATAL_COND(m <= 0, "No MYNT EYE devices :(");
     if (m <= 1) {
@@ -837,7 +879,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         NODELET_WARN_STREAM("Resquest_index out of range");
         api_->ConfigStreamRequest(requests[0]);
       } else {
-        NODELET_WARN_STREAM("request_index: " << request_index);
         api_->ConfigStreamRequest(requests[request_index]);
       }
     }
@@ -1096,6 +1137,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;
 
+  Model model_;
+  std::map<Option, std::string> option_names_;
   // camera:
   //   LEFT, RIGHT, LEFT_RECTIFIED, RIGHT_RECTIFIED,
   //   DISPARITY, DISPARITY_NORMALIZED,
