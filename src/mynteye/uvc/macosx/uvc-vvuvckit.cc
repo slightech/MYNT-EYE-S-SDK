@@ -284,10 +284,6 @@ MYNTEYE_API std::vector<std::shared_ptr<device>> query_devices(
   auto camerasConfig = findDevicesConfig();
   printConfig(camerasConfig);
   for (unsigned int i = 0; i < camerasConfig.size(); i++) {
-    // if (strcmp(fstr[camerasConfig[i].cam_format], "yuyv") == 0) {
-    //   printf("change fomat to buf_format 2\n");
-    //   camerasConfig[i].buf_format = 2;
-    // }
     auto dev = std::make_shared<device>(context, camerasConfig[i]);
     devices.push_back(dev);
   }

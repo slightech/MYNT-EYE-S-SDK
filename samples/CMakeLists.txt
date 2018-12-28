@@ -63,22 +63,24 @@ endif()
 
 set(OUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_output")
 
-# samples above api layer
-
-if(WITH_API)
-  add_subdirectory(api)
-endif()
-
-# samples above device layer
-
-add_subdirectory(device)
-
+if(OS_MAC)
 # samples above uvc layer
 
-#add_subdirectory(uvc)
+  add_subdirectory(uvc)
+else()
+  # samples above device layer
 
-# tutorials
+  add_subdirectory(device)
 
-if(WITH_API)
-  add_subdirectory(tutorials)
+  # tutorials
+
+  if(WITH_API)
+    add_subdirectory(tutorials)
+  endif()
+
+  # samples above api layer
+
+  if(WITH_API)
+    add_subdirectory(api)
+  endif()
 endif()
