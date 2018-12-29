@@ -129,11 +129,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     if (is_overflow(_hard_time, hard_time_now[stream])) {
       acc[stream]++;
-    } else if (is_repeated(_hard_time, hard_time_now[stream])) {
-      NODELET_INFO_STREAM("WARNING:: Image time stamp is repeated.");
-    } else if (is_annormal(_hard_time, hard_time_now[stream])) {
-      NODELET_INFO_STREAM("WARNING:: Image time stamp is annormal.");
     }
+
     hard_time_now[stream] = _hard_time;
 
     return hardTimeToSoftTime(
@@ -147,11 +144,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     if (is_overflow(_hard_time, hard_time_now)) {
       acc++;
-    } else if (is_repeated(_hard_time, hard_time_now)) {
-      NODELET_INFO_STREAM("WARNING:: Imu time stamp is repeated.");
-    } else if (is_annormal(_hard_time, hard_time_now)) {
-      NODELET_INFO_STREAM("WARNING:: Imu time stamp is annormal.");
     }
+
     hard_time_now = _hard_time;
 
     return hardTimeToSoftTime(
