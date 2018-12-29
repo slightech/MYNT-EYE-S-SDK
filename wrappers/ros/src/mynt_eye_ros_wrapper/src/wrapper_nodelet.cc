@@ -51,7 +51,6 @@ inline double compute_time(const double end, const double start) {
 class ROSWrapperNodelet : public nodelet::Nodelet {
  public:
     ROSWrapperNodelet() {
-      pthread_mutex_init(&mutex_data, nullptr);
     }
 
   ~ROSWrapperNodelet() {
@@ -156,6 +155,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     initDevice();
     NODELET_FATAL_COND(api_ == nullptr, "No MYNT EYE device selected :(");
 
+    pthread_mutex_init(&mutex_data_, nullptr);
     nh_ = getMTNodeHandle();
     private_nh_ = getMTPrivateNodeHandle();
 
@@ -528,14 +528,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     header.seq = seq;
     header.stamp = stamp;
     header.frame_id = frame_ids_[stream];
-    pthread_mutex_lock(&mutex_data);
+    pthread_mutex_lock(&mutex_data_);
     cv::Mat img = data.frame;
     if (stream == Stream::DISPARITY) {  // 32FC1 > 8UC1 = MONO8
       img.convertTo(img, CV_8UC1);
     }
     auto &&msg =
         cv_bridge::CvImage(header, camera_encodings_[stream], img).toImageMsg();
-    pthread_mutex_unlock(&mutex_data);
+    pthread_mutex_unlock(&mutex_data_);
     auto &&info = getCameraInfo(stream);
     info->header.stamp = msg->header.stamp;
     camera_publishers_[stream].publish(msg, info);
@@ -970,7 +970,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;
 
-  pthread_mutex_t mutex_data;
+  pthread_mutex_t mutex_data_;
 
   // camera:
   //   LEFT, RIGHT, LEFT_RECTIFIED, RIGHT_RECTIFIED,
