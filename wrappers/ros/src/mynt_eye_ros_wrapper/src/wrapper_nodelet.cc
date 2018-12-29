@@ -112,7 +112,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     return now == pre;
   }
 
-  inline bool is_annormal(std::uint32_t now,
+  inline bool is_abnormal(std::uint32_t now,
       std::uint32_t pre) {
     static std::uint64_t unit =
       std::numeric_limits<std::uint32_t>::max();
