@@ -439,9 +439,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
             // img_time_prev = data.img->timestamp;
 
             ++left_count_;
-            pthread_mutex_lock(&mutex_data);
             publishCamera(Stream::LEFT, data, left_count_, stamp);
-            pthread_mutex_unlock(&mutex_data);
             NODELET_DEBUG_STREAM(
                 Stream::LEFT << ", count: " << left_count_
                              << ", frame_id: " << data.img->frame_id
@@ -461,9 +459,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                 data.img->timestamp, Stream::RIGHT);
 
             ++right_count_;
-            pthread_mutex_lock(&mutex_data);
             publishCamera(Stream::RIGHT, data, right_count_, stamp);
-            pthread_mutex_unlock(&mutex_data);
             NODELET_DEBUG_STREAM(
                 Stream::RIGHT
                 << ", count: " << right_count_ << ", frame_id: "
@@ -538,12 +534,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     header.seq = seq;
     header.stamp = stamp;
     header.frame_id = frame_ids_[stream];
+    pthread_mutex_lock(&mutex_data);
     cv::Mat img = data.frame;
     if (stream == Stream::DISPARITY) {  // 32FC1 > 8UC1 = MONO8
       img.convertTo(img, CV_8UC1);
     }
     auto &&msg =
         cv_bridge::CvImage(header, camera_encodings_[stream], img).toImageMsg();
+    pthread_mutex_unlock(&mutex_data);
     auto &&info = getCameraInfo(stream);
     info->header.stamp = msg->header.stamp;
     camera_publishers_[stream].publish(msg, info);
