@@ -29,7 +29,7 @@ Please follow the guide doc to install the SDK on different platforms.
 
 [MYNTEYE_BOX]: http://doc.myntai.com/mynteye/s/download
 
-Get firmwares from our online disks: [MYNTEYE_BOX][]. The latest version is `2.2.3`.
+Get firmwares from our online disks: [MYNTEYE_BOX][].
 
 ## Usage
 
