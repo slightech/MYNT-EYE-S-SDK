@@ -50,7 +50,9 @@ inline double compute_time(const double end, const double start) {
 
 class ROSWrapperNodelet : public nodelet::Nodelet {
  public:
-  ROSWrapperNodelet() {}
+  ROSWrapperNodelet() {
+    pthread_mutex_init(&mutex_data, nullptr);
+  }
 
   ~ROSWrapperNodelet() {
     // std::cout << __func__ << std::endl;
@@ -474,7 +476,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         mono_publishers_[Stream::LEFT].getNumSubscribers() > 0) &&
         !is_published_[Stream::LEFT]) {
       api_->SetStreamCallback(
-          Stream::LEFT, [this](const api::StreamData &data) {
+          Stream::LEFT, [&](const api::StreamData &data) {
             ++left_count_;
             if (left_count_ > 10) {
               // ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
@@ -491,7 +493,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
               //         : (data.img->timestamp - img_time_prev) * 0.01f) << "
               //         ms");
               // img_time_prev = data.img->timestamp;
+              pthread_mutex_lock(&mutex_data);
               publishCamera(Stream::LEFT, data, left_count_, stamp);
+              pthread_mutex_unlock(&mutex_data);
               publishMono(Stream::LEFT, data, left_count_, stamp);
               NODELET_DEBUG_STREAM(
                   Stream::LEFT << ", count: " << left_count_
@@ -509,13 +513,15 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         mono_publishers_[Stream::RIGHT].getNumSubscribers() > 0) &&
         !is_published_[Stream::RIGHT]) {
       api_->SetStreamCallback(
-          Stream::RIGHT, [this](const api::StreamData &data) {
+          Stream::RIGHT, [&](const api::StreamData &data) {
             ++right_count_;
             if (right_count_ > 10) {
             // ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
             ros::Time stamp = checkUpTimeStamp(
                 data.img->timestamp, Stream::RIGHT);
+            pthread_mutex_lock(&mutex_data);
             publishCamera(Stream::RIGHT, data, right_count_, stamp);
+            pthread_mutex_unlock(&mutex_data);
             publishMono(Stream::RIGHT, data, right_count_, stamp);
             NODELET_DEBUG_STREAM(
                 Stream::RIGHT
@@ -1158,6 +1164,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;
+
+  pthread_mutex_t mutex_data;
 
   Model model_;
   std::map<Option, std::string> option_names_;

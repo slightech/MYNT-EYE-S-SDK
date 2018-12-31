@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.0)
 
-project(mynteye VERSION 2.2.3 LANGUAGES C CXX)
+project(mynteye VERSION 2.2.4 LANGUAGES C CXX)
 
 include(cmake/Common.cmake)
 
@@ -153,7 +153,7 @@ elseif(OS_MAC)
   SET(OSX_EXTRA_LIBS ${VVUVCKIT_LIBRARY} ${USB_LIBRARY})
 
   set(UVC_SRC src/mynteye/uvc/macosx/CameraEngine.cpp src/mynteye/uvc/macosx/AVfoundationCamera.mm src/mynteye/uvc/macosx/uvc-vvuvckit.cc )
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework CoreFoundation -framework AVFoundation -framework IOKit -framework AppKit -framework Cocoa -framework CoreMedia -framework CoreData -framework Foundation -framework CoreVideo ${__MACUVCLOG_FLAGS}") 
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework CoreFoundation -framework AVFoundation -framework IOKit -framework AppKit -framework Cocoa -framework CoreMedia -framework CoreData -framework Foundation -framework CoreVideo ${__MACUVCLOG_FLAGS}")
 elseif(OS_LINUX)
   set(UVC_SRC src/mynteye/uvc/linux/uvc-v4l2.cc)
 else()
