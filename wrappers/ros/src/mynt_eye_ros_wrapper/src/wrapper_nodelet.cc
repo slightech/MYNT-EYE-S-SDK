@@ -51,7 +51,6 @@ inline double compute_time(const double end, const double start) {
 class ROSWrapperNodelet : public nodelet::Nodelet {
  public:
   ROSWrapperNodelet() {
-    pthread_mutex_init(&mutex_data, nullptr);
   }
 
   ~ROSWrapperNodelet() {
@@ -119,8 +118,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     return now == pre;
   }
 
-  inline bool is_annormal(std::uint64_t now,
-      std::uint64_t pre) {
+  inline bool is_abnormal(std::uint32_t now,
+      std::uint32_t pre) {
     static std::uint64_t unit =
       std::numeric_limits<std::uint32_t>::max();
 
@@ -136,11 +135,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     if (is_overflow(_hard_time, hard_time_now[stream])) {
       acc[stream]++;
-    } else if (is_repeated(_hard_time, hard_time_now[stream])) {
-      NODELET_INFO_STREAM("WARNING:: Image time stamp is repeated.");
-    } else if (is_annormal(_hard_time, hard_time_now[stream])) {
-      NODELET_INFO_STREAM("WARNING:: Image time stamp is annormal.");
     }
+
     hard_time_now[stream] = _hard_time;
 
     return hardTimeToSoftTime(
@@ -155,13 +151,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     if (is_overflow(_hard_time, hard_time_now)) {
       acc++;
     }
-    /*
-    else if (is_repeated(_hard_time, hard_time_now)) {
-      NODELET_INFO_STREAM("WARNING:: Imu time stamp is repeated.");
-    } else if (is_annormal(_hard_time, hard_time_now)) {
-      NODELET_INFO_STREAM("WARNING:: Imu time stamp is annormal.");
-    }
-    */
+
     hard_time_now = _hard_time;
 
     return hardTimeToSoftTime(
@@ -174,6 +164,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     initDevice();
     NODELET_FATAL_COND(api_ == nullptr, "No MYNT EYE device selected :(");
+
+    pthread_mutex_init(&mutex_data_, nullptr);
 
     // node params
 
@@ -493,16 +485,13 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
               //         : (data.img->timestamp - img_time_prev) * 0.01f) << "
               //         ms");
               // img_time_prev = data.img->timestamp;
-              pthread_mutex_lock(&mutex_data);
               publishCamera(Stream::LEFT, data, left_count_, stamp);
-              pthread_mutex_unlock(&mutex_data);
               publishMono(Stream::LEFT, data, left_count_, stamp);
               NODELET_DEBUG_STREAM(
                   Stream::LEFT << ", count: " << left_count_
-                              << ", frame_id: " << data.img->frame_id
-                              << ", timestamp: " << data.img->timestamp
-                              << ", exposure_time: "
-                              << data.img->exposure_time);
+                      << ", frame_id: " << data.img->frame_id
+                      << ", timestamp: " << data.img->timestamp
+                      << ", exposure_time: " << data.img->exposure_time);
             }
           });
       left_time_beg_ = ros::Time::now().toSec();
@@ -516,18 +505,16 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           Stream::RIGHT, [&](const api::StreamData &data) {
             ++right_count_;
             if (right_count_ > 10) {
-            // ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
-            ros::Time stamp = checkUpTimeStamp(
-                data.img->timestamp, Stream::RIGHT);
-            pthread_mutex_lock(&mutex_data);
-            publishCamera(Stream::RIGHT, data, right_count_, stamp);
-            pthread_mutex_unlock(&mutex_data);
-            publishMono(Stream::RIGHT, data, right_count_, stamp);
-            NODELET_DEBUG_STREAM(
-                Stream::RIGHT
-                << ", count: " << right_count_ << ", frame_id: "
-                << data.img->frame_id << ", timestamp: " << data.img->timestamp
-                << ", exposure_time: " << data.img->exposure_time);
+              // ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
+              ros::Time stamp = checkUpTimeStamp(
+                  data.img->timestamp, Stream::RIGHT);
+              publishCamera(Stream::RIGHT, data, right_count_, stamp);
+              publishMono(Stream::RIGHT, data, right_count_, stamp);
+              NODELET_DEBUG_STREAM(
+                  Stream::RIGHT << ", count: " << right_count_
+                      << ", frame_id: " << data.img->frame_id
+                      << ", timestamp: " << data.img->timestamp
+                      << ", exposure_time: " << data.img->exposure_time);
             }
           });
       right_time_beg_ = ros::Time::now().toSec();
@@ -614,12 +601,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     header.seq = seq;
     header.stamp = stamp;
     header.frame_id = frame_ids_[stream];
+    pthread_mutex_lock(&mutex_data_);
     cv::Mat img = data.frame;
     if (stream == Stream::DISPARITY) {  // 32FC1 > 8UC1 = MONO8
       img.convertTo(img, CV_8UC1);
     }
     auto &&msg =
         cv_bridge::CvImage(header, camera_encodings_[stream], img).toImageMsg();
+    pthread_mutex_unlock(&mutex_data_);
     auto &&info = getCameraInfo(stream);
     info->header.stamp = msg->header.stamp;
     camera_publishers_[stream].publish(msg, info);
@@ -1165,7 +1154,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;
 
-  pthread_mutex_t mutex_data;
+  pthread_mutex_t mutex_data_;
 
   Model model_;
   std::map<Option, std::string> option_names_;
