@@ -37,22 +37,24 @@
 
   <!-- Request index -->
 
-  <!-- MYNTEYE-S210A, Reslution: 1280x400, Format: BGR888, Fps: 10 -->
-  <arg name="index_s210a_0"   default="0" />
-  <!-- MYNTEYE-S210A, Reslution: 1280x400, Format: BGR888, Fps: 20 -->
-  <arg name="index_s210a_1"   default="1" />
-  <!-- MYNTEYE-S210A, Reslution: 1280x400, Format: BGR888, Fps: 30 -->
-  <arg name="index_s210a_2"   default="2" />
-  <!-- MYNTEYE-S210A, Reslution: 1280x400, Format: BGR888, Fps: 60 -->
-  <arg name="index_s210a_3"   default="3" />
-  <!-- MYNTEYE-S210A, Reslution: 2560x800, Format: BGR888, Fps: 10 -->
-  <arg name="index_s210a_4"   default="4" />
-  <!-- MYNTEYE-S210A, Reslution: 2560x800, Format: BGR888, Fps: 20 -->
-  <arg name="index_s210a_5"   default="5" />
-  <!-- MYNTEYE-S210A, Reslution: 2560x800, Format: BGR888, Fps: 30 -->
-  <arg name="index_s210a_6"   default="6" />
+  <!-- Attention:The format of MYNTEYE-S2100/S2000 is YUYV.S210A's format is BGR888 -->
 
-  <arg name="request_index" default="$(arg index_s210a_2)" />
+  <!-- MYNTEYE-S2100/S2000/S210A, Reslution: 1280x400, Format: YUYV/BGR888, Fps: 10 -->
+  <arg name="index_s2_0"   default="0" />
+  <!-- MYNTEYE-S2100/S2000/S210A, Reslution: 1280x400, Format: YUYV/BGR888, Fps: 20 -->
+  <arg name="index_s2_1"   default="1" />
+  <!-- MYNTEYE-S2100/S2000/S210A, Reslution: 1280x400, Format: YUYV/BGR888, Fps: 30 -->
+  <arg name="index_s2_2"   default="2" />
+  <!-- MYNTEYE-S2100/S2000/S210A, Reslution: 1280x400, Format: YUYV/BGR888, Fps: 60 -->
+  <arg name="index_s2_3"   default="3" />
+  <!-- MYNTEYE-S2100/S2000/S210A, Reslution: 2560x800, Format: YUYV/BGR888, Fps: 10 -->
+  <arg name="index_s2_4"   default="4" />
+  <!-- MYNTEYE-S2100/S2000/S210A, Reslution: 2560x800, Format: YUYV/BGR888, Fps: 20 -->
+  <arg name="index_s2_5"   default="5" />
+  <!-- MYNTEYE-S2100/S2000/S210A, Reslution: 2560x800, Format: YUYV/BGR888, Fps: 30 -->
+  <arg name="index_s2_6"   default="6" />
+
+  <arg name="request_index" default="$(arg index_s2_2)" />
 
   <arg name="enable_left_rect" default="false" />
   <arg name="enable_right_rect" default="false" />
@@ -141,6 +143,10 @@
   <arg name="standard2/min_exposure_time" default="-1" />
   <!-- <arg name="standard2/min_exposure_time" default="0" /> -->
 
+  <!-- standard2/ir_control range: [0,160] -->
+  <arg name="standard2/ir_control" default="80" />
+  <!-- <arg name="standard2/ir_control" default="0" /> -->
+
   <!-- standard2/accel_range range: [6,48] -->
   <arg name="standard2/accel_range" default="-1" />
   <!-- <arg name="standard2/accel_range" default="6" /> -->
@@ -156,6 +162,48 @@
   <!-- standard2/gyro_low_filter range: [23,64] -->
   <arg name="standard2/gyro_low_filter" default="-1" />
   <!-- <arg name="standard2/gyro_low_filter" default="64" /> -->
+
+  <!-- device options of standard210a, -1 will not set the value -->
+
+  <!-- standard210a/brightness range: [0,240] -->
+  <arg name="standard210a/brightness" default="-1" />
+  <!-- <arg name="standard210a/brightness" default="120" /> -->
+
+  <!-- standard210a/exposure_mode, 0: auto-exposure, 1: manual-exposure -->
+  <arg name="standard210a/exposure_mode" default="-1" />
+  <!-- <arg name="standard210a/exposure_mode" default="0" /> -->
+
+  <!-- standard210a/max_gain range: [0,255] -->
+  <arg name="standard210a/max_gain" default="-1" />
+  <!-- <arg name="standard210a/max_gain" default="8" /> -->
+
+  <!-- standard210a/max_exposure_time range: [0,1000] -->
+  <arg name="standard210a/max_exposure_time" default="-1" />
+  <!-- <arg name="standard210a/max_exposure_time" default="333" /> -->
+
+  <!-- standard210a/desired_brightness range: [1,255] -->
+  <arg name="standard210a/desired_brightness" default="-1" />
+  <!-- <arg name="standard210a/desired_brightness" default="122" /> -->
+
+  <!-- standard210a/min_exposure_time range: [0,1000] -->
+  <arg name="standard210a/min_exposure_time" default="-1" />
+  <!-- <arg name="standard210a/min_exposure_time" default="0" /> -->
+
+  <!-- standard210a/accel_range range: [6,48] -->
+  <arg name="standard210a/accel_range" default="-1" />
+  <!-- <arg name="standard210a/accel_range" default="6" /> -->
+
+  <!-- standard210a/gyro_range range: [250,4000] -->
+  <arg name="standard210a/gyro_range" default="-1" />
+  <!-- <arg name="standard210a/gyro_range" default="1000" /> -->
+
+  <!-- standard210a/accel_low_filter range: [0,2] -->
+  <arg name="standard210a/accel_low_filter" default="-1" />
+  <!-- <arg name="standard210a/accel_low_filter" default="2" /> -->
+
+  <!-- standard210a/gyro_low_filter range: [23,64] -->
+  <arg name="standard210a/gyro_low_filter" default="-1" />
+  <!-- <arg name="standard210a/gyro_low_filter" default="64" /> -->
 
   <!-- Push down all topics/nodelets into "mynteye" namespace -->
   <group ns="$(arg mynteye)">

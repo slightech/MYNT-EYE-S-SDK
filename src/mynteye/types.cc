@@ -30,6 +30,7 @@ const char *to_string(const Model &value) {
   switch (value) {
     CASE(STANDARD)
     CASE(STANDARD2)
+    CASE(STANDARD210A)
     default:
       CHECK(is_valid(value));
       return "Model::UNKNOWN";

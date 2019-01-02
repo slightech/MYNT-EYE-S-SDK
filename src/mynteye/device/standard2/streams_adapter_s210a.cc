@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "mynteye/device/standard2/streams_adapter_s2.h"
+#include "mynteye/device/standard2/streams_adapter_s210a.h"
 
 #include <iomanip>
 
@@ -61,15 +61,20 @@ struct ImagePacket {
 bool unpack_left_img_pixels(
     const void *data, const StreamRequest &request, Streams::frame_t *frame) {
   CHECK_NOTNULL(frame);
-  CHECK_EQ(request.format, Format::YUYV);
-  CHECK_EQ(frame->format(), Format::YUYV);
+  CHECK_EQ(request.format, Format::BGR888);
+  CHECK_EQ(frame->format(), Format::BGR888);
   auto data_new = reinterpret_cast<const std::uint8_t *>(data);
-  std::size_t n = 2;
-  std::size_t w = frame->width() * n;
+  std::size_t n = 3;
+  std::size_t w = frame->width();
   std::size_t h = frame->height();
   for (std::size_t i = 0; i < h; i++) {
     for (std::size_t j = 0; j < w; j++) {
-      frame->data()[i * w + j] = *(data_new + 2 * i * w + j);
+      frame->data()[(i * w + j) * n] =
+        *(data_new + (2 * i * w + j) * n + 2);
+      frame->data()[(i * w + j) * n + 1] =
+        *(data_new + (2 * i * w + j) * n + 1);
+      frame->data()[(i * w + j) * n + 2] =
+        *(data_new + (2 * i * w + j) * n);
     }
   }
   return true;
@@ -78,15 +83,20 @@ bool unpack_left_img_pixels(
 bool unpack_right_img_pixels(
     const void *data, const StreamRequest &request, Streams::frame_t *frame) {
   CHECK_NOTNULL(frame);
-  CHECK_EQ(request.format, Format::YUYV);
-  CHECK_EQ(frame->format(), Format::YUYV);
+  CHECK_EQ(request.format, Format::BGR888);
+  CHECK_EQ(frame->format(), Format::BGR888);
   auto data_new = reinterpret_cast<const std::uint8_t *>(data);
-  std::size_t n = 2;
-  std::size_t w = frame->width() * n;
+  std::size_t n = 3;
+  std::size_t w = frame->width();
   std::size_t h = frame->height();
   for (std::size_t i = 0; i < h; i++) {
     for (std::size_t j = 0; j < w; j++) {
-      frame->data()[i * w + j] = *(data_new + (2 * i + 1) * w + j);
+      frame->data()[(i * w + j) * n] =
+        *(data_new + ((2 * i + 1) * w + j) * n + 2);
+      frame->data()[(i * w + j) * n + 1] =
+        *(data_new + ((2 * i + 1) * w + j) * n + 1);
+      frame->data()[(i * w + j) * n + 2] =
+        *(data_new + ((2 * i + 1) * w + j) * n);
     }
   }
   return true;
@@ -143,22 +153,22 @@ bool unpack_stereo_img_data(
 
 }  // namespace
 
-Standard2StreamsAdapter::Standard2StreamsAdapter() {
+Standard210aStreamsAdapter::Standard210aStreamsAdapter() {
 }
 
-Standard2StreamsAdapter::~Standard2StreamsAdapter() {
+Standard210aStreamsAdapter::~Standard210aStreamsAdapter() {
 }
 
-std::vector<Stream> Standard2StreamsAdapter::GetKeyStreams() {
+std::vector<Stream> Standard210aStreamsAdapter::GetKeyStreams() {
   return {Stream::LEFT, Stream::RIGHT};
 }
 
-std::vector<Capabilities> Standard2StreamsAdapter::GetStreamCapabilities() {
+std::vector<Capabilities> Standard210aStreamsAdapter::GetStreamCapabilities() {
   return {Capabilities::STEREO_COLOR};
 }
 
 std::map<Stream, Streams::unpack_img_data_t>
-Standard2StreamsAdapter::GetUnpackImgDataMap() {
+Standard210aStreamsAdapter::GetUnpackImgDataMap() {
   return {
     {Stream::LEFT, unpack_stereo_img_data},
     {Stream::RIGHT, unpack_stereo_img_data}
@@ -166,7 +176,7 @@ Standard2StreamsAdapter::GetUnpackImgDataMap() {
 }
 
 std::map<Stream, Streams::unpack_img_pixels_t>
-Standard2StreamsAdapter::GetUnpackImgPixelsMap() {
+Standard210aStreamsAdapter::GetUnpackImgPixelsMap() {
   return {
     {Stream::LEFT, unpack_left_img_pixels},
     {Stream::RIGHT, unpack_right_img_pixels}

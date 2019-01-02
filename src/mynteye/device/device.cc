@@ -26,6 +26,7 @@
 #include "mynteye/device/motions.h"
 #include "mynteye/device/standard/device_s.h"
 #include "mynteye/device/standard2/device_s2.h"
+#include "mynteye/device/standard2/device_s210a.h"
 #include "mynteye/device/streams.h"
 #include "mynteye/device/types.h"
 #include "mynteye/util/strings.h"
@@ -108,13 +109,18 @@ std::shared_ptr<Device> Device::Create(
     VLOG(2) << "MYNE EYE Model: " << model_s;
     DeviceModel model(model_s);
     if (model.type == 'S') {
-      switch (model.generation) {
-        case '1':
-          return std::make_shared<StandardDevice>(device);
-        case '2':
+      if (model.generation == '1') {
+        return std::make_shared<StandardDevice>(device);
+      } else if (model.generation == '2') {
+        if (model.custom_code == '0') {
           return std::make_shared<Standard2Device>(device);
-        default:
-          LOG(FATAL) << "No such generation now";
+        } else if (model.custom_code == 'A') {
+          return std::make_shared<Standard210aDevice>(device);
+        } else {
+          LOG(FATAL) << "No such custom code now";
+        }
+      } else {
+        LOG(FATAL) << "No such generation now";
       }
     } else {
       LOG(FATAL) << "MYNT EYE model is not supported now";

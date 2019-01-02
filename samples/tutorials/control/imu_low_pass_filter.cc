@@ -38,8 +38,8 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-  // Set imu low pass filter for s210a
-  if (model == Model::STANDARD2) {
+  // Set imu low pass filter for S2000/S2100/S210A
+  if (model == Model::STANDARD2 || model == Model::STANDARD210A) {
     // ACCELEROMETER_RANGE values: 0, 1, 2
     api->SetOptionValue(Option::ACCELEROMETER_LOW_PASS_FILTER, 2);
     // GYROSCOPE_RANGE values: 23, 64

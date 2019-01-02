@@ -58,8 +58,8 @@ int main(int argc, char *argv[]) {
               << api->GetOptionValue(Option::DESIRED_BRIGHTNESS);
   }
 
-  // Set auto exposure options fo s210a or s2000
-  if (model == Model::STANDARD2) {
+  // Set auto exposure options fo S2000/S2100/S210A
+  if (model == Model::STANDARD2 || model == Model::STANDARD210A) {
     // auto-exposure: 0
     api->SetOptionValue(Option::EXPOSURE_MODE, 0);
 

@@ -29,8 +29,7 @@ int main(int argc, char *argv[]) {
 
   Model model = api->GetModel();
 
-  // Set ir low pass filter for s210a
-  if (model == Model::STANDARD) {
+  if (model == Model::STANDARD || model == Model::STANDARD2) {
     // ir control: range [0,160], default 0
     api->SetOptionValue(Option::IR_CONTROL, 80);
 
@@ -39,7 +38,7 @@ int main(int argc, char *argv[]) {
   }
 
   // MYNTEYE-S210A don't support this option
-  if (model == Model::STANDARD2) {
+  if (model == Model::STANDARD210A) {
     LOG(INFO) << "Sorry,MYNTEYE-S210A don't support ir control";
     return 0;
   }

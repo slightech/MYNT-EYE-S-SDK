@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
 
   Model model = api->GetModel();
 
-  // Set imu range for s1030
+  // Set imu range for S1030
   if (model == Model::STANDARD) {
     // ACCELEROMETER_RANGE values: 4, 8, 16, 32
     api->SetOptionValue(Option::ACCELEROMETER_RANGE, 8);
@@ -40,8 +40,8 @@ int main(int argc, char *argv[]) {
     api->SetOptionValue(Option::GYROSCOPE_RANGE, 1000);
   }
 
-  // Set imu range for s210a
-  if (model == Model::STANDARD2) {
+  // Set imu range for S2000/S2100/S210A
+  if (model == Model::STANDARD2 || model == Model::STANDARD210A) {
     // ACCELEROMETER_RANGE values: 6, 12, 24, 32
     api->SetOptionValue(Option::ACCELEROMETER_RANGE, 6);
     // GYROSCOPE_RANGE values: 250, 500, 1000, 2000, 4000

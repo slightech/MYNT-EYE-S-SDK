@@ -220,6 +220,22 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     gravity_ = 9.8;
     private_nh_.getParam("gravity", gravity_);
 
+    // device options of standard210a
+    if (model_ == Model::STANDARD210A) {
+      option_names_ = {
+          {Option::BRIGHTNESS, "standard210a/brightness"},
+          {Option::EXPOSURE_MODE, "standard210a/exposure_mode"},
+          {Option::MAX_GAIN, "standard210a/max_gain"},
+          {Option::MAX_EXPOSURE_TIME, "standard210a/max_exposure_time"},
+          {Option::DESIRED_BRIGHTNESS, "standard210a/desired_brightness"},
+          {Option::MIN_EXPOSURE_TIME, "standard210a/min_exposure_time"},
+          {Option::ACCELEROMETER_RANGE, "standard210a/accel_range"},
+          {Option::GYROSCOPE_RANGE, "standard210a/gyro_range"},
+          {Option::ACCELEROMETER_LOW_PASS_FILTER,
+                  "standard210a/accel_low_filter"},
+          {Option::GYROSCOPE_LOW_PASS_FILTER, "standard210a/gyro_low_filter"}};
+    }
+
     // device options of standard2
     if (model_ == Model::STANDARD2) {
       option_names_ = {
@@ -229,6 +245,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           {Option::MAX_EXPOSURE_TIME, "standard2/max_exposure_time"},
           {Option::DESIRED_BRIGHTNESS, "standard2/desired_brightness"},
           {Option::MIN_EXPOSURE_TIME, "standard2/min_exposure_time"},
+          {Option::IR_CONTROL, "STANDARD/ir_control"},
           {Option::ACCELEROMETER_RANGE, "standard2/accel_range"},
           {Option::GYROSCOPE_RANGE, "standard2/gyro_range"},
           {Option::ACCELEROMETER_LOW_PASS_FILTER, "standard2/accel_low_filter"},
@@ -237,19 +254,19 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     // device options of standard
     if (model_ == Model::STANDARD) {
       option_names_ = {
-          {Option::GAIN, "STANDARD/gain"},
-          {Option::BRIGHTNESS, "STANDARD/brightness"},
-          {Option::CONTRAST, "STANDARD/contrast"},
-          {Option::FRAME_RATE, "STANDARD/frame_rate"},
-          {Option::IMU_FREQUENCY, "STANDARD/imu_frequency"},
-          {Option::EXPOSURE_MODE, "STANDARD/exposure_mode"},
-          {Option::MAX_GAIN, "STANDARD/max_gain"},
-          {Option::MAX_EXPOSURE_TIME, "STANDARD/max_exposure_time"},
-          {Option::DESIRED_BRIGHTNESS, "STANDARD/desired_brightness"},
-          {Option::IR_CONTROL, "STANDARD/ir_control"},
-          {Option::HDR_MODE, "STANDARD/hdr_mode"},
-          {Option::ACCELEROMETER_RANGE, "STANDARD/accel_range"},
-          {Option::GYROSCOPE_RANGE, "STANDARD/gyro_range"}};
+          {Option::GAIN, "standard/gain"},
+          {Option::BRIGHTNESS, "standard/brightness"},
+          {Option::CONTRAST, "standard/contrast"},
+          {Option::FRAME_RATE, "standard/frame_rate"},
+          {Option::IMU_FREQUENCY, "standard/imu_frequency"},
+          {Option::EXPOSURE_MODE, "standard/exposure_mode"},
+          {Option::MAX_GAIN, "standard/max_gain"},
+          {Option::MAX_EXPOSURE_TIME, "standard/max_exposure_time"},
+          {Option::DESIRED_BRIGHTNESS, "standard/desired_brightness"},
+          {Option::IR_CONTROL, "standard/ir_control"},
+          {Option::HDR_MODE, "standard/hdr_mode"},
+          {Option::ACCELEROMETER_RANGE, "standard/accel_range"},
+          {Option::GYROSCOPE_RANGE, "standard/gyro_range"}};
     }
 
     for (auto &&it = option_names_.begin(); it != option_names_.end(); ++it) {
@@ -278,8 +295,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       NODELET_INFO_STREAM("Advertized on topic " << topic);
     }
 
-    // Only STANDARD2 need publish mono_topics
-    if (model_ == Model::STANDARD2) {
+    // Only STANDARD2/STANDARD210A need publish mono_topics
+    if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
       for (auto &&it = mono_topics.begin(); it != mono_topics.end(); ++it) {
         auto &&topic = mono_topics[it->first];
         if (it->first == Stream::LEFT || it->first == Stream::RIGHT) {
@@ -288,7 +305,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         NODELET_INFO_STREAM("Advertized on topic " << topic);
       }
     }
-    if (model_ == Model::STANDARD2) {
+
+    if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
       camera_encodings_ = {{Stream::LEFT, enc::BGR8},
                           {Stream::RIGHT, enc::BGR8},
                           {Stream::LEFT_RECTIFIED, enc::BGR8},
@@ -862,7 +880,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     int request_index = 0;
 
     model_ = api_->GetModel();
-    if (model_ == Model::STANDARD2) {
+    if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
       private_nh_.getParam("request_index", request_index);
       switch (request_index) {
         case 0:

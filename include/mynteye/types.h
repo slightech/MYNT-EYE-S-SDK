@@ -37,8 +37,10 @@ MYNTEYE_BEGIN_NAMESPACE
 enum class Model : std::uint8_t {
   /** Standard */
   STANDARD,
-  /** Standard 2 generation */
+  /** Standard 2 */
   STANDARD2,
+  /** Standard 210a */
+  STANDARD210A,
   /** Last guard */
   LAST
 };
@@ -313,6 +315,8 @@ enum class Format : std::uint32_t {
   YUYV = MYNTEYE_FOURCC('Y', 'U', 'Y', 'V'),
   /** BGR 8:8:8, 24 bits per pixel */
   BGR888 = MYNTEYE_FOURCC('B', 'G', 'R', '3'),
+  /** RGB 8:8:8, 24 bits per pixel */
+  RGB888 = MYNTEYE_FOURCC('R', 'G', 'B', '3'),
   /** Last guard */
   LAST
 };

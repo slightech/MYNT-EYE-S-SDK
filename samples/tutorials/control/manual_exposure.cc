@@ -54,8 +54,8 @@ int main(int argc, char *argv[]) {
     LOG(INFO) << "Set CONTRAST to " << api->GetOptionValue(Option::CONTRAST);
   }
 
-  // Set manual exposure options fo s210a or s2000
-  if (model == Model::STANDARD2) {
+  // Set manual exposure options fo S2000/S2100/S210A
+  if (model == Model::STANDARD2 || model == Model::STANDARD210A) {
     // manual-exposure: 1
     api->SetOptionValue(Option::EXPOSURE_MODE, 1);
 
