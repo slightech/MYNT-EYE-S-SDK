@@ -22,7 +22,22 @@ MKFILE_DIR := $(patsubst %/,%,$(dir $(MKFILE_PATH)))
 #   UNIX: /usr/local
 #   Windows: c:/Program Files/${PROJECT_NAME}
 
+# Options
+#
+#   SUDO: sudo command
+#   CAM_MODELS: cmake build with -DWITH_CAM_MODELS=ON
+#
+# e.g. make [TARGET] SUOD=
+# e.g. make [TARGET] CAM_MODELS=1
+
 SUDO ?= sudo
+
+CAM_MODELS ?=
+
+CMAKE_BUILD_EXTRA_OPTIONS :=
+ifneq ($(CAM_MODELS),)
+	CMAKE_BUILD_EXTRA_OPTIONS := $(CMAKE_BUILD_EXTRA_OPTIONS) -DWITH_CAM_MODELS=ON
+endif
 
 .DEFAULT_GOAL := all
 
@@ -103,7 +118,7 @@ build:
 ifeq ($(HOST_OS),Win)
 	@$(call cmake_build,./_build,..,-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/_install)
 else
-	@$(call cmake_build,./_build,..)
+	@$(call cmake_build,./_build,..,$(CMAKE_BUILD_EXTRA_OPTIONS))
 endif
 
 .PHONY: build
@@ -308,6 +323,7 @@ host:
 	@echo LDD: $(LDD)
 	@echo CMAKE: $(CMAKE)
 	@echo PKGNAME: $(PKGNAME)
+	@echo CMAKE_BUILD_EXTRA_OPTIONS: $(CMAKE_BUILD_EXTRA_OPTIONS)
 
 .PHONY: host
 
