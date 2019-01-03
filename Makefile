@@ -115,6 +115,9 @@ init:
 
 build:
 	@$(call echo,Make $@)
+ifneq ($(CAM_MODELS),)
+	@$(MAKE) ceres
+endif
 ifeq ($(HOST_OS),Win)
 	@$(call cmake_build,./_build,..,-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/_install)
 else
