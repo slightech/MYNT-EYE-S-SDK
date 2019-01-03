@@ -76,6 +76,18 @@ submodules:
 
 .PHONY: submodules
 
+# 3rdparty
+
+ceres:
+	@$(call echo,Make $@)
+	@$(call cmake_build,./3rdparty/ceres-solver-1.11.0/_build,.., \
+		-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/3rdparty/ceres \
+		-DGFLAGS_PREFER_EXPORTED_GFLAGS_CMAKE_CONFIGURATION=OFF \
+		-DMINIGLOG=ON)
+	@cd ./3rdparty/ceres-solver-1.11.0/_build; make install
+
+.PHONY: ceres
+
 # init
 
 init:
@@ -269,8 +281,8 @@ cleanlog:
 	@$(call rm_f,*FATAL*)
 
 cleanall: clean cleandoc
+	@$(call rm,./3rdparty/ceres-solver-1.11.0/_build/)
 	@$(call rm,./test/gtest/_build/)
-	@$(call rm,./third_party/glog/_build/)
 	@$(FIND) . -type f -name ".DS_Store" -print0 | xargs -0 rm -f
 	@$(call rm,./$(PBCVT_DIR)/)
 	@$(call rm,./$(NPCV_DIR)/)
