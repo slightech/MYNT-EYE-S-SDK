@@ -269,6 +269,12 @@ class MYNTEYE_API Device {
    * Get the latest data of stream.
    */
   device::StreamData GetStreamData(const Stream &stream);
+
+  /** 
+   * @deprecated Replaced by GetStreamData(const Stream &stream)
+   */
+  device::StreamData GetLatestStreamData(const Stream &stream);
+
   /**
    * Get the datas of stream.
    * @note default cache 4 datas at most.
