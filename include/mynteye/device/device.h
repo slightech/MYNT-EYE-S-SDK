@@ -204,6 +204,12 @@ class MYNTEYE_API Device {
   void SetMotionExtrinsics(const Stream &from, const Extrinsics &ex);
 
   /**
+   * Get the intrinsics of stream.
+   */
+  template<typename T>
+  T GetIntrinsics(const Stream &from) const;
+
+  /**
    * Log all option infos.
    */
   void LogOptionInfos() const;

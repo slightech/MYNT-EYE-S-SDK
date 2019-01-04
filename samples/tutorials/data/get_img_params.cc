@@ -13,6 +13,7 @@
 // limitations under the License.
 #include "mynteye/logger.h"
 #include "mynteye/api/api.h"
+#include "mynteye/types.h"
 
 MYNTEYE_USE_NAMESPACE
 
@@ -30,6 +31,28 @@ int main(int argc, char *argv[]) {
             << "}";
   LOG(INFO) << "Extrinsics right to left: {"
             << api->GetExtrinsics(Stream::RIGHT, Stream::LEFT) << "}";
+  auto inr = api->GetIntrinsics(Stream::LEFT);
+  // CameraParameters cmm(inr);
+  // for (int i = 0;i< sizeof(cmm) ; i++) {
+  //   printf(" %x ",cmm.raw[i]);
+  // }
+  // printf("end: %d\n", (int)(cmm.getModelType()));
+
+  // Intrinsics2 xxx2;
+  // CameraParameters cmm2(xxx2);
+  // for (int i = 0;i< sizeof(cmm2) ; i++) {
+  //   printf(" %x ",cmm2.raw[i]);
+  // }
+  // printf("end: %d\n", (int)(cmm2.getModelType()));
+
+  // IntrinsicsBase xxx3;
+  // CameraParameters cmm3(xxx3);
+  // for (int i = 0;i< sizeof(cmm3) ; i++) {
+  //   printf(" %x ",cmm3.raw[i]);
+  // }
+  // printf("end: %d\n", (int)(cmm3.getModelType()));
+
+  api->GetIntrinsics<Intrinsics>(Stream::LEFT);
 
   return 0;
 }
