@@ -155,6 +155,11 @@ class MYNTEYE_API Device {
    */
   Intrinsics GetIntrinsics(const Stream &stream) const;
   /**
+   * Get the intrinsics of stream.
+   */
+  template<typename T>
+  T GetIntrinsics(const Stream &from) const;
+  /**
    * Get the extrinsics from one stream to another.
    */
   Extrinsics GetExtrinsics(const Stream &from, const Stream &to) const;
@@ -202,12 +207,6 @@ class MYNTEYE_API Device {
    * Set the extrinsics from one stream to motion.
    */
   void SetMotionExtrinsics(const Stream &from, const Extrinsics &ex);
-
-  /**
-   * Get the intrinsics of stream.
-   */
-  template<typename T>
-  T GetIntrinsics(const Stream &from) const;
 
   /**
    * Log all option infos.
@@ -371,6 +370,13 @@ class MYNTEYE_API Device {
   friend API;
   friend tools::DeviceWriter;
 };
+
+template <typename T>
+T Device::GetIntrinsics(const Stream &from) const {
+  T res;
+  printf("type %d\n", res.calib_model_);
+  return res;
+}
 
 MYNTEYE_END_NAMESPACE
 

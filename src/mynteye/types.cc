@@ -188,14 +188,25 @@ std::ostream &operator<<(std::ostream &os, const StreamRequest &request) {
             << ", format: " << request.format << ", fps: " << request.fps;
 }
 
-std::ostream &operator<<(std::ostream &os, const Intrinsics &in) {
-  os << FULL_PRECISION << "width: " << in.width << ", height: " << in.height
+std::ostream &operator<<(std::ostream &os, const IntrinsicsPinhole &in) {
+  os << "pinhole, " << FULL_PRECISION
+     << "width: " << in.width << ", height: " << in.height
      << ", fx: " << in.fx << ", fy: " << in.fy << ", cx: " << in.cx
      << ", cy: " << in.cy << ", model: " << static_cast<int>(in.model)
      << ", coeffs: [";
   for (int i = 0; i <= 3; i++)
     os << in.coeffs[i] << ", ";
   return os << in.coeffs[4] << "]";
+}
+
+std::ostream &operator<<(std::ostream &os, const IntrinsicsEquidistant &in) {
+  os << "equidistant, " << FULL_PRECISION
+     << "width: " << in.width << ", height: " << in.height
+     << ", k2: " << in.k2 << ", k3: " << in.k3
+     << ", k4: " << in.k4 << ", k5: " << in.k5
+     << ", mu: " << in.mu << ", mv: " << in.mv
+     << ", u0: " << in.u0 << ", v0: " << in.v0;
+  return os;
 }
 
 std::ostream &operator<<(std::ostream &os, const ImuIntrinsics &in) {
