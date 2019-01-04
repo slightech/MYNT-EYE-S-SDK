@@ -157,11 +157,11 @@ void RectifyProcessor::InitParams(
   cv::Size size{in_left.width, in_left.height};
 
   cv::Mat M1 =
-      (cv::Mat_<double>(3, 3) << 1.0, 0, 1.0, 0, 1.0,
-       1.0, 0, 0, 1);
+      (cv::Mat_<double>(3, 3) << 1.0, 0, 0.0, 0, 1.0,
+       0.0, 0, 0, 1);
   cv::Mat M2 =
-      (cv::Mat_<double>(3, 3) << 1.0, 0, 1.0, 0, 1.0,
-       1.0, 0, 0, 1);
+      (cv::Mat_<double>(3, 3) << 1.0, 0, 0.0, 0, 1.0,
+       0.0, 0, 0, 1);
   cv::Mat D1(1, 8, CV_64F, in_left.coeffs);
   cv::Mat D2(1, 8, CV_64F, in_right.coeffs);
   cv::Mat R =
