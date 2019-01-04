@@ -106,6 +106,7 @@ set_outdir(
 )
 
 ## main
+
 if(WITH_GLOG)
   add_executable(main src/main.cc)
   target_link_libraries(main glog::glog)
@@ -113,6 +114,42 @@ if(WITH_GLOG)
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/include
   )
+endif()
+
+## camodocal
+
+if(WITH_CAM_MODELS)
+  set(EIGEN_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/eigen3)
+
+  LIST(APPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/ceres/share/Ceres)
+  find_package(Ceres REQUIRED)
+
+  message(STATUS "CERES_INCLUDE_DIRS: ${CERES_INCLUDE_DIRS}")
+  message(STATUS "CERES_LIBRARIES: ${CERES_LIBRARIES}")
+  message(STATUS "EIGEN_INCLUDE_DIRS: ${EIGEN_INCLUDE_DIRS}")
+
+  include_directories(
+    ${catkin_INCLUDE_DIRS}
+    ${EIGEN_INCLUDE_DIRS}
+    src/mynteye/api/camodocal/include
+  )
+
+  add_library(camodocal STATIC
+    src/mynteye/api/camodocal/src/chessboard/Chessboard.cc
+    src/mynteye/api/camodocal/src/calib/CameraCalibration.cc
+    src/mynteye/api/camodocal/src/calib/StereoCameraCalibration.cc
+    src/mynteye/api/camodocal/src/camera_models/Camera.cc
+    src/mynteye/api/camodocal/src/camera_models/CameraFactory.cc
+    src/mynteye/api/camodocal/src/camera_models/CostFunctionFactory.cc
+    src/mynteye/api/camodocal/src/camera_models/PinholeCamera.cc
+    src/mynteye/api/camodocal/src/camera_models/CataCamera.cc
+    src/mynteye/api/camodocal/src/camera_models/EquidistantCamera.cc
+    src/mynteye/api/camodocal/src/camera_models/ScaramuzzaCamera.cc
+    src/mynteye/api/camodocal/src/sparse_graph/Transform.cc
+    src/mynteye/api/camodocal/src/gpl/gpl.cc
+    src/mynteye/api/camodocal/src/gpl/EigenQuaternionParameterization.cc
+  )
+  target_link_libraries(camodocal ${CERES_LIBRARIES})
 endif()
 
 ## libmynteye
@@ -210,6 +247,7 @@ endif()
 if(WITH_GLOG)
   list(APPEND MYNTEYE_LINKLIBS glog::glog)
 endif()
+
 #message(STATUS "MYNTEYE_LINKLIBS: ${MYNTEYE_LINKLIBS}")
 
 add_library(${MYNTEYE_NAME} SHARED ${MYNTEYE_SRCS})

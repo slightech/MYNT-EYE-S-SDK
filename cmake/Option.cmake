@@ -23,6 +23,8 @@ include(${CMAKE_CURRENT_LIST_DIR}/Utils.cmake)
 option(WITH_API "Build with API layer, need OpenCV" ON)
 option(WITH_DEVICE_INFO_REQUIRED "Build with device info required" ON)
 
+option(WITH_CAM_MODELS "Build with more camera models, WITH_API must be ON" OFF)
+
 # 3rdparty components
 
 option(WITH_BOOST "Include Boost support" ON)
@@ -35,10 +37,17 @@ option(WITH_GLOG "Include glog support" OFF)
 
 if(WITH_API)
   include(${CMAKE_CURRENT_LIST_DIR}/DetectOpenCV.cmake)
+else()
+  # Disable WITH_CAM_MODELS if WITH_API is OFF
+  set(WITH_CAM_MODELS OFF)
 endif()
 
 if(WITH_DEVICE_INFO_REQUIRED)
   add_definitions(-DWITH_DEVICE_INFO_REQUIRED)
+endif()
+
+if(WITH_CAM_MODELS)
+  add_definitions(-DWITH_CAM_MODELS)
 endif()
 
 if(WITH_BOOST)
@@ -119,6 +128,8 @@ if(WITH_API)
 endif()
 
 status("  WITH_DEVICE_INFO_REQUIRED: ${WITH_DEVICE_INFO_REQUIRED}")
+
+status("  WITH_CAM_MODELS: ${WITH_CAM_MODELS}")
 
 status("  WITH_BOOST: ${WITH_BOOST}")
 if(WITH_BOOST)

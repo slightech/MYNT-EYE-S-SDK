@@ -47,6 +47,10 @@ else()
   set(OpenCV_LIB_SEARCH_PATH "${OpenCV_LIB_PATH}")
 endif()
 
+include_directories(
+  ${OpenCV_INCLUDE_DIRS}
+)
+
 else()
 
 set(WITH_OPENCV FALSE)
