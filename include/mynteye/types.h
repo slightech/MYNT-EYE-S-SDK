@@ -464,7 +464,7 @@ struct MYNTEYE_API IntrinsicsEquidistant : public IntrinsicsBase {
   std::uint16_t width;
   /** The height of the image in pixels */
   std::uint16_t height;
-  /** The distortion coefficients k2,k3,k4,k5,mu,mv,u0,v0*/
+  /** The distortion coefficients: k2,k3,k4,k5,mu,mv,u0,v0 */
   double coeffs[8];
 };
 

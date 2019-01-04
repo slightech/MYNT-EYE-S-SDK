@@ -55,7 +55,7 @@ void RectifyProcessor::NotifyImageParamsChanged() {
       *std::dynamic_pointer_cast<IntrinsicsEquidistant>(in_right),
       device_->GetExtrinsics(Stream::RIGHT, Stream::LEFT));
   } else {
-    // toido
+    // todo
   }
 }
 
@@ -116,40 +116,6 @@ void RectifyProcessor::InitParams(
   cv::initUndistortRectifyMap(M2, D2, R2, P2, size, CV_16SC2, map21, map22);
 }
 
-// enum class CalibrationModel : std::uint8_t {
-//   /** Unknow */
-//   CALIB_MODEL_UNKNOW = 0,
-//   /** Pinhole */
-//   CALIB_MODEL_PINHOLE = 1,
-//   /** Equidistant: KANNALA_BRANDT */
-//   CALIB_MODEL_KANNALA_BRANDT = 2,
-//   // CALIB_MODEL_SCARAMUZZA,
-//   // CALIB_MODEL_MEI,
-// };
-
-// /**
-//  * @ingroup calibration
-//  * Stream intrinsics (Equidistant: KANNALA_BRANDT)
-//  */
-// struct MYNTEYE_API IntrinsicsEquidistant : public IntrinsicsBase {
-//   IntrinsicsEquidistant() {
-//     calib_model = CalibrationModel::CALIB_MODEL_KANNALA_BRANDT;
-//   }
-//   /** The width of the image in pixels */
-//   std::uint16_t width;
-//   /** The height of the image in pixels */
-//   std::uint16_t height;
-//   /** The distortion coefficients */
-//   double k2;
-//   double k3;
-//   double k4;
-//   double k5;
-//   double mu;
-//   double mv;
-//   double u0;
-//   double v0;
-// };
-
 void RectifyProcessor::InitParams(
     IntrinsicsEquidistant in_left,
     IntrinsicsEquidistant in_right,
@@ -188,6 +154,5 @@ void RectifyProcessor::InitParams(
   cv::initUndistortRectifyMap(M1, D1, R1, P1, size, CV_16SC2, map11, map12);
   cv::initUndistortRectifyMap(M2, D2, R2, P2, size, CV_16SC2, map21, map22);
 }
-
 
 MYNTEYE_END_NAMESPACE

@@ -198,8 +198,7 @@ std::ostream &operator<<(std::ostream &os, const IntrinsicsPinhole &in) {
     os << in.coeffs[i] << ", ";
   return os << in.coeffs[4] << "]";
 }
-/** The distortion coefficients k2,k3,k4,k5,mu,mv,u0,v0*/
-  double coeffs[8];
+
 std::ostream &operator<<(std::ostream &os, const IntrinsicsEquidistant &in) {
   os << "equidistant, " << FULL_PRECISION
      << "width: " << in.width << ", height: " << in.height
