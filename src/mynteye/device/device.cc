@@ -454,6 +454,10 @@ device::StreamData Device::GetStreamData(const Stream &stream) {
   return streams_->GetLatestStreamData(stream);
 }
 
+device::StreamData Device::GetLatestStreamData(const Stream &stream) {
+  GetStreamData(stream);
+}
+
 std::vector<device::StreamData> Device::GetStreamDatas(const Stream &stream) {
   CHECK(video_streaming_);
   CHECK_NOTNULL(streams_);
