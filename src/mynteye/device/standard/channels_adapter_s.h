@@ -19,7 +19,7 @@
 #include <set>
 #include <vector>
 
-#include "mynteye/device/channels.h"
+#include "mynteye/device/channels/channels.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 

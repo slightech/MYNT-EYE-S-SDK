@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef MYNTEYE_DEVICE_CHANNELS_H_
-#define MYNTEYE_DEVICE_CHANNELS_H_
+#ifndef MYNTEYE_DEVICE_CHANNELS_CHANNELS_H_
+#define MYNTEYE_DEVICE_CHANNELS_CHANNELS_H_
 #pragma once
 
 #include <algorithm>
@@ -249,4 +249,4 @@ std::size_t to_data(const Extrinsics *ex, std::uint8_t *data,
 
 MYNTEYE_END_NAMESPACE
 
-#endif  // MYNTEYE_DEVICE_CHANNELS_H_
+#endif  // MYNTEYE_DEVICE_CHANNELS_CHANNELS_H_

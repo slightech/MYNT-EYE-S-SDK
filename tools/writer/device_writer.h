@@ -20,7 +20,7 @@
 #include <string>
 
 #include "mynteye/mynteye.h"
-#include "mynteye/device/channels.h"
+#include "mynteye/device/channels/channels.h"
 #include "mynteye/device/types.h"
 
 MYNTEYE_BEGIN_NAMESPACE
