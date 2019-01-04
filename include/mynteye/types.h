@@ -15,6 +15,8 @@
 #define MYNTEYE_TYPES_H_
 #pragma once
 
+#include <memory.h>
+
 #include <cstdint>
 
 #include <algorithm>
@@ -389,11 +391,33 @@ std::ostream &operator<<(std::ostream &os, const StreamRequest &request);
  * @brief Intrinsic and extrinsic properties.
  */
 
+/** different model of camera calibration */
+typedef enum CalibrationModel {
+  /** pinhole camera */
+  CALIB_MODEL_PINHOLE = 0,
+  /** equidistant camera */
+  CALIB_MODEL_KANNALA_BRANDT = 1,
+
+  CALIB_MODEL_UNKNOW,
+  // CALIB_MODEL_SCARAMUZZA,
+  // CALIB_MODEL_MEI
+}CALIB_MODEL;
+
 /**
  * @ingroup calibration
  * Stream intrinsics,
  */
-struct MYNTEYE_API Intrinsics {
+struct MYNTEYE_API IntrinsicsBase {
+  IntrinsicsBase() {
+    calib_model_ = CALIB_MODEL_UNKNOW;
+  }
+  CALIB_MODEL calib_model_;
+};
+
+struct MYNTEYE_API Intrinsics : public IntrinsicsBase {
+  Intrinsics() {
+    calib_model_ = CALIB_MODEL_PINHOLE;
+  }
   /** The width of the image in pixels */
   std::uint16_t width;
   /** The height of the image in pixels */
@@ -411,6 +435,66 @@ struct MYNTEYE_API Intrinsics {
   /** The distortion coefficients: k1,k2,p1,p2,k3 */
   double coeffs[5];
 };
+
+/*
+model_type:  KANNALA_BRANDT
+camera_name: KANNALA_BRANDT
+image_width: 640
+image_height: 400
+projection_parameters:
+k2: 4.9972342319338209e-01
+k3: 4.3314206872885375e-01
+k4: -9.2064699153680563e-01
+k5: 4.1211925379358533e-01
+mu: 2.0077513040612871e+02
+mv: 2.0099851605062454e+02
+u0: 3.1079403134153824e+02
+v0: 2.1225649273618896e+02 
+*/
+
+struct MYNTEYE_API Intrinsics2 : public IntrinsicsBase {
+  Intrinsics2() {
+    calib_model_ = CALIB_MODEL_KANNALA_BRANDT;
+  }
+  /** The width of the image in pixels */
+  std::uint16_t width;
+  /** The height of the image in pixels */
+  std::uint16_t height;
+  /** The distortion coefficients */
+  double k2;
+  double k3;
+  double k4;
+  double k5;
+  double mu;
+  double mv;
+  double u0;
+  double v0;
+};
+
+// union MYNTEYE_API CameraParameters {
+//   struct IntrinsicsBase intrinsics_base;
+//   struct Intrinsics intrinsics10;
+//   struct Intrinsics2 intrinsics20;
+//   unsigned char raw[];
+//   CameraParameters(struct IntrinsicsBase& base) {
+//     memset(raw, 0, sizeof(union CameraParameters));
+//     switch (base.calib_model_) {
+//       case CALIB_MODEL_10:
+//         intrinsics10 = static_cast<struct Intrinsics&>(base);
+//       break;
+//       case CALIB_MODEL_20:
+//         intrinsics20 = static_cast<struct Intrinsics2&>(base);
+//       break;
+//       default:
+//         // warning!!! no impl!!!
+//         intrinsics_base = base;
+//       return;
+//     }
+//   }
+//   CALIB_MODEL getModelType() {return intrinsics_base.calib_model_;}
+// };
+// MYNTEYE_API
+// std::ostream &operator<<(std::ostream &os, const CameraParameters &in);
 
 MYNTEYE_API
 std::ostream &operator<<(std::ostream &os, const Intrinsics &in);
