@@ -50,6 +50,8 @@ class RectifyProcessor : public Processor {
  private:
   void InitParams(IntrinsicsPinhole in_left,
         IntrinsicsPinhole in_right, Extrinsics ex_right_to_left);
+  void InitParams(IntrinsicsEquidistant in_left,
+        IntrinsicsEquidistant in_right, Extrinsics ex_right_to_left);
 
   std::shared_ptr<Device> device_;
 };

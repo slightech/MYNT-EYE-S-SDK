@@ -43,10 +43,20 @@ std::string RectifyProcessor::Name() {
 void RectifyProcessor::NotifyImageParamsChanged() {
   auto in_left = device_->GetIntrinsics(Stream::LEFT);
   auto in_right = device_->GetIntrinsics(Stream::RIGHT);
-  InitParams(
+  if (in_left->calib_model == CalibrationModel::CALIB_MODEL_PINHOLE) {
+    InitParams(
       *std::dynamic_pointer_cast<IntrinsicsPinhole>(in_left),
       *std::dynamic_pointer_cast<IntrinsicsPinhole>(in_right),
       device_->GetExtrinsics(Stream::RIGHT, Stream::LEFT));
+  } else if (in_left->calib_model ==
+             CalibrationModel::CALIB_MODEL_KANNALA_BRANDT) {
+    InitParams(
+      *std::dynamic_pointer_cast<IntrinsicsEquidistant>(in_left),
+      *std::dynamic_pointer_cast<IntrinsicsEquidistant>(in_right),
+      device_->GetExtrinsics(Stream::RIGHT, Stream::LEFT));
+  } else {
+    // toido
+  }
 }
 
 Object *RectifyProcessor::OnCreateOutput() {
@@ -105,5 +115,79 @@ void RectifyProcessor::InitParams(
   cv::initUndistortRectifyMap(M1, D1, R1, P1, size, CV_16SC2, map11, map12);
   cv::initUndistortRectifyMap(M2, D2, R2, P2, size, CV_16SC2, map21, map22);
 }
+
+// enum class CalibrationModel : std::uint8_t {
+//   /** Unknow */
+//   CALIB_MODEL_UNKNOW = 0,
+//   /** Pinhole */
+//   CALIB_MODEL_PINHOLE = 1,
+//   /** Equidistant: KANNALA_BRANDT */
+//   CALIB_MODEL_KANNALA_BRANDT = 2,
+//   // CALIB_MODEL_SCARAMUZZA,
+//   // CALIB_MODEL_MEI,
+// };
+
+// /**
+//  * @ingroup calibration
+//  * Stream intrinsics (Equidistant: KANNALA_BRANDT)
+//  */
+// struct MYNTEYE_API IntrinsicsEquidistant : public IntrinsicsBase {
+//   IntrinsicsEquidistant() {
+//     calib_model = CalibrationModel::CALIB_MODEL_KANNALA_BRANDT;
+//   }
+//   /** The width of the image in pixels */
+//   std::uint16_t width;
+//   /** The height of the image in pixels */
+//   std::uint16_t height;
+//   /** The distortion coefficients */
+//   double k2;
+//   double k3;
+//   double k4;
+//   double k5;
+//   double mu;
+//   double mv;
+//   double u0;
+//   double v0;
+// };
+
+void RectifyProcessor::InitParams(
+    IntrinsicsEquidistant in_left,
+    IntrinsicsEquidistant in_right,
+    Extrinsics ex_right_to_left) {
+  cv::Size size{in_left.width, in_left.height};
+
+  cv::Mat M1 =
+      (cv::Mat_<double>(3, 3) << 1.0, 0, 1.0, 0, 1.0,
+       1.0, 0, 0, 1);
+  cv::Mat M2 =
+      (cv::Mat_<double>(3, 3) << 1.0, 0, 1.0, 0, 1.0,
+       1.0, 0, 0, 1);
+  cv::Mat D1(1, 8, CV_64F, in_left.coeffs);
+  cv::Mat D2(1, 8, CV_64F, in_right.coeffs);
+  cv::Mat R =
+      (cv::Mat_<double>(3, 3) << ex_right_to_left.rotation[0][0],
+       ex_right_to_left.rotation[0][1], ex_right_to_left.rotation[0][2],
+       ex_right_to_left.rotation[1][0], ex_right_to_left.rotation[1][1],
+       ex_right_to_left.rotation[1][2], ex_right_to_left.rotation[2][0],
+       ex_right_to_left.rotation[2][1], ex_right_to_left.rotation[2][2]);
+  cv::Mat T(3, 1, CV_64F, ex_right_to_left.translation);
+
+  VLOG(2) << "InitParams size: " << size;
+  VLOG(2) << "M1: " << M1;
+  VLOG(2) << "M2: " << M2;
+  VLOG(2) << "D1: " << D1;
+  VLOG(2) << "D2: " << D2;
+  VLOG(2) << "R: " << R;
+  VLOG(2) << "T: " << T;
+
+  cv::Rect left_roi, right_roi;
+  cv::stereoRectify(
+      M1, D1, M2, D2, size, R, T, R1, R2, P1, P2, Q, cv::CALIB_ZERO_DISPARITY,
+      0, size, &left_roi, &right_roi);
+
+  cv::initUndistortRectifyMap(M1, D1, R1, P1, size, CV_16SC2, map11, map12);
+  cv::initUndistortRectifyMap(M2, D2, R2, P2, size, CV_16SC2, map21, map22);
+}
+
 
 MYNTEYE_END_NAMESPACE
