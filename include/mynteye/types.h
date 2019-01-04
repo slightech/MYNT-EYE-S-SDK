@@ -414,6 +414,7 @@ struct MYNTEYE_API IntrinsicsBase {
   IntrinsicsBase() {
     calib_model = CalibrationModel::CALIB_MODEL_UNKNOW;
   }
+  virtual ~IntrinsicsBase() {}
   CalibrationModel calib_model;
 };
 
@@ -447,8 +448,7 @@ MYNTEYE_API
 std::ostream &operator<<(std::ostream &os, const IntrinsicsPinhole &in);
 
 /**
- * @ingroup calibration
- * Stream intrinsics (Pinhole)
+ * @deprecated Replaced by IntrinsicsPinhole.
  */
 using Intrinsics = IntrinsicsPinhole;
 

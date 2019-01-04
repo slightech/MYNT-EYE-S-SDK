@@ -811,7 +811,7 @@ std::size_t from_data(Channels::device_info_t *info, const std::uint8_t *data) {
   return i;
 }
 
-std::size_t from_data(Intrinsics *in, const std::uint8_t *data,
+std::size_t from_data(IntrinsicsPinhole *in, const std::uint8_t *data,
     const Version *spec_version) {
   std::size_t i = 0;
 
@@ -954,7 +954,7 @@ std::size_t to_data(const Channels::device_info_t *info, std::uint8_t *data,
   return size + 3;
 }
 
-std::size_t to_data(const Intrinsics *in, std::uint8_t *data,
+std::size_t to_data(const IntrinsicsPinhole *in, std::uint8_t *data,
     const Version *spec_version) {
   std::size_t i = 0;
 

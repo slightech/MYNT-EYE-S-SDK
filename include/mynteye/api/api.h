@@ -187,14 +187,18 @@ class MYNTEYE_API API {
   std::string GetInfo(const Info &info) const;
 
   /**
-   * Get the intrinsics of stream.
+   * @deprecated Get the intrinsics (pinhole) of stream.
    */
-  Intrinsics GetIntrinsics(const Stream &stream) const;
+  IntrinsicsPinhole GetIntrinsics(const Stream &stream) const;
   /**
    * Get the intrinsics of stream.
    */
-  template<typename T>
-  T GetIntrinsics(const Stream &from) const;
+  template <typename T>
+  T GetIntrinsics(const Stream &stream) const;
+  /**
+   * Get the intrinsics base of stream.
+   */
+  std::shared_ptr<IntrinsicsBase> GetIntrinsicsBase(const Stream &stream) const;
   /**
    * Get the extrinsics from one stream to another.
    */
@@ -311,8 +315,9 @@ class MYNTEYE_API API {
 };
 
 template <typename T>
-T API::GetIntrinsics(const Stream &from) const {
-  return device_->GetIntrinsics<T>(from);
+T API::GetIntrinsics(const Stream &stream) const {
+  auto in = GetIntrinsicsBase(stream);
+  return *std::dynamic_pointer_cast<T>(in);
 }
 
 MYNTEYE_END_NAMESPACE

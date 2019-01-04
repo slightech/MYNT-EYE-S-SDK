@@ -32,8 +32,8 @@ namespace device {
 
 typedef struct ImgParams {
   bool ok;
-  Intrinsics in_left;
-  Intrinsics in_right;
+  std::shared_ptr<IntrinsicsBase> in_left;
+  std::shared_ptr<IntrinsicsBase> in_right;
   Extrinsics ex_right_to_left;
 } img_params_t;
 

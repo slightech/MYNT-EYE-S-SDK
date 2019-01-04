@@ -204,7 +204,7 @@ std::string _from_data(const std::uint8_t *data, std::size_t count);
 
 std::size_t from_data(Channels::device_info_t *info, const std::uint8_t *data);
 
-std::size_t from_data(Intrinsics *in, const std::uint8_t *data,
+std::size_t from_data(IntrinsicsPinhole *in, const std::uint8_t *data,
     const Version *spec_version);
 
 std::size_t from_data(ImuIntrinsics *in, const std::uint8_t *data,
@@ -236,7 +236,7 @@ std::size_t _to_data(std::string value, std::uint8_t *data, std::size_t count);
 std::size_t to_data(const Channels::device_info_t *info, std::uint8_t *data,
     const Version *spec_version);
 
-std::size_t to_data(const Intrinsics *in, std::uint8_t *data,
+std::size_t to_data(const IntrinsicsPinhole *in, std::uint8_t *data,
     const Version *spec_version);
 
 std::size_t to_data(const ImuIntrinsics *in, std::uint8_t *data,

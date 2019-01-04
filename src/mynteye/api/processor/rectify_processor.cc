@@ -41,9 +41,11 @@ std::string RectifyProcessor::Name() {
 }
 
 void RectifyProcessor::NotifyImageParamsChanged() {
+  auto in_left = device_->GetIntrinsics(Stream::LEFT);
+  auto in_right = device_->GetIntrinsics(Stream::RIGHT);
   InitParams(
-      device_->GetIntrinsics(Stream::LEFT),
-      device_->GetIntrinsics(Stream::RIGHT),
+      *std::dynamic_pointer_cast<IntrinsicsPinhole>(in_left),
+      *std::dynamic_pointer_cast<IntrinsicsPinhole>(in_right),
       device_->GetExtrinsics(Stream::RIGHT, Stream::LEFT));
 }
 
@@ -66,7 +68,9 @@ bool RectifyProcessor::OnProcess(
 }
 
 void RectifyProcessor::InitParams(
-    Intrinsics in_left, Intrinsics in_right, Extrinsics ex_right_to_left) {
+    IntrinsicsPinhole in_left,
+    IntrinsicsPinhole in_right,
+    Extrinsics ex_right_to_left) {
   cv::Size size{in_left.width, in_left.height};
 
   cv::Mat M1 =

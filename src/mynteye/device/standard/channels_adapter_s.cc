@@ -131,11 +131,12 @@ std::size_t StandardChannelsAdapter::GetImgParamsFromData(
     Channels::img_params_t *img_params) {
   std::size_t i = 0;
 
-  Intrinsics in_left, in_right;
+  auto in_left = std::make_shared<IntrinsicsPinhole>();
+  auto in_right = std::make_shared<IntrinsicsPinhole>();
   Extrinsics ex_right_to_left;
 
-  i += bytes::from_data(&in_left, data + i, version);
-  i += bytes::from_data(&in_right, data + i, version);
+  i += bytes::from_data(in_left.get(), data + i, version);
+  i += bytes::from_data(in_right.get(), data + i, version);
   i += bytes::from_data(&ex_right_to_left, data + i, version);
   (*img_params)[{752, 480}] = {true, in_left, in_right, ex_right_to_left};
 
@@ -147,9 +148,11 @@ std::size_t StandardChannelsAdapter::SetImgParamsToData(
     std::uint8_t *data) {
   std::size_t i = 3;  // skip id, size
 
-  auto &&params = (*img_params).at({752, 480});
-  i += bytes::to_data(&params.in_left, data + i, version);
-  i += bytes::to_data(&params.in_right, data + i, version);
+  auto params = (*img_params).at({752, 480});
+  auto in_left = std::dynamic_pointer_cast<IntrinsicsPinhole>(params.in_left);
+  auto in_right = std::dynamic_pointer_cast<IntrinsicsPinhole>(params.in_right);
+  i += bytes::to_data(in_left.get(), data + i, version);
+  i += bytes::to_data(in_right.get(), data + i, version);
   i += bytes::to_data(&params.ex_right_to_left, data + i, version);
 
   // others

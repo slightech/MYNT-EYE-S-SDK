@@ -153,12 +153,7 @@ class MYNTEYE_API Device {
   /**
    * Get the intrinsics of stream.
    */
-  Intrinsics GetIntrinsics(const Stream &stream) const;
-  /**
-   * Get the intrinsics of stream.
-   */
-  template<typename T>
-  T GetIntrinsics(const Stream &from) const;
+  std::shared_ptr<IntrinsicsBase> GetIntrinsics(const Stream &stream) const;
   /**
    * Get the extrinsics from one stream to another.
    */
@@ -175,7 +170,8 @@ class MYNTEYE_API Device {
   /**
    * Get the intrinsics of stream.
    */
-  Intrinsics GetIntrinsics(const Stream &stream, bool *ok) const;
+  std::shared_ptr<IntrinsicsBase> GetIntrinsics(
+      const Stream &stream, bool *ok) const;
   /**
    * Get the extrinsics from one stream to another.
    */
@@ -193,7 +189,8 @@ class MYNTEYE_API Device {
   /**
    * Set the intrinsics of stream.
    */
-  void SetIntrinsics(const Stream &stream, const Intrinsics &in);
+  void SetIntrinsics(const Stream &stream,
+      const std::shared_ptr<IntrinsicsBase> &in);
   /**
    * Set the extrinsics from one stream to another.
    */
@@ -332,7 +329,7 @@ class MYNTEYE_API Device {
   std::map<Resolution, device::img_params_t> all_img_params_;
   device::imu_params_t imu_params_;
 
-  std::map<Stream, Intrinsics> stream_intrinsics_;
+  std::map<Stream, std::shared_ptr<IntrinsicsBase>> stream_intrinsics_;
   std::map<Stream, std::map<Stream, Extrinsics>> stream_from_extrinsics_;
 
   std::shared_ptr<MotionIntrinsics> motion_intrinsics_;
@@ -364,13 +361,6 @@ class MYNTEYE_API Device {
   friend API;
   friend tools::DeviceWriter;
 };
-
-template <typename T>
-T Device::GetIntrinsics(const Stream &from) const {
-  T res;
-  printf("type %d\n", res.calib_model_);
-  return res;
-}
 
 MYNTEYE_END_NAMESPACE
 

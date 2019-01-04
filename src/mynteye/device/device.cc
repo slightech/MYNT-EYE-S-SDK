@@ -240,7 +240,8 @@ std::string Device::GetInfo(const Info &info) const {
   }
 }
 
-Intrinsics Device::GetIntrinsics(const Stream &stream) const {
+std::shared_ptr<IntrinsicsBase> Device::GetIntrinsics(
+    const Stream &stream) const {
   bool ok;
   return GetIntrinsics(stream, &ok);
 }
@@ -260,7 +261,8 @@ Extrinsics Device::GetMotionExtrinsics(const Stream &from) const {
   return GetMotionExtrinsics(from, &ok);
 }
 
-Intrinsics Device::GetIntrinsics(const Stream &stream, bool *ok) const {
+std::shared_ptr<IntrinsicsBase> Device::GetIntrinsics(
+    const Stream &stream, bool *ok) const {
   try {
     *ok = true;
     return stream_intrinsics_.at(stream);
@@ -311,7 +313,8 @@ Extrinsics Device::GetMotionExtrinsics(const Stream &from, bool *ok) const {
   }
 }
 
-void Device::SetIntrinsics(const Stream &stream, const Intrinsics &in) {
+void Device::SetIntrinsics(const Stream &stream,
+    const std::shared_ptr<IntrinsicsBase> &in) {
   stream_intrinsics_[stream] = in;
 }
 

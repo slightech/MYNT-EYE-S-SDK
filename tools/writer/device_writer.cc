@@ -113,7 +113,7 @@ bool DeviceWriter::WriteImuParams(const std::string &filepath) {
 
 namespace {
 
-cv::FileStorage &operator<<(cv::FileStorage &fs, const Intrinsics &in) {
+cv::FileStorage &operator<<(cv::FileStorage &fs, const IntrinsicsPinhole &in) {
   fs << "{"
      << "width" << in.width << "height" << in.height << "fx" << in.fx << "fy"
      << in.fy << "cx" << in.cx << "cy" << in.cy << "model" << in.model
@@ -152,8 +152,10 @@ cv::FileStorage &operator<<(cv::FileStorage &fs, const Extrinsics &ex) {
 cv::FileStorage &operator<<(
     cv::FileStorage &fs, const device::img_params_t &params) {
   fs << "{"
-     << "in_left" << params.in_left
-     << "in_right" << params.in_right
+     << "in_left"
+     << *std::dynamic_pointer_cast<IntrinsicsPinhole>(params.in_left)
+     << "in_right"
+     << *std::dynamic_pointer_cast<IntrinsicsPinhole>(params.in_right)
      << "ex_right_to_left" << params.ex_right_to_left << "}";
   return fs;
 }
@@ -241,7 +243,7 @@ namespace {
 void to_intrinsics(
     const std::uint16_t &width, const std::uint16_t &height,
     const std::uint8_t &model, const cv::Mat &M, const cv::Mat &D,
-    Intrinsics *in) {
+    IntrinsicsPinhole *in) {
   in->width = width;
   in->height = height;
   /*
@@ -272,7 +274,7 @@ void to_extrinsics(const cv::Mat &R, const cv::Mat &T, Extrinsics *ex) {
   }
 }
 
-void operator>>(const cv::FileNode &n, Intrinsics &in) {
+void operator>>(const cv::FileNode &n, IntrinsicsPinhole &in) {
   n["width"] >> in.width;
   n["height"] >> in.height;
   n["fx"] >> in.fx;
@@ -314,8 +316,12 @@ void operator>>(const cv::FileNode &n, Extrinsics &ex) {
 }
 
 void operator>>(const cv::FileNode &n, DeviceWriter::img_params_t &paramas) {
-  n["in_left"] >> paramas.in_left;
-  n["in_right"] >> paramas.in_right;
+  auto in_left = std::make_shared<IntrinsicsPinhole>();
+  auto in_right = std::make_shared<IntrinsicsPinhole>();
+  paramas.in_left = in_left;
+  paramas.in_right = in_right;
+  n["in_left"] >> *in_left;
+  n["in_right"] >> *in_right;
   n["ex_right_to_left"] >> paramas.ex_right_to_left;
 }
 
@@ -346,6 +352,10 @@ DeviceWriter::img_params_map_t DeviceWriter::LoadImgParams(
 
   img_params_map_t img_params_map;
   if (fs["version"].isNone()) {
+    auto in_left = std::make_shared<IntrinsicsPinhole>();
+    auto in_right = std::make_shared<IntrinsicsPinhole>();
+    img_params_map[{752, 480}].in_left = in_left;
+    img_params_map[{752, 480}].in_right = in_right;
     if (fs["in_left"].isNone()) {
       std::uint16_t w = 752;
       std::uint16_t h = 480;
@@ -366,13 +376,13 @@ DeviceWriter::img_params_map_t DeviceWriter::LoadImgParams(
       fs["T"] >> T;
 
       to_intrinsics(
-          w, h, m, M1, D1, &img_params_map[{752, 480}].in_left);
+          w, h, m, M1, D1, in_left.get());
       to_intrinsics(
-          w, h, m, M2, D2, &img_params_map[{752, 480}].in_right);
+          w, h, m, M2, D2, in_right.get());
       to_extrinsics(R, T, &img_params_map[{752, 480}].ex_right_to_left);
     } else {
-      fs["in_left"][0] >> img_params_map[{752, 480}].in_left;
-      fs["in_right"][0] >> img_params_map[{752, 480}].in_right;
+      fs["in_left"][0] >> *in_left;
+      fs["in_right"][0] >> *in_right;
       fs["ex_right_to_left"] >> img_params_map[{752, 480}].ex_right_to_left;
     }
   } else {

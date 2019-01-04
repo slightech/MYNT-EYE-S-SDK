@@ -294,7 +294,17 @@ std::string API::GetInfo(const Info &info) const {
   return device_->GetInfo(info);
 }
 
-Intrinsics API::GetIntrinsics(const Stream &stream) const {
+IntrinsicsPinhole API::GetIntrinsics(const Stream &stream) const {
+  auto in = GetIntrinsicsBase(stream);
+  if (in->calib_model == CalibrationModel::CALIB_MODEL_PINHOLE) {
+    return *std::dynamic_pointer_cast<IntrinsicsPinhole>(in);
+  }
+  throw std::runtime_error("Intrinsics is not pinhole model"
+      ", please use GetIntrinsicsBase() or GetIntrinsics<T>() instead.");
+}
+
+std::shared_ptr<IntrinsicsBase> API::GetIntrinsicsBase(
+    const Stream &stream) const {
   return device_->GetIntrinsics(stream);
 }
 

@@ -127,20 +127,26 @@ std::size_t Standard210aChannelsAdapter::GetImgParamsFromData(
     Channels::img_params_t *img_params) {
   std::size_t i = 0;
 
-  Intrinsics in_left, in_right;
   Extrinsics ex_right_to_left;
-
-  i += bytes::from_data(&in_left, data + i, version);
-  i += bytes::from_data(&in_right, data + i, version);
-  (*img_params)[{1280, 400}] = {true, in_left, in_right, ex_right_to_left};
-
-  i += bytes::from_data(&in_left, data + i, version);
-  i += bytes::from_data(&in_right, data + i, version);
-  (*img_params)[{2560, 800}] = {true, in_left, in_right, ex_right_to_left};
-
-  i += bytes::from_data(&ex_right_to_left, data + i, version);
-  (*img_params)[{1280, 400}].ex_right_to_left = ex_right_to_left;
-  (*img_params)[{2560, 800}].ex_right_to_left = ex_right_to_left;
+  {
+    auto in_left = std::make_shared<IntrinsicsPinhole>();
+    auto in_right = std::make_shared<IntrinsicsPinhole>();
+    i += bytes::from_data(in_left.get(), data + i, version);
+    i += bytes::from_data(in_right.get(), data + i, version);
+    (*img_params)[{1280, 400}] = {true, in_left, in_right, ex_right_to_left};
+  }
+  {
+    auto in_left = std::make_shared<IntrinsicsPinhole>();
+    auto in_right = std::make_shared<IntrinsicsPinhole>();
+    i += bytes::from_data(in_left.get(), data + i, version);
+    i += bytes::from_data(in_right.get(), data + i, version);
+    (*img_params)[{2560, 800}] = {true, in_left, in_right, ex_right_to_left};
+  }
+  {
+    i += bytes::from_data(&ex_right_to_left, data + i, version);
+    (*img_params)[{1280, 400}].ex_right_to_left = ex_right_to_left;
+    (*img_params)[{2560, 800}].ex_right_to_left = ex_right_to_left;
+  }
 
   return i;
 }
@@ -151,14 +157,20 @@ std::size_t Standard210aChannelsAdapter::SetImgParamsToData(
   std::size_t i = 3;  // skip id, size
 
   {
-    auto &&params = (*img_params).at({1280, 400});
-    i += bytes::to_data(&params.in_left, data + i, version);
-    i += bytes::to_data(&params.in_right, data + i, version);
+    auto params = (*img_params).at({1280, 400});
+    auto in_left = std::dynamic_pointer_cast<IntrinsicsPinhole>(params.in_left);
+    auto in_right = std::dynamic_pointer_cast<IntrinsicsPinhole>(
+        params.in_right);
+    i += bytes::to_data(in_left.get(), data + i, version);
+    i += bytes::to_data(in_right.get(), data + i, version);
   }
   {
-    auto &&params = (*img_params).at({2560, 800});
-    i += bytes::to_data(&params.in_left, data + i, version);
-    i += bytes::to_data(&params.in_right, data + i, version);
+    auto params = (*img_params).at({2560, 800});
+    auto in_left = std::dynamic_pointer_cast<IntrinsicsPinhole>(params.in_left);
+    auto in_right = std::dynamic_pointer_cast<IntrinsicsPinhole>(
+        params.in_right);
+    i += bytes::to_data(in_left.get(), data + i, version);
+    i += bytes::to_data(in_right.get(), data + i, version);
     i += bytes::to_data(&params.ex_right_to_left, data + i, version);
   }
 
