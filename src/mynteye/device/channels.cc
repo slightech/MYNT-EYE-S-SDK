@@ -495,10 +495,9 @@ bool Channels::GetFiles(
         case FID_IMG_PARAMS: {
           if (file_size > 0) {
             CheckSpecVersion(spec_ver);
-            /*auto &&n = */adapter_->GetImgParamsFromData(
+            auto &&n = adapter_->GetImgParamsFromData(
                 data + i, spec_ver, img_params);
-            // Considering the upgrade, comment this
-            // CHECK_EQ(n, file_size);
+            CHECK_EQ(n, file_size);
           }
         } break;
         case FID_IMU_PARAMS: {
