@@ -487,7 +487,6 @@ struct MYNTEYE_API ImuIntrinsics {
   double scale[3][3];
   /* Zero-drift: X, Y, Z */
   double drift[3];
-
   /** Noise density variances */
   double noise[3];
   /** Random walk variances */
