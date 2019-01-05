@@ -51,6 +51,10 @@ class MYNTEYE_API Version {
       : major_(parse_part(name, 0)), minor_(parse_part(name, 1)) {}
   virtual ~Version() {}
 
+  bool empty() const {
+    return major_ == 0 && minor_ == 0;
+  }
+
   bool operator==(const Version &other) const {
     return major_ == other.major_ && minor_ == other.minor_;
   }

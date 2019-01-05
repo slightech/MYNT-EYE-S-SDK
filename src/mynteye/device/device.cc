@@ -21,7 +21,7 @@
 
 #include "mynteye/logger.h"
 #include "mynteye/device/async_callback.h"
-#include "mynteye/device/channels/channels.h"
+#include "mynteye/device/channel/channels.h"
 #include "mynteye/device/config.h"
 #include "mynteye/device/motions.h"
 #include "mynteye/device/standard/device_s.h"

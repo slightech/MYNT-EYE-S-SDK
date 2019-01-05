@@ -14,7 +14,7 @@
 #include "mynteye/device/motions.h"
 
 #include "mynteye/logger.h"
-#include "mynteye/device/channels/channels.h"
+#include "mynteye/device/channel/channels.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 

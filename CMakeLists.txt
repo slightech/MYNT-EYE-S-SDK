@@ -202,7 +202,9 @@ set(MYNTEYE_SRCS
   src/mynteye/types.cc
   src/mynteye/util/files.cc
   src/mynteye/util/strings.cc
-  src/mynteye/device/channels/channels.cc
+  src/mynteye/device/channel/bytes.cc
+  src/mynteye/device/channel/channels.cc
+  src/mynteye/device/channel/file_channel.cc
   src/mynteye/device/config.cc
   src/mynteye/device/context.cc
   src/mynteye/device/device.cc

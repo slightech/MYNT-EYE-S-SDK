@@ -30,20 +30,6 @@ MYNTEYE_BEGIN_NAMESPACE
 
 namespace device {
 
-typedef struct ImgParams {
-  bool ok;
-  std::shared_ptr<IntrinsicsBase> in_left;
-  std::shared_ptr<IntrinsicsBase> in_right;
-  Extrinsics ex_right_to_left;
-} img_params_t;
-
-typedef struct ImuParams {
-  bool ok;
-  ImuIntrinsics in_accel;
-  ImuIntrinsics in_gyro;
-  Extrinsics ex_left_to_imu;
-} imu_params_t;
-
 /**
  * @ingroup datatypes
  * Frame with raw data.

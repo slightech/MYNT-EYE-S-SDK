@@ -232,7 +232,9 @@ void DeviceWriter::SaveAllInfos(const std::string &dir) {
   auto &&m_in = device_->GetMotionIntrinsics();
   SaveImuParams(
       {
-          false, m_in.accel, m_in.gyro,
+          false,
+          device_->GetInfo()->spec_version.to_string(),
+          m_in.accel, m_in.gyro,
           device_->GetMotionExtrinsics(Stream::LEFT),
       },
       dir + MYNTEYE_OS_SEP "imu.params");

@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "mynteye/device/channels/channels.h"
+#include "mynteye/device/channel/channels.h"
 
 #include <bitset>
 #include <chrono>
@@ -19,10 +19,10 @@
 #include <iterator>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #include "mynteye/logger.h"
-#include "mynteye/util/strings.h"
 #include "mynteye/util/times.h"
 
 #define IMU_TRACK_PERIOD 25  // ms
@@ -432,7 +432,7 @@ void Channels::StopImuTracking() {
 
 bool Channels::GetFiles(
     device_info_t *info, img_params_t *img_params, imu_params_t *imu_params,
-    Version *spec_version) const {
+    Version *spec_version) {
   if (info == nullptr && img_params == nullptr && imu_params == nullptr) {
     LOG(WARNING) << "Files are not provided to get";
     return false;
@@ -486,7 +486,8 @@ bool Channels::GetFiles(
       i += 3;
       switch (file_id) {
         case FID_DEVICE_INFO: {
-          CHECK_EQ(bytes::from_data(info, data + i), file_size)
+          auto &&n = file_channel_.GetDeviceInfoFromData(data + i, info);
+          CHECK_EQ(n, file_size)
               << "The firmware not support getting device info, you could "
                  "upgrade to latest";
           spec_ver = &info->spec_version;
@@ -495,8 +496,7 @@ bool Channels::GetFiles(
         case FID_IMG_PARAMS: {
           if (file_size > 0) {
             CheckSpecVersion(spec_ver);
-            auto &&n = adapter_->GetImgParamsFromData(
-                data + i, spec_ver, img_params);
+            auto &&n = file_channel_.GetImgParamsFromData(data + i, img_params);
             CHECK_EQ(n, file_size);
           }
         } break;
@@ -504,8 +504,7 @@ bool Channels::GetFiles(
           imu_params->ok = file_size > 0;
           if (imu_params->ok) {
             CheckSpecVersion(spec_ver);
-            auto &&n = adapter_->GetImuParamsFromData(
-                data + i, spec_ver, imu_params);
+            auto &&n = file_channel_.GetImuParamsFromData(data + i, imu_params);
             CHECK_EQ(n, file_size);
           }
         } break;
@@ -544,15 +543,15 @@ bool Channels::SetFiles(
   std::uint16_t size = 0;
   if (info != nullptr) {
     header[0] = true;
-    size += bytes::to_data(info, data + 3 + size, spec_ver);
+    size += file_channel_.SetDeviceInfoToData(info, data + 3 + size);
   }
   if (img_params != nullptr) {
     header[1] = true;
-    size += adapter_->SetImgParamsToData(img_params, spec_ver, data + 3 + size);
+    size += file_channel_.SetImgParamsToData(img_params, data + 3 + size);
   }
   if (imu_params != nullptr) {
     header[2] = true;
-    size += adapter_->SetImuParamsToData(imu_params, spec_ver, data + 3 + size);
+    size += file_channel_.SetImuParamsToData(imu_params, data + 3 + size);
   }
 
   data[0] = static_cast<std::uint8_t>(header.to_ulong());
@@ -736,310 +735,5 @@ Channels::control_info_t Channels::XuControlInfo(Option option) const {
   }
   return {min, max, def};
 }
-
-
-std::size_t ChannelsAdapter::GetImuParamsFromData(
-    const std::uint8_t *data, const Version *version,
-    Channels::imu_params_t *imu_params) {
-  std::size_t i = 0;
-  i += bytes::from_data(&imu_params->in_accel, data + i, version);
-  i += bytes::from_data(&imu_params->in_gyro, data + i, version);
-  i += bytes::from_data(&imu_params->ex_left_to_imu, data + i, version);
-  return i;
-}
-
-std::size_t ChannelsAdapter::SetImuParamsToData(
-    const Channels::imu_params_t *imu_params, const Version *version,
-    std::uint8_t *data) {
-  std::size_t i = 3;  // skip id, size
-  i += bytes::to_data(&imu_params->in_accel, data + i, version);
-  i += bytes::to_data(&imu_params->in_gyro, data + i, version);
-  i += bytes::to_data(&imu_params->ex_left_to_imu, data + i, version);
-  // others
-  std::size_t size = i - 3;
-  data[0] = Channels::FID_IMU_PARAMS;
-  data[1] = static_cast<std::uint8_t>((size >> 8) & 0xFF);
-  data[2] = static_cast<std::uint8_t>(size & 0xFF);
-  return size + 3;
-}
-
-
-namespace bytes {
-
-// from
-
-std::string _from_data(const std::uint8_t *data, std::size_t count) {
-  std::string s(reinterpret_cast<const char *>(data), count);
-  strings::trim(s);
-  return s;
-}
-
-std::size_t from_data(Channels::device_info_t *info, const std::uint8_t *data) {
-  std::size_t i = 4;  // skip vid, pid
-  // name, 16
-  info->name = _from_data(data + i, 16);
-  i += 16;
-  // serial_number, 16
-  info->serial_number = _from_data(data + i, 16);
-  i += 16;
-  // firmware_version, 2
-  info->firmware_version.set_major(data[i]);
-  info->firmware_version.set_minor(data[i + 1]);
-  i += 2;
-  // hardware_version, 3
-  info->hardware_version.set_major(data[i]);
-  info->hardware_version.set_minor(data[i + 1]);
-  info->hardware_version.set_flag(std::bitset<8>(data[i + 2]));
-  i += 3;
-  // spec_version, 2
-  info->spec_version.set_major(data[i]);
-  info->spec_version.set_minor(data[i + 1]);
-  i += 2;
-  // lens_type, 4
-  info->lens_type.set_vendor(_from_data<std::uint16_t>(data + i));
-  info->lens_type.set_product(_from_data<std::uint16_t>(data + i + 2));
-  i += 4;
-  // imu_type, 4
-  info->imu_type.set_vendor(_from_data<std::uint16_t>(data + i));
-  info->imu_type.set_product(_from_data<std::uint16_t>(data + i + 2));
-  i += 4;
-  // nominal_baseline, 2
-  info->nominal_baseline = _from_data<std::uint16_t>(data + i);
-  i += 2;
-
-  return i;
-}
-
-std::size_t from_data(IntrinsicsPinhole *in, const std::uint8_t *data,
-    const Version *spec_version) {
-  std::size_t i = 0;
-
-  // width, 2
-  in->width = _from_data<std::uint16_t>(data + i);
-  i += 2;
-  // height, 2
-  in->height = _from_data<std::uint16_t>(data + i);
-  i += 2;
-  // fx, 8
-  in->fx = _from_data<double>(data + i);
-  i += 8;
-  // fy, 8
-  in->fy = _from_data<double>(data + i);
-  i += 8;
-  // cx, 8
-  in->cx = _from_data<double>(data + i);
-  i += 8;
-  // cy, 8
-  in->cy = _from_data<double>(data + i);
-  i += 8;
-  // model, 1
-  in->model = data[i];
-  i += 1;
-  // coeffs, 40
-  for (std::size_t j = 0; j < 5; j++) {
-    in->coeffs[j] = _from_data<double>(data + i + j * 8);
-  }
-  i += 40;
-
-  MYNTEYE_UNUSED(spec_version)
-  return i;
-}
-
-std::size_t from_data(ImuIntrinsics *in, const std::uint8_t *data,
-    const Version *spec_version) {
-  std::size_t i = 0;
-
-  // scale
-  for (std::size_t j = 0; j < 3; j++) {
-    for (std::size_t k = 0; k < 3; k++) {
-      in->scale[j][k] = _from_data<double>(data + i + (j * 3 + k) * 8);
-    }
-  }
-  i += 72;
-  // drift
-  for (std::size_t j = 0; j < 3; j++) {
-    in->drift[j] = _from_data<double>(data + i + j * 8);
-  }
-  i += 24;
-  // noise
-  for (std::size_t j = 0; j < 3; j++) {
-    in->noise[j] = _from_data<double>(data + i + j * 8);
-  }
-  i += 24;
-  // bias
-  for (std::size_t j = 0; j < 3; j++) {
-    in->bias[j] = _from_data<double>(data + i + j * 8);
-  }
-  i += 24;
-
-  MYNTEYE_UNUSED(spec_version)
-  return i;
-}
-
-std::size_t from_data(Extrinsics *ex, const std::uint8_t *data,
-    const Version *spec_version) {
-  std::size_t i = 0;
-
-  // rotation
-  for (std::size_t j = 0; j < 3; j++) {
-    for (std::size_t k = 0; k < 3; k++) {
-      ex->rotation[j][k] = _from_data<double>(data + i + (j * 3 + k) * 8);
-    }
-  }
-  i += 72;
-  // translation
-  for (std::size_t j = 0; j < 3; j++) {
-    ex->translation[j] = _from_data<double>(data + i + j * 8);
-  }
-  i += 24;
-
-  MYNTEYE_UNUSED(spec_version)
-  return i;
-}
-
-// to
-
-std::size_t _to_data(std::string value, std::uint8_t *data, std::size_t count) {
-  std::copy(value.begin(), value.end(), data);
-  for (std::size_t i = value.size(); i < count; i++) {
-    data[i] = ' ';
-  }
-  return count;
-}
-
-std::size_t to_data(const Channels::device_info_t *info, std::uint8_t *data,
-    const Version *spec_version) {
-  std::size_t i = 3;  // skip id, size
-  i += 4;             // skip vid, pid
-  // name, 16
-  _to_data(info->name, data + i, 16);
-  i += 16;
-  // serial_number, 16
-  _to_data(info->serial_number, data + i, 16);
-  i += 16;
-  // firmware_version, 2
-  data[i] = info->firmware_version.major();
-  data[i + 1] = info->firmware_version.minor();
-  i += 2;
-  // hardware_version, 3
-  data[i] = info->hardware_version.major();
-  data[i + 1] = info->hardware_version.minor();
-  data[i + 2] =
-      static_cast<std::uint8_t>(info->hardware_version.flag().to_ulong());
-  i += 3;
-  // spec_version, 2
-  data[i] = info->spec_version.major();
-  data[i + 1] = info->spec_version.minor();
-  i += 2;
-  // lens_type, 4
-  _to_data(info->lens_type.vendor(), data + i);
-  _to_data(info->lens_type.product(), data + i + 2);
-  i += 4;
-  // imu_type, 4
-  _to_data(info->imu_type.vendor(), data + i);
-  _to_data(info->imu_type.product(), data + i + 2);
-  i += 4;
-  // nominal_baseline, 2
-  _to_data(info->nominal_baseline, data + i);
-  i += 2;
-
-  MYNTEYE_UNUSED(spec_version)
-
-  // others
-  std::size_t size = i - 3;
-  data[0] = Channels::FID_DEVICE_INFO;
-  data[1] = static_cast<std::uint8_t>((size >> 8) & 0xFF);
-  data[2] = static_cast<std::uint8_t>(size & 0xFF);
-  return size + 3;
-}
-
-std::size_t to_data(const IntrinsicsPinhole *in, std::uint8_t *data,
-    const Version *spec_version) {
-  std::size_t i = 0;
-
-  // width, 2
-  _to_data(in->width, data + i);
-  i += 2;
-  // height, 2
-  _to_data(in->height, data + i);
-  i += 2;
-  // fx, 8
-  _to_data(in->fx, data + i);
-  i += 8;
-  // fy, 8
-  _to_data(in->fy, data + i);
-  i += 8;
-  // cx, 8
-  _to_data(in->cx, data + i);
-  i += 8;
-  // cy, 8
-  _to_data(in->cy, data + i);
-  i += 8;
-  // model, 1
-  data[i] = in->model;
-  i += 1;
-  // coeffs, 40
-  for (std::size_t j = 0; j < 5; j++) {
-    _to_data(in->coeffs[j], data + i + j * 8);
-  }
-  i += 40;
-
-  MYNTEYE_UNUSED(spec_version)
-  return i;
-}
-
-std::size_t to_data(const ImuIntrinsics *in, std::uint8_t *data,
-    const Version *spec_version) {
-  std::size_t i = 0;
-
-  // scale
-  for (std::size_t j = 0; j < 3; j++) {
-    for (std::size_t k = 0; k < 3; k++) {
-      _to_data(in->scale[j][k], data + i + (j * 3 + k) * 8);
-    }
-  }
-  i += 72;
-  // drift
-  for (std::size_t j = 0; j < 3; j++) {
-    _to_data(in->drift[j], data + i + j * 8);
-  }
-  i += 24;
-  // noise
-  for (std::size_t j = 0; j < 3; j++) {
-    _to_data(in->noise[j], data + i + j * 8);
-  }
-  i += 24;
-  // bias
-  for (std::size_t j = 0; j < 3; j++) {
-    _to_data(in->bias[j], data + i + j * 8);
-  }
-  i += 24;
-
-  MYNTEYE_UNUSED(spec_version)
-  return i;
-}
-
-std::size_t to_data(const Extrinsics *ex, std::uint8_t *data,
-    const Version *spec_version) {
-  std::size_t i = 0;
-
-  // rotation
-  for (std::size_t j = 0; j < 3; j++) {
-    for (std::size_t k = 0; k < 3; k++) {
-      _to_data(ex->rotation[j][k], data + i + (j * 3 + k) * 8);
-    }
-  }
-  i += 72;
-  // translation
-  for (std::size_t j = 0; j < 3; j++) {
-    _to_data(ex->translation[j], data + i + j * 8);
-  }
-  i += 24;
-
-  MYNTEYE_UNUSED(spec_version)
-  return i;
-}
-
-}  // namespace bytes
 
 MYNTEYE_END_NAMESPACE

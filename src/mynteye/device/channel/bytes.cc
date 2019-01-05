@@ -1,0 +1,208 @@
+// Copyright 2018 Slightech Co., Ltd. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+#include "mynteye/device/channel/bytes.h"
+
+#include "mynteye/util/strings.h"
+
+MYNTEYE_BEGIN_NAMESPACE
+
+namespace bytes {
+
+// from
+
+std::string _from_data(const std::uint8_t *data, std::size_t count) {
+  std::string s(reinterpret_cast<const char *>(data), count);
+  strings::trim(s);
+  return s;
+}
+
+// from types
+
+std::size_t from_data(IntrinsicsPinhole *in, const std::uint8_t *data) {
+  std::size_t i = 0;
+
+  // width, 2
+  in->width = _from_data<std::uint16_t>(data + i);
+  i += 2;
+  // height, 2
+  in->height = _from_data<std::uint16_t>(data + i);
+  i += 2;
+  // fx, 8
+  in->fx = _from_data<double>(data + i);
+  i += 8;
+  // fy, 8
+  in->fy = _from_data<double>(data + i);
+  i += 8;
+  // cx, 8
+  in->cx = _from_data<double>(data + i);
+  i += 8;
+  // cy, 8
+  in->cy = _from_data<double>(data + i);
+  i += 8;
+  // model, 1
+  in->model = data[i];
+  i += 1;
+  // coeffs, 40
+  for (std::size_t j = 0; j < 5; j++) {
+    in->coeffs[j] = _from_data<double>(data + i + j * 8);
+  }
+  i += 40;
+
+  return i;
+}
+
+std::size_t from_data(ImuIntrinsics *in, const std::uint8_t *data) {
+  std::size_t i = 0;
+
+  // scale
+  for (std::size_t j = 0; j < 3; j++) {
+    for (std::size_t k = 0; k < 3; k++) {
+      in->scale[j][k] = _from_data<double>(data + i + (j * 3 + k) * 8);
+    }
+  }
+  i += 72;
+  // drift
+  for (std::size_t j = 0; j < 3; j++) {
+    in->drift[j] = _from_data<double>(data + i + j * 8);
+  }
+  i += 24;
+  // noise
+  for (std::size_t j = 0; j < 3; j++) {
+    in->noise[j] = _from_data<double>(data + i + j * 8);
+  }
+  i += 24;
+  // bias
+  for (std::size_t j = 0; j < 3; j++) {
+    in->bias[j] = _from_data<double>(data + i + j * 8);
+  }
+  i += 24;
+
+  return i;
+}
+
+std::size_t from_data(Extrinsics *ex, const std::uint8_t *data) {
+  std::size_t i = 0;
+
+  // rotation
+  for (std::size_t j = 0; j < 3; j++) {
+    for (std::size_t k = 0; k < 3; k++) {
+      ex->rotation[j][k] = _from_data<double>(data + i + (j * 3 + k) * 8);
+    }
+  }
+  i += 72;
+  // translation
+  for (std::size_t j = 0; j < 3; j++) {
+    ex->translation[j] = _from_data<double>(data + i + j * 8);
+  }
+  i += 24;
+
+  return i;
+}
+
+// to
+
+std::size_t _to_data(std::string value, std::uint8_t *data, std::size_t count) {
+  std::copy(value.begin(), value.end(), data);
+  for (std::size_t i = value.size(); i < count; i++) {
+    data[i] = ' ';
+  }
+  return count;
+}
+
+// to types
+
+std::size_t to_data(const IntrinsicsPinhole *in, std::uint8_t *data) {
+  std::size_t i = 0;
+
+  // width, 2
+  _to_data(in->width, data + i);
+  i += 2;
+  // height, 2
+  _to_data(in->height, data + i);
+  i += 2;
+  // fx, 8
+  _to_data(in->fx, data + i);
+  i += 8;
+  // fy, 8
+  _to_data(in->fy, data + i);
+  i += 8;
+  // cx, 8
+  _to_data(in->cx, data + i);
+  i += 8;
+  // cy, 8
+  _to_data(in->cy, data + i);
+  i += 8;
+  // model, 1
+  data[i] = in->model;
+  i += 1;
+  // coeffs, 40
+  for (std::size_t j = 0; j < 5; j++) {
+    _to_data(in->coeffs[j], data + i + j * 8);
+  }
+  i += 40;
+
+  return i;
+}
+
+std::size_t to_data(const ImuIntrinsics *in, std::uint8_t *data) {
+  std::size_t i = 0;
+
+  // scale
+  for (std::size_t j = 0; j < 3; j++) {
+    for (std::size_t k = 0; k < 3; k++) {
+      _to_data(in->scale[j][k], data + i + (j * 3 + k) * 8);
+    }
+  }
+  i += 72;
+  // drift
+  for (std::size_t j = 0; j < 3; j++) {
+    _to_data(in->drift[j], data + i + j * 8);
+  }
+  i += 24;
+  // noise
+  for (std::size_t j = 0; j < 3; j++) {
+    _to_data(in->noise[j], data + i + j * 8);
+  }
+  i += 24;
+  // bias
+  for (std::size_t j = 0; j < 3; j++) {
+    _to_data(in->bias[j], data + i + j * 8);
+  }
+  i += 24;
+
+  return i;
+}
+
+std::size_t to_data(const Extrinsics *ex, std::uint8_t *data) {
+  std::size_t i = 0;
+
+  // rotation
+  for (std::size_t j = 0; j < 3; j++) {
+    for (std::size_t k = 0; k < 3; k++) {
+      _to_data(ex->rotation[j][k], data + i + (j * 3 + k) * 8);
+    }
+  }
+  i += 72;
+  // translation
+  for (std::size_t j = 0; j < 3; j++) {
+    _to_data(ex->translation[j], data + i + j * 8);
+  }
+  i += 24;
+
+  return i;
+}
+
+}  // namespace bytes
+
+MYNTEYE_END_NAMESPACE

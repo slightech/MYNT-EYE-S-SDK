@@ -51,6 +51,26 @@ class StreamsAdapter;
 template <class Data>
 class AsyncCallback;
 
+namespace device {
+
+typedef struct ImgParams {
+  bool ok;
+  std::string version;
+  std::shared_ptr<IntrinsicsBase> in_left;
+  std::shared_ptr<IntrinsicsBase> in_right;
+  Extrinsics ex_right_to_left;
+} img_params_t;
+
+typedef struct ImuParams {
+  bool ok;
+  std::string version;
+  ImuIntrinsics in_accel;
+  ImuIntrinsics in_gyro;
+  Extrinsics ex_left_to_imu;
+} imu_params_t;
+
+}  // namespace device
+
 /**
  * The Device class to communicate with MYNT® EYE device.
  */
@@ -266,7 +286,7 @@ class MYNTEYE_API Device {
    */
   device::StreamData GetStreamData(const Stream &stream);
 
-  /** 
+  /**
    * @deprecated Replaced by GetStreamData(const Stream &stream)
    */
   device::StreamData GetLatestStreamData(const Stream &stream);
