@@ -32,7 +32,7 @@ std::string _from_data(const std::uint8_t *data, std::size_t count) {
 
 std::size_t from_data(IntrinsicsBase *in, const std::uint8_t *data,
     bool get_size) {
-  switch (in->calib_model) {
+  switch (in->calib_model()) {
     case CalibrationModel::PINHOLE:
       return from_data(dynamic_cast<IntrinsicsPinhole *>(in), data,
           get_size);
@@ -40,7 +40,7 @@ std::size_t from_data(IntrinsicsBase *in, const std::uint8_t *data,
       return from_data(dynamic_cast<IntrinsicsEquidistant *>(in), data,
           get_size);
     default:
-      LOG(FATAL) << "Unknown calib model: " << in->calib_model;
+      LOG(FATAL) << "Unknown calib model: " << in->calib_model();
   }
 }
 
@@ -163,7 +163,7 @@ std::size_t _to_data(std::string value, std::uint8_t *data, std::size_t count) {
 
 std::size_t to_data(const IntrinsicsBase *in, std::uint8_t *data,
     bool set_size) {
-  switch (in->calib_model) {
+  switch (in->calib_model()) {
     case CalibrationModel::PINHOLE:
       return to_data(dynamic_cast<const IntrinsicsPinhole *>(in), data,
           set_size);
@@ -171,7 +171,7 @@ std::size_t to_data(const IntrinsicsBase *in, std::uint8_t *data,
       return to_data(dynamic_cast<const IntrinsicsEquidistant *>(in), data,
           set_size);
     default:
-      LOG(FATAL) << "Unknown calib model: " << in->calib_model;
+      LOG(FATAL) << "Unknown calib model: " << in->calib_model();
   }
 }
 

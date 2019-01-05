@@ -417,16 +417,21 @@ inline std::ostream &operator<<(std::ostream &os,
 
 struct MYNTEYE_API IntrinsicsBase {
   IntrinsicsBase() {
-    calib_model = CalibrationModel::UNKNOW;
+    calib_model_ = CalibrationModel::UNKNOW;
   }
   virtual ~IntrinsicsBase() {}
 
   /** The calibration model */
-  CalibrationModel calib_model;
+  CalibrationModel calib_model() const {
+    return calib_model_;
+  }
   /** The width of the image in pixels */
   std::uint16_t width;
   /** The height of the image in pixels */
   std::uint16_t height;
+
+ protected:
+  CalibrationModel calib_model_;
 };
 
 /**
@@ -435,7 +440,7 @@ struct MYNTEYE_API IntrinsicsBase {
  */
 struct MYNTEYE_API IntrinsicsPinhole : public IntrinsicsBase {
   IntrinsicsPinhole() {
-    calib_model = CalibrationModel::PINHOLE;
+    calib_model_ = CalibrationModel::PINHOLE;
   }
   /** The focal length of the image plane, as a multiple of pixel width */
   double fx;
@@ -465,7 +470,7 @@ using Intrinsics = IntrinsicsPinhole;
  */
 struct MYNTEYE_API IntrinsicsEquidistant : public IntrinsicsBase {
   IntrinsicsEquidistant() {
-    calib_model = CalibrationModel::KANNALA_BRANDT;
+    calib_model_ = CalibrationModel::KANNALA_BRANDT;
   }
   /** The distortion coefficients: k2,k3,k4,k5,mu,mv,u0,v0 */
   double coeffs[8];

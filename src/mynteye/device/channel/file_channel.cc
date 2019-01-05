@@ -334,10 +334,8 @@ std::size_t ImgParamsParser::GetFromData_new(
       i += bytes::from_data(in_left.get(), data + i, false);
       i += bytes::from_data(in_right.get(), data + i, false);
       i += bytes::from_data(&ex_right_to_left, data + i);
-      in_left->calib_model = calib_model;
       in_left->width = width;
       in_left->height = height;
-      in_right->calib_model = calib_model;
       in_right->width = width;
       in_right->height = height;
       (*img_params)[{width, height}] = {true, version.to_string(),
@@ -369,7 +367,7 @@ std::size_t ImgParamsParser::SetToData_new(
     for (auto &&entry : *img_params) {
       auto &&params = entry.second;
       // calib_model, 1
-      data[i] = static_cast<std::uint8_t>(params.in_left->calib_model);
+      data[i] = static_cast<std::uint8_t>(params.in_left->calib_model());
       i += 1;
       // width, 2
       bytes::_to_data(params.in_left->width, data + i);
