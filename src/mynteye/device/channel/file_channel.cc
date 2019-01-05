@@ -176,32 +176,22 @@ ImgParamsParser::~ImgParamsParser() {
 std::size_t ImgParamsParser::GetFromData(
     const std::uint8_t *data, const std::uint16_t &data_size,
     img_params_t *img_params) const {
-  if (spec_version_ == Version(1, 0) || spec_version_ == Version(1, 1)) {
-    // get img params without version header
-    if (spec_version_ == Version(1, 0)) {
-      return GetFromData_v1_0(data, data_size, img_params);
-    } else {
-      return GetFromData_v1_1(data, data_size, img_params);
-    }
-  } else {
-    // get img params with version header
-    return GetFromData_new(data, data_size, img_params);
+  // s1030 old params
+  if (spec_version_ == Version(1, 0) && data_size == 250) {
+    return GetFromData_v1_0(data, data_size, img_params);
   }
+  // s210a old params
+  if (spec_version_ == Version(1, 1) && data_size == 404) {
+    return GetFromData_v1_1(data, data_size, img_params);
+  }
+  // get img params with new version format
+  return GetFromData_new(data, data_size, img_params);
 }
 
 std::size_t ImgParamsParser::SetToData(
     const img_params_t *img_params, std::uint8_t *data) const {
-  if (spec_version_ == Version(1, 0) || spec_version_ == Version(1, 1)) {
-    // set img params without version header
-    if (spec_version_ == Version(1, 0)) {
-      return SetToData_v1_0(img_params, data);
-    } else {
-      return SetToData_v1_1(img_params, data);
-    }
-  } else {
-    // set img params with version header
-    return SetToData_new(img_params, data);
-  }
+  // always set img params with new version format
+  return SetToData_new(img_params, data);
 }
 
 std::size_t ImgParamsParser::GetFromData_v1_0(
@@ -356,14 +346,16 @@ std::size_t ImgParamsParser::SetToData_new(
     return 0;
   }
 
+  Version version_new(1, 2);  // new version
+  Version version_raw(img_params->begin()->second.version);
+
   std::size_t i = 3;  // skip id, size
   // version, 2
-  Version version(img_params->begin()->second.version);
-  data[i] = version.major();
-  data[i + 1] = version.minor();
+  data[i] = version_new.major();
+  data[i + 1] = version_new.minor();
   i += 2;
-  // set img params according to version
-  if (version == Version(1, 2)) {  // v1.2
+  // set img params with new version format
+  if (version_raw <= version_new) {
     for (auto &&entry : *img_params) {
       auto &&params = entry.second;
       // calib_model, 1
@@ -382,7 +374,7 @@ std::size_t ImgParamsParser::SetToData_new(
     }
   } else {
     LOG(FATAL) << "Could not set img params of version "
-        << version.to_string() << ", please use latest SDK.";
+        << version_raw.to_string() << ", please use latest SDK.";
   }
 
   // others
@@ -404,24 +396,22 @@ ImuParamsParser::~ImuParamsParser() {
 std::size_t ImuParamsParser::GetFromData(
     const std::uint8_t *data, const std::uint16_t &data_size,
     imu_params_t *imu_params) const {
-  if (spec_version_ == Version(1, 0) || spec_version_ == Version(1, 1)) {
-    // get imu params without version header
+  // s1030 old params
+  if (spec_version_ == Version(1, 0) && data_size == 384) {
     return GetFromData_old(data, data_size, imu_params);
-  } else {
-    // get imu params with version header
-    return GetFromData_new(data, data_size, imu_params);
   }
+  // s210a old params
+  if (spec_version_ == Version(1, 1) && data_size == 384) {
+    return GetFromData_old(data, data_size, imu_params);
+  }
+  // get imu params with new version format
+  return GetFromData_new(data, data_size, imu_params);
 }
 
 std::size_t ImuParamsParser::SetToData(
     const imu_params_t *imu_params, std::uint8_t *data) const {
-  if (spec_version_ == Version(1, 0) || spec_version_ == Version(1, 1)) {
-    // set imu params without version header
-    return SetToData_old(imu_params, data);
-  } else {
-    // set imu params with version header
-    return SetToData_new(imu_params, data);
-  }
+  // always set imu params with new version format
+  return SetToData_new(imu_params, data);
 }
 
 std::size_t ImuParamsParser::GetFromData_old(
@@ -473,19 +463,22 @@ std::size_t ImuParamsParser::GetFromData_new(
 std::size_t ImuParamsParser::SetToData_new(
     const imu_params_t *imu_params, std::uint8_t *data) const {
   std::size_t i = 3;  // skip id, size
+
+  Version version_new(1, 2);  // new version
+  Version version_raw(imu_params->version);
+
   // version, 2
-  Version version(imu_params->version);
-  data[i] = version.major();
-  data[i + 1] = version.minor();
+  data[i] = version_new.major();
+  data[i + 1] = version_new.minor();
   i += 2;
-  // set imu params according to version
-  if (version == Version(1, 2)) {  // v1.2
+  // set imu params with new version format
+  if (version_raw <= version_new) {
     i += bytes::to_data(&imu_params->in_accel, data + i);
     i += bytes::to_data(&imu_params->in_gyro, data + i);
     i += bytes::to_data(&imu_params->ex_left_to_imu, data + i);
   } else {
     LOG(FATAL) << "Could not set imu params of version "
-        << version.to_string() << ", please use latest SDK.";
+        << version_raw.to_string() << ", please use latest SDK.";
   }
   // others
   std::size_t size = i - 3;
