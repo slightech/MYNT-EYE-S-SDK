@@ -97,26 +97,6 @@ int XuHalfDuplexId(Option option) {
   }
 }
 
-void CheckSpecVersion(const Version *spec_version) {
-  if (spec_version == nullptr) {
-    LOG(FATAL) << "Spec version must be specified";
-  }
-
-  std::vector<std::string> spec_versions{"1.0", "1.1"};
-  for (auto &&spec_ver : spec_versions) {
-    if (*spec_version == Version(spec_ver)) {
-      return;  // supported
-    }
-  }
-
-  std::ostringstream ss;
-  std::copy(
-      spec_versions.begin(), spec_versions.end(),
-      std::ostream_iterator<std::string>(ss, ","));
-  LOG(FATAL) << "Spec version " << spec_version->to_string()
-             << " not supported, must in [" << ss.str() << "]";
-}
-
 }  // namespace
 
 Channels::Channels(const std::shared_ptr<uvc::device> &device,
@@ -431,8 +411,7 @@ void Channels::StopImuTracking() {
 }
 
 bool Channels::GetFiles(
-    device_info_t *info, img_params_t *img_params, imu_params_t *imu_params,
-    Version *spec_version) {
+    device_info_t *info, img_params_t *img_params, imu_params_t *imu_params) {
   if (info == nullptr && img_params == nullptr && imu_params == nullptr) {
     LOG(WARNING) << "Files are not provided to get";
     return false;
@@ -475,7 +454,6 @@ bool Channels::GetFiles(
       return false;
     }
 
-    Version *spec_ver = spec_version;
     std::size_t i = 3;
     std::size_t end = 3 + size;
     while (i < end) {
@@ -486,25 +464,24 @@ bool Channels::GetFiles(
       i += 3;
       switch (file_id) {
         case FID_DEVICE_INFO: {
-          auto &&n = file_channel_.GetDeviceInfoFromData(data + i, info);
+          auto &&n = file_channel_.GetDeviceInfoFromData(
+              data + i, file_size, info);
           CHECK_EQ(n, file_size)
               << "The firmware not support getting device info, you could "
                  "upgrade to latest";
-          spec_ver = &info->spec_version;
-          CheckSpecVersion(spec_ver);
         } break;
         case FID_IMG_PARAMS: {
           if (file_size > 0) {
-            CheckSpecVersion(spec_ver);
-            auto &&n = file_channel_.GetImgParamsFromData(data + i, img_params);
+            auto &&n = file_channel_.GetImgParamsFromData(
+                data + i, file_size, img_params);
             CHECK_EQ(n, file_size);
           }
         } break;
         case FID_IMU_PARAMS: {
           imu_params->ok = file_size > 0;
           if (imu_params->ok) {
-            CheckSpecVersion(spec_ver);
-            auto &&n = file_channel_.GetImuParamsFromData(data + i, imu_params);
+            auto &&n = file_channel_.GetImuParamsFromData(
+                data + i, file_size, imu_params);
             CHECK_EQ(n, file_size);
           }
         } break;
@@ -523,17 +500,11 @@ bool Channels::GetFiles(
 }
 
 bool Channels::SetFiles(
-    device_info_t *info, img_params_t *img_params, imu_params_t *imu_params,
-    Version *spec_version) {
+    device_info_t *info, img_params_t *img_params, imu_params_t *imu_params) {
   if (info == nullptr && img_params == nullptr && imu_params == nullptr) {
     LOG(WARNING) << "Files are not provided to set";
     return false;
   }
-  Version *spec_ver = spec_version;
-  if (spec_ver == nullptr && info != nullptr) {
-    spec_ver = &info->spec_version;
-  }
-  CheckSpecVersion(spec_ver);
 
   std::uint8_t data[2000]{};
 
@@ -542,16 +513,28 @@ bool Channels::SetFiles(
 
   std::uint16_t size = 0;
   if (info != nullptr) {
-    header[0] = true;
-    size += file_channel_.SetDeviceInfoToData(info, data + 3 + size);
+    auto n = file_channel_.SetDeviceInfoToData(info, data + 3 + size);
+    if (n > 0) {
+      header[0] = true;
+      size += n;
+    }
   }
   if (img_params != nullptr) {
-    header[1] = true;
-    size += file_channel_.SetImgParamsToData(img_params, data + 3 + size);
+    auto n = file_channel_.SetImgParamsToData(img_params, data + 3 + size);
+    if (n > 0) {
+      header[1] = true;
+      size += n;
+    }
   }
   if (imu_params != nullptr) {
-    header[2] = true;
-    size += file_channel_.SetImuParamsToData(imu_params, data + 3 + size);
+    auto n = file_channel_.SetImuParamsToData(imu_params, data + 3 + size);
+    if (n > 0) {
+      header[2] = true;
+      size += n;
+    }
+  }
+  if (size + 3 > 2000) {
+    LOG(FATAL) << "SetFiles failed, data is too large: " << (size + 3);
   }
 
   data[0] = static_cast<std::uint8_t>(header.to_ulong());

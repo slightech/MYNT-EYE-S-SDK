@@ -43,13 +43,13 @@ std::string RectifyProcessor::Name() {
 void RectifyProcessor::NotifyImageParamsChanged() {
   auto in_left = device_->GetIntrinsics(Stream::LEFT);
   auto in_right = device_->GetIntrinsics(Stream::RIGHT);
-  if (in_left->calib_model == CalibrationModel::CALIB_MODEL_PINHOLE) {
+  if (in_left->calib_model == CalibrationModel::PINHOLE) {
     InitParams(
       *std::dynamic_pointer_cast<IntrinsicsPinhole>(in_left),
       *std::dynamic_pointer_cast<IntrinsicsPinhole>(in_right),
       device_->GetExtrinsics(Stream::RIGHT, Stream::LEFT));
   } else if (in_left->calib_model ==
-             CalibrationModel::CALIB_MODEL_KANNALA_BRANDT) {
+             CalibrationModel::KANNALA_BRANDT) {
     InitParams(
       *std::dynamic_pointer_cast<IntrinsicsEquidistant>(in_left),
       *std::dynamic_pointer_cast<IntrinsicsEquidistant>(in_right),

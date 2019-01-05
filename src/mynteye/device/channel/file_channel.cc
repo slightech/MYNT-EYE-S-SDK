@@ -29,8 +29,9 @@ FileChannel::~FileChannel() {
 }
 
 std::size_t FileChannel::GetDeviceInfoFromData(
-    const std::uint8_t *data, device_info_t *info) {
-  auto n = dev_info_parser_->GetFromData(data, info);
+    const std::uint8_t *data, const std::uint16_t &data_size,
+    device_info_t *info) {
+  auto n = dev_info_parser_->GetFromData(data, data_size, info);
   auto spec_version = info->spec_version;
   img_params_parser_->SetSpecVersion(spec_version);
   imu_params_parser_->SetSpecVersion(spec_version);
@@ -46,9 +47,10 @@ std::size_t FileChannel::SetDeviceInfoToData(
 }
 
 std::size_t FileChannel::GetImgParamsFromData(
-    const std::uint8_t *data, img_params_t *img_params) {
+    const std::uint8_t *data, const std::uint16_t &data_size,
+    img_params_t *img_params) {
   CHECK_NOTNULL(img_params_parser_);
-  return img_params_parser_->GetFromData(data, img_params);
+  return img_params_parser_->GetFromData(data, data_size, img_params);
 }
 
 std::size_t FileChannel::SetImgParamsToData(
@@ -58,8 +60,9 @@ std::size_t FileChannel::SetImgParamsToData(
 }
 
 std::size_t FileChannel::GetImuParamsFromData(
-    const std::uint8_t *data, imu_params_t *imu_params) {
-  return imu_params_parser_->GetFromData(data, imu_params);
+    const std::uint8_t *data, const std::uint16_t &data_size,
+    imu_params_t *imu_params) {
+  return imu_params_parser_->GetFromData(data, data_size, imu_params);
 }
 
 std::size_t FileChannel::SetImuParamsToData(
@@ -76,7 +79,8 @@ DeviceInfoParser::~DeviceInfoParser() {
 }
 
 std::size_t DeviceInfoParser::GetFromData(
-    const std::uint8_t *data, device_info_t *info) const {
+    const std::uint8_t *data, const std::uint16_t &data_size,
+    device_info_t *info) const {
   std::size_t i = 4;  // skip vid, pid
   // name, 16
   info->name = bytes::_from_data(data + i, 16);
@@ -111,6 +115,7 @@ std::size_t DeviceInfoParser::GetFromData(
 
   // get other infos according to spec_version
 
+  MYNTEYE_UNUSED(data_size)
   return i;
 }
 
@@ -169,17 +174,18 @@ ImgParamsParser::~ImgParamsParser() {
 }
 
 std::size_t ImgParamsParser::GetFromData(
-    const std::uint8_t *data, img_params_t *img_params) const {
+    const std::uint8_t *data, const std::uint16_t &data_size,
+    img_params_t *img_params) const {
   if (spec_version_ == Version(1, 0) || spec_version_ == Version(1, 1)) {
     // get img params without version header
     if (spec_version_ == Version(1, 0)) {
-      return GetFromData_v1_0(data, img_params);
+      return GetFromData_v1_0(data, data_size, img_params);
     } else {
-      return GetFromData_v1_1(data, img_params);
+      return GetFromData_v1_1(data, data_size, img_params);
     }
   } else {
     // get img params with version header
-    return GetFromData_new(data, img_params);
+    return GetFromData_new(data, data_size, img_params);
   }
 }
 
@@ -199,19 +205,21 @@ std::size_t ImgParamsParser::SetToData(
 }
 
 std::size_t ImgParamsParser::GetFromData_v1_0(
-    const std::uint8_t *data, img_params_t *img_params) const {
+    const std::uint8_t *data, const std::uint16_t &data_size,
+    img_params_t *img_params) const {
   std::size_t i = 0;
 
   auto in_left = std::make_shared<IntrinsicsPinhole>();
   auto in_right = std::make_shared<IntrinsicsPinhole>();
   Extrinsics ex_right_to_left;
 
-  i += bytes::from_data(in_left.get(), data + i);
-  i += bytes::from_data(in_right.get(), data + i);
+  i += bytes::from_data(in_left.get(), data + i, true);
+  i += bytes::from_data(in_right.get(), data + i, true);
   i += bytes::from_data(&ex_right_to_left, data + i);
   (*img_params)[{752, 480}] = {true, spec_version_.to_string(),
       in_left, in_right, ex_right_to_left};
 
+  MYNTEYE_UNUSED(data_size)
   return i;
 }
 
@@ -220,10 +228,8 @@ std::size_t ImgParamsParser::SetToData_v1_0(
   std::size_t i = 3;  // skip id, size
 
   auto params = (*img_params).at({752, 480});
-  auto in_left = std::dynamic_pointer_cast<IntrinsicsPinhole>(params.in_left);
-  auto in_right = std::dynamic_pointer_cast<IntrinsicsPinhole>(params.in_right);
-  i += bytes::to_data(in_left.get(), data + i);
-  i += bytes::to_data(in_right.get(), data + i);
+  i += bytes::to_data(params.in_left.get(), data + i, true);
+  i += bytes::to_data(params.in_right.get(), data + i, true);
   i += bytes::to_data(&params.ex_right_to_left, data + i);
 
   // others
@@ -235,23 +241,24 @@ std::size_t ImgParamsParser::SetToData_v1_0(
 }
 
 std::size_t ImgParamsParser::GetFromData_v1_1(
-    const std::uint8_t *data, img_params_t *img_params) const {
+    const std::uint8_t *data, const std::uint16_t &data_size,
+    img_params_t *img_params) const {
   std::size_t i = 0;
 
   Extrinsics ex_right_to_left;
   {
     auto in_left = std::make_shared<IntrinsicsPinhole>();
     auto in_right = std::make_shared<IntrinsicsPinhole>();
-    i += bytes::from_data(in_left.get(), data + i);
-    i += bytes::from_data(in_right.get(), data + i);
+    i += bytes::from_data(in_left.get(), data + i, true);
+    i += bytes::from_data(in_right.get(), data + i, true);
     (*img_params)[{1280, 400}] = {true, spec_version_.to_string(),
         in_left, in_right, ex_right_to_left};
   }
   {
     auto in_left = std::make_shared<IntrinsicsPinhole>();
     auto in_right = std::make_shared<IntrinsicsPinhole>();
-    i += bytes::from_data(in_left.get(), data + i);
-    i += bytes::from_data(in_right.get(), data + i);
+    i += bytes::from_data(in_left.get(), data + i, true);
+    i += bytes::from_data(in_right.get(), data + i, true);
     (*img_params)[{2560, 800}] = {true, spec_version_.to_string(),
         in_left, in_right, ex_right_to_left};
   }
@@ -261,6 +268,7 @@ std::size_t ImgParamsParser::GetFromData_v1_1(
     (*img_params)[{2560, 800}].ex_right_to_left = ex_right_to_left;
   }
 
+  MYNTEYE_UNUSED(data_size)
   return i;
 }
 
@@ -270,19 +278,13 @@ std::size_t ImgParamsParser::SetToData_v1_1(
 
   {
     auto params = (*img_params).at({1280, 400});
-    auto in_left = std::dynamic_pointer_cast<IntrinsicsPinhole>(params.in_left);
-    auto in_right = std::dynamic_pointer_cast<IntrinsicsPinhole>(
-        params.in_right);
-    i += bytes::to_data(in_left.get(), data + i);
-    i += bytes::to_data(in_right.get(), data + i);
+    i += bytes::to_data(params.in_left.get(), data + i, true);
+    i += bytes::to_data(params.in_right.get(), data + i, true);
   }
   {
     auto params = (*img_params).at({2560, 800});
-    auto in_left = std::dynamic_pointer_cast<IntrinsicsPinhole>(params.in_left);
-    auto in_right = std::dynamic_pointer_cast<IntrinsicsPinhole>(
-        params.in_right);
-    i += bytes::to_data(in_left.get(), data + i);
-    i += bytes::to_data(in_right.get(), data + i);
+    i += bytes::to_data(params.in_left.get(), data + i, true);
+    i += bytes::to_data(params.in_right.get(), data + i, true);
     i += bytes::to_data(&params.ex_right_to_left, data + i);
   }
 
@@ -295,12 +297,102 @@ std::size_t ImgParamsParser::SetToData_v1_1(
 }
 
 std::size_t ImgParamsParser::GetFromData_new(
-    const std::uint8_t *data, img_params_t *img_params) const {
-  return 0;
+    const std::uint8_t *data, const std::uint16_t &data_size,
+    img_params_t *img_params) const {
+  std::size_t i = 0;
+  // version, 2
+  Version version(data[i], data[i + 1]);
+  i += 2;
+  // get img params according to version
+  if (version == Version(1, 2)) {  // v1.2
+    for (; i < data_size;) {
+      // calib_model, 1
+      auto calib_model = static_cast<CalibrationModel>(data[i]);
+      i += 1;
+      // width, 2
+      auto width = bytes::_from_data<std::uint16_t>(data + i);
+      i += 2;
+      // height, 2
+      auto height = bytes::_from_data<std::uint16_t>(data + i);
+      i += 2;
+      // calib_params
+      std::shared_ptr<IntrinsicsBase> in_left, in_right;
+      Extrinsics ex_right_to_left;
+      switch (calib_model) {
+        case CalibrationModel::PINHOLE:
+          in_left = std::make_shared<IntrinsicsPinhole>();
+          in_right = std::make_shared<IntrinsicsPinhole>();
+          break;
+        case CalibrationModel::KANNALA_BRANDT:
+          in_left = std::make_shared<IntrinsicsEquidistant>();
+          in_right = std::make_shared<IntrinsicsEquidistant>();
+          break;
+        default:
+          LOG(FATAL) << "Could not get img params as unknown calib model"
+              ", please use latest SDK.";
+      }
+      i += bytes::from_data(in_left.get(), data + i, false);
+      i += bytes::from_data(in_right.get(), data + i, false);
+      i += bytes::from_data(&ex_right_to_left, data + i);
+      in_left->calib_model = calib_model;
+      in_left->width = width;
+      in_left->height = height;
+      in_right->calib_model = calib_model;
+      in_right->width = width;
+      in_right->height = height;
+      (*img_params)[{width, height}] = {true, version.to_string(),
+          in_left, in_right, ex_right_to_left};
+    }
+  } else {
+    LOG(FATAL) << "Could not get img params of version "
+        << version.to_string() << ", please use latest SDK.";
+  }
+
+  MYNTEYE_UNUSED(data_size)
+  return i;
 }
+
 std::size_t ImgParamsParser::SetToData_new(
     const img_params_t *img_params, std::uint8_t *data) const {
-  return 0;
+  if (img_params->empty()) {
+    return 0;
+  }
+
+  std::size_t i = 3;  // skip id, size
+  // version, 2
+  Version version(img_params->begin()->second.version);
+  data[i] = version.major();
+  data[i + 1] = version.minor();
+  i += 2;
+  // set img params according to version
+  if (version == Version(1, 2)) {  // v1.2
+    for (auto &&entry : *img_params) {
+      auto &&params = entry.second;
+      // calib_model, 1
+      data[i] = static_cast<std::uint8_t>(params.in_left->calib_model);
+      i += 1;
+      // width, 2
+      bytes::_to_data(params.in_left->width, data + i);
+      i += 2;
+      // height, 2
+      bytes::_to_data(params.in_left->height, data + i);
+      i += 2;
+      // calib_params
+      i += bytes::to_data(params.in_left.get(), data + i, false);
+      i += bytes::to_data(params.in_right.get(), data + i, false);
+      i += bytes::to_data(&params.ex_right_to_left, data + i);
+    }
+  } else {
+    LOG(FATAL) << "Could not set img params of version "
+        << version.to_string() << ", please use latest SDK.";
+  }
+
+  // others
+  std::size_t size = i - 3;
+  data[0] = FID_IMG_PARAMS;
+  data[1] = static_cast<std::uint8_t>((size >> 8) & 0xFF);
+  data[2] = static_cast<std::uint8_t>(size & 0xFF);
+  return size + 3;
 }
 
 // ImuParamsParser
@@ -312,13 +404,14 @@ ImuParamsParser::~ImuParamsParser() {
 }
 
 std::size_t ImuParamsParser::GetFromData(
-    const std::uint8_t *data, imu_params_t *imu_params) const {
+    const std::uint8_t *data, const std::uint16_t &data_size,
+    imu_params_t *imu_params) const {
   if (spec_version_ == Version(1, 0) || spec_version_ == Version(1, 1)) {
     // get imu params without version header
-    return GetFromData_old(data, imu_params);
+    return GetFromData_old(data, data_size, imu_params);
   } else {
     // get imu params with version header
-    return GetFromData_new(data, imu_params);
+    return GetFromData_new(data, data_size, imu_params);
   }
 }
 
@@ -334,11 +427,13 @@ std::size_t ImuParamsParser::SetToData(
 }
 
 std::size_t ImuParamsParser::GetFromData_old(
-    const std::uint8_t *data, imu_params_t *imu_params) const {
+    const std::uint8_t *data, const std::uint16_t &data_size,
+    imu_params_t *imu_params) const {
   std::size_t i = 0;
   i += bytes::from_data(&imu_params->in_accel, data + i);
   i += bytes::from_data(&imu_params->in_gyro, data + i);
   i += bytes::from_data(&imu_params->ex_left_to_imu, data + i);
+  MYNTEYE_UNUSED(data_size)
   return i;
 }
 
@@ -357,7 +452,8 @@ std::size_t ImuParamsParser::SetToData_old(
 }
 
 std::size_t ImuParamsParser::GetFromData_new(
-    const std::uint8_t *data, imu_params_t *imu_params) const {
+    const std::uint8_t *data, const std::uint16_t &data_size,
+    imu_params_t *imu_params) const {
   std::size_t i = 0;
   // version, 2
   Version version(data[i], data[i + 1]);
@@ -372,6 +468,7 @@ std::size_t ImuParamsParser::GetFromData_new(
     LOG(FATAL) << "Could not get imu params of version "
         << version.to_string() << ", please use latest SDK.";
   }
+  MYNTEYE_UNUSED(data_size)
   return i;
 }
 

@@ -82,11 +82,9 @@ class MYNTEYE_API Channels {
   void StopImuTracking();
 
   bool GetFiles(
-      device_info_t *info, img_params_t *img_params, imu_params_t *imu_params,
-      Version *spec_version = nullptr);
+      device_info_t *info, img_params_t *img_params, imu_params_t *imu_params);
   bool SetFiles(
-      device_info_t *info, img_params_t *img_params, imu_params_t *imu_params,
-      Version *spec_version = nullptr);
+      device_info_t *info, img_params_t *img_params, imu_params_t *imu_params);
 
  private:
   bool PuControlRange(

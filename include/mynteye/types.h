@@ -400,22 +400,33 @@ std::ostream &operator<<(std::ostream &os, const StreamRequest &request);
  * Camera calibration model.
  */
 enum class CalibrationModel : std::uint8_t {
-  /** Unknow */
-  CALIB_MODEL_UNKNOW = 0,
   /** Pinhole */
-  CALIB_MODEL_PINHOLE = 1,
+  PINHOLE = 0,
   /** Equidistant: KANNALA_BRANDT */
-  CALIB_MODEL_KANNALA_BRANDT = 2,
-  // CALIB_MODEL_SCARAMUZZA,
-  // CALIB_MODEL_MEI,
+  KANNALA_BRANDT = 1,
+  /** Unknow */
+  UNKNOW
 };
+
+MYNTEYE_API const char *to_string(const CalibrationModel &model);
+
+inline std::ostream &operator<<(std::ostream &os,
+    const CalibrationModel &model) {
+  return os << to_string(model);
+}
 
 struct MYNTEYE_API IntrinsicsBase {
   IntrinsicsBase() {
-    calib_model = CalibrationModel::CALIB_MODEL_UNKNOW;
+    calib_model = CalibrationModel::UNKNOW;
   }
   virtual ~IntrinsicsBase() {}
+
+  /** The calibration model */
   CalibrationModel calib_model;
+  /** The width of the image in pixels */
+  std::uint16_t width;
+  /** The height of the image in pixels */
+  std::uint16_t height;
 };
 
 /**
@@ -424,12 +435,8 @@ struct MYNTEYE_API IntrinsicsBase {
  */
 struct MYNTEYE_API IntrinsicsPinhole : public IntrinsicsBase {
   IntrinsicsPinhole() {
-    calib_model = CalibrationModel::CALIB_MODEL_PINHOLE;
+    calib_model = CalibrationModel::PINHOLE;
   }
-  /** The width of the image in pixels */
-  std::uint16_t width;
-  /** The height of the image in pixels */
-  std::uint16_t height;
   /** The focal length of the image plane, as a multiple of pixel width */
   double fx;
   /** The focal length of the image plane, as a multiple of pixel height */
@@ -458,12 +465,8 @@ using Intrinsics = IntrinsicsPinhole;
  */
 struct MYNTEYE_API IntrinsicsEquidistant : public IntrinsicsBase {
   IntrinsicsEquidistant() {
-    calib_model = CalibrationModel::CALIB_MODEL_KANNALA_BRANDT;
+    calib_model = CalibrationModel::KANNALA_BRANDT;
   }
-  /** The width of the image in pixels */
-  std::uint16_t width;
-  /** The height of the image in pixels */
-  std::uint16_t height;
   /** The distortion coefficients: k2,k3,k4,k5,mu,mv,u0,v0 */
   double coeffs[8];
 };

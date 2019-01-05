@@ -188,6 +188,19 @@ std::ostream &operator<<(std::ostream &os, const StreamRequest &request) {
             << ", format: " << request.format << ", fps: " << request.fps;
 }
 
+const char *to_string(const CalibrationModel &model) {
+#define CASE(X)   \
+  case CalibrationModel::X: \
+    return "CalibrationModel::" #X;
+  switch (model) {
+    CASE(PINHOLE)
+    CASE(KANNALA_BRANDT)
+    default:
+      return "CalibrationModel::UNKNOWN";
+  }
+#undef CASE
+}
+
 std::ostream &operator<<(std::ostream &os, const IntrinsicsPinhole &in) {
   os << "pinhole, " << FULL_PRECISION
      << "width: " << in.width << ", height: " << in.height

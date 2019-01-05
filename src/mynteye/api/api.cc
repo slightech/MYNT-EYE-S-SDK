@@ -296,7 +296,7 @@ std::string API::GetInfo(const Info &info) const {
 
 IntrinsicsPinhole API::GetIntrinsics(const Stream &stream) const {
   auto in = GetIntrinsicsBase(stream);
-  if (in->calib_model == CalibrationModel::CALIB_MODEL_PINHOLE) {
+  if (in->calib_model == CalibrationModel::PINHOLE) {
     return *std::dynamic_pointer_cast<IntrinsicsPinhole>(in);
   }
   throw std::runtime_error("Intrinsics is not pinhole model"

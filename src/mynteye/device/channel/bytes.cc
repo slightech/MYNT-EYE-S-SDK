@@ -13,6 +13,7 @@
 // limitations under the License.
 #include "mynteye/device/channel/bytes.h"
 
+#include "mynteye/logger.h"
 #include "mynteye/util/strings.h"
 
 MYNTEYE_BEGIN_NAMESPACE
@@ -29,15 +30,32 @@ std::string _from_data(const std::uint8_t *data, std::size_t count) {
 
 // from types
 
-std::size_t from_data(IntrinsicsPinhole *in, const std::uint8_t *data) {
+std::size_t from_data(IntrinsicsBase *in, const std::uint8_t *data,
+    bool get_size) {
+  switch (in->calib_model) {
+    case CalibrationModel::PINHOLE:
+      return from_data(dynamic_cast<IntrinsicsPinhole *>(in), data,
+          get_size);
+    case CalibrationModel::KANNALA_BRANDT:
+      return from_data(dynamic_cast<IntrinsicsEquidistant *>(in), data,
+          get_size);
+    default:
+      LOG(FATAL) << "Unknown calib model: " << in->calib_model;
+  }
+}
+
+std::size_t from_data(IntrinsicsPinhole *in, const std::uint8_t *data,
+    bool get_size) {
   std::size_t i = 0;
 
-  // width, 2
-  in->width = _from_data<std::uint16_t>(data + i);
-  i += 2;
-  // height, 2
-  in->height = _from_data<std::uint16_t>(data + i);
-  i += 2;
+  if (get_size) {
+    // width, 2
+    in->width = _from_data<std::uint16_t>(data + i);
+    i += 2;
+    // height, 2
+    in->height = _from_data<std::uint16_t>(data + i);
+    i += 2;
+  }
   // fx, 8
   in->fx = _from_data<double>(data + i);
   i += 8;
@@ -58,6 +76,27 @@ std::size_t from_data(IntrinsicsPinhole *in, const std::uint8_t *data) {
     in->coeffs[j] = _from_data<double>(data + i + j * 8);
   }
   i += 40;
+
+  return i;
+}
+
+std::size_t from_data(IntrinsicsEquidistant *in, const std::uint8_t *data,
+    bool get_size) {
+  std::size_t i = 0;
+
+  if (get_size) {
+    // width, 2
+    in->width = _from_data<std::uint16_t>(data + i);
+    i += 2;
+    // height, 2
+    in->height = _from_data<std::uint16_t>(data + i);
+    i += 2;
+  }
+  // coeffs, 64
+  for (std::size_t j = 0; j < 8; j++) {
+    in->coeffs[j] = _from_data<double>(data + i + j * 8);
+  }
+  i += 64;
 
   return i;
 }
@@ -122,15 +161,32 @@ std::size_t _to_data(std::string value, std::uint8_t *data, std::size_t count) {
 
 // to types
 
-std::size_t to_data(const IntrinsicsPinhole *in, std::uint8_t *data) {
+std::size_t to_data(const IntrinsicsBase *in, std::uint8_t *data,
+    bool set_size) {
+  switch (in->calib_model) {
+    case CalibrationModel::PINHOLE:
+      return to_data(dynamic_cast<const IntrinsicsPinhole *>(in), data,
+          set_size);
+    case CalibrationModel::KANNALA_BRANDT:
+      return to_data(dynamic_cast<const IntrinsicsEquidistant *>(in), data,
+          set_size);
+    default:
+      LOG(FATAL) << "Unknown calib model: " << in->calib_model;
+  }
+}
+
+std::size_t to_data(const IntrinsicsPinhole *in, std::uint8_t *data,
+    bool set_size) {
   std::size_t i = 0;
 
-  // width, 2
-  _to_data(in->width, data + i);
-  i += 2;
-  // height, 2
-  _to_data(in->height, data + i);
-  i += 2;
+  if (set_size) {
+    // width, 2
+    _to_data(in->width, data + i);
+    i += 2;
+    // height, 2
+    _to_data(in->height, data + i);
+    i += 2;
+  }
   // fx, 8
   _to_data(in->fx, data + i);
   i += 8;
@@ -151,6 +207,27 @@ std::size_t to_data(const IntrinsicsPinhole *in, std::uint8_t *data) {
     _to_data(in->coeffs[j], data + i + j * 8);
   }
   i += 40;
+
+  return i;
+}
+
+std::size_t to_data(const IntrinsicsEquidistant *in, std::uint8_t *data,
+    bool set_size) {
+  std::size_t i = 0;
+
+  if (set_size) {
+    // width, 2
+    _to_data(in->width, data + i);
+    i += 2;
+    // height, 2
+    _to_data(in->height, data + i);
+    i += 2;
+  }
+  // coeffs, 64
+  for (std::size_t j = 0; j < 8; j++) {
+    _to_data(in->coeffs[j], data + i + j * 8);
+  }
+  i += 64;
 
   return i;
 }

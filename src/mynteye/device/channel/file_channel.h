@@ -39,17 +39,20 @@ class FileChannel {
   ~FileChannel();
 
   std::size_t GetDeviceInfoFromData(
-      const std::uint8_t *data, device_info_t *info);
+      const std::uint8_t *data, const std::uint16_t &data_size,
+      device_info_t *info);
   std::size_t SetDeviceInfoToData(
       const device_info_t *info, std::uint8_t *data);
 
   std::size_t GetImgParamsFromData(
-      const std::uint8_t *data, img_params_t *img_params);
+      const std::uint8_t *data, const std::uint16_t &data_size,
+      img_params_t *img_params);
   std::size_t SetImgParamsToData(
       const img_params_t *img_params, std::uint8_t *data);
 
   std::size_t GetImuParamsFromData(
-      const std::uint8_t *data, imu_params_t *imu_params);
+      const std::uint8_t *data, const std::uint16_t &data_size,
+      imu_params_t *imu_params);
   std::size_t SetImuParamsToData(
       const imu_params_t *imu_params, std::uint8_t *data);
 
@@ -67,7 +70,8 @@ class DeviceInfoParser {
   ~DeviceInfoParser();
 
   std::size_t GetFromData(
-      const std::uint8_t *data, device_info_t *info) const;
+      const std::uint8_t *data, const std::uint16_t &data_size,
+      device_info_t *info) const;
   std::size_t SetToData(
       const device_info_t *info, std::uint8_t *data) const;
 };
@@ -84,22 +88,26 @@ class ImgParamsParser {
   }
 
   std::size_t GetFromData(
-      const std::uint8_t *data, img_params_t *img_params) const;
+      const std::uint8_t *data, const std::uint16_t &data_size,
+      img_params_t *img_params) const;
   std::size_t SetToData(
       const img_params_t *img_params, std::uint8_t *data) const;
 
   std::size_t GetFromData_v1_0(
-      const std::uint8_t *data, img_params_t *img_params) const;
+      const std::uint8_t *data, const std::uint16_t &data_size,
+      img_params_t *img_params) const;
   std::size_t SetToData_v1_0(
       const img_params_t *img_params, std::uint8_t *data) const;
 
   std::size_t GetFromData_v1_1(
-      const std::uint8_t *data, img_params_t *img_params) const;
+      const std::uint8_t *data, const std::uint16_t &data_size,
+      img_params_t *img_params) const;
   std::size_t SetToData_v1_1(
       const img_params_t *img_params, std::uint8_t *data) const;
 
   std::size_t GetFromData_new(
-      const std::uint8_t *data, img_params_t *img_params) const;
+      const std::uint8_t *data, const std::uint16_t &data_size,
+      img_params_t *img_params) const;
   std::size_t SetToData_new(
       const img_params_t *img_params, std::uint8_t *data) const;
 
@@ -119,17 +127,20 @@ class ImuParamsParser {
   }
 
   std::size_t GetFromData(
-      const std::uint8_t *data, imu_params_t *imu_params) const;
+      const std::uint8_t *data, const std::uint16_t &data_size,
+      imu_params_t *imu_params) const;
   std::size_t SetToData(
       const imu_params_t *imu_params, std::uint8_t *data) const;
 
   std::size_t GetFromData_old(
-      const std::uint8_t *data, imu_params_t *imu_params) const;
+      const std::uint8_t *data, const std::uint16_t &data_size,
+      imu_params_t *imu_params) const;
   std::size_t SetToData_old(
       const imu_params_t *imu_params, std::uint8_t *data) const;
 
   std::size_t GetFromData_new(
-      const std::uint8_t *data, imu_params_t *imu_params) const;
+      const std::uint8_t *data, const std::uint16_t &data_size,
+      imu_params_t *imu_params) const;
   std::size_t SetToData_new(
       const imu_params_t *imu_params, std::uint8_t *data) const;
 

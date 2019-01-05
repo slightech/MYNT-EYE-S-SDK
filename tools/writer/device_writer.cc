@@ -66,8 +66,7 @@ bool DeviceWriter::WriteImgParams(const img_params_map_t &img_params_map) {
   auto &&channels = device_->channels();
   auto &&dev_info = device_->GetInfo();
   if (channels->SetFiles(
-          nullptr, const_cast<img_params_map_t *>(&img_params_map), nullptr,
-          &dev_info->spec_version)) {
+          nullptr, const_cast<img_params_map_t *>(&img_params_map), nullptr)) {
     LOG(INFO) << "Write img params success";
     std::map<Resolution, device::img_params_t>::const_iterator it;
     for (it = img_params_map.begin(); it != img_params_map.end(); it++) {
@@ -93,8 +92,7 @@ bool DeviceWriter::WriteImuParams(const imu_params_t &params) {
   auto &&channels = device_->channels();
   auto &&dev_info = device_->GetInfo();
   if (channels->SetFiles(
-          nullptr, nullptr, const_cast<imu_params_t *>(&params),
-          &dev_info->spec_version)) {
+          nullptr, nullptr, const_cast<imu_params_t *>(&params))) {
     LOG(INFO) << "Write imu params success";
     LOG(INFO) << "Imu intrinsics accel: {" << params.in_accel << "}";
     LOG(INFO) << "Imu intrinsics gyro: {" << params.in_gyro << "}";
