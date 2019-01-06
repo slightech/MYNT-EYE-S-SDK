@@ -21,6 +21,8 @@
 #include "mynteye/device/device.h"
 #include "mynteye/util/files.h"
 
+#define SAVE_LATEST_VERSION Version(1, 2)
+
 MYNTEYE_BEGIN_NAMESPACE
 
 namespace tools {
@@ -113,10 +115,30 @@ namespace {
 
 cv::FileStorage &operator<<(cv::FileStorage &fs, const IntrinsicsPinhole &in) {
   fs << "{"
-     << "width" << in.width << "height" << in.height << "fx" << in.fx << "fy"
-     << in.fy << "cx" << in.cx << "cy" << in.cy << "model" << in.model
+     << "fx" << in.fx << "fy" << in.fy
+     << "cx" << in.cx << "cy" << in.cy
      << "coeffs" << std::vector<double>(in.coeffs, in.coeffs + 5) << "}";
   return fs;
+}
+
+cv::FileStorage &operator<<(cv::FileStorage &fs,
+    const IntrinsicsEquidistant &in) {
+  fs << "{"
+     << "coeffs" << std::vector<double>(in.coeffs, in.coeffs + 8) << "}";
+  return fs;
+}
+
+cv::FileStorage &operator<<(cv::FileStorage &fs,
+    const std::shared_ptr<IntrinsicsBase> &in) {
+  switch (in->calib_model()) {
+    case CalibrationModel::PINHOLE:
+      return fs << *std::dynamic_pointer_cast<IntrinsicsPinhole>(in);
+    case CalibrationModel::KANNALA_BRANDT:
+      return fs << *std::dynamic_pointer_cast<IntrinsicsEquidistant>(in);
+    default:
+      LOG(FATAL) << "Unknown calib model: " << in->calib_model();
+      return fs;
+  }
 }
 
 cv::FileStorage &operator<<(cv::FileStorage &fs, const ImuIntrinsics &in) {
@@ -150,10 +172,11 @@ cv::FileStorage &operator<<(cv::FileStorage &fs, const Extrinsics &ex) {
 cv::FileStorage &operator<<(
     cv::FileStorage &fs, const device::img_params_t &params) {
   fs << "{"
-     << "in_left"
-     << *std::dynamic_pointer_cast<IntrinsicsPinhole>(params.in_left)
-     << "in_right"
-     << *std::dynamic_pointer_cast<IntrinsicsPinhole>(params.in_right)
+     << "model" << static_cast<std::uint8_t>(params.in_left->calib_model())
+     << "width" << params.in_left->width
+     << "height" << params.in_left->height
+     << "in_left" << params.in_left
+     << "in_right" << params.in_right
      << "ex_right_to_left" << params.ex_right_to_left << "}";
   return fs;
 }
@@ -162,8 +185,9 @@ cv::FileStorage &operator<<(
     cv::FileStorage &fs, const DeviceWriter::img_params_map_t &img_params_map) {
   fs << "[";
   std::map<Resolution, device::img_params_t>::const_iterator it;
-  for (it = img_params_map.begin(); it != img_params_map.end(); it++)
+  for (it = img_params_map.begin(); it != img_params_map.end(); it++) {
     fs << (*it).second;
+  }
   fs << "]";
   return fs;
 }
@@ -186,34 +210,57 @@ bool DeviceWriter::SaveDeviceInfo(
   fs << "lens_type" << info.lens_type.to_string();
   fs << "imu_type" << info.imu_type.to_string();
   fs << "nominal_baseline" << info.nominal_baseline;
+  // save other infos according to spec_version
   fs.release();
   return true;
 }
 
 bool DeviceWriter::SaveImgParams(
-    const dev_info_t &info, const img_params_map_t &img_params_map,
+    const img_params_map_t &img_params_map,
     const std::string &filepath) {
+  if (img_params_map.empty()) {
+    return false;
+  }
+  std::string version = img_params_map.begin()->second.version;
+  if (Version(version) > SAVE_LATEST_VERSION) {
+    LOG(ERROR) << "Failed to save img params of version " << version
+        << ", please use latest SDK.";
+    return false;
+  }
+
+  // always save img params with latest version format
   using FileStorage = cv::FileStorage;
   FileStorage fs(filepath, FileStorage::WRITE);
   if (!fs.isOpened()) {
     LOG(ERROR) << "Failed to save file: " << filepath;
     return false;
   }
-  fs << "version" << info.spec_version.to_string();
-  fs << "img_params_map" << img_params_map;
+  fs << "version" << SAVE_LATEST_VERSION.to_string()
+     << "img_params" << img_params_map;
   fs.release();
   return true;
 }
 
 bool DeviceWriter::SaveImuParams(
     const imu_params_t &params, const std::string &filepath) {
+  if (!params.ok) return false;
+  std::string version = params.version;
+  if (Version(version) > SAVE_LATEST_VERSION) {
+    LOG(ERROR) << "Failed to save imu params of version " << version
+        << ", please use latest SDK.";
+    return false;
+  }
+
+  // always save imu params with latest version format
   using FileStorage = cv::FileStorage;
   FileStorage fs(filepath, FileStorage::WRITE);
   if (!fs.isOpened()) {
     LOG(ERROR) << "Failed to save file: " << filepath;
     return false;
   }
-  fs << "in_accel" << params.in_accel << "in_gyro" << params.in_gyro
+  fs << "version" << SAVE_LATEST_VERSION.to_string()
+     << "in_accel" << params.in_accel
+     << "in_gyro" << params.in_gyro
      << "ex_left_to_imu" << params.ex_left_to_imu;
   fs.release();
   return true;
@@ -224,18 +271,8 @@ void DeviceWriter::SaveAllInfos(const std::string &dir) {
     LOG(FATAL) << "Create directory failed: " << dir;
   }
   SaveDeviceInfo(*device_->GetInfo(), dir + MYNTEYE_OS_SEP "device.info");
-  SaveImgParams(
-      *device_->GetInfo(), device_->GetImgParams(),
-      dir + MYNTEYE_OS_SEP "img.params");
-  auto &&m_in = device_->GetMotionIntrinsics();
-  SaveImuParams(
-      {
-          false,
-          device_->GetInfo()->spec_version.to_string(),
-          m_in.accel, m_in.gyro,
-          device_->GetMotionExtrinsics(Stream::LEFT),
-      },
-      dir + MYNTEYE_OS_SEP "imu.params");
+  SaveImgParams(device_->GetImgParams(), dir + MYNTEYE_OS_SEP "img.params");
+  SaveImuParams(device_->GetImuParams(), dir + MYNTEYE_OS_SEP "imu.params");
 }
 
 namespace {

@@ -297,7 +297,8 @@ std::size_t ImgParamsParser::GetFromData_new(
   if (version == Version(1, 2)) {  // v1.2
     for (; i < data_size;) {
       // calib_model, 1
-      auto calib_model = static_cast<CalibrationModel>(data[i]);
+      auto model = data[i];
+      auto calib_model = static_cast<CalibrationModel>(model);
       i += 1;
       // width, 2
       auto width = bytes::_from_data<std::uint16_t>(data + i);
@@ -309,14 +310,18 @@ std::size_t ImgParamsParser::GetFromData_new(
       std::shared_ptr<IntrinsicsBase> in_left, in_right;
       Extrinsics ex_right_to_left;
       switch (calib_model) {
-        case CalibrationModel::PINHOLE:
-          in_left = std::make_shared<IntrinsicsPinhole>();
-          in_right = std::make_shared<IntrinsicsPinhole>();
-          break;
-        case CalibrationModel::KANNALA_BRANDT:
+        case CalibrationModel::PINHOLE: {
+          auto in_left_p = std::make_shared<IntrinsicsPinhole>();
+          in_left_p->model = model;
+          in_left = in_left_p;
+          auto in_right_p = std::make_shared<IntrinsicsPinhole>();
+          in_right_p->model = model;
+          in_right = in_right_p;
+        } break;
+        case CalibrationModel::KANNALA_BRANDT: {
           in_left = std::make_shared<IntrinsicsEquidistant>();
           in_right = std::make_shared<IntrinsicsEquidistant>();
-          break;
+        } break;
         default:
           LOG(FATAL) << "Could not get img params as unknown calib model"
               ", please use latest SDK.";
@@ -421,6 +426,7 @@ std::size_t ImuParamsParser::GetFromData_old(
   i += bytes::from_data(&imu_params->in_accel, data + i);
   i += bytes::from_data(&imu_params->in_gyro, data + i);
   i += bytes::from_data(&imu_params->ex_left_to_imu, data + i);
+  imu_params->version = spec_version_.to_string();
   MYNTEYE_UNUSED(data_size)
   return i;
 }

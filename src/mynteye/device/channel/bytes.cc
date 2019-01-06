@@ -68,9 +68,11 @@ std::size_t from_data(IntrinsicsPinhole *in, const std::uint8_t *data,
   // cy, 8
   in->cy = _from_data<double>(data + i);
   i += 8;
-  // model, 1
-  in->model = data[i];
-  i += 1;
+  if (get_size) {
+    // model, 1
+    in->model = data[i];
+    i += 1;
+  }
   // coeffs, 40
   for (std::size_t j = 0; j < 5; j++) {
     in->coeffs[j] = _from_data<double>(data + i + j * 8);
@@ -199,9 +201,11 @@ std::size_t to_data(const IntrinsicsPinhole *in, std::uint8_t *data,
   // cy, 8
   _to_data(in->cy, data + i);
   i += 8;
-  // model, 1
-  data[i] = in->model;
-  i += 1;
+  if (set_size) {
+    // model, 1
+    data[i] = in->model;
+    i += 1;
+  }
   // coeffs, 40
   for (std::size_t j = 0; j < 5; j++) {
     _to_data(in->coeffs[j], data + i + j * 8);

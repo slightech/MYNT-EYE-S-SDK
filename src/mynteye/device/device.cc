@@ -626,6 +626,7 @@ void Device::ReadAllInfos() {
     VLOG(2) << "Motion extrinsics left to imu: {"
             << GetMotionExtrinsics(Stream::LEFT) << "}";
   } else {
+    imu_params_.ok = false;
     VLOG(2) << "Motion intrinsics & extrinsics not exist";
   }
 }

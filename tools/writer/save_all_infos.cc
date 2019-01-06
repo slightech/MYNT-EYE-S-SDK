@@ -31,6 +31,7 @@ int main(int argc, char *argv[]) {
   if (!device)
     return 1;
 
+  dir.append(MYNTEYE_OS_SEP).append(device->GetInfo()->name);
   dir.append(MYNTEYE_OS_SEP "SN").append(device->GetInfo()->serial_number);
 
   tools::DeviceWriter writer(device);

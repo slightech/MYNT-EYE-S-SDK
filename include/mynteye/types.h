@@ -450,7 +450,7 @@ struct MYNTEYE_API IntrinsicsPinhole : public IntrinsicsBase {
   double cx;
   /** The vertical coordinate of the principal point of the image */
   double cy;
-  /** The distortion model of the image */
+  /** @deprecated Replaced by calib_model_. The distortion model of the image */
   std::uint8_t model;
   /** The distortion coefficients: k1,k2,p1,p2,k3 */
   double coeffs[5];
