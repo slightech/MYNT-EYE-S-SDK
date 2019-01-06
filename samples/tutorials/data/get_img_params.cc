@@ -26,8 +26,9 @@ int main(int argc, char *argv[]) {
   if (!ok) return 1;
   api->ConfigStreamRequest(request);
 
-  LOG(INFO) << "Intrinsics left: {" << api->GetIntrinsics(Stream::LEFT) << "}";
-  LOG(INFO) << "Intrinsics right: {" << api->GetIntrinsics(Stream::RIGHT)
+  LOG(INFO) << "Intrinsics left: {" << *api->GetIntrinsicsBase(Stream::LEFT)
+            << "}";
+  LOG(INFO) << "Intrinsics right: {" << *api->GetIntrinsicsBase(Stream::RIGHT)
             << "}";
   LOG(INFO) << "Extrinsics right to left: {"
             << api->GetExtrinsics(Stream::RIGHT, Stream::LEFT) << "}";

@@ -674,14 +674,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     // if (points_publisher_.getNumSubscribers() == 0)
     //   return;
 
-    auto &&in = api_->GetIntrinsics(Stream::LEFT);
+    auto &&in = api_->GetIntrinsicsBase(Stream::LEFT);
 
     sensor_msgs::PointCloud2 msg;
     msg.header.seq = seq;
     msg.header.stamp = stamp;
     msg.header.frame_id = frame_ids_[Stream::POINTS];
-    msg.width = in.width;
-    msg.height = in.height;
+    msg.width = in->width;
+    msg.height = in->height;
     msg.is_dense = true;
 
     sensor_msgs::PointCloud2Modifier modifier(msg);
@@ -702,8 +702,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     sensor_msgs::PointCloud2Iterator<uint8_t> iter_g(msg, "g");
     sensor_msgs::PointCloud2Iterator<uint8_t> iter_b(msg, "b");
 
-    for (std::size_t y = 0; y < in.height; ++y) {
-      for (std::size_t x = 0; x < in.width; ++x) {
+    for (std::size_t y = 0; y < in->height; ++y) {
+      for (std::size_t x = 0; x < in->width; ++x) {
         auto &&point = data.frame.at<cv::Vec3f>(y, x);
 
         *iter_x = point[0] * 0.001;
@@ -923,9 +923,16 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
   void computeRectTransforms() {
     ROS_ASSERT(api_);
-    auto &&in_left = api_->GetIntrinsics(Stream::LEFT);
-    auto &&in_right = api_->GetIntrinsics(Stream::RIGHT);
-    auto &&ex_right_to_left = api_->GetExtrinsics(Stream::RIGHT, Stream::LEFT);
+    auto in_left_base = api_->GetIntrinsicsBase(Stream::LEFT);
+    auto in_right_base = api_->GetIntrinsicsBase(Stream::RIGHT);
+    if (in_left_base->calib_model() != CalibrationModel::PINHOLE ||
+        in_right_base->calib_model() != CalibrationModel::PINHOLE) {
+      return;
+    }
+    auto in_left = *std::dynamic_pointer_cast<IntrinsicsPinhole>(in_left_base);
+    auto in_right = *std::dynamic_pointer_cast<IntrinsicsPinhole>(
+        in_right_base);
+    auto ex_right_to_left = api_->GetExtrinsics(Stream::RIGHT, Stream::LEFT);
 
     cv::Size size{in_left.width, in_left.height};
     cv::Mat M1 =
@@ -964,44 +971,75 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     sensor_msgs::CameraInfo *camera_info = new sensor_msgs::CameraInfo();
     camera_info_ptrs_[stream] = sensor_msgs::CameraInfoPtr(camera_info);
 
-    Intrinsics in;
+    std::shared_ptr<IntrinsicsBase> in_base;
     if (stream == Stream::RIGHT || stream == Stream::RIGHT_RECTIFIED) {
-      in = api_->GetIntrinsics(Stream::RIGHT);
+      in_base = api_->GetIntrinsicsBase(Stream::RIGHT);
     } else {
-      in = api_->GetIntrinsics(Stream::LEFT);
+      in_base = api_->GetIntrinsicsBase(Stream::LEFT);
     }
 
     camera_info->header.frame_id = frame_ids_[stream];
-    camera_info->width = in.width;
-    camera_info->height = in.height;
+    camera_info->width = in_base->width;
+    camera_info->height = in_base->height;
 
-    //     [fx  0 cx]
-    // K = [ 0 fy cy]
-    //     [ 0  0  1]
-    camera_info->K.at(0) = in.fx;
-    camera_info->K.at(2) = in.cx;
-    camera_info->K.at(4) = in.fy;
-    camera_info->K.at(5) = in.cy;
-    camera_info->K.at(8) = 1;
+    if (in_base->calib_model() == CalibrationModel::PINHOLE) {
+      auto in = std::dynamic_pointer_cast<IntrinsicsPinhole>(in_base);
+      //     [fx  0 cx]
+      // K = [ 0 fy cy]
+      //     [ 0  0  1]
+      camera_info->K.at(0) = in->fx;
+      camera_info->K.at(2) = in->cx;
+      camera_info->K.at(4) = in->fy;
+      camera_info->K.at(5) = in->cy;
+      camera_info->K.at(8) = 1;
 
-    //     [fx'  0  cx' Tx]
-    // P = [ 0  fy' cy' Ty]
-    //     [ 0   0   1   0]
-    cv::Mat p = left_p_;
-    if (stream == Stream::RIGHT || stream == Stream::RIGHT_RECTIFIED) {
-      p = right_p_;
-    }
-    for (int i = 0; i < p.rows; i++) {
-      for (int j = 0; j < p.cols; j++) {
-        camera_info->P.at(i * p.cols + j) = p.at<double>(i, j);
+      //     [fx'  0  cx' Tx]
+      // P = [ 0  fy' cy' Ty]
+      //     [ 0   0   1   0]
+      cv::Mat p = left_p_;
+      if (stream == Stream::RIGHT || stream == Stream::RIGHT_RECTIFIED) {
+        p = right_p_;
       }
-    }
+      for (int i = 0; i < p.rows; i++) {
+        for (int j = 0; j < p.cols; j++) {
+          camera_info->P.at(i * p.cols + j) = p.at<double>(i, j);
+        }
+      }
 
-    camera_info->distortion_model = "plumb_bob";
+      camera_info->distortion_model = "plumb_bob";
 
-    // D of plumb_bob: (k1, k2, t1, t2, k3)
-    for (int i = 0; i < 5; i++) {
-      camera_info->D.push_back(in.coeffs[i]);
+      // D of plumb_bob: (k1, k2, t1, t2, k3)
+      for (int i = 0; i < 5; i++) {
+        camera_info->D.push_back(in->coeffs[i]);
+      }
+    } else if (in_base->calib_model() == CalibrationModel::KANNALA_BRANDT) {
+      auto in = std::dynamic_pointer_cast<IntrinsicsEquidistant>(in_base);
+
+      camera_info->distortion_model = "kannala_brandt";
+
+      // coeffs: k2,k3,k4,k5,mu,mv,u0,v0
+      camera_info->D.push_back(in->coeffs[0]);  // k2
+      camera_info->D.push_back(in->coeffs[1]);  // k3
+      camera_info->D.push_back(in->coeffs[2]);  // k4
+      camera_info->D.push_back(in->coeffs[3]);  // k5
+
+      camera_info->K[0] = in->coeffs[4];  // mu
+      camera_info->K[4] = in->coeffs[5];  // mv
+      camera_info->K[2] = in->coeffs[6];  // u0
+      camera_info->K[5] = in->coeffs[7];  // v0
+      camera_info->K[8] = 1;
+
+      // auto baseline = api_->GetInfo(Info::NOMINAL_BASELINE);
+      // Eigen::Matrix3d K = Eigen::Matrix3d::Identity();
+      // K(0, 0) = camera_info->K[0];
+      // K(0, 2) = camera_info->K[2];
+      // K(1, 1) = camera_info->K[4];
+      // K(1, 2) = camera_info->K[5];
+      // Eigen::Map<Eigen::Matrix<double, 3, 4, Eigen::RowMajor>>(
+      //      camera_info->P.data()) = (Eigen::Matrix<double, 3, 4>() <<
+      //         K, Eigen::Vector3d(baseline * K(0, 0), 0, 0)).finished();
+    } else {
+      NODELET_FATAL_STREAM("Unknown calib model, please use latest SDK.");
     }
 
     // R to identity matrix
