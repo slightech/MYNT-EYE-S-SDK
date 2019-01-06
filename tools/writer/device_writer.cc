@@ -37,10 +37,13 @@ DeviceWriter::~DeviceWriter() {
 
 bool DeviceWriter::WriteDeviceInfo(const dev_info_t &info) {
   auto &&channels = device_->channels();
+
+  // Update device info
   auto &&dev_info = device_->GetInfo();
   dev_info->lens_type = Type(info.lens_type);
   dev_info->imu_type = Type(info.imu_type);
   dev_info->nominal_baseline = info.nominal_baseline;
+
   if (channels->SetFiles(dev_info.get(), nullptr, nullptr)) {
     LOG(INFO) << "Write device info success";
     LOG(INFO) << "Device info: {name: " << dev_info->name
@@ -66,17 +69,26 @@ bool DeviceWriter::WriteDeviceInfo(const std::string &filepath) {
 
 bool DeviceWriter::WriteImgParams(const img_params_map_t &img_params_map) {
   auto &&channels = device_->channels();
-  auto &&dev_info = device_->GetInfo();
-  if (channels->SetFiles(
-          nullptr, const_cast<img_params_map_t *>(&img_params_map), nullptr)) {
+
+  img_params_map_t *img_params_new =
+      const_cast<img_params_map_t *>(&img_params_map);
+  // Update image params with raw
+  auto &&img_params_raw = device_->GetImgParams();
+  for (auto entry_raw : img_params_raw) {
+    // Add raw params if not load this resolution
+    if (img_params_new->find(entry_raw.first) == img_params_new->end()) {
+      (*img_params_new)[entry_raw.first] = entry_raw.second;
+    }
+  }
+
+  if (channels->SetFiles(nullptr, img_params_new, nullptr)) {
     LOG(INFO) << "Write img params success";
-    std::map<Resolution, device::img_params_t>::const_iterator it;
-    for (it = img_params_map.begin(); it != img_params_map.end(); it++) {
-      LOG(INFO) << "Image params for resolution "
-                << (*it).first.width << "x" << (*it).first.height << " :";
-      LOG(INFO) << "Intrinsics left: {" << (*it).second.in_left << "}";
-      LOG(INFO) << "Intrinsics right: {" << (*it).second.in_right << "}";
-      LOG(INFO) << "Extrinsics left to right: {"
+    for (auto it = img_params_new->begin(); it != img_params_new->end(); it++) {
+      LOG(INFO) << "Resolution: {width: " << (*it).first.width
+                << ", height: " << (*it).first.height << "}";
+      LOG(INFO) << "Intrinsics left: {" << *(*it).second.in_left << "}";
+      LOG(INFO) << "Intrinsics right: {" << *(*it).second.in_right << "}";
+      LOG(INFO) << "Extrinsics right to left: {"
                 << (*it).second.ex_right_to_left << "}";
     }
     return true;
@@ -92,7 +104,6 @@ bool DeviceWriter::WriteImgParams(const std::string &filepath) {
 
 bool DeviceWriter::WriteImuParams(const imu_params_t &params) {
   auto &&channels = device_->channels();
-  auto &&dev_info = device_->GetInfo();
   if (channels->SetFiles(
           nullptr, nullptr, const_cast<imu_params_t *>(&params))) {
     LOG(INFO) << "Write imu params success";
@@ -277,6 +288,7 @@ void DeviceWriter::SaveAllInfos(const std::string &dir) {
 
 namespace {
 
+// old
 void to_intrinsics(
     const std::uint16_t &width, const std::uint16_t &height,
     const std::uint8_t &model, const cv::Mat &M, const cv::Mat &D,
@@ -300,6 +312,7 @@ void to_intrinsics(
   }
 }
 
+// old
 void to_extrinsics(const cv::Mat &R, const cv::Mat &T, Extrinsics *ex) {
   for (std::size_t i = 0; i < 3; i++) {
     for (std::size_t j = 0; j < 3; j++) {
@@ -310,7 +323,7 @@ void to_extrinsics(const cv::Mat &R, const cv::Mat &T, Extrinsics *ex) {
     ex->translation[i] = T.at<double>(i);
   }
 }
-
+// old
 void operator>>(const cv::FileNode &n, IntrinsicsPinhole &in) {
   n["width"] >> in.width;
   n["height"] >> in.height;
@@ -352,14 +365,76 @@ void operator>>(const cv::FileNode &n, Extrinsics &ex) {
   }
 }
 
-void operator>>(const cv::FileNode &n, DeviceWriter::img_params_t &paramas) {
+// old
+void operator>>(const cv::FileNode &n, DeviceWriter::img_params_t &params) {
   auto in_left = std::make_shared<IntrinsicsPinhole>();
   auto in_right = std::make_shared<IntrinsicsPinhole>();
-  paramas.in_left = in_left;
-  paramas.in_right = in_right;
+  params.in_left = in_left;
+  params.in_right = in_right;
   n["in_left"] >> *in_left;
   n["in_right"] >> *in_right;
-  n["ex_right_to_left"] >> paramas.ex_right_to_left;
+  n["ex_right_to_left"] >> params.ex_right_to_left;
+}
+
+std::shared_ptr<IntrinsicsPinhole> to_intrinsics_pinhole(
+    const cv::FileNode &n, const std::uint8_t &model,
+    const std::uint16_t &width, const std::uint16_t &height) {
+  auto in = std::make_shared<IntrinsicsPinhole>();
+  in->width = width;
+  in->height = height;
+  in->model = model;
+  n["fx"] >> in->fx;
+  n["fy"] >> in->fy;
+  n["cx"] >> in->cx;
+  n["cy"] >> in->cy;
+  for (std::size_t i = 0; i < 5; i++) {
+    in->coeffs[i] = n["coeffs"][i];
+  }
+  return in;
+}
+
+std::shared_ptr<IntrinsicsEquidistant> to_intrinsics_equidistant(
+    const cv::FileNode &n, const std::uint8_t &model,
+    const std::uint16_t &width, const std::uint16_t &height) {
+  auto in = std::make_shared<IntrinsicsEquidistant>();
+  in->width = width;
+  in->height = height;
+  for (std::size_t i = 0; i < 8; i++) {
+    in->coeffs[i] = n["coeffs"][i];
+  }
+  MYNTEYE_UNUSED(model)
+  return in;
+}
+
+DeviceWriter::img_params_t to_img_params(
+    const cv::FileNode &n, const std::uint8_t &model,
+    const std::uint16_t &width, const std::uint16_t &height) {
+  DeviceWriter::img_params_t params;
+  params.ok = false;
+
+  CalibrationModel calib_model = static_cast<CalibrationModel>(model);
+  switch (calib_model) {
+    case CalibrationModel::PINHOLE: {
+      params.ok = true;
+      params.in_left = to_intrinsics_pinhole(
+          n["in_left"], model, width, height);
+      params.in_right = to_intrinsics_pinhole(
+          n["in_right"], model, width, height);
+      n["ex_right_to_left"] >> params.ex_right_to_left;
+    } break;
+    case CalibrationModel::KANNALA_BRANDT: {
+      params.ok = true;
+      params.in_left = to_intrinsics_equidistant(
+          n["in_left"], model, width, height);
+      params.in_right = to_intrinsics_equidistant(
+          n["in_right"], model, width, height);
+      n["ex_right_to_left"] >> params.ex_right_to_left;
+    } break;
+    default:
+      LOG(FATAL) << "Could not load img params as unknown calib model"
+          ", please use latest SDK.";
+  }
+  return params;
 }
 
 }  // namespace
@@ -388,11 +463,37 @@ DeviceWriter::img_params_map_t DeviceWriter::LoadImgParams(
   }
 
   img_params_map_t img_params_map;
-  if (fs["version"].isNone()) {
+  if (!fs["version"].isNone()) {
+    std::string version = std::string(fs["version"]);
+    // load params according to verison
+    if (version == "1.0") {
+      fs["img_params_map"][0] >> img_params_map[{752, 480}];
+    } else if (version == "1.1") {
+      fs["img_params_map"][0] >> img_params_map[{1280, 400}];
+      fs["img_params_map"][1] >> img_params_map[{2560, 800}];
+    } else if (version == "1.2") {
+      auto node = fs["img_params"];
+      for (auto it = node.begin(); it < node.end(); it++) {
+        std::uint8_t model;
+        std::uint16_t width, height;
+        (*it)["model"] >> model;
+        (*it)["width"] >> width;
+        (*it)["height"] >> height;
+        auto params = to_img_params(*it, model, width, height);
+        if (params.ok) {
+          params.version = version;
+          img_params_map[{width, height}] = params;
+        }
+      }
+    } else {
+      LOG(ERROR) << "Failed to load img params of version " << version
+          << ", please use latest SDK.";
+    }
+  } else {
+    // load old params s1030
     auto in_left = std::make_shared<IntrinsicsPinhole>();
     auto in_right = std::make_shared<IntrinsicsPinhole>();
-    img_params_map[{752, 480}].in_left = in_left;
-    img_params_map[{752, 480}].in_right = in_right;
+    Extrinsics ex_right_to_left;
     if (fs["in_left"].isNone()) {
       std::uint16_t w = 752;
       std::uint16_t h = 480;
@@ -412,25 +513,19 @@ DeviceWriter::img_params_map_t DeviceWriter::LoadImgParams(
       fs["R"] >> R;
       fs["T"] >> T;
 
-      to_intrinsics(
-          w, h, m, M1, D1, in_left.get());
-      to_intrinsics(
-          w, h, m, M2, D2, in_right.get());
-      to_extrinsics(R, T, &img_params_map[{752, 480}].ex_right_to_left);
+      to_intrinsics(w, h, m, M1, D1, in_left.get());
+      to_intrinsics(w, h, m, M2, D2, in_right.get());
+      to_extrinsics(R, T, &ex_right_to_left);
     } else {
-      fs["in_left"][0] >> *in_left;
-      fs["in_right"][0] >> *in_right;
-      fs["ex_right_to_left"] >> img_params_map[{752, 480}].ex_right_to_left;
+      fs["in_left"] >> *in_left;
+      fs["in_right"] >> *in_right;
+      fs["ex_right_to_left"] >> ex_right_to_left;
     }
-  } else {
-    if (static_cast<std::string>(fs["version"]) == "1.0") {
-      fs["img_params_map"][0] >> img_params_map[{752, 480}];
-    }
-    if (static_cast<std::string>(fs["version"]) == "1.1") {
-      fs["img_params_map"][0] >> img_params_map[{1280, 400}];
-      fs["img_params_map"][1] >> img_params_map[{2560, 800}];
-    }
+    img_params_map[{752, 480}] = {
+      true, "1.0", in_left, in_right, ex_right_to_left
+    };
   }
+
   fs.release();
   return img_params_map;
 }
@@ -442,10 +537,27 @@ DeviceWriter::imu_params_t DeviceWriter::LoadImuParams(
   if (!fs.isOpened()) {
     LOG(FATAL) << "Failed to load file: " << filepath;
   }
+
   imu_params_t params;
-  fs["in_accel"] >> params.in_accel;
-  fs["in_gyro"] >> params.in_gyro;
-  fs["ex_left_to_imu"] >> params.ex_left_to_imu;
+  if (!fs["version"].isNone()) {
+    std::string version = std::string(fs["version"]);
+    // load params according to verison
+    if (version == "1.2") {
+      params.version = version;
+      fs["in_accel"] >> params.in_accel;
+      fs["in_gyro"] >> params.in_gyro;
+      fs["ex_left_to_imu"] >> params.ex_left_to_imu;
+    } else {
+      LOG(ERROR) << "Failed to load imu params of version " << version
+          << ", please use latest SDK.";
+    }
+  } else {
+    // load old params
+    fs["in_accel"] >> params.in_accel;
+    fs["in_gyro"] >> params.in_gyro;
+    fs["ex_left_to_imu"] >> params.ex_left_to_imu;
+  }
+
   fs.release();
   return params;
 }

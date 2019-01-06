@@ -43,6 +43,7 @@ std::vector<std::string> Version::split(const std::string &s) {
 }
 
 Version::value_t Version::parse_part(const std::string &name, size_t part) {
+  if (name.empty()) return 0;
   return std::stoi(split(name)[part]);
 }
 

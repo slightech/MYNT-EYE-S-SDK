@@ -201,6 +201,17 @@ const char *to_string(const CalibrationModel &model) {
 #undef CASE
 }
 
+std::ostream &operator<<(std::ostream &os, const IntrinsicsBase &in) {
+  switch (in.calib_model()) {
+    case CalibrationModel::PINHOLE:
+      return os << dynamic_cast<const IntrinsicsPinhole &>(in);
+    case CalibrationModel::KANNALA_BRANDT:
+      return os << dynamic_cast<const IntrinsicsEquidistant &>(in);
+    default:
+      return os << "unknown calib model";
+  }
+}
+
 std::ostream &operator<<(std::ostream &os, const IntrinsicsPinhole &in) {
   os << "pinhole, " << FULL_PRECISION
      << "width: " << in.width << ", height: " << in.height

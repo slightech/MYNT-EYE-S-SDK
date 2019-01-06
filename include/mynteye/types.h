@@ -434,6 +434,9 @@ struct MYNTEYE_API IntrinsicsBase {
   CalibrationModel calib_model_;
 };
 
+MYNTEYE_API
+std::ostream &operator<<(std::ostream &os, const IntrinsicsBase &in);
+
 /**
  * @ingroup calibration
  * Stream intrinsics (Pinhole)
