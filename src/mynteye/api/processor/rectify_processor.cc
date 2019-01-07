@@ -36,10 +36,10 @@ struct camera_info {
   unsigned int height = 0;
   unsigned int width = 0;
   std::string distortion_model = "null";
-  float  D[4] = {0};
-  float  K[9] = {0};
-  float  R[9] = {0};
-  float  P[12] = {0};
+  double  D[4] = {0};
+  double  K[9] = {0};
+  double  R[9] = {0};
+  double  P[12] = {0};
 };
 
 struct camera_mat_info_pair {
@@ -435,9 +435,8 @@ bool RectifyProcessor::OnProcess(
 #ifdef WITH_CAM_MODELS
     const ObjMat2 *input = Object::Cast<ObjMat2>(in);
     ObjMat2 *output = Object::Cast<ObjMat2>(out);
-    std::cout << in <<std::endl;
-    // cv::remap(input->first, output->first, map11, map12, cv::INTER_LINEAR);
-    // cv::remap(input->second, output->second, map21, map22, cv::INTER_LINEAR);
+    cv::remap(input->first, output->first, map11, map12, cv::INTER_LINEAR);
+    cv::remap(input->second, output->second, map21, map22, cv::INTER_LINEAR);
     output->first_id = input->first_id;
     output->first_data = input->first_data;
     output->second_id = input->second_id;
@@ -547,27 +546,6 @@ void RectifyProcessor::InitParams(
   camodocal::CameraPtr camera_odo_ptr_right =
       getCamOdoCameraPtr(calib_info_pair.right);
 
-  // for (int i = 0; i < 4 ; i ++) {
-  //   std::cout << " D" << i << ": " << calib_info_pair.left.D[i];
-  // }
-  //   for (int i = 0; i < 9 ; i ++) {
-  //   std::cout << " K" << i << ": " << calib_info_pair.left.K[i];
-  // }
-  // for (int i = 0; i < 9 ; i ++) {
-  //   std::cout << " R" << i << ": " << calib_info_pair.left.R[i];
-  // }
-  // for (int i = 0; i < 12 ; i ++) {
-  //   if (i == 0) {
-  //     calib_info_pair.left.P[i] = 361.184;
-  //   }
-  //   if (i == 5) {
-  //     calib_info_pair.left.P[i] = 361.184;
-  //   }
-  //   std::cout << " P" << i << ": " << calib_info_pair.left.P[i];
-  // }
-
-  // D0: -0.0167962 D1: -0.0434362 D2: 0.0877926 D3: -0.0569189 K0: 361.172 K1: 0 K2: 381.437 K3: 0 K4: 361.2 K5: 244.849 K6: 0 K7: 0 K8: 1 R0: 0.999997 R1: 0.00230108   R2: 0.00118774   R3: -0.00229864 R4: 0.999995 R5: -0.00205134 R6: -0.00119245 R7: 0.0020486 R8: 0.999997 P0: 361.184 P1: 0 P2: 337.803 P3: 0 P4: 0 P5: 361.184 P6: 247.574 P7: 0 P8: 0 P9: 0 P10: 1 P11: 0
-  // D0: -0.0167962 D1: -0.0434362 D2: 0.0877926 D3: -0.0569189 K0: 361.172 K1: 0 K2: 381.437 K3: 0 K4: 361.2 K5: 244.849 K6: 0 K7: 0 K8: 1 R0: 1        R1: -0.000291099 R2: -2.98628e-07 R3: 0.000291099 R4: 1        R5: 1.82261e-07 R6: 2.98575e-07 R7: -1.82348e-07 R8: 1     P0: 0       P1: 0 P2: 376     P3: 0 P4: 0 P5: 0       P6: 240     P7: 0 P8: 0 P9: 0 P10: 1 P11: 0
   cv::Mat rect_R_l =
       cv::Mat::eye(3, 3, CV_32F), rect_R_r = cv::Mat::eye(3, 3, CV_32F);
   for (size_t i = 0; i < 3; i++) {
@@ -592,7 +570,6 @@ void RectifyProcessor::InitParams(
       map21, map22, right_f[0], right_f[1],
       cv::Size(0, 0), right_center[0],
       right_center[1], rect_R_r);
-  std::cout << map11 << std::endl;
 }
 #endif
 
