@@ -1085,9 +1085,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     l2r_msg.header.stamp = tf_stamp;
     l2r_msg.header.frame_id = frame_ids_[Stream::LEFT];
     l2r_msg.child_frame_id = frame_ids_[Stream::RIGHT];
-    l2r_msg.transform.translation.x = l2r_ex.translation[0];
-    l2r_msg.transform.translation.y = l2r_ex.translation[1];
-    l2r_msg.transform.translation.z = l2r_ex.translation[2];
+    l2r_msg.transform.translation.x = l2r_ex.translation[0] / 1000;
+    l2r_msg.transform.translation.y = l2r_ex.translation[1] / 1000;
+    l2r_msg.transform.translation.z = l2r_ex.translation[2] / 1000;
     l2r_msg.transform.rotation.x = l2r_q.getX();
     l2r_msg.transform.rotation.y = l2r_q.getY();
     l2r_msg.transform.rotation.z = l2r_q.getZ();
