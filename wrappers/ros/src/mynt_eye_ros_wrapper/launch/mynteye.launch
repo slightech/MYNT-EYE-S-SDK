@@ -17,7 +17,7 @@
   <arg name="right_mono_topic" default="right/image_mono" />
 
   <arg name="imu_topic" default="imu/data_raw" />
-  <arg name="temp_topic" default="temp/data_raw" />
+  <arg name="temperature_topic" default="temperature/data_raw" />
 
   <arg name="base_frame_id" default="$(arg mynteye)_link" />
   <arg name="left_frame_id" default="$(arg mynteye)_left_frame" />
@@ -29,7 +29,7 @@
   <arg name="points_frame_id" default="$(arg mynteye)_points_frame" />
   <arg name="depth_frame_id" default="$(arg mynteye)_depth_frame" />
 
-  <arg name="temp_frame_id" default="$(arg mynteye)_temp_frame" />
+  <arg name="temperature_frame_id" default="$(arg mynteye)_temperature_frame" />
 
   <arg name="gravity" default="9.8" />
 
@@ -226,7 +226,7 @@
       <param name="right_mono_topic" value="$(arg right_mono_topic)" />
 
       <param name="imu_topic" value="$(arg imu_topic)" />
-      <param name="temp_topic" value="$(arg temp_topic)" />
+      <param name="temperature_topic" value="$(arg temperature_topic)" />
 
       <param name="base_frame_id" value="$(arg base_frame_id)" />
       <param name="left_frame_id" value="$(arg left_frame_id)" />
@@ -238,7 +238,7 @@
       <param name="points_frame_id" value="$(arg points_frame_id)" />
       <param name="depth_frame_id" value="$(arg depth_frame_id)" />
 
-      <param name="temp_frame_id" value="$(arg temp_frame_id)" />
+      <param name="temperature_frame_id" value="$(arg temperature_frame_id)" />
 
       <param name="gravity" value="$(arg gravity)" />
 

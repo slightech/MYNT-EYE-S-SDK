@@ -18,6 +18,7 @@
 #include <image_transport/image_transport.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/Temperature.h>
 #include <sensor_msgs/image_encodings.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
 #include <tf/tf.h>
@@ -26,7 +27,6 @@
 #include <opencv2/calib3d/calib3d.hpp>
 
 #include <mynt_eye_ros_wrapper/GetInfo.h>
-#include <mynt_eye_ros_wrapper/Temp.h>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -200,9 +200,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
 
     std::string imu_topic = "imu";
-    std::string temp_topic = "temp";
+    std::string temperature_topic = "temperature";
     private_nh_.getParam("imu_topic", imu_topic);
-    private_nh_.getParam("temp_topic", temp_topic);
+    private_nh_.getParam("temperature_topic", temperature_topic);
 
     base_frame_id_ = "camera_link";
     private_nh_.getParam("base_frame_id", base_frame_id_);
@@ -213,9 +213,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
 
     imu_frame_id_ = "camera_imu_frame";
-    temp_frame_id_ = "camera_temp_frame";
+    temperature_frame_id_ = "camera_temperature_frame";
     private_nh_.getParam("imu_frame_id", imu_frame_id_);
-    private_nh_.getParam("temp_frame_id", temp_frame_id_);
+    private_nh_.getParam("temperature_frame_id", temperature_frame_id_);
 
     gravity_ = 9.8;
     private_nh_.getParam("gravity", gravity_);
@@ -327,8 +327,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     pub_imu_ = nh_.advertise<sensor_msgs::Imu>(imu_topic, 100);
     NODELET_INFO_STREAM("Advertized on topic " << imu_topic);
 
-    pub_temp_ = nh_.advertise<mynt_eye_ros_wrapper::Temp>(temp_topic, 100);
-    NODELET_INFO_STREAM("Advertized on topic " << temp_topic);
+    pub_temperature_ = nh_.advertise<
+                        sensor_msgs::Temperature>(temperature_topic, 100);
+    NODELET_INFO_STREAM("Advertized on topic " << temperature_topic);
 
     // stream toggles
 
@@ -576,14 +577,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
               publishImuBySync(stamp);
             } else {
               publishImu(data, imu_count_, stamp);
-              publishTemp(data.imu->temperature, imu_count_, stamp);
+              publishTemperature(data.imu->temperature, imu_count_, stamp);
             }
           } else {
             NODELET_WARN_STREAM("Motion data is empty");
           }
         } else {
           publishImu(data, imu_count_, stamp);
-          publishTemp(data.imu->temperature, imu_count_, stamp);
+          publishTemperature(data.imu->temperature, imu_count_, stamp);
         }
         NODELET_DEBUG_STREAM(
             "Imu count: " << imu_count_
@@ -820,22 +821,24 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     pub_imu_.publish(msg);
 
-    publishTemp(imu_accel_->temperature, imu_sync_count_, stamp);
+    publishTemperature(imu_accel_->temperature, imu_sync_count_, stamp);
 
     ++imu_sync_count_;
     imu_accel_ = nullptr;
     imu_gyro_ = nullptr;
   }
 
-  void publishTemp(float temperature, std::uint32_t seq, ros::Time stamp) {
-    if (pub_temp_.getNumSubscribers() == 0)
+  void publishTemperature(
+    float temperature, std::uint32_t seq, ros::Time stamp) {
+    if (pub_temperature_.getNumSubscribers() == 0)
       return;
-    mynt_eye_ros_wrapper::Temp msg;
+    sensor_msgs::Temperature msg;
     msg.header.seq = seq;
     msg.header.stamp = stamp;
-    msg.header.frame_id = temp_frame_id_;
-    msg.data = temperature;
-    pub_temp_.publish(msg);
+    msg.header.frame_id = temperature_frame_id_;
+    msg.temperature = temperature;
+    msg.variance = 0;
+    pub_temperature_.publish(msg);
   }
 
  private:
@@ -1234,7 +1237,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   ros::Publisher points_publisher_;
 
   ros::Publisher pub_imu_;
-  ros::Publisher pub_temp_;
+  ros::Publisher pub_temperature_;
 
   tf2_ros::StaticTransformBroadcaster static_tf_broadcaster_;
 
@@ -1244,7 +1247,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
   std::string base_frame_id_;
   std::string imu_frame_id_;
-  std::string temp_frame_id_;
+  std::string temperature_frame_id_;
   std::map<Stream, std::string> frame_ids_;
 
   double gravity_;

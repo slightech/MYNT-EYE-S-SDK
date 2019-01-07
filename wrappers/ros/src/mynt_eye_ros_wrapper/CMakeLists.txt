@@ -57,11 +57,6 @@ checkPackage("tf" "")
 
 ## messages
 
-add_message_files(
-  FILES
-  Temp.msg
-)
-
 add_service_files(
   FILES
   GetInfo.srv
