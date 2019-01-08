@@ -207,10 +207,11 @@ std::vector<std::string> get_plugin_paths() {
 
 }  // namespace
 
-API::API(std::shared_ptr<Device> device) : device_(device) {
+API::API(std::shared_ptr<Device> device, CalibrationModel calib_model)
+    : device_(device) {
   VLOG(2) << __func__;
   // std::dynamic_pointer_cast<StandardDevice>(device_);
-  synthetic_.reset(new Synthetic(this));
+  synthetic_.reset(new Synthetic(this, calib_model));
 }
 
 API::~API() {
@@ -230,7 +231,15 @@ std::shared_ptr<API> API::Create(
 }
 
 std::shared_ptr<API> API::Create(const std::shared_ptr<Device> &device) {
-  return std::make_shared<API>(device);
+  auto left_intr = device -> GetIntrinsics(Stream::LEFT);
+  auto right_intr = device -> GetIntrinsics(Stream::RIGHT);
+  if (left_intr->calib_model() != right_intr->calib_model()) {
+    VLOG(2) << __func__
+            << "ERROR: "
+            <<"left camera and right camera use different calib models!";
+  }
+  auto api = std::make_shared<API>(device, left_intr->calib_model());
+  return api;
 }
 
 Model API::GetModel() const {

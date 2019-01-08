@@ -68,7 +68,8 @@ void process_childs(
 
 }  // namespace
 
-Synthetic::Synthetic(API *api) : api_(api), plugin_(nullptr) {
+Synthetic::Synthetic(API *api, CalibrationModel calib_model)
+    : api_(api), plugin_(nullptr), calib_model_(calib_model) {
   VLOG(2) << __func__;
   CHECK_NOTNULL(api_);
   InitStreamSupports();
@@ -442,10 +443,21 @@ void Synthetic::InitProcessors() {
   depth_processor->SetPostProcessCallback(
       std::bind(&Synthetic::OnDepthPostProcess, this, _1));
 
-  rectify_processor->AddChild(disparity_processor);
-  disparity_processor->AddChild(disparitynormalized_processor);
-  disparity_processor->AddChild(points_processor);
-  points_processor->AddChild(depth_processor);
+  if (calib_model_ == CalibrationModel::PINHOLE) {
+    // PINHOLE
+    rectify_processor->AddChild(disparity_processor);
+    disparity_processor->AddChild(disparitynormalized_processor);
+    disparity_processor->AddChild(points_processor);
+    points_processor->AddChild(depth_processor);
+  } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+    // KANNALA_BRANDT
+    rectify_processor->AddChild(disparity_processor);
+    disparity_processor->AddChild(disparitynormalized_processor);
+    disparity_processor->AddChild(points_processor);
+    points_processor->AddChild(depth_processor);
+  } else {
+    // UNKNOW
+  }
 
   processor_ = rectify_processor;
 }

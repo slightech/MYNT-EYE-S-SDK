@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "mynteye/api/api.h"
+// #include ""
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -40,7 +41,7 @@ class Synthetic {
     MODE_LAST        // Unsupported
   } mode_t;
 
-  explicit Synthetic(API *api);
+  explicit Synthetic(API *api, CalibrationModel calib_model);
   ~Synthetic();
 
   void NotifyImageParamsChanged();
@@ -112,6 +113,8 @@ class Synthetic {
   std::shared_ptr<Processor> processor_;
 
   std::shared_ptr<Plugin> plugin_;
+
+  CalibrationModel calib_model_;
 };
 
 template <class T, class P>

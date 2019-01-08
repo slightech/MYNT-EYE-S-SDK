@@ -22,15 +22,6 @@
 
 #include "mynteye/types.h"
 #include "mynteye/api/processor.h"
-#ifdef WITH_CAM_MODELS
-#include <camodocal/camera_models/Camera.h>
-#include <camodocal/camera_models/CameraFactory.h>
-#include <camodocal/camera_models/CataCamera.h>
-#include <camodocal/camera_models/EquidistantCamera.h>
-#include <camodocal/camera_models/PinholeCamera.h>
-#include <camodocal/gpl/gpl.h>
-#include <camodocal/camera_models/Camera.h>
-#endif
 
 MYNTEYE_BEGIN_NAMESPACE
 

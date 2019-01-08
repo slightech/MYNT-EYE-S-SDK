@@ -24,6 +24,13 @@
 
 #ifdef WITH_CAM_MODELS
 
+#include <camodocal/camera_models/Camera.h>
+#include <camodocal/camera_models/CameraFactory.h>
+#include <camodocal/camera_models/CataCamera.h>
+#include <camodocal/camera_models/EquidistantCamera.h>
+#include <camodocal/camera_models/PinholeCamera.h>
+#include <camodocal/gpl/gpl.h>
+#include <camodocal/camera_models/Camera.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>

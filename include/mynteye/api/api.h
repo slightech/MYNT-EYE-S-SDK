@@ -93,7 +93,7 @@ class MYNTEYE_API API {
   /** The api::MotionData callback. */
   using motion_callback_t = std::function<void(const api::MotionData &data)>;
 
-  explicit API(std::shared_ptr<Device> device);
+  explicit API(std::shared_ptr<Device> device, CalibrationModel calib_model);
   virtual ~API();
 
   /**
