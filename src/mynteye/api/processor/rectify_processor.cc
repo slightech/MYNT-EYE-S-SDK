@@ -412,7 +412,7 @@ bool RectifyProcessor::OnProcess(
     output->first_data = input->first_data;
     output->second_id = input->second_id;
     output->second_data = input->second_data;
-    return false;
+    return true;
 #else
     return false;
 #endif
