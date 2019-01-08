@@ -41,13 +41,17 @@ Object *PointsProcessor::OnCreateOutput() {
 }
 
 bool PointsProcessor::OnProcess(
-    Object *const in, Object *const out, Processor *const parent) {
+  Object *const in, Object *const out, Processor *const parent) {
+#ifdef WITH_CAM_MODELS
+
+#else
   MYNTEYE_UNUSED(parent)
   const ObjMat *input = Object::Cast<ObjMat>(in);
   ObjMat *output = Object::Cast<ObjMat>(out);
   cv::reprojectImageTo3D(input->value, output->value, Q_, true);
   output->id = input->id;
   output->data = input->data;
+#endif
   return true;
 }
 
