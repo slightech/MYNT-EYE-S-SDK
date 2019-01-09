@@ -18,12 +18,34 @@
 #include <cstdint>
 #include <array>
 #include <bitset>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "mynteye/mynteye.h"
+#include "mynteye/types.h"
 
 MYNTEYE_BEGIN_NAMESPACE
+
+namespace device {
+
+typedef struct ImgParams {
+  bool ok;
+  std::string version;
+  std::shared_ptr<IntrinsicsBase> in_left;
+  std::shared_ptr<IntrinsicsBase> in_right;
+  Extrinsics ex_right_to_left;
+} img_params_t;
+
+typedef struct ImuParams {
+  bool ok;
+  std::string version;
+  ImuIntrinsics in_accel;
+  ImuIntrinsics in_gyro;
+  Extrinsics ex_left_to_imu;
+} imu_params_t;
+
+}  // namespace device
 
 #define MYNTEYE_PROPERTY(TYPE, NAME) \
  public:                             \
@@ -141,73 +163,6 @@ struct MYNTEYE_API DeviceInfo {
   Type imu_type;
   std::uint16_t nominal_baseline;
 };
-
-/**
- * @ingroup datatypes
- * Imu request packet.
- */
-#pragma pack(push, 1)
-struct ImuReqPacket {
-  std::uint8_t header;
-  std::uint32_t serial_number;
-
-  ImuReqPacket() = default;
-  explicit ImuReqPacket(std::uint32_t serial_number)
-      : ImuReqPacket(0x5A, serial_number) {}
-  ImuReqPacket(std::uint8_t header, std::uint32_t serial_number)
-      : header(header), serial_number(serial_number) {}
-
-  std::array<std::uint8_t, 5> to_data() const {
-    return {{header, static_cast<std::uint8_t>((serial_number >> 24) & 0xFF),
-             static_cast<std::uint8_t>((serial_number >> 16) & 0xFF),
-             static_cast<std::uint8_t>((serial_number >> 8) & 0xFF),
-             static_cast<std::uint8_t>(serial_number & 0xFF)}};
-  }
-};
-#pragma pack(pop)
-
-/**
- * @ingroup datatypes
- * Imu segment.
- */
-#pragma pack(push, 1)
-struct ImuSegment {
-  std::uint32_t frame_id;
-  std::uint64_t timestamp;
-  std::uint8_t flag;
-  std::int16_t temperature;
-  std::int16_t accel[3];
-  std::int16_t gyro[3];
-};
-#pragma pack(pop)
-
-/**
- * @ingroup datatypes
- * Imu packet.
- */
-#pragma pack(push, 1)
-struct ImuPacket {
-  std::uint8_t version;
-  std::uint8_t count;
-  std::uint32_t serial_number;
-  std::vector<ImuSegment> segments;
-};
-#pragma pack(pop)
-
-/**
- * @ingroup datatypes
- * Imu response packet.
- */
-#pragma pack(push, 1)
-struct ImuResPacket {
-  std::uint8_t version;
-  std::uint8_t header;
-  std::uint8_t state;
-  std::uint16_t size;
-  std::vector<ImuPacket> packets;
-  std::uint8_t checksum;
-};
-#pragma pack(pop)
 
 #undef MYNTEYE_PROPERTY
 

@@ -676,4 +676,14 @@ void Device::CallbackMotionData(const device::MotionData &data) {
   }
 }
 
+bool Device::GetFiles(
+    DeviceInfo *info, img_params_map_t *img_params, imu_params_t *imu_params) {
+  return channels_->GetFiles(info, img_params, imu_params);
+}
+
+bool Device::SetFiles(
+    DeviceInfo *info, img_params_map_t *img_params, imu_params_t *imu_params) {
+  return channels_->SetFiles(info, img_params, imu_params);
+}
+
 MYNTEYE_END_NAMESPACE
