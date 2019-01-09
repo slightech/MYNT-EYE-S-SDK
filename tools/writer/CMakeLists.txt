@@ -20,10 +20,6 @@ set_outdir(
   "${OUT_DIR}/bin/${DIR_NAME}"
 )
 
-include_directories(
-  ${PRO_DIR}/src
-)
-
 ## device_writer
 
 add_library(device_writer STATIC device_writer.cc)

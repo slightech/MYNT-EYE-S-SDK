@@ -18,7 +18,6 @@
 #include <opencv2/core/core.hpp>
 
 #include "mynteye/logger.h"
-#include "mynteye/device/device.h"
 #include "mynteye/util/files.h"
 
 #define SAVE_LATEST_VERSION Version(1, 2)
@@ -36,15 +35,13 @@ DeviceWriter::~DeviceWriter() {
 }
 
 bool DeviceWriter::WriteDeviceInfo(const dev_info_t &info) {
-  auto &&channels = device_->channels();
-
   // Update device info
   auto &&dev_info = device_->GetInfo();
   dev_info->lens_type = Type(info.lens_type);
   dev_info->imu_type = Type(info.imu_type);
   dev_info->nominal_baseline = info.nominal_baseline;
 
-  if (channels->SetFiles(dev_info.get(), nullptr, nullptr)) {
+  if (device_->SetFiles(dev_info.get(), nullptr, nullptr)) {
     LOG(INFO) << "Write device info success";
     LOG(INFO) << "Device info: {name: " << dev_info->name
               << ", serial_number: " << dev_info->serial_number
@@ -68,8 +65,6 @@ bool DeviceWriter::WriteDeviceInfo(const std::string &filepath) {
 }
 
 bool DeviceWriter::WriteImgParams(const img_params_map_t &img_params_map) {
-  auto &&channels = device_->channels();
-
   img_params_map_t *img_params_new =
       const_cast<img_params_map_t *>(&img_params_map);
   // Update image params with raw
@@ -81,7 +76,7 @@ bool DeviceWriter::WriteImgParams(const img_params_map_t &img_params_map) {
     }
   }
 
-  if (channels->SetFiles(nullptr, img_params_new, nullptr)) {
+  if (device_->SetFiles(nullptr, img_params_new, nullptr)) {
     LOG(INFO) << "Write img params success";
     for (auto it = img_params_new->begin(); it != img_params_new->end(); it++) {
       LOG(INFO) << "Resolution: {width: " << (*it).first.width
@@ -103,8 +98,7 @@ bool DeviceWriter::WriteImgParams(const std::string &filepath) {
 }
 
 bool DeviceWriter::WriteImuParams(const imu_params_t &params) {
-  auto &&channels = device_->channels();
-  if (channels->SetFiles(
+  if (device_->SetFiles(
           nullptr, nullptr, const_cast<imu_params_t *>(&params))) {
     LOG(INFO) << "Write imu params success";
     LOG(INFO) << "Imu intrinsics accel: {" << params.in_accel << "}";
