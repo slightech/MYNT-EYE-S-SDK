@@ -309,6 +309,7 @@ install(FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/device/callbacks.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/device/context.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/device/device.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/device/types.h
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/device/utils.h
   DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}/device
 )

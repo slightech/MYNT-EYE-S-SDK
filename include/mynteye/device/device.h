@@ -22,8 +22,8 @@
 #include <vector>
 
 #include "mynteye/mynteye.h"
-#include "mynteye/types.h"
 #include "mynteye/device/callbacks.h"
+#include "mynteye/device/types.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -51,26 +51,6 @@ class StreamsAdapter;
 template <class Data>
 class AsyncCallback;
 
-namespace device {
-
-typedef struct ImgParams {
-  bool ok;
-  std::string version;
-  std::shared_ptr<IntrinsicsBase> in_left;
-  std::shared_ptr<IntrinsicsBase> in_right;
-  Extrinsics ex_right_to_left;
-} img_params_t;
-
-typedef struct ImuParams {
-  bool ok;
-  std::string version;
-  ImuIntrinsics in_accel;
-  ImuIntrinsics in_gyro;
-  Extrinsics ex_left_to_imu;
-} imu_params_t;
-
-}  // namespace device
-
 /**
  * The Device class to communicate with MYNT® EYE device.
  */
@@ -89,6 +69,7 @@ class MYNTEYE_API Device {
   using motion_async_callback_ptr_t = std::shared_ptr<motion_async_callback_t>;
 
   using img_params_t = device::img_params_t;
+  using img_params_map_t = std::map<Resolution, img_params_t>;
   using imu_params_t = device::imu_params_t;
 
  protected:
@@ -337,10 +318,10 @@ class MYNTEYE_API Device {
 
   virtual Capabilities GetKeyStreamCapability() const = 0;
 
-  std::map<Resolution, device::img_params_t> GetImgParams() const {
+  img_params_map_t GetImgParams() const {
     return all_img_params_;
   }
-  device::imu_params_t GetImuParams() const {
+  imu_params_t GetImuParams() const {
     return imu_params_;
   }
 
@@ -352,8 +333,8 @@ class MYNTEYE_API Device {
   std::shared_ptr<uvc::device> device_;
   std::shared_ptr<DeviceInfo> device_info_;
 
-  std::map<Resolution, device::img_params_t> all_img_params_;
-  device::imu_params_t imu_params_;
+  img_params_map_t all_img_params_;
+  imu_params_t imu_params_;
 
   std::map<Stream, std::shared_ptr<IntrinsicsBase>> stream_intrinsics_;
   std::map<Stream, std::map<Stream, Extrinsics>> stream_from_extrinsics_;
@@ -383,6 +364,11 @@ class MYNTEYE_API Device {
 
   void CallbackPushedStreamData(const Stream &stream);
   void CallbackMotionData(const device::MotionData &data);
+
+  bool GetFiles(
+      DeviceInfo *info, img_params_map_t *img_params, imu_params_t *imu_params);
+  bool SetFiles(
+      DeviceInfo *info, img_params_map_t *img_params, imu_params_t *imu_params);
 
   friend API;
   friend tools::DeviceWriter;

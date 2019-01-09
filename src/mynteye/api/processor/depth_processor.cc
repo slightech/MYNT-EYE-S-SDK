@@ -47,6 +47,7 @@ bool DepthProcessor::OnProcess(
   ObjMat *output = Object::Cast<ObjMat>(out);
   int rows = input->value.rows;
   int cols = input->value.cols;
+  // TODO(MYNTEYE): Put the corresponding parameters(T,f)
   float T = 0.08;
   float f = 0.01;
   cv::Mat depth_mat = cv::Mat::zeros(rows, cols, CV_32F);

@@ -19,9 +19,7 @@
 #include <memory>
 #include <string>
 
-#include "mynteye/mynteye.h"
-#include "mynteye/device/channel/channels.h"
-#include "mynteye/device/types.h"
+#include "mynteye/device/device.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
