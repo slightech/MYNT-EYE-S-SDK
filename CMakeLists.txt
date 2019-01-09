@@ -94,6 +94,18 @@ if(OS_WIN)
   )
 endif()
 
+# rpath
+
+set(CMAKE_MACOSX_RPATH 1)
+set(MYNTEYE_CMAKE_RPATH "")
+if(WITH_OPENCV)
+  list(APPEND MYNTEYE_CMAKE_RPATH ${OpenCV_LIB_PATH})
+endif()
+if(MYNTEYE_CMAKE_RPATH)
+  message(STATUS "RPATH: ${MYNTEYE_CMAKE_RPATH}")
+  set(CMAKE_INSTALL_RPATH "${MYNTEYE_CMAKE_RPATH}")
+endif()
+
 # targets
 
 add_definitions(-DMYNTEYE_EXPORTS)

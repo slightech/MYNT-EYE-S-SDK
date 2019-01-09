@@ -41,13 +41,23 @@ Object *DepthProcessor::OnCreateOutput() {
 bool DepthProcessor::OnProcess(
     Object *const in, Object *const out, Processor *const parent) {
   MYNTEYE_UNUSED(parent)
-  // const ObjMat *input = Object::Cast<ObjMat>(in);
-  // ObjMat *output = Object::Cast<ObjMat>(out);
-  // cv::Mat channels[3 /*input->value.channels()*/];
-  // cv::split(input->value, channels);
-  // channels[2].convertTo(output->value, CV_16UC1);
-  // output->id = input->id;
-  // output->data = input->data;
+  const ObjMat *input = Object::Cast<ObjMat>(in);
+  ObjMat *output = Object::Cast<ObjMat>(out);
+  int rows = input->value.rows;
+  int cols = input->value.cols;
+  float T = 0.08;
+  float f = 0.01;
+  cv::Mat depth_mat = cv::Mat::zeros(rows, cols, CV_32F);
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols; j++) {
+      float disparity_value = input->value.at<float>(i, j);
+      float depth = T * f / disparity_value;
+      depth_mat.at<float>(i, j) = depth;
+    }
+  }
+  output->value = depth_mat;
+  output->id = input->id;
+  output->data = input->data;
   return true;
 }
 
