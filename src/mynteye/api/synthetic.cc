@@ -570,6 +570,9 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
 
 void Synthetic::InitProcessors() {
   std::shared_ptr<Processor> rectify_processor = nullptr;
+#ifdef WITH_CAM_MODELS
+  std::shared_ptr<RectifyProcessor> rectify_processor_imp = nullptr;
+#endif
   cv::Mat Q;
   if (calib_model_ ==  CalibrationModel::PINHOLE) {
     auto &&rectify_processor_ocv =
@@ -579,9 +582,10 @@ void Synthetic::InitProcessors() {
     Q = rectify_processor_ocv->Q;
 #ifdef WITH_CAM_MODELS
   } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-    rectify_processor =
+    rectify_processor_imp =
         std::make_shared<RectifyProcessor>(intr_left_, intr_right_, extr_,
                                            RECTIFY_PROC_PERIOD);
+    rectify_processor = rectify_processor_imp;
 #endif
   } else {
     LOG(ERROR) << "Unknow calib model type in device: "
@@ -603,6 +607,7 @@ void Synthetic::InitProcessors() {
 #ifdef WITH_CAM_MODELS
   } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
     points_processor = std::make_shared<PointsProcessor>(
+        rectify_processor_imp -> getCalibInfoPair(),
         POINTS_PROC_PERIOD);
 #endif
   } else {
@@ -614,7 +619,9 @@ void Synthetic::InitProcessors() {
     depth_processor = std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
 #ifdef WITH_CAM_MODELS
   } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-    depth_processor = std::make_shared<DepthProcessor>(DEPTH_PROC_PERIOD);
+    depth_processor = std::make_shared<DepthProcessor>(
+        rectify_processor_imp -> getCalibInfoPair(),
+        DEPTH_PROC_PERIOD);
 #endif
   } else {
     depth_processor = std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);

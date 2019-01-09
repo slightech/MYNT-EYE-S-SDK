@@ -52,7 +52,9 @@ struct DepthTraits<float> {
 
 const char PointsProcessor::NAME[] = "PointsProcessor";
 
-PointsProcessor::PointsProcessor(std::int32_t proc_period)
+PointsProcessor::PointsProcessor(
+    std::shared_ptr<struct camera_calib_info_pair> calib_infos,
+    std::int32_t proc_period)
     : Processor(std::move(proc_period)) {
   VLOG(2) << __func__ << ": proc_period=" << proc_period;
 }
@@ -95,7 +97,6 @@ bool PointsProcessor::OnProcess(
   int height = static_cast<int>(output->value.rows);
   int width = static_cast<int>(output->value.cols);
   for (int v = 0; v < height; ++v) {
-
     cv::Vec3f *dptr = output->value.ptr<cv::Vec3f>(v);
     for (int u = 0; u < width; ++u) {
       float depth = input->value.at<float>(v, u);

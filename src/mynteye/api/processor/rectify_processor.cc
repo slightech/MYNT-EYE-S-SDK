@@ -18,38 +18,10 @@
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "mynteye/logger.h"
-#include "mynteye/device/device.h"
-#include <camodocal/camera_models/Camera.h>
-#include <camodocal/camera_models/CameraFactory.h>
-#include <camodocal/camera_models/CataCamera.h>
-#include <camodocal/camera_models/EquidistantCamera.h>
-#include <camodocal/camera_models/PinholeCamera.h>
-#include <camodocal/gpl/gpl.h>
-#include <camodocal/camera_models/Camera.h>
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/program_options.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/opencv.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/core/eigen.hpp>
 
-struct camera_info {
-  unsigned int height = 0;
-  unsigned int width = 0;
-  std::string distortion_model = "null";
-  double  D[4] = {0};
-  double  K[9] = {0};
-  double  R[9] = {0};
-  double  P[12] = {0};
-};
+MYNTEYE_BEGIN_NAMESPACE
 
-struct camera_mat_info_pair {
-  struct camera_info left;
-  struct camera_info right;
-};
-
-cv::Mat rectifyrad(const cv::Mat& R) {
+cv::Mat RectifyProcessor::rectifyrad(const cv::Mat& R) {
   cv::Mat r_vec;
   cv::Rodrigues(R, r_vec);
   //  pi/180 = x/179 ==> x = 3.1241
@@ -65,13 +37,12 @@ cv::Mat rectifyrad(const cv::Mat& R) {
   return R.clone();
 }
 
-void stereoRectify(camodocal::CameraPtr leftOdo,
+void RectifyProcessor::stereoRectify(camodocal::CameraPtr leftOdo,
     camodocal::CameraPtr rightOdo, const CvMat* K1, const CvMat* K2,
     const CvMat* D1, const CvMat* D2, CvSize imageSize,
     const CvMat* matR, const CvMat* matT,
     CvMat* _R1, CvMat* _R2, CvMat* _P1, CvMat* _P2,
-    int flags = cv::CALIB_ZERO_DISPARITY, double alpha = -1,
-    CvSize newImgSize = cv::Size()) {
+    int flags, double alpha, CvSize newImgSize) {
   double _om[3], _t[3] = {0}, _uu[3]={0, 0, 0}, _r_r[3][3], _pp[3][4];
   double _ww[3], _wr[3][3], _z[3] = {0, 0, 0}, _ri[3][3], _w3[3];
   cv::Rect_<float> inner1, inner2, outer1, outer2;
@@ -229,7 +200,7 @@ void stereoRectify(camodocal::CameraPtr leftOdo,
   }
 }
 
-Eigen::Matrix4d loadT(const mynteye::Extrinsics& in) {
+Eigen::Matrix4d RectifyProcessor::loadT(const mynteye::Extrinsics& in) {
   Eigen::Matrix3d R;
   R<<
   in.rotation[0][0], in.rotation[0][1], in.rotation[0][2],
@@ -249,17 +220,18 @@ Eigen::Matrix4d loadT(const mynteye::Extrinsics& in) {
   return T;
 }
 
-void loadCameraMatrix(cv::Mat& K, cv::Mat& D,  // NOLINT
+void RectifyProcessor::loadCameraMatrix(cv::Mat& K, cv::Mat& D,  // NOLINT
     cv::Size& image_size,  // NOLINT
-    struct camera_info& calib_data) {  // NOLINT
+    struct camera_calib_info& calib_data) {  // NOLINT
   K = cv::Mat(3, 3, CV_64F, calib_data.K);
   std::size_t d_length = 4;
   D = cv::Mat(1, d_length, CV_64F, calib_data.D);
   image_size = cv::Size(calib_data.width, calib_data.height);
 }
 
-struct camera_info getCalibMatData(const mynteye::IntrinsicsEquidistant& in) {
-  struct camera_info calib_mat_data;
+struct camera_calib_info RectifyProcessor::getCalibMatData(
+    const mynteye::IntrinsicsEquidistant& in) {
+  struct camera_calib_info calib_mat_data;
   calib_mat_data.distortion_model = "KANNALA_BRANDT";
   calib_mat_data.height = in.height;
   calib_mat_data.width = in.width;
@@ -276,7 +248,7 @@ struct camera_info getCalibMatData(const mynteye::IntrinsicsEquidistant& in) {
   return calib_mat_data;
 }
 
-struct camera_mat_info_pair stereoRectify(
+std::shared_ptr<struct camera_calib_info_pair> RectifyProcessor::stereoRectify(
     camodocal::CameraPtr leftOdo,
     camodocal::CameraPtr rightOdo,
     mynteye::IntrinsicsEquidistant in_left,
@@ -291,8 +263,8 @@ struct camera_mat_info_pair stereoRectify(
   cv::Mat K1, D1, K2, D2;
   cv::Size image_size1, image_size2;
 
-  struct camera_info calib_mat_data_left = getCalibMatData(in_left);
-  struct camera_info calib_mat_data_right = getCalibMatData(in_right);
+  struct camera_calib_info calib_mat_data_left = getCalibMatData(in_left);
+  struct camera_calib_info calib_mat_data_right = getCalibMatData(in_right);
 
   loadCameraMatrix(K1, D1, image_size1, calib_mat_data_left);
   loadCameraMatrix(K2, D2, image_size2, calib_mat_data_right);
@@ -335,11 +307,12 @@ struct camera_mat_info_pair stereoRectify(
       calib_mat_data_right.R[i*3 +j] = R2.at<double>(i, j);
     }
   }
-  struct camera_mat_info_pair res = {calib_mat_data_left, calib_mat_data_right};
-  return res;
+  struct camera_calib_info_pair res =
+      {calib_mat_data_left, calib_mat_data_right};
+  return std::make_shared<struct camera_calib_info_pair>(res);
 }
 
-camodocal::CameraPtr generateCameraFromIntrinsicsEquidistant(
+camodocal::CameraPtr RectifyProcessor::generateCameraFromIntrinsicsEquidistant(
     const mynteye::IntrinsicsEquidistant & in) {
   camodocal::EquidistantCameraPtr camera(
       new camodocal::EquidistantCamera("KANNALA_BRANDT",
@@ -356,8 +329,6 @@ camodocal::CameraPtr generateCameraFromIntrinsicsEquidistant(
   return camera;
 }
 
-MYNTEYE_BEGIN_NAMESPACE
-
 void RectifyProcessor::InitParams(
     IntrinsicsEquidistant in_left,
     IntrinsicsEquidistant in_right,
@@ -367,7 +338,7 @@ void RectifyProcessor::InitParams(
       generateCameraFromIntrinsicsEquidistant(in_left);
   camodocal::CameraPtr camera_odo_ptr_right =
       generateCameraFromIntrinsicsEquidistant(in_right);
-  struct camera_mat_info_pair calib_info_pair =
+  calib_infos =
       stereoRectify(camera_odo_ptr_left,
                     camera_odo_ptr_right,
                     in_left,
@@ -378,18 +349,18 @@ void RectifyProcessor::InitParams(
       cv::Mat::eye(3, 3, CV_32F), rect_R_r = cv::Mat::eye(3, 3, CV_32F);
   for (size_t i = 0; i < 3; i++) {
     for (size_t j = 0; j < 3; j++) {
-      rect_R_l.at<float>(i, j) = calib_info_pair.left.R[i*3+j];
-      rect_R_r.at<float>(i, j) = calib_info_pair.right.R[i*3+j];
+      rect_R_l.at<float>(i, j) = calib_infos->left.R[i*3+j];
+      rect_R_r.at<float>(i, j) = calib_infos->right.R[i*3+j];
     }
   }
   double left_f[] =
-      {calib_info_pair.left.P[0], calib_info_pair.left.P[5]};
+      {calib_infos->left.P[0], calib_infos->left.P[5]};
   double left_center[] =
-      {calib_info_pair.left.P[2], calib_info_pair.left.P[6]};
+      {calib_infos->left.P[2], calib_infos->left.P[6]};
   double right_f[] =
-      {calib_info_pair.right.P[0], calib_info_pair.right.P[5]};
+      {calib_infos->right.P[0], calib_infos->right.P[5]};
   double right_center[] =
-      {calib_info_pair.right.P[2], calib_info_pair.right.P[6]};
+      {calib_infos->right.P[2], calib_infos->right.P[6]};
   camera_odo_ptr_left->initUndistortRectifyMap(
       map11, map12, left_f[0], left_f[1],
       cv::Size(0, 0), left_center[0],

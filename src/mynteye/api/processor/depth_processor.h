@@ -18,6 +18,7 @@
 #include <string>
 
 #include "mynteye/api/processor.h"
+#include "mynteye/api/processor/rectify_processor.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -25,7 +26,9 @@ class DepthProcessor : public Processor {
  public:
   static const char NAME[];
 
-  explicit DepthProcessor(std::int32_t proc_period = 0);
+  explicit DepthProcessor(
+      std::shared_ptr<struct camera_calib_info_pair> calib_infos,
+      std::int32_t proc_period = 0);
   virtual ~DepthProcessor();
 
   std::string Name() override;
