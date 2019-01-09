@@ -28,6 +28,8 @@
 #include "mynteye/api/processor/disparity_processor.h"
 #include "mynteye/api/processor/points_processor.h"
 #include "mynteye/api/processor/rectify_processor.h"
+#include "mynteye/api/processor/depth_processor_ocv.h"
+#include "mynteye/api/processor/points_processor_ocv.h"
 #include "mynteye/device/device.h"
 
 #define RECTIFY_PROC_PERIOD 0
@@ -209,22 +211,50 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
         VLOG(2) << "Disparity normalized not ready now";
       } break;
       case Stream::POINTS: {
-        auto &&processor = find_processor<PointsProcessor>(processor_);
-        auto &&out = processor->GetOutput();
-        if (out != nullptr) {
-          auto &&output = Object::Cast<ObjMat>(out);
-          return {output->data, output->value, nullptr, output->id};
+        if (calib_model_ ==  CalibrationModel::PINHOLE) {
+          auto &&processor = find_processor<PointsProcessorOCV>(processor_);
+          auto &&out = processor->GetOutput();
+          if (out != nullptr) {
+            auto &&output = Object::Cast<ObjMat>(out);
+            return {output->data, output->value, nullptr, output->id};
+          }
+          VLOG(2) << "Points not ready now";
+        } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+          auto &&processor = find_processor<PointsProcessor>(processor_);
+          auto &&out = processor->GetOutput();
+          if (out != nullptr) {
+            auto &&output = Object::Cast<ObjMat>(out);
+            return {output->data, output->value, nullptr, output->id};
+          }
+          VLOG(2) << "Points not ready now";
+        } else {
+          // UNKNOW
+          LOG(ERROR) << "Unknow calib model type in device: "
+                     << calib_model_;
         }
-        VLOG(2) << "Points not ready now";
       } break;
       case Stream::DEPTH: {
-        auto &&processor = find_processor<DepthProcessor>(processor_);
-        auto &&out = processor->GetOutput();
-        if (out != nullptr) {
-          auto &&output = Object::Cast<ObjMat>(out);
-          return {output->data, output->value, nullptr, output->id};
+        if (calib_model_ ==  CalibrationModel::PINHOLE) {
+          auto &&processor = find_processor<DepthProcessorOCV>(processor_);
+          auto &&out = processor->GetOutput();
+          if (out != nullptr) {
+            auto &&output = Object::Cast<ObjMat>(out);
+            return {output->data, output->value, nullptr, output->id};
+          }
+          VLOG(2) << "Depth not ready now";
+        } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+          auto &&processor = find_processor<DepthProcessor>(processor_);
+          auto &&out = processor->GetOutput();
+          if (out != nullptr) {
+            auto &&output = Object::Cast<ObjMat>(out);
+            return {output->data, output->value, nullptr, output->id};
+          }
+          VLOG(2) << "Depth not ready now";
+        } else {
+          // UNKNOW
+          LOG(ERROR) << "Unknow calib model type in device: "
+                     << calib_model_;
         }
-        VLOG(2) << "Depth not ready now";
       } break;
       default:
         break;
@@ -338,12 +368,26 @@ void Synthetic::EnableStreamData(const Stream &stream, std::uint32_t depth) {
     case Stream::POINTS: {
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       EnableStreamData(Stream::DISPARITY, depth + 1);
-      CHECK(ActivateProcessor<PointsProcessor>());
+      if (calib_model_ ==  CalibrationModel::PINHOLE) {
+        CHECK(ActivateProcessor<PointsProcessorOCV>());
+      } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+        CHECK(ActivateProcessor<PointsProcessor>());
+      } else {
+        LOG(ERROR) << "Unknow calib model type in device: "
+                   << calib_model_;
+      }
     } return;
     case Stream::DEPTH: {
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       EnableStreamData(Stream::POINTS, depth + 1);
-      CHECK(ActivateProcessor<DepthProcessor>());
+      if (calib_model_ ==  CalibrationModel::PINHOLE) {
+        CHECK(ActivateProcessor<DepthProcessorOCV>());
+      } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+        CHECK(ActivateProcessor<DepthProcessor>());
+      } else {
+        LOG(ERROR) << "Unknow calib model type in device: "
+                   << calib_model_;
+      }
     } return;
     default: break;
   }
@@ -390,13 +434,30 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
         DeactivateProcessor<DisparityNormalizedProcessor>();
       } break;
       case Stream::POINTS: {
-        if (IsStreamEnabledSynthetic(Stream::DEPTH)) {
-          DisableStreamData(Stream::DEPTH, depth + 1);
+        if (calib_model_ ==  CalibrationModel::PINHOLE) {
+          if (IsStreamEnabledSynthetic(Stream::DEPTH)) {
+            DisableStreamData(Stream::DEPTH, depth + 1);
+          }
+          DeactivateProcessor<PointsProcessorOCV>();
+        } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+          DeactivateProcessor<PointsProcessor>();
+        } else {
+          LOG(ERROR) << "Unknow calib model type in device: "
+                    << calib_model_;
         }
-        DeactivateProcessor<PointsProcessor>();
       } break;
       case Stream::DEPTH: {
-        DeactivateProcessor<DepthProcessor>();
+        if (calib_model_ ==  CalibrationModel::PINHOLE) {
+          DeactivateProcessor<DepthProcessorOCV>();
+        } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+          if (IsStreamEnabledSynthetic(Stream::DEPTH)) {
+            DisableStreamData(Stream::POINTS, depth + 1);
+          }
+          DeactivateProcessor<DepthProcessor>();
+        } else {
+          LOG(ERROR) << "Unknow calib model type in device: "
+                    << calib_model_;
+        }
       } break;
       default: return;
     }
@@ -416,9 +477,36 @@ void Synthetic::InitProcessors() {
   auto &&disparitynormalized_processor =
       std::make_shared<DisparityNormalizedProcessor>(
           DISPARITY_NORM_PROC_PERIOD);
-  auto &&points_processor = std::make_shared<PointsProcessor>(
-      rectify_processor->Q, POINTS_PROC_PERIOD);
-  auto &&depth_processor = std::make_shared<DepthProcessor>(DEPTH_PROC_PERIOD);
+  std::shared_ptr<Processor> points_processor = nullptr;
+  if (calib_model_ ==  CalibrationModel::PINHOLE) {
+    auto &&points_processor_pin = std::make_shared<PointsProcessorOCV>(
+        rectify_processor->Q, POINTS_PROC_PERIOD);
+    points_processor = points_processor_pin;
+  } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+    auto &&points_processor_kan = std::make_shared<PointsProcessor>(
+        rectify_processor->Q, POINTS_PROC_PERIOD);
+    points_processor = points_processor_kan;
+  } else {
+    LOG(ERROR) << "Unknow calib model type in device: "
+              << calib_model_ << ", use default pinhole model";
+    auto &&points_processor_pin = std::make_shared<PointsProcessorOCV>(
+        rectify_processor->Q, POINTS_PROC_PERIOD);
+    points_processor = points_processor_pin;
+  }
+  std::shared_ptr<Processor> depth_processor = nullptr;
+  if (calib_model_ ==  CalibrationModel::PINHOLE) {
+    auto &&depth_processor_pin =
+        std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
+    depth_processor = depth_processor_pin;
+  } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+    auto &&depth_processor_kan =
+        std::make_shared<DepthProcessor>(DEPTH_PROC_PERIOD);
+    depth_processor = depth_processor_kan;
+  } else {
+    auto &&depth_processor_pin =
+        std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
+    depth_processor = depth_processor_pin;
+  }
 
   using namespace std::placeholders;  // NOLINT
   rectify_processor->SetProcessCallback(
@@ -453,10 +541,12 @@ void Synthetic::InitProcessors() {
     // KANNALA_BRANDT
     rectify_processor->AddChild(disparity_processor);
     disparity_processor->AddChild(disparitynormalized_processor);
-    disparity_processor->AddChild(points_processor);
-    points_processor->AddChild(depth_processor);
+    disparity_processor->AddChild(depth_processor);
+    depth_processor->AddChild(points_processor);
   } else {
     // UNKNOW
+    LOG(ERROR) << "Unknow calib model type in device: "
+               << calib_model_;
   }
 
   processor_ = rectify_processor;
@@ -509,12 +599,34 @@ void Synthetic::ProcessNativeStream(
           ObjMat{data.frame, data.frame_id, data.img});
     } break;
     case Stream::POINTS: {
-      process_childs(processor_, PointsProcessor::NAME,
-          ObjMat{data.frame, data.frame_id, data.img});
+      if (calib_model_ == CalibrationModel::PINHOLE) {
+        // PINHOLE
+        process_childs(processor_, PointsProcessorOCV::NAME,
+            ObjMat{data.frame, data.frame_id, data.img});
+      } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+        // KANNALA_BRANDT
+        process_childs(processor_, PointsProcessor::NAME,
+            ObjMat{data.frame, data.frame_id, data.img});
+      } else {
+        // UNKNOW
+        LOG(ERROR) << "Unknow calib model type in device: "
+                  << calib_model_;
+      }
     } break;
     case Stream::DEPTH: {
-      process_childs(processor_, DepthProcessor::NAME,
-          ObjMat{data.frame, data.frame_id, data.img});
+      if (calib_model_ == CalibrationModel::PINHOLE) {
+        // PINHOLE
+        process_childs(processor_, DepthProcessorOCV::NAME,
+            ObjMat{data.frame, data.frame_id, data.img});
+      } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+        // KANNALA_BRANDT
+        process_childs(processor_, DepthProcessor::NAME,
+            ObjMat{data.frame, data.frame_id, data.img});
+      } else {
+        // UNKNOW
+        LOG(ERROR) << "Unknow calib model type in device: "
+                  << calib_model_;
+      }
     } break;
     default:
       break;
