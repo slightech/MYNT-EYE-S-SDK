@@ -37,6 +37,8 @@ class DepthProcessor : public Processor {
   Object *OnCreateOutput() override;
   bool OnProcess(
       Object *const in, Object *const out, Processor *const parent) override;
+ private:
+  std::shared_ptr<struct camera_calib_info_pair> calib_infos_;
 };
 
 MYNTEYE_END_NAMESPACE

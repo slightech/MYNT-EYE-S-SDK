@@ -24,7 +24,8 @@ const char DepthProcessor::NAME[] = "DepthProcessor";
 DepthProcessor::DepthProcessor(
     std::shared_ptr<struct camera_calib_info_pair> calib_infos,
     std::int32_t proc_period)
-    : Processor(std::move(proc_period)) {
+    : Processor(std::move(proc_period)),
+    calib_infos_(calib_infos) {
   VLOG(2) << __func__ << ": proc_period=" << proc_period;
 }
 
