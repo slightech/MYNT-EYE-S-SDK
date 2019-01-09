@@ -136,9 +136,11 @@ class MYNTEYE_API Channels {
 
 class ChannelsAdapter {
  public:
-  virtual ~ChannelsAdapter() {}
+  explicit ChannelsAdapter(const Model &model);
+  virtual ~ChannelsAdapter();
 
-  virtual std::set<Option> GetOptionSupports() = 0;
+  virtual std::set<Option> GetOptionSupports();
+  virtual std::set<Resolution> GetResolutionSupports();
 
   virtual std::int32_t GetAccelRangeDefault() = 0;
   virtual std::vector<std::int32_t> GetAccelRangeValues() = 0;
@@ -147,6 +149,9 @@ class ChannelsAdapter {
   virtual std::vector<std::int32_t> GetGyroRangeValues() = 0;
 
   virtual void GetImuResPacket(const std::uint8_t *data, ImuResPacket *res) = 0;
+
+ protected:
+  Model model_;
 };
 
 MYNTEYE_END_NAMESPACE
