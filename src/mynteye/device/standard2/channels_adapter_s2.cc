@@ -13,7 +13,6 @@
 // limitations under the License.
 #include "mynteye/device/standard2/channels_adapter_s2.h"
 
-#include "mynteye/device/config.h"
 #include "mynteye/logger.h"
 
 MYNTEYE_BEGIN_NAMESPACE
@@ -91,14 +90,11 @@ void unpack_imu_res_packet(const std::uint8_t *data, ImuResPacket *res) {
 
 }  // namespace
 
-Standard2ChannelsAdapter::Standard2ChannelsAdapter() {
+Standard2ChannelsAdapter::Standard2ChannelsAdapter()
+  : ChannelsAdapter(Model::STANDARD2) {
 }
 
 Standard2ChannelsAdapter::~Standard2ChannelsAdapter() {
-}
-
-std::set<Option> Standard2ChannelsAdapter::GetOptionSupports() {
-  return option_supports_map.at(Model::STANDARD2);
 }
 
 std::int32_t Standard2ChannelsAdapter::GetAccelRangeDefault() {

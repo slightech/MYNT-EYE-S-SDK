@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 
+#include "mynteye/device/config.h"
 #include "mynteye/logger.h"
 #include "mynteye/util/times.h"
 
@@ -520,10 +521,31 @@ bool Channels::SetFiles(
     }
   }
   if (img_params != nullptr) {
-    auto n = file_channel_.SetImgParamsToData(img_params, data + 3 + size);
-    if (n > 0) {
-      header[1] = true;
-      size += n;
+    // remove not supported resolution
+    auto&& res = adapter_->GetResolutionSupports();
+    for (auto it = img_params->begin(); it != img_params->end(); ) {
+      if (res.find(it->first) == res.end()) {
+        LOG(WARNING) << "Image params of resolution "
+            << it->first.width << "x" << it->first.height << " not supported";
+        it = img_params->erase(it);
+      } else {
+        ++it;
+      }
+    }
+
+    if (img_params->empty()) {
+      std::ostringstream os;
+      os << "Image params resolution must be ";
+      for (auto&& r : res) {
+        os << r.width << "x" << r.height << " ";
+      }
+      LOG(WARNING) << os.str();
+    } else {
+      auto n = file_channel_.SetImgParamsToData(img_params, data + 3 + size);
+      if (n > 0) {
+        header[1] = true;
+        size += n;
+      }
     }
   }
   if (imu_params != nullptr) {
@@ -717,6 +739,33 @@ Channels::control_info_t Channels::XuControlInfo(Option option) const {
     LOG(WARNING) << "Get XuControlInfo of " << option << " failed";
   }
   return {min, max, def};
+}
+
+// ChannelsAdapter
+
+ChannelsAdapter::ChannelsAdapter(const Model &model)
+  : model_(model) {
+}
+
+ChannelsAdapter::~ChannelsAdapter() {
+}
+
+std::set<Option> ChannelsAdapter::GetOptionSupports() {
+  return option_supports_map.at(model_);
+}
+
+std::set<Resolution> ChannelsAdapter::GetResolutionSupports() {
+  std::set<Resolution> res;
+  auto requests_map = stream_requests_map.at(model_);
+  for (auto&& r_map : requests_map) {
+    if (r_map.first == Capabilities::STEREO ||
+        r_map.first == Capabilities::STEREO_COLOR) {
+      for (auto&& r : r_map.second) {
+        res.insert({r.width, r.height});
+      }
+    }
+  }
+  return res;
 }
 
 MYNTEYE_END_NAMESPACE
