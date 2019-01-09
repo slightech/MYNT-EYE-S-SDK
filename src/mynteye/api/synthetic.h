@@ -21,7 +21,7 @@
 #include <vector>
 
 #include "mynteye/api/api.h"
-// #include ""
+#include "mynteye/api/config.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -68,6 +68,7 @@ class Synthetic {
   bool HasPlugin() const;
 
  private:
+  void InitCalibInfo();
   void InitStreamSupports();
 
   mode_t GetStreamEnabledMode(const Stream &stream) const;
@@ -115,6 +116,10 @@ class Synthetic {
   std::shared_ptr<Plugin> plugin_;
 
   CalibrationModel calib_model_;
+
+  std::shared_ptr<IntrinsicsBase> intr_left_;
+  std::shared_ptr<IntrinsicsBase> intr_right_;
+  std::shared_ptr<Extrinsics> extr_;
 };
 
 template <class T, class P>

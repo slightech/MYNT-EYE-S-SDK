@@ -32,7 +32,10 @@ class RectifyProcessorOCV : public Processor {
   static const char NAME[];
 
   RectifyProcessorOCV(
-      std::shared_ptr<Device> device, std::int32_t proc_period = 0);
+      std::shared_ptr<IntrinsicsBase> intr_left,
+      std::shared_ptr<IntrinsicsBase> intr_right,
+      std::shared_ptr<Extrinsics> extr,
+      std::int32_t proc_period = 0);
   virtual ~RectifyProcessorOCV();
 
   std::string Name() override;
@@ -51,7 +54,10 @@ class RectifyProcessorOCV : public Processor {
   void InitParams(IntrinsicsPinhole in_left,
         IntrinsicsPinhole in_right, Extrinsics ex_right_to_left);
 
-  std::shared_ptr<Device> device_;
+  std::shared_ptr<IntrinsicsBase> intr_left_;
+  std::shared_ptr<IntrinsicsBase> intr_right_;
+  std::shared_ptr<Extrinsics> extr_;
+
   CalibrationModel calib_model;
 };
 

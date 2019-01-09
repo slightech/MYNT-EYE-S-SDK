@@ -73,10 +73,31 @@ void process_childs(
 
 }  // namespace
 
+void Synthetic::InitCalibInfo() {
+  if (calib_model_ == CalibrationModel::UNKNOW) {
+    calib_model_ = CalibrationModel::PINHOLE;
+    LOG(INFO) << "camera calib model: unknow";
+    // use default
+  } else {
+    if (calib_model_ == CalibrationModel::PINHOLE) {
+      LOG(INFO) << "camera calib model: pinhole";
+    } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+      LOG(INFO) << "camera calib model: kannala_brandt";
+    }
+    intr_left_ = api_->GetIntrinsicsBase(Stream::LEFT);
+    intr_right_ = api_->GetIntrinsicsBase(Stream::RIGHT);
+    extr_ =  std::make_shared<Extrinsics>(
+        api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
+  }
+}
+
 Synthetic::Synthetic(API *api, CalibrationModel calib_model)
-    : api_(api), plugin_(nullptr), calib_model_(calib_model) {
+    : api_(api),
+      plugin_(nullptr),
+      calib_model_(calib_model) {
   VLOG(2) << __func__;
   CHECK_NOTNULL(api_);
+  InitCalibInfo();
   InitStreamSupports();
   InitProcessors();
 }
@@ -552,20 +573,21 @@ void Synthetic::InitProcessors() {
   cv::Mat Q;
   if (calib_model_ ==  CalibrationModel::PINHOLE) {
     auto &&rectify_processor_ocv =
-        std::make_shared<RectifyProcessorOCV>(api_->device(),
+        std::make_shared<RectifyProcessorOCV>(intr_left_, intr_right_, extr_,
                                               RECTIFY_PROC_PERIOD);
     rectify_processor = rectify_processor_ocv;
     Q = rectify_processor_ocv->Q;
 #ifdef WITH_CAM_MODELS
   } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
     rectify_processor =
-        std::make_shared<RectifyProcessor>(api_->device(), RECTIFY_PROC_PERIOD);
+        std::make_shared<RectifyProcessor>(intr_left_, intr_right_, extr_,
+                                           RECTIFY_PROC_PERIOD);
 #endif
   } else {
     LOG(ERROR) << "Unknow calib model type in device: "
               << calib_model_ << ", use default pinhole model";
     auto &&rectify_processor_ocv =
-        std::make_shared<RectifyProcessorOCV>(api_->device(),
+        std::make_shared<RectifyProcessorOCV>(intr_left_, intr_right_, extr_,
                                               RECTIFY_PROC_PERIOD);
     rectify_processor = rectify_processor_ocv;
   }

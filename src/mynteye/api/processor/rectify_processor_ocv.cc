@@ -25,10 +25,16 @@ MYNTEYE_BEGIN_NAMESPACE
 const char RectifyProcessorOCV::NAME[] = "RectifyProcessorOCV";
 
 RectifyProcessorOCV::RectifyProcessorOCV(
-    std::shared_ptr<Device> device, std::int32_t proc_period)
-    : Processor(std::move(proc_period)), device_(device) {
+      std::shared_ptr<IntrinsicsBase> intr_left,
+      std::shared_ptr<IntrinsicsBase> intr_right,
+      std::shared_ptr<Extrinsics> extr,
+      std::int32_t proc_period)
+    : Processor(std::move(proc_period)),
+      calib_model(CalibrationModel::UNKNOW) {
   VLOG(2) << __func__ << ": proc_period=" << proc_period;
-  calib_model = CalibrationModel::UNKNOW;
+  intr_left_ = intr_left;
+  intr_right_ = intr_right;
+  extr_ = extr;
   NotifyImageParamsChanged();
 }
 
@@ -41,12 +47,10 @@ std::string RectifyProcessorOCV::Name() {
 }
 
 void RectifyProcessorOCV::NotifyImageParamsChanged() {
-  auto in_left = device_->GetIntrinsics(Stream::LEFT);
-  auto in_right = device_->GetIntrinsics(Stream::RIGHT);
   InitParams(
-    *std::dynamic_pointer_cast<IntrinsicsPinhole>(in_left),
-    *std::dynamic_pointer_cast<IntrinsicsPinhole>(in_right),
-    device_->GetExtrinsics(Stream::RIGHT, Stream::LEFT));
+    *std::dynamic_pointer_cast<IntrinsicsPinhole>(intr_left_),
+    *std::dynamic_pointer_cast<IntrinsicsPinhole>(intr_right_),
+    *extr_);
 }
 
 Object *RectifyProcessorOCV::OnCreateOutput() {

@@ -32,7 +32,10 @@ class RectifyProcessor : public Processor {
   static const char NAME[];
 
   RectifyProcessor(
-      std::shared_ptr<Device> device, std::int32_t proc_period = 0);
+      std::shared_ptr<IntrinsicsBase> intr_left,
+      std::shared_ptr<IntrinsicsBase> intr_right,
+      std::shared_ptr<Extrinsics> extr,
+      std::int32_t proc_period = 0);
   virtual ~RectifyProcessor();
 
   std::string Name() override;
@@ -51,7 +54,9 @@ class RectifyProcessor : public Processor {
   void InitParams(IntrinsicsEquidistant in_left,
         IntrinsicsEquidistant in_right, Extrinsics ex_right_to_left);
 
-  std::shared_ptr<Device> device_;
+  std::shared_ptr<IntrinsicsBase> intr_left_;
+  std::shared_ptr<IntrinsicsBase> intr_right_;
+  std::shared_ptr<Extrinsics> extr_;
   CalibrationModel calib_model;
 };
 
