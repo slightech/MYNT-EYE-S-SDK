@@ -48,8 +48,6 @@ class RectifyProcessor : public Processor {
       Object *const in, Object *const out, Processor *const parent) override;
 
  private:
-  void InitParams(IntrinsicsPinhole in_left,
-        IntrinsicsPinhole in_right, Extrinsics ex_right_to_left);
   void InitParams(IntrinsicsEquidistant in_left,
         IntrinsicsEquidistant in_right, Extrinsics ex_right_to_left);
 

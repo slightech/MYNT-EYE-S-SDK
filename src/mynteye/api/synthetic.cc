@@ -23,13 +23,16 @@
 #include "mynteye/api/object.h"
 #include "mynteye/api/plugin.h"
 #include "mynteye/api/processor.h"
-#include "mynteye/api/processor/depth_processor.h"
 #include "mynteye/api/processor/disparity_normalized_processor.h"
 #include "mynteye/api/processor/disparity_processor.h"
-#include "mynteye/api/processor/points_processor.h"
-#include "mynteye/api/processor/rectify_processor.h"
+#include "mynteye/api/processor/rectify_processor_ocv.h"
 #include "mynteye/api/processor/depth_processor_ocv.h"
 #include "mynteye/api/processor/points_processor_ocv.h"
+#ifdef WITH_CAM_MODELS
+#include "mynteye/api/processor/depth_processor.h"
+#include "mynteye/api/processor/points_processor.h"
+#include "mynteye/api/processor/rectify_processor.h"
+#endif
 #include "mynteye/device/device.h"
 
 #define RECTIFY_PROC_PERIOD 0
@@ -87,8 +90,20 @@ Synthetic::~Synthetic() {
 }
 
 void Synthetic::NotifyImageParamsChanged() {
-  auto &&processor = find_processor<RectifyProcessor>(processor_);
-  if (processor) processor->NotifyImageParamsChanged();
+  if (calib_model_ ==  CalibrationModel::PINHOLE) {
+    auto &&processor = find_processor<RectifyProcessorOCV>(processor_);
+    if (processor) processor->NotifyImageParamsChanged();
+#ifdef WITH_CAM_MODELS
+  } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+    auto &&processor = find_processor<RectifyProcessor>(processor_);
+    if (processor) processor->NotifyImageParamsChanged();
+#endif
+  } else {
+    LOG(ERROR) << "Unknow calib model type in device: "
+              << calib_model_ << ", use default pinhole model";
+    auto &&processor = find_processor<RectifyProcessorOCV>(processor_);
+    if (processor) processor->NotifyImageParamsChanged();
+  }
 }
 
 bool Synthetic::Supports(const Stream &stream) const {
@@ -173,7 +188,18 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
   } else if (mode == MODE_SYNTHETIC) {
     if (stream == Stream::LEFT_RECTIFIED || stream == Stream::RIGHT_RECTIFIED) {
       static std::shared_ptr<ObjMat2> output = nullptr;
-      auto &&processor = find_processor<RectifyProcessor>(processor_);
+      std::shared_ptr<Processor> processor = nullptr;
+      if (calib_model_ ==  CalibrationModel::PINHOLE) {
+        processor = find_processor<RectifyProcessorOCV>(processor_);
+#ifdef WITH_CAM_MODELS
+      } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+        processor = find_processor<RectifyProcessor>(processor_);
+#endif
+      } else {
+        LOG(ERROR) << "Unknow calib model type in device: "
+                  << calib_model_ << ", use default pinhole model";
+        processor = find_processor<RectifyProcessorOCV>(processor_);
+      }
       auto &&out = processor->GetOutput();
       if (out != nullptr) {
         // Obtain the output, out will be nullptr if get again immediately.
@@ -219,6 +245,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
             return {output->data, output->value, nullptr, output->id};
           }
           VLOG(2) << "Points not ready now";
+#ifdef WITH_CAM_MODELS
         } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
           auto &&processor = find_processor<PointsProcessor>(processor_);
           auto &&out = processor->GetOutput();
@@ -227,6 +254,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
             return {output->data, output->value, nullptr, output->id};
           }
           VLOG(2) << "Points not ready now";
+#endif
         } else {
           // UNKNOW
           LOG(ERROR) << "Unknow calib model type in device: "
@@ -242,6 +270,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
             return {output->data, output->value, nullptr, output->id};
           }
           VLOG(2) << "Depth not ready now";
+#ifdef WITH_CAM_MODELS
         } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
           auto &&processor = find_processor<DepthProcessor>(processor_);
           auto &&out = processor->GetOutput();
@@ -250,6 +279,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
             return {output->data, output->value, nullptr, output->id};
           }
           VLOG(2) << "Depth not ready now";
+#endif
         } else {
           // UNKNOW
           LOG(ERROR) << "Unknow calib model type in device: "
@@ -346,13 +376,33 @@ void Synthetic::EnableStreamData(const Stream &stream, std::uint32_t depth) {
       if (!IsStreamDataEnabled(Stream::LEFT))
         break;
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
-      CHECK(ActivateProcessor<RectifyProcessor>());
+      if (calib_model_ ==  CalibrationModel::PINHOLE) {
+        CHECK(ActivateProcessor<RectifyProcessorOCV>());
+#ifdef WITH_CAM_MODELS
+      } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+        CHECK(ActivateProcessor<RectifyProcessor>());
+#endif
+      } else {
+        LOG(ERROR) << "Unknow calib model type in device: "
+                  << calib_model_ << ", use default pinhole model";
+        CHECK(ActivateProcessor<RectifyProcessorOCV>());
+      }
     } return;
     case Stream::RIGHT_RECTIFIED: {
       if (!IsStreamDataEnabled(Stream::RIGHT))
         break;
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
-      CHECK(ActivateProcessor<RectifyProcessor>());
+      if (calib_model_ ==  CalibrationModel::PINHOLE) {
+        CHECK(ActivateProcessor<RectifyProcessorOCV>());
+#ifdef WITH_CAM_MODELS
+      } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+        CHECK(ActivateProcessor<RectifyProcessor>());
+#endif
+      } else {
+        LOG(ERROR) << "Unknow calib model type in device: "
+                  << calib_model_ << ", use default pinhole model";
+        CHECK(ActivateProcessor<RectifyProcessorOCV>());
+      }
     } return;
     case Stream::DISPARITY: {
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
@@ -370,8 +420,10 @@ void Synthetic::EnableStreamData(const Stream &stream, std::uint32_t depth) {
       EnableStreamData(Stream::DISPARITY, depth + 1);
       if (calib_model_ ==  CalibrationModel::PINHOLE) {
         CHECK(ActivateProcessor<PointsProcessorOCV>());
+#ifdef WITH_CAM_MODELS
       } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
         CHECK(ActivateProcessor<PointsProcessor>());
+#endif
       } else {
         LOG(ERROR) << "Unknow calib model type in device: "
                    << calib_model_;
@@ -382,8 +434,10 @@ void Synthetic::EnableStreamData(const Stream &stream, std::uint32_t depth) {
       EnableStreamData(Stream::POINTS, depth + 1);
       if (calib_model_ ==  CalibrationModel::PINHOLE) {
         CHECK(ActivateProcessor<DepthProcessorOCV>());
+#ifdef WITH_CAM_MODELS
       } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
         CHECK(ActivateProcessor<DepthProcessor>());
+#endif
       } else {
         LOG(ERROR) << "Unknow calib model type in device: "
                    << calib_model_;
@@ -410,7 +464,17 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
         if (IsStreamEnabledSynthetic(Stream::DISPARITY)) {
           DisableStreamData(Stream::DISPARITY, depth + 1);
         }
-        DeactivateProcessor<RectifyProcessor>();
+        if (calib_model_ ==  CalibrationModel::PINHOLE) {
+          DeactivateProcessor<RectifyProcessorOCV>();
+#ifdef WITH_CAM_MODELS
+        } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+          DeactivateProcessor<RectifyProcessor>();
+#endif
+        } else {
+          LOG(ERROR) << "Unknow calib model type in device: "
+                    << calib_model_ << ", use default pinhole model";
+          DeactivateProcessor<RectifyProcessorOCV>();
+        }
       } break;
       case Stream::RIGHT_RECTIFIED: {
         if (IsStreamEnabledSynthetic(Stream::LEFT_RECTIFIED)) {
@@ -419,7 +483,17 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
         if (IsStreamEnabledSynthetic(Stream::DISPARITY)) {
           DisableStreamData(Stream::DISPARITY, depth + 1);
         }
-        DeactivateProcessor<RectifyProcessor>();
+        if (calib_model_ ==  CalibrationModel::PINHOLE) {
+          DeactivateProcessor<RectifyProcessorOCV>();
+#ifdef WITH_CAM_MODELS
+        } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+          DeactivateProcessor<RectifyProcessor>();
+#endif
+        } else {
+          LOG(ERROR) << "Unknow calib model type in device: "
+                    << calib_model_ << ", use default pinhole model";
+          DeactivateProcessor<RectifyProcessorOCV>();
+        }
       } break;
       case Stream::DISPARITY: {
         if (IsStreamEnabledSynthetic(Stream::DISPARITY_NORMALIZED)) {
@@ -439,8 +513,10 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
             DisableStreamData(Stream::DEPTH, depth + 1);
           }
           DeactivateProcessor<PointsProcessorOCV>();
+#ifdef WITH_CAM_MODELS
         } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
           DeactivateProcessor<PointsProcessor>();
+#endif
         } else {
           LOG(ERROR) << "Unknow calib model type in device: "
                     << calib_model_;
@@ -449,11 +525,13 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
       case Stream::DEPTH: {
         if (calib_model_ ==  CalibrationModel::PINHOLE) {
           DeactivateProcessor<DepthProcessorOCV>();
+#ifdef WITH_CAM_MODELS
         } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
           if (IsStreamEnabledSynthetic(Stream::DEPTH)) {
             DisableStreamData(Stream::POINTS, depth + 1);
           }
           DeactivateProcessor<DepthProcessor>();
+#endif
         } else {
           LOG(ERROR) << "Unknow calib model type in device: "
                     << calib_model_;
@@ -470,8 +548,27 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
 }
 
 void Synthetic::InitProcessors() {
-  auto &&rectify_processor =
-      std::make_shared<RectifyProcessor>(api_->device(), RECTIFY_PROC_PERIOD);
+  std::shared_ptr<Processor> rectify_processor = nullptr;
+  cv::Mat Q;
+  if (calib_model_ ==  CalibrationModel::PINHOLE) {
+    auto &&rectify_processor_ocv =
+        std::make_shared<RectifyProcessorOCV>(api_->device(),
+                                              RECTIFY_PROC_PERIOD);
+    rectify_processor = rectify_processor_ocv;
+    Q = rectify_processor_ocv->Q;
+#ifdef WITH_CAM_MODELS
+  } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+    rectify_processor =
+        std::make_shared<RectifyProcessor>(api_->device(), RECTIFY_PROC_PERIOD);
+#endif
+  } else {
+    LOG(ERROR) << "Unknow calib model type in device: "
+              << calib_model_ << ", use default pinhole model";
+    auto &&rectify_processor_ocv =
+        std::make_shared<RectifyProcessorOCV>(api_->device(),
+                                              RECTIFY_PROC_PERIOD);
+    rectify_processor = rectify_processor_ocv;
+  }
   auto &&disparity_processor =
       std::make_shared<DisparityProcessor>(DISPARITY_PROC_PERIOD);
   auto &&disparitynormalized_processor =
@@ -479,33 +576,26 @@ void Synthetic::InitProcessors() {
           DISPARITY_NORM_PROC_PERIOD);
   std::shared_ptr<Processor> points_processor = nullptr;
   if (calib_model_ ==  CalibrationModel::PINHOLE) {
-    auto &&points_processor_pin = std::make_shared<PointsProcessorOCV>(
-        rectify_processor->Q, POINTS_PROC_PERIOD);
-    points_processor = points_processor_pin;
+    points_processor = std::make_shared<PointsProcessorOCV>(
+        Q, POINTS_PROC_PERIOD);
+#ifdef WITH_CAM_MODELS
   } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-    auto &&points_processor_kan = std::make_shared<PointsProcessor>(
+    points_processor = std::make_shared<PointsProcessor>(
         POINTS_PROC_PERIOD);
-    points_processor = points_processor_kan;
+#endif
   } else {
-    LOG(ERROR) << "Unknow calib model type in device: "
-              << calib_model_ << ", use default pinhole model";
-    auto &&points_processor_pin = std::make_shared<PointsProcessorOCV>(
-        rectify_processor->Q, POINTS_PROC_PERIOD);
-    points_processor = points_processor_pin;
+    points_processor = std::make_shared<PointsProcessorOCV>(
+        Q, POINTS_PROC_PERIOD);
   }
   std::shared_ptr<Processor> depth_processor = nullptr;
   if (calib_model_ ==  CalibrationModel::PINHOLE) {
-    auto &&depth_processor_pin =
-        std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
-    depth_processor = depth_processor_pin;
+    depth_processor = std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
+#ifdef WITH_CAM_MODELS
   } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-    auto &&depth_processor_kan =
-        std::make_shared<DepthProcessor>(DEPTH_PROC_PERIOD);
-    depth_processor = depth_processor_kan;
+    depth_processor = std::make_shared<DepthProcessor>(DEPTH_PROC_PERIOD);
+#endif
   } else {
-    auto &&depth_processor_pin =
-        std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
-    depth_processor = depth_processor_pin;
+    depth_processor = std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
   }
 
   using namespace std::placeholders;  // NOLINT
@@ -563,7 +653,18 @@ void Synthetic::ProcessNativeStream(
     }
     if (left_data.img && right_data.img &&
         left_data.img->frame_id == right_data.img->frame_id) {
-      auto &&processor = find_processor<RectifyProcessor>(processor_);
+      std::shared_ptr<Processor> processor = nullptr;
+      if (calib_model_ ==  CalibrationModel::PINHOLE) {
+        processor = find_processor<RectifyProcessorOCV>(processor_);
+#ifdef WITH_CAM_MODELS
+      } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+        processor = find_processor<RectifyProcessor>(processor_);
+#endif
+      } else {
+        LOG(ERROR) << "Unknow calib model type in device: "
+                  << calib_model_ << ", use default pinhole model";
+        processor = find_processor<RectifyProcessorOCV>(processor_);
+      }
       processor->Process(ObjMat2{
           left_data.frame, left_data.frame_id, left_data.img,
           right_data.frame, right_data.frame_id, right_data.img});
@@ -580,8 +681,16 @@ void Synthetic::ProcessNativeStream(
     }
     if (left_rect_data.img && right_rect_data.img &&
         left_rect_data.img->frame_id == right_rect_data.img->frame_id) {
+      std::string name = RectifyProcessorOCV::NAME;
+      if (calib_model_ ==  CalibrationModel::PINHOLE) {
+        name = RectifyProcessorOCV::NAME;
+#ifdef WITH_CAM_MODELS
+      } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+        name = RectifyProcessor::NAME;
+#endif
+      }
       process_childs(
-          processor_, RectifyProcessor::NAME, ObjMat2{
+          processor_, name, ObjMat2{
               left_rect_data.frame, left_rect_data.frame_id, left_rect_data.img,
               right_rect_data.frame, right_rect_data.frame_id,
               right_rect_data.img});
@@ -603,10 +712,12 @@ void Synthetic::ProcessNativeStream(
         // PINHOLE
         process_childs(processor_, PointsProcessorOCV::NAME,
             ObjMat{data.frame, data.frame_id, data.img});
+#ifdef WITH_CAM_MODELS
       } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
         // KANNALA_BRANDT
         process_childs(processor_, PointsProcessor::NAME,
             ObjMat{data.frame, data.frame_id, data.img});
+#endif
       } else {
         // UNKNOW
         LOG(ERROR) << "Unknow calib model type in device: "
@@ -618,10 +729,12 @@ void Synthetic::ProcessNativeStream(
         // PINHOLE
         process_childs(processor_, DepthProcessorOCV::NAME,
             ObjMat{data.frame, data.frame_id, data.img});
+#ifdef WITH_CAM_MODELS
       } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
         // KANNALA_BRANDT
         process_childs(processor_, DepthProcessor::NAME,
             ObjMat{data.frame, data.frame_id, data.img});
+#endif
       } else {
         // UNKNOW
         LOG(ERROR) << "Unknow calib model type in device: "
