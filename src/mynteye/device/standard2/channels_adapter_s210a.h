@@ -28,8 +28,6 @@ class Standard210aChannelsAdapter : public ChannelsAdapter {
   Standard210aChannelsAdapter();
   virtual ~Standard210aChannelsAdapter();
 
-  std::set<Option> GetOptionSupports() override;
-
   std::int32_t GetAccelRangeDefault() override;
   std::vector<std::int32_t> GetAccelRangeValues() override;
 

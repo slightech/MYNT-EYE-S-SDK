@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef MYNTEYE_API_PROCESSOR_RECTIFY_PROCESSOR_H_
-#define MYNTEYE_API_PROCESSOR_RECTIFY_PROCESSOR_H_
+#ifndef MYNTEYE_API_PROCESSOR_RECTIFY_PROCESSOR_OCV_H_
+#define MYNTEYE_API_PROCESSOR_RECTIFY_PROCESSOR_OCV_H_
 #pragma once
 
 #include <memory>
@@ -27,13 +27,13 @@ MYNTEYE_BEGIN_NAMESPACE
 
 class Device;
 
-class RectifyProcessor : public Processor {
+class RectifyProcessorOCV : public Processor {
  public:
   static const char NAME[];
 
-  RectifyProcessor(
+  RectifyProcessorOCV(
       std::shared_ptr<Device> device, std::int32_t proc_period = 0);
-  virtual ~RectifyProcessor();
+  virtual ~RectifyProcessorOCV();
 
   std::string Name() override;
 
@@ -48,8 +48,8 @@ class RectifyProcessor : public Processor {
       Object *const in, Object *const out, Processor *const parent) override;
 
  private:
-  void InitParams(IntrinsicsEquidistant in_left,
-        IntrinsicsEquidistant in_right, Extrinsics ex_right_to_left);
+  void InitParams(IntrinsicsPinhole in_left,
+        IntrinsicsPinhole in_right, Extrinsics ex_right_to_left);
 
   std::shared_ptr<Device> device_;
   CalibrationModel calib_model;
@@ -57,4 +57,4 @@ class RectifyProcessor : public Processor {
 
 MYNTEYE_END_NAMESPACE
 
-#endif  // MYNTEYE_API_PROCESSOR_RECTIFY_PROCESSOR_H_
+#endif  // MYNTEYE_API_PROCESSOR_RECTIFY_PROCESSOR_OCV_H_

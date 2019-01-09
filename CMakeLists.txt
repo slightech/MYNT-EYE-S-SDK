@@ -94,6 +94,18 @@ if(OS_WIN)
   )
 endif()
 
+# rpath
+
+set(CMAKE_MACOSX_RPATH 1)
+set(MYNTEYE_CMAKE_RPATH "")
+if(WITH_OPENCV)
+  list(APPEND MYNTEYE_CMAKE_RPATH ${OpenCV_LIB_PATH})
+endif()
+if(MYNTEYE_CMAKE_RPATH)
+  message(STATUS "RPATH: ${MYNTEYE_CMAKE_RPATH}")
+  set(CMAKE_INSTALL_RPATH "${MYNTEYE_CMAKE_RPATH}")
+endif()
+
 # targets
 
 add_definitions(-DMYNTEYE_EXPORTS)
@@ -218,13 +230,19 @@ if(WITH_API)
     src/mynteye/api/dl.cc
     src/mynteye/api/processor.cc
     src/mynteye/api/synthetic.cc
-    src/mynteye/api/processor/rectify_processor.cc
     src/mynteye/api/processor/disparity_processor.cc
     src/mynteye/api/processor/disparity_normalized_processor.cc
-    src/mynteye/api/processor/depth_processor.cc
-    src/mynteye/api/processor/points_processor.cc
     src/mynteye/api/processor/points_processor_ocv.cc
     src/mynteye/api/processor/depth_processor_ocv.cc
+    src/mynteye/api/processor/rectify_processor_ocv.cc
+  )
+endif()
+
+if(WITH_CAM_MODELS)
+  list(APPEND MYNTEYE_SRCS
+    src/mynteye/api/processor/depth_processor.cc
+    src/mynteye/api/processor/points_processor.cc
+    src/mynteye/api/processor/rectify_processor.cc
   )
 endif()
 if(NOT WITH_GLOG)

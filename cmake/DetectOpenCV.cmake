@@ -41,6 +41,25 @@ if(${__index} GREATER -1)
   set(WITH_OPENCV_WORLD TRUE)
 endif()
 
+if(NOT OpenCV_LIB_PATH)
+  list(LENGTH OpenCV_INCLUDE_DIRS __length)
+  if(${__length} GREATER 0)
+    list(GET OpenCV_INCLUDE_DIRS 0 __include_dir)
+    string(REGEX REPLACE "include.*$" "lib" __lib_dir "${__include_dir}")
+    find_library(__opencv_lib
+      NAMES opencv_core3 opencv_core opencv_world
+      PATHS "${__lib_dir}" "${__lib_dir}/x86_64-linux-gnu"
+      NO_DEFAULT_PATH)
+    #message(STATUS "__opencv_lib: ${__opencv_lib}")
+    if(__opencv_lib)
+      get_filename_component(OpenCV_LIB_PATH "${__opencv_lib}" DIRECTORY)
+    else()
+      set(OpenCV_LIB_PATH "${__lib_dir}")
+    endif()
+    #message(STATUS "OpenCV_LIB_PATH: ${OpenCV_LIB_PATH}")
+  endif()
+endif()
+
 if(MSVC OR MSYS OR MINGW)
   get_filename_component(OpenCV_LIB_SEARCH_PATH "${OpenCV_LIB_PATH}/../bin" ABSOLUTE)
 else()

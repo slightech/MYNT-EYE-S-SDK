@@ -19,11 +19,6 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include "mynteye/logger.h"
 #include "mynteye/device/device.h"
-
-// #define WITH_CAM_MODELS
-
-#ifdef WITH_CAM_MODELS
-
 #include <camodocal/camera_models/Camera.h>
 #include <camodocal/camera_models/CameraFactory.h>
 #include <camodocal/camera_models/CataCamera.h>
@@ -344,130 +339,6 @@ struct camera_mat_info_pair stereoRectify(
   return res;
 }
 
-#endif
-
-MYNTEYE_BEGIN_NAMESPACE
-
-const char RectifyProcessor::NAME[] = "RectifyProcessor";
-
-RectifyProcessor::RectifyProcessor(
-    std::shared_ptr<Device> device, std::int32_t proc_period)
-    : Processor(std::move(proc_period)), device_(device) {
-  VLOG(2) << __func__ << ": proc_period=" << proc_period;
-  calib_model = CalibrationModel::UNKNOW;
-  NotifyImageParamsChanged();
-}
-
-RectifyProcessor::~RectifyProcessor() {
-  VLOG(2) << __func__;
-}
-
-std::string RectifyProcessor::Name() {
-  return NAME;
-}
-
-void RectifyProcessor::NotifyImageParamsChanged() {
-  auto in_left = device_->GetIntrinsics(Stream::LEFT);
-  auto in_right = device_->GetIntrinsics(Stream::RIGHT);
-  if (in_left->calib_model() == CalibrationModel::PINHOLE) {
-    InitParams(
-      *std::dynamic_pointer_cast<IntrinsicsPinhole>(in_left),
-      *std::dynamic_pointer_cast<IntrinsicsPinhole>(in_right),
-      device_->GetExtrinsics(Stream::RIGHT, Stream::LEFT));
-  } else if (in_left->calib_model() ==
-             CalibrationModel::KANNALA_BRANDT) {
-#ifdef WITH_CAM_MODELS
-    InitParams(
-      *std::dynamic_pointer_cast<IntrinsicsEquidistant>(in_left),
-      *std::dynamic_pointer_cast<IntrinsicsEquidistant>(in_right),
-      device_->GetExtrinsics(Stream::RIGHT, Stream::LEFT));
-#else
-     VLOG(2) << "calib model type KANNALA_BRANDT"
-             << " is not been enabled.";
-#endif
-  } else {
-    VLOG(2) << "calib model type "
-            << in_left->calib_model()
-            <<" is not been enabled.";
-  }
-}
-
-Object *RectifyProcessor::OnCreateOutput() {
-  return new ObjMat2();
-}
-
-bool RectifyProcessor::OnProcess(
-    Object *const in, Object *const out, Processor *const parent) {
-  MYNTEYE_UNUSED(parent)
-  if (calib_model == CalibrationModel::PINHOLE) {
-    const ObjMat2 *input = Object::Cast<ObjMat2>(in);
-    ObjMat2 *output = Object::Cast<ObjMat2>(out);
-    cv::remap(input->first, output->first, map11, map12, cv::INTER_LINEAR);
-    cv::remap(input->second, output->second, map21, map22, cv::INTER_LINEAR);
-    output->first_id = input->first_id;
-    output->first_data = input->first_data;
-    output->second_id = input->second_id;
-    output->second_data = input->second_data;
-    return true;
-  } else if (calib_model == CalibrationModel::KANNALA_BRANDT) {
-#ifdef WITH_CAM_MODELS
-    const ObjMat2 *input = Object::Cast<ObjMat2>(in);
-    ObjMat2 *output = Object::Cast<ObjMat2>(out);
-    cv::remap(input->first, output->first, map11, map12, cv::INTER_LINEAR);
-    cv::remap(input->second, output->second, map21, map22, cv::INTER_LINEAR);
-    output->first_id = input->first_id;
-    output->first_data = input->first_data;
-    output->second_id = input->second_id;
-    output->second_data = input->second_data;
-    return true;
-#else
-    return false;
-#endif
-  }
-}
-
-void RectifyProcessor::InitParams(
-    IntrinsicsPinhole in_left,
-    IntrinsicsPinhole in_right,
-    Extrinsics ex_right_to_left) {
-  calib_model = CalibrationModel::PINHOLE;
-  cv::Size size{in_left.width, in_left.height};
-
-  cv::Mat M1 =
-      (cv::Mat_<double>(3, 3) << in_left.fx, 0, in_left.cx, 0, in_left.fy,
-       in_left.cy, 0, 0, 1);
-  cv::Mat M2 =
-      (cv::Mat_<double>(3, 3) << in_right.fx, 0, in_right.cx, 0, in_right.fy,
-       in_right.cy, 0, 0, 1);
-  cv::Mat D1(1, 5, CV_64F, in_left.coeffs);
-  cv::Mat D2(1, 5, CV_64F, in_right.coeffs);
-  cv::Mat R =
-      (cv::Mat_<double>(3, 3) << ex_right_to_left.rotation[0][0],
-       ex_right_to_left.rotation[0][1], ex_right_to_left.rotation[0][2],
-       ex_right_to_left.rotation[1][0], ex_right_to_left.rotation[1][1],
-       ex_right_to_left.rotation[1][2], ex_right_to_left.rotation[2][0],
-       ex_right_to_left.rotation[2][1], ex_right_to_left.rotation[2][2]);
-  cv::Mat T(3, 1, CV_64F, ex_right_to_left.translation);
-
-  VLOG(2) << "InitParams size: " << size;
-  VLOG(2) << "M1: " << M1;
-  VLOG(2) << "M2: " << M2;
-  VLOG(2) << "D1: " << D1;
-  VLOG(2) << "D2: " << D2;
-  VLOG(2) << "R: " << R;
-  VLOG(2) << "T: " << T;
-
-  cv::Rect left_roi, right_roi;
-  cv::stereoRectify(
-      M1, D1, M2, D2, size, R, T, R1, R2, P1, P2, Q, cv::CALIB_ZERO_DISPARITY,
-      0, size, &left_roi, &right_roi);
-
-  cv::initUndistortRectifyMap(M1, D1, R1, P1, size, CV_16SC2, map11, map12);
-  cv::initUndistortRectifyMap(M2, D2, R2, P2, size, CV_16SC2, map21, map22);
-}
-
-#ifdef WITH_CAM_MODELS
-
 camodocal::CameraPtr generateCameraFromIntrinsicsEquidistant(
     const mynteye::IntrinsicsEquidistant & in) {
   camodocal::EquidistantCameraPtr camera(
@@ -484,6 +355,8 @@ camodocal::CameraPtr generateCameraFromIntrinsicsEquidistant(
                                        in.coeffs[7]));
   return camera;
 }
+
+MYNTEYE_BEGIN_NAMESPACE
 
 void RectifyProcessor::InitParams(
     IntrinsicsEquidistant in_left,
@@ -526,6 +399,50 @@ void RectifyProcessor::InitParams(
       cv::Size(0, 0), right_center[0],
       right_center[1], rect_R_r);
 }
-#endif
+
+const char RectifyProcessor::NAME[] = "RectifyProcessor";
+
+RectifyProcessor::RectifyProcessor(
+    std::shared_ptr<Device> device, std::int32_t proc_period)
+    : Processor(std::move(proc_period)), device_(device) {
+  VLOG(2) << __func__ << ": proc_period=" << proc_period;
+  calib_model = CalibrationModel::UNKNOW;
+  NotifyImageParamsChanged();
+}
+
+RectifyProcessor::~RectifyProcessor() {
+  VLOG(2) << __func__;
+}
+
+std::string RectifyProcessor::Name() {
+  return NAME;
+}
+
+void RectifyProcessor::NotifyImageParamsChanged() {
+  auto in_left = device_->GetIntrinsics(Stream::LEFT);
+  auto in_right = device_->GetIntrinsics(Stream::RIGHT);
+  InitParams(
+    *std::dynamic_pointer_cast<IntrinsicsEquidistant>(in_left),
+    *std::dynamic_pointer_cast<IntrinsicsEquidistant>(in_right),
+    device_->GetExtrinsics(Stream::RIGHT, Stream::LEFT));
+}
+
+Object *RectifyProcessor::OnCreateOutput() {
+  return new ObjMat2();
+}
+
+bool RectifyProcessor::OnProcess(
+    Object *const in, Object *const out, Processor *const parent) {
+  MYNTEYE_UNUSED(parent)
+  const ObjMat2 *input = Object::Cast<ObjMat2>(in);
+  ObjMat2 *output = Object::Cast<ObjMat2>(out);
+  cv::remap(input->first, output->first, map11, map12, cv::INTER_LINEAR);
+  cv::remap(input->second, output->second, map21, map22, cv::INTER_LINEAR);
+  output->first_id = input->first_id;
+  output->first_data = input->first_data;
+  output->second_id = input->second_id;
+  output->second_data = input->second_data;
+  return true;
+}
 
 MYNTEYE_END_NAMESPACE
