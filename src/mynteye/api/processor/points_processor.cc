@@ -23,8 +23,8 @@ MYNTEYE_BEGIN_NAMESPACE
 
 const char PointsProcessor::NAME[] = "PointsProcessor";
 
-PointsProcessor::PointsProcessor(cv::Mat Q, std::int32_t proc_period)
-    : Processor(std::move(proc_period)), Q_(std::move(Q)) {
+PointsProcessor::PointsProcessor(std::int32_t proc_period)
+    : Processor(std::move(proc_period)) {
   VLOG(2) << __func__ << ": proc_period=" << proc_period;
 }
 
@@ -42,16 +42,6 @@ Object *PointsProcessor::OnCreateOutput() {
 
 bool PointsProcessor::OnProcess(
   Object *const in, Object *const out, Processor *const parent) {
-#ifdef WITH_CAM_MODELS
-
-#else
-  MYNTEYE_UNUSED(parent)
-  const ObjMat *input = Object::Cast<ObjMat>(in);
-  ObjMat *output = Object::Cast<ObjMat>(out);
-  cv::reprojectImageTo3D(input->value, output->value, Q_, true);
-  output->id = input->id;
-  output->data = input->data;
-#endif
   return true;
 }
 

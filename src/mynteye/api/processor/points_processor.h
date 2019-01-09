@@ -27,7 +27,7 @@ class PointsProcessor : public Processor {
  public:
   static const char NAME[];
 
-  explicit PointsProcessor(cv::Mat Q, std::int32_t proc_period = 0);
+  explicit PointsProcessor(std::int32_t proc_period = 0);
   virtual ~PointsProcessor();
 
   std::string Name() override;

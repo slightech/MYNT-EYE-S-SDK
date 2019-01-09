@@ -484,7 +484,7 @@ void Synthetic::InitProcessors() {
     points_processor = points_processor_pin;
   } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
     auto &&points_processor_kan = std::make_shared<PointsProcessor>(
-        rectify_processor->Q, POINTS_PROC_PERIOD);
+        POINTS_PROC_PERIOD);
     points_processor = points_processor_kan;
   } else {
     LOG(ERROR) << "Unknow calib model type in device: "
