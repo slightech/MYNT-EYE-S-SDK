@@ -438,11 +438,12 @@ void Synthetic::EnableStreamData(const Stream &stream, std::uint32_t depth) {
     } return;
     case Stream::POINTS: {
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
-      EnableStreamData(Stream::DISPARITY, depth + 1);
       if (calib_model_ ==  CalibrationModel::PINHOLE) {
+        EnableStreamData(Stream::DISPARITY, depth + 1);
         CHECK(ActivateProcessor<PointsProcessorOCV>());
 #ifdef WITH_CAM_MODELS
       } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+        EnableStreamData(Stream::DEPTH, depth + 1);
         CHECK(ActivateProcessor<PointsProcessor>());
 #endif
       } else {
@@ -452,11 +453,12 @@ void Synthetic::EnableStreamData(const Stream &stream, std::uint32_t depth) {
     } return;
     case Stream::DEPTH: {
       stream_enabled_mode_[stream] = MODE_SYNTHETIC;
-      EnableStreamData(Stream::POINTS, depth + 1);
       if (calib_model_ ==  CalibrationModel::PINHOLE) {
+        EnableStreamData(Stream::POINTS, depth + 1);
         CHECK(ActivateProcessor<DepthProcessorOCV>());
 #ifdef WITH_CAM_MODELS
       } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+        EnableStreamData(Stream::DISPARITY, depth + 1);
         CHECK(ActivateProcessor<DepthProcessor>());
 #endif
       } else {

@@ -75,6 +75,7 @@ Object *PointsProcessor::OnCreateOutput() {
 bool PointsProcessor::OnProcess(
   Object *const in, Object *const out, Processor *const parent) {
   MYNTEYE_UNUSED(parent)
+  std::cout << calib_infos_->left.height << std::endl;
 
   float fx = 3.6797709792391299e+02;
   float fy = 3.6808712539453859e+02;
