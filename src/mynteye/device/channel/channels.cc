@@ -758,10 +758,13 @@ std::set<Resolution> ChannelsAdapter::GetResolutionSupports() {
   std::set<Resolution> res;
   auto requests_map = stream_requests_map.at(model_);
   for (auto&& r_map : requests_map) {
-    if (r_map.first == Capabilities::STEREO ||
-        r_map.first == Capabilities::STEREO_COLOR) {
+    if (r_map.first == Capabilities::STEREO) {
       for (auto&& r : r_map.second) {
         res.insert({r.width, r.height});
+      }
+    } else if (r_map.first == Capabilities::STEREO_COLOR) {
+      for (auto&& r : r_map.second) {
+        res.insert({static_cast<std::uint16_t>(r.width / 2), r.height});
       }
     }
   }
