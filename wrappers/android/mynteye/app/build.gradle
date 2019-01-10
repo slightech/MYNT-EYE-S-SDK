@@ -1,0 +1,30 @@
+apply plugin: 'com.android.application'
+
+android {
+  compileSdkVersion xversions.compileSdk
+  defaultConfig {
+    applicationId "com.slightech.mynteye.demo"
+    minSdkVersion xversions.minSdk
+    targetSdkVersion xversions.targetSdk
+    versionCode 1
+    versionName "1.0"
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+  }
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
+  }
+}
+
+dependencies {
+  implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+  implementation xdeps.support.appcompat
+  implementation xdeps.support.constraint
+
+  testImplementation xdeps.junit
+  androidTestImplementation xdeps.support.test.runner
+  androidTestImplementation xdeps.support.test.espresso
+}
