@@ -75,12 +75,11 @@ Object *PointsProcessor::OnCreateOutput() {
 bool PointsProcessor::OnProcess(
   Object *const in, Object *const out, Processor *const parent) {
   MYNTEYE_UNUSED(parent)
-  std::cout << calib_infos_->left.height << std::endl;
 
-  float fx = 3.6797709792391299e+02;
-  float fy = 3.6808712539453859e+02;
-  float cx = 3.7414963027144353e+02;
-  float cy = 2.3125000326472903e+02;
+  float fx = calib_infos_->left.K[0];
+  float fy = calib_infos_->left.K[4];
+  float cx = calib_infos_->left.K[2];
+  float cy = calib_infos_->left.K[5];
 
   // Use correct principal point from calibration
   float center_x = cx;

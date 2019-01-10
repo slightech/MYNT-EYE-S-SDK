@@ -41,7 +41,7 @@ void RectifyProcessor::stereoRectify(camodocal::CameraPtr leftOdo,
     camodocal::CameraPtr rightOdo, const CvMat* K1, const CvMat* K2,
     const CvMat* D1, const CvMat* D2, CvSize imageSize,
     const CvMat* matR, const CvMat* matT,
-    CvMat* _R1, CvMat* _R2, CvMat* _P1, CvMat* _P2,
+    CvMat* _R1, CvMat* _R2, CvMat* _P1, CvMat* _P2, double* T_mul_f,
     int flags, double alpha, CvSize newImgSize) {
   double _om[3], _t[3] = {0}, _uu[3]={0, 0, 0}, _r_r[3][3], _pp[3][4];
   double _ww[3], _wr[3][3], _z[3] = {0, 0, 0}, _ri[3][3], _w3[3];
@@ -67,7 +67,6 @@ void RectifyProcessor::stereoRectify(camodocal::CameraPtr leftOdo,
   cvConvertScale(&om, &om, -0.5);  // get average rotation
   cvRodrigues2(&om, &r_r);  // rotate cameras to same orientation by averaging
   cvMatMul(&r_r, matT, &t);
-
   int idx = fabs(_t[0]) > fabs(_t[1]) ? 0 : 1;
 
   // if idx == 0
@@ -168,6 +167,7 @@ void RectifyProcessor::stereoRectify(camodocal::CameraPtr leftOdo,
   _pp[0][2] = cc_new[1].x;
   _pp[1][2] = cc_new[1].y;
   _pp[idx][3] = _t[idx]*fc_new;  // baseline * focal length
+  *T_mul_f = 0. - _t[idx];
   cvConvert(&pp, _P2);
 
   alpha = MIN(alpha, 1.);
@@ -277,8 +277,9 @@ std::shared_ptr<struct camera_calib_info_pair> RectifyProcessor::stereoRectify(
   CvMat c_R = cv_R, c_t = cv_t;
   CvMat c_K1 = K1, c_K2 = K2, c_D1 = D1, c_D2 = D2;
   CvMat c_R1 = R1, c_R2 = R2, c_P1 = P1, c_P2 = P2;
+  double T_mul_f;
   stereoRectify(leftOdo, rightOdo, &c_K1, &c_K2, &c_D1, &c_D2,
-      image_size1, &c_R, &c_t, &c_R1, &c_R2, &c_P1, &c_P2);
+      image_size1, &c_R, &c_t, &c_R1, &c_R2, &c_P1, &c_P2, &T_mul_f);
 
   // std::cout << "K1: " << K1 << std::endl;
   // std::cout << "D1: " << D1 << std::endl;
@@ -308,7 +309,7 @@ std::shared_ptr<struct camera_calib_info_pair> RectifyProcessor::stereoRectify(
     }
   }
   struct camera_calib_info_pair res =
-      {calib_mat_data_left, calib_mat_data_right};
+      {calib_mat_data_left, calib_mat_data_right, T_mul_f};
   return std::make_shared<struct camera_calib_info_pair>(res);
 }
 

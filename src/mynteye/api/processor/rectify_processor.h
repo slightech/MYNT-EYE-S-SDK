@@ -53,6 +53,7 @@ struct camera_calib_info {
 struct camera_calib_info_pair {
   struct camera_calib_info left;
   struct camera_calib_info right;
+  double T_mul_f;
 };
 
 class Device;
@@ -94,7 +95,7 @@ class RectifyProcessor : public Processor {
       camodocal::CameraPtr rightOdo, const CvMat* K1, const CvMat* K2,
       const CvMat* D1, const CvMat* D2, CvSize imageSize,
       const CvMat* matR, const CvMat* matT,
-      CvMat* _R1, CvMat* _R2, CvMat* _P1, CvMat* _P2,
+      CvMat* _R1, CvMat* _R2, CvMat* _P1, CvMat* _P2, double* T_mul_f,
       int flags = cv::CALIB_ZERO_DISPARITY, double alpha = -1,
       CvSize newImgSize = cv::Size());
 
