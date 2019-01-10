@@ -167,7 +167,7 @@ void RectifyProcessor::stereoRectify(camodocal::CameraPtr leftOdo,
   _pp[0][2] = cc_new[1].x;
   _pp[1][2] = cc_new[1].y;
   _pp[idx][3] = _t[idx]*fc_new;  // baseline * focal length
-  *T_mul_f = 0. - _t[idx];
+  *T_mul_f = 0. - _t[idx] * fc_new;
   cvConvert(&pp, _P2);
 
   alpha = MIN(alpha, 1.);

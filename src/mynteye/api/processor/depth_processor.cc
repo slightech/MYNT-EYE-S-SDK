@@ -48,15 +48,14 @@ bool DepthProcessor::OnProcess(
   ObjMat *output = Object::Cast<ObjMat>(out);
   int rows = input->value.rows;
   int cols = input->value.cols;
-  std::cout << calib_infos_->T_mul_f << std::endl;
+  // std::cout << calib_infos_->T_mul_f << std::endl;
   // 0.0793434
-  // TODO(MYNTEYE): Put the corresponding parameters(T,f)
-  cv::Mat depth_mat = cv::Mat::zeros(rows, cols, CV_32F);
+  cv::Mat depth_mat = cv::Mat::zeros(rows, cols, CV_16U);
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {
       float disparity_value = input->value.at<float>(i, j);
-      float depth = calib_infos_->T_mul_f * 1000.0 / disparity_value ;
-      depth_mat.at<float>(i, j) = depth;
+      float depth = calib_infos_->T_mul_f / disparity_value;
+      depth_mat.at<ushort>(i, j) = depth * 1000;
     }
   }
   output->value = depth_mat;
