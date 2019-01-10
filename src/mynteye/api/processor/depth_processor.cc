@@ -21,6 +21,9 @@ MYNTEYE_BEGIN_NAMESPACE
 
 const char DepthProcessor::NAME[] = "DepthProcessor";
 
+const int DISPARITY_MIN = 0;
+const int DISPARITY_MAX = 64;
+
 DepthProcessor::DepthProcessor(
     std::shared_ptr<struct camera_calib_info_pair> calib_infos,
     std::int32_t proc_period)
@@ -54,8 +57,10 @@ bool DepthProcessor::OnProcess(
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {
       float disparity_value = input->value.at<float>(i, j);
-      float depth = calib_infos_->T_mul_f / disparity_value;
-      depth_mat.at<ushort>(i, j) = depth * 1000;
+      if (disparity_value > DISPARITY_MAX && disparity_value > DISPARITY_MIN) {
+        float depth = calib_infos_->T_mul_f / disparity_value;
+        depth_mat.at<ushort>(i, j) = depth * 1000;
+      }
     }
   }
   output->value = depth_mat;
