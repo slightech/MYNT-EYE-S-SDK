@@ -106,9 +106,9 @@ bool PointsProcessor::OnProcess(
       if (!DepthTraits<uint16_t>::valid(depth)) {
         continue;
       }
-      dptr[u][0] = (u - center_x) * depth * constant_x * 1000.0;
-      dptr[u][1] = (v - center_y) * depth * constant_y * 1000.0;
-      dptr[u][2] = depth * 1000.0;
+      dptr[u][0] = (u - center_x) * depth * constant_x ;
+      dptr[u][1] = (v - center_y) * depth * constant_y ;
+      dptr[u][2] = depth ;
     }
   }
   output->id = input->id;
