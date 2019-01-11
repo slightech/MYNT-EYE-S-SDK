@@ -111,7 +111,8 @@ bool PointsProcessor::OnProcess(
       dptr[u][2] = depth * 1000.0;
     }
   }
-
+  output->id = input->id;
+  output->data = input->data;
   return true;
 }
 
