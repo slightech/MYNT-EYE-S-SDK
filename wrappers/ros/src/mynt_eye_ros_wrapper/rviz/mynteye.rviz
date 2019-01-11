@@ -82,7 +82,7 @@ Visualization Manager:
           Displays:
             - Class: rviz/Image
               Enabled: true
-              Image Topic: /mynteye/left/image_rect
+              Image Topic: /mynteye/left_rect/image_rect
               Max Value: 1
               Median window: 5
               Min Value: 0
@@ -94,7 +94,7 @@ Visualization Manager:
               Value: true
             - Class: rviz/Image
               Enabled: true
-              Image Topic: /mynteye/right/image_rect
+              Image Topic: /mynteye/right_rect/image_rect
               Max Value: 1
               Median window: 5
               Min Value: 0
