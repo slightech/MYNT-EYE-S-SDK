@@ -59,7 +59,7 @@ bool DepthProcessor::OnProcess(
       float disparity_value = input->value.at<float>(i, j);
       if (disparity_value < DISPARITY_MAX && disparity_value > DISPARITY_MIN) {
         float depth = calib_infos_->T_mul_f / disparity_value;
-        depth_mat.at<ushort>(i, j) = depth * 1000;
+        depth_mat.at<ushort>(i, j) = depth;
       }
     }
   }
