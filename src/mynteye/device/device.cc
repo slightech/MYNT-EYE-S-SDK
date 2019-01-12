@@ -642,7 +642,9 @@ void Device::UpdateStreamIntrinsics(
     auto &&img_params = params.second;
     bool ok = false;
     if (capability == Capabilities::STEREO_COLOR) {
-      ok = img_params.ok && img_res.width == request.GetResolution().width / 2;
+      ok = img_params.ok &&
+            img_res.height == request.GetResolution().height &&
+            img_res.width == request.GetResolution().width / 2;
     } else if (capability == Capabilities::STEREO) {
       ok = img_params.ok && img_res == request.GetResolution();
     }
