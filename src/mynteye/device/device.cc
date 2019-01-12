@@ -640,7 +640,13 @@ void Device::UpdateStreamIntrinsics(
   for (auto &&params : all_img_params_) {
     auto &&img_res = params.first;
     auto &&img_params = params.second;
-    if (img_params.ok && img_res == request.GetResolution()) {
+    bool ok = false;
+    if (capability == Capabilities::STEREO_COLOR) {
+      ok = img_params.ok && img_res.width == request.GetResolution().width / 2;
+    } else if (capability == Capabilities::STEREO) {
+      ok = img_params.ok && img_res == request.GetResolution();
+    }
+    if (ok) {
       SetIntrinsics(Stream::LEFT, img_params.in_left);
       SetIntrinsics(Stream::RIGHT, img_params.in_right);
       SetExtrinsics(Stream::LEFT, Stream::RIGHT, img_params.ex_right_to_left);
