@@ -381,11 +381,11 @@ RectifyProcessor::RectifyProcessor(
       std::int32_t proc_period)
     : Processor(std::move(proc_period)),
       calib_model(CalibrationModel::UNKNOW) {
-  intr_left_ = intr_left;
-  intr_right_ = intr_right;
-  extr_ = extr;
   VLOG(2) << __func__ << ": proc_period=" << proc_period;
-  NotifyImageParamsChanged();
+  InitParams(
+    *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_left),
+    *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_right),
+    *extr);
 }
 
 RectifyProcessor::~RectifyProcessor() {
@@ -396,11 +396,14 @@ std::string RectifyProcessor::Name() {
   return NAME;
 }
 
-void RectifyProcessor::NotifyImageParamsChanged() {
+void RectifyProcessor::ReloadImageParams(
+      std::shared_ptr<IntrinsicsBase> intr_left,
+      std::shared_ptr<IntrinsicsBase> intr_right,
+      std::shared_ptr<Extrinsics> extr) {
   InitParams(
-    *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_left_),
-    *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_right_),
-    *extr_);
+    *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_left),
+    *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_right),
+    *extr);
 }
 
 Object *RectifyProcessor::OnCreateOutput() {
