@@ -25,7 +25,6 @@
 
 #include "mynteye/mynteye.h"
 #include "mynteye/types.h"
-#include "mynteye/device.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
