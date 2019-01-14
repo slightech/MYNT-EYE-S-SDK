@@ -90,6 +90,7 @@ void Synthetic::InitCalibInfo() {
         api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
 #endif
   } else {
+    calib_default_tag_ = true;
     calib_model_ = CalibrationModel::PINHOLE;
     LOG(INFO) << "camera calib model: unknow ,use default pinhole data";
     intr_left_ = getDefaultIntrinsics();
@@ -101,7 +102,8 @@ void Synthetic::InitCalibInfo() {
 Synthetic::Synthetic(API *api, CalibrationModel calib_model)
     : api_(api),
       plugin_(nullptr),
-      calib_model_(calib_model) {
+      calib_model_(calib_model),
+      calib_default_tag_(false) {
   VLOG(2) << __func__;
   CHECK_NOTNULL(api_);
   InitCalibInfo();
@@ -117,20 +119,18 @@ Synthetic::~Synthetic() {
   }
 }
 
-void Synthetic::NotifyImageParamsChanged(bool is_from_dev) {
-  if (is_from_dev && calib_model_ ==  CalibrationModel::PINHOLE) {
+void Synthetic::NotifyImageParamsChanged() {
+  if (!calib_default_tag_) {
     intr_left_ = api_->GetIntrinsicsBase(Stream::LEFT);
     intr_right_ = api_->GetIntrinsicsBase(Stream::RIGHT);
     extr_ =  std::make_shared<Extrinsics>(
         api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
+  }
+  if (calib_model_ ==  CalibrationModel::PINHOLE) {
     auto &&processor = find_processor<RectifyProcessorOCV>(processor_);
     if (processor) processor->ReloadImageParams(intr_left_, intr_right_, extr_);
 #ifdef WITH_CAM_MODELS
-  } else if (is_from_dev && calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-    intr_left_ = api_->GetIntrinsicsBase(Stream::LEFT);
-    intr_right_ = api_->GetIntrinsicsBase(Stream::RIGHT);
-    extr_ =  std::make_shared<Extrinsics>(
-        api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
+  } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
     auto &&processor = find_processor<RectifyProcessor>(processor_);
     if (processor) processor->ReloadImageParams(intr_left_, intr_right_, extr_);
 #endif

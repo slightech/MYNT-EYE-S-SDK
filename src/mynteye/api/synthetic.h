@@ -44,7 +44,7 @@ class Synthetic {
   explicit Synthetic(API *api, CalibrationModel calib_model);
   ~Synthetic();
 
-  void NotifyImageParamsChanged(bool is_from_dev = false);
+  void NotifyImageParamsChanged();
 
   bool Supports(const Stream &stream) const;
   mode_t SupportsMode(const Stream &stream) const;
@@ -120,6 +120,7 @@ class Synthetic {
   std::shared_ptr<IntrinsicsBase> intr_left_;
   std::shared_ptr<IntrinsicsBase> intr_right_;
   std::shared_ptr<Extrinsics> extr_;
+  bool calib_default_tag_;
 };
 
 template <class T, class P>
