@@ -455,7 +455,7 @@ device::StreamData Device::GetStreamData(const Stream &stream) {
 }
 
 device::StreamData Device::GetLatestStreamData(const Stream &stream) {
-  GetStreamData(stream);
+  return GetStreamData(stream);
 }
 
 std::vector<device::StreamData> Device::GetStreamDatas(const Stream &stream) {
