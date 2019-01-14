@@ -32,10 +32,10 @@ RectifyProcessorOCV::RectifyProcessorOCV(
     : Processor(std::move(proc_period)),
       calib_model(CalibrationModel::UNKNOW) {
   VLOG(2) << __func__ << ": proc_period=" << proc_period;
-  intr_left_ = intr_left;
-  intr_right_ = intr_right;
-  extr_ = extr;
-  NotifyImageParamsChanged();
+  InitParams(
+    *std::dynamic_pointer_cast<IntrinsicsPinhole>(intr_left),
+    *std::dynamic_pointer_cast<IntrinsicsPinhole>(intr_right),
+    *extr);
 }
 
 RectifyProcessorOCV::~RectifyProcessorOCV() {
@@ -46,11 +46,14 @@ std::string RectifyProcessorOCV::Name() {
   return NAME;
 }
 
-void RectifyProcessorOCV::NotifyImageParamsChanged() {
+void RectifyProcessorOCV::ReloadImageParams(
+      std::shared_ptr<IntrinsicsBase> intr_left,
+      std::shared_ptr<IntrinsicsBase> intr_right,
+      std::shared_ptr<Extrinsics> extr) {
   InitParams(
-    *std::dynamic_pointer_cast<IntrinsicsPinhole>(intr_left_),
-    *std::dynamic_pointer_cast<IntrinsicsPinhole>(intr_right_),
-    *extr_);
+    *std::dynamic_pointer_cast<IntrinsicsPinhole>(intr_left),
+    *std::dynamic_pointer_cast<IntrinsicsPinhole>(intr_right),
+    *extr);
 }
 
 Object *RectifyProcessorOCV::OnCreateOutput() {

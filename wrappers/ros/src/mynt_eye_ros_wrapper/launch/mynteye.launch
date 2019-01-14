@@ -254,6 +254,22 @@
       <!-- stream request index -->
       <param name="request_index" value="$(arg request_index)" />
 
+      <!-- device options of standard-->
+
+      <param name="sstandard/gain" value="$(arg standard/gain)" />
+      <param name="standard/brightness" value="$(arg standard/brightness)" />
+      <param name="standard/contrast" value="$(arg standard/contrast)" />
+      <param name="standard/frame_rate" value="$(arg standard/frame_rate)" />
+      <param name="standard/imu_frequency" value="$(arg standard/imu_frequency)" />
+      <param name="standard/exposure_mode" value="$(arg standard/exposure_mode)" />
+      <param name="standard/max_gain" value="$(arg standard/max_gain)" />
+      <param name="standard/max_exposure_time" value="$(arg standard/max_exposure_time)" />
+      <param name="standard/desired_brightness" value="$(arg standard/desired_brightness)" />
+      <param name="standard/ir_control" value="$(arg standard/ir_control)" />
+      <param name="standard/hdr_mode" value="$(arg standard/hdr_mode)" />
+      <param name="standard/accel_range" value="$(arg standard/accel_range)" />
+      <param name="standard/gyro_range" value="$(arg standard/gyro_range)" />
+
       <!-- device options of standard2-->
 
       <param name="standard2/brightness" value="$(arg standard2/brightness)" />
@@ -261,11 +277,26 @@
       <param name="standard2/max_gain" value="$(arg standard2/max_gain)" />
       <param name="standard2/max_exposure_time" value="$(arg standard2/max_exposure_time)" />
       <param name="standard2/desired_brightness" value="$(arg standard2/desired_brightness)" />
-      <param name="standard2/min_exposure_time" value="$(arg standard2/max_exposure_time)" />
+      <param name="standard2/min_exposure_time" value="$(arg standard2/min_exposure_time)" />
+      <param name="standard2/ir_control" value="$(arg standard2/ir_control)" />
       <param name="standard2/accel_range" value="$(arg standard2/accel_range)" />
       <param name="standard2/gyro_range" value="$(arg standard2/gyro_range)" />
       <param name="standard2/accel_low_filter" value="$(arg standard2/accel_low_filter)" />
       <param name="standard2/gyro_low_filter" value="$(arg standard2/gyro_low_filter)" />
+
+      <!-- device options of standard210a-->
+
+      <param name="standard210a/brightness" value="$(arg standard210a/brightness)" />
+      <param name="standard210a/exposure_mode" value="$(arg standard210a/exposure_mode)" />
+      <param name="standard210a/max_gain" value="$(arg standard210a/max_gain)" />
+      <param name="standard210a/max_exposure_time" value="$(arg standard210a/max_exposure_time)" />
+      <param name="standard210a/desired_brightness" value="$(arg standard210a/desired_brightness)" />
+      <param name="standard210a/min_exposure_time" value="$(arg standard210a/min_exposure_time)" />
+      <param name="standard210a/accel_range" value="$(arg standard210a/accel_range)" />
+      <param name="standard210a/gyro_range" value="$(arg standard210a/gyro_range)" />
+      <param name="standard210a/accel_low_filter" value="$(arg standard210a/accel_low_filter)" />
+      <param name="standard210a/gyro_low_filter" value="$(arg standard210a/gyro_low_filter)" />
+
     </node>
 
     <!-- disable compressed depth plugin for image topics -->

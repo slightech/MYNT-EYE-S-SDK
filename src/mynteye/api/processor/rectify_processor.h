@@ -71,7 +71,10 @@ class RectifyProcessor : public Processor {
 
   std::string Name() override;
 
-  void NotifyImageParamsChanged();
+  void ReloadImageParams(
+      std::shared_ptr<IntrinsicsBase> intr_left,
+      std::shared_ptr<IntrinsicsBase> intr_right,
+      std::shared_ptr<Extrinsics> extr);
 
   cv::Mat R1, P1, R2, P2, Q;
   cv::Mat map11, map12, map21, map22;
@@ -117,9 +120,6 @@ class RectifyProcessor : public Processor {
   camodocal::CameraPtr generateCameraFromIntrinsicsEquidistant(
       const mynteye::IntrinsicsEquidistant & in);
 
-  std::shared_ptr<IntrinsicsBase> intr_left_;
-  std::shared_ptr<IntrinsicsBase> intr_right_;
-  std::shared_ptr<Extrinsics> extr_;
   CalibrationModel calib_model;
   std::shared_ptr<struct camera_calib_info_pair> calib_infos;
 };

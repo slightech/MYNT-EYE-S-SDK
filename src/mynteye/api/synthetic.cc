@@ -111,19 +111,23 @@ Synthetic::~Synthetic() {
 }
 
 void Synthetic::NotifyImageParamsChanged() {
+    intr_left_ = api_->GetIntrinsicsBase(Stream::LEFT);
+    intr_right_ = api_->GetIntrinsicsBase(Stream::RIGHT);
+    extr_ =  std::make_shared<Extrinsics>(
+        api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
   if (calib_model_ ==  CalibrationModel::PINHOLE) {
     auto &&processor = find_processor<RectifyProcessorOCV>(processor_);
-    if (processor) processor->NotifyImageParamsChanged();
+    if (processor) processor->ReloadImageParams(intr_left_, intr_right_, extr_);
 #ifdef WITH_CAM_MODELS
   } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
     auto &&processor = find_processor<RectifyProcessor>(processor_);
-    if (processor) processor->NotifyImageParamsChanged();
+    if (processor) processor->ReloadImageParams(intr_left_, intr_right_, extr_);
 #endif
   } else {
     LOG(ERROR) << "Unknow calib model type in device: "
               << calib_model_ << ", use default pinhole model";
     auto &&processor = find_processor<RectifyProcessorOCV>(processor_);
-    if (processor) processor->NotifyImageParamsChanged();
+    if (processor) processor->ReloadImageParams(intr_left_, intr_right_, extr_);
   }
 }
 

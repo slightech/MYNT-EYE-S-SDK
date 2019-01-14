@@ -167,7 +167,7 @@ void RectifyProcessor::stereoRectify(camodocal::CameraPtr leftOdo,
   _pp[0][2] = cc_new[1].x;
   _pp[1][2] = cc_new[1].y;
   _pp[idx][3] = _t[idx]*fc_new;  // baseline * focal length
-  *T_mul_f = 0. - _t[idx];
+  *T_mul_f = 0. - _t[idx] * fc_new;
   cvConvert(&pp, _P2);
 
   alpha = MIN(alpha, 1.);
@@ -381,11 +381,11 @@ RectifyProcessor::RectifyProcessor(
       std::int32_t proc_period)
     : Processor(std::move(proc_period)),
       calib_model(CalibrationModel::UNKNOW) {
-  intr_left_ = intr_left;
-  intr_right_ = intr_right;
-  extr_ = extr;
   VLOG(2) << __func__ << ": proc_period=" << proc_period;
-  NotifyImageParamsChanged();
+  InitParams(
+    *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_left),
+    *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_right),
+    *extr);
 }
 
 RectifyProcessor::~RectifyProcessor() {
@@ -396,11 +396,14 @@ std::string RectifyProcessor::Name() {
   return NAME;
 }
 
-void RectifyProcessor::NotifyImageParamsChanged() {
+void RectifyProcessor::ReloadImageParams(
+      std::shared_ptr<IntrinsicsBase> intr_left,
+      std::shared_ptr<IntrinsicsBase> intr_right,
+      std::shared_ptr<Extrinsics> extr) {
   InitParams(
-    *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_left_),
-    *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_right_),
-    *extr_);
+    *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_left),
+    *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_right),
+    *extr);
 }
 
 Object *RectifyProcessor::OnCreateOutput() {

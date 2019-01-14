@@ -32,7 +32,7 @@ struct DepthTraits<uint16_t> {
   static inline bool valid(uint16_t depth) { return depth != 0; }
   static inline float toMeters(uint16_t depth) { return depth * 0.001f; } // originally mm
   static inline uint16_t fromMeters(float depth) { return (depth * 1000.0f) + 0.5f; }
-  static inline void initializeBuffer(std::vector<uint8_t>& buffer) {} // Do nothing - already zero-filled
+  static inline void initializeBuffer(std::vector<uint16_t>& buffer) {} // Do nothing - already zero-filled
 };
 
 template<>
@@ -100,19 +100,19 @@ bool PointsProcessor::OnProcess(
   for (int v = 0; v < height; ++v) {
     cv::Vec3f *dptr = output->value.ptr<cv::Vec3f>(v);
     for (int u = 0; u < width; ++u) {
-      float depth = input->value.at<float>(v, u);
+      float depth = input->value.at<uint16_t>(v, u);
 
       // Missing points denoted by NaNs
-      if (!DepthTraits<float>::valid(depth)) {
+      if (!DepthTraits<uint16_t>::valid(depth)) {
         continue;
       }
-
-      dptr[u][0] = (u - center_x) * depth * constant_x;
-      dptr[u][1] = (v - center_y) * depth * constant_y;
-      dptr[u][2] = DepthTraits<float>::toMeters(depth);
+      dptr[u][0] = (u - center_x) * depth * constant_x ;
+      dptr[u][1] = (v - center_y) * depth * constant_y ;
+      dptr[u][2] = depth ;
     }
   }
-
+  output->id = input->id;
+  output->data = input->data;
   return true;
 }
 
