@@ -339,6 +339,13 @@ void RectifyProcessor::InitParams(
       generateCameraFromIntrinsicsEquidistant(in_left);
   camodocal::CameraPtr camera_odo_ptr_right =
       generateCameraFromIntrinsicsEquidistant(in_right);
+  auto calib_infos_temp =
+      stereoRectify(camera_odo_ptr_left,
+                    camera_odo_ptr_right,
+                    in_left,
+                    in_right,
+                    ex_right_to_left);
+  *calib_infos = *calib_infos_temp;
   auto calib_info_tmp = stereoRectify(camera_odo_ptr_left,
         camera_odo_ptr_right,
         in_left,
@@ -380,7 +387,6 @@ RectifyProcessor::RectifyProcessor(
       std::int32_t proc_period)
     : Processor(std::move(proc_period)),
       calib_model(CalibrationModel::UNKNOW) {
-  VLOG(2) << __func__ << ": proc_period=" << proc_period;
   calib_infos = std::make_shared<struct camera_calib_info_pair>();
   InitParams(
     *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_left),
