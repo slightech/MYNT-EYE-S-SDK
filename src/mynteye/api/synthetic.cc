@@ -28,6 +28,7 @@
 #include "mynteye/api/processor/rectify_processor_ocv.h"
 #include "mynteye/api/processor/depth_processor_ocv.h"
 #include "mynteye/api/processor/points_processor_ocv.h"
+#include "mynteye/api/config.h"
 #ifdef WITH_CAM_MODELS
 #include "mynteye/api/processor/depth_processor.h"
 #include "mynteye/api/processor/points_processor.h"
@@ -74,20 +75,26 @@ void process_childs(
 }  // namespace
 
 void Synthetic::InitCalibInfo() {
-  if (calib_model_ == CalibrationModel::UNKNOW) {
-    calib_model_ = CalibrationModel::PINHOLE;
-    LOG(INFO) << "camera calib model: unknow";
-    // use default
-  } else {
-    if (calib_model_ == CalibrationModel::PINHOLE) {
-      LOG(INFO) << "camera calib model: pinhole";
-    } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-      LOG(INFO) << "camera calib model: kannala_brandt";
-    }
+  if (calib_model_ == CalibrationModel::PINHOLE) {
+    LOG(INFO) << "camera calib model: pinhole";
     intr_left_ = api_->GetIntrinsicsBase(Stream::LEFT);
     intr_right_ = api_->GetIntrinsicsBase(Stream::RIGHT);
     extr_ =  std::make_shared<Extrinsics>(
         api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
+#ifdef WITH_CAM_MODELS
+  } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+    LOG(INFO) << "camera calib model: kannala_brandt";
+    intr_left_ = api_->GetIntrinsicsBase(Stream::LEFT);
+    intr_right_ = api_->GetIntrinsicsBase(Stream::RIGHT);
+    extr_ =  std::make_shared<Extrinsics>(
+        api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
+#endif
+  } else {
+    calib_model_ = CalibrationModel::PINHOLE;
+    LOG(INFO) << "camera calib model: unknow ,use default pinhole data";
+    intr_left_ = getDefaultIntrinsics();
+    intr_right_ = getDefaultIntrinsics();
+    extr_ =  getDefaultExtrinsics();
   }
 }
 
@@ -110,16 +117,20 @@ Synthetic::~Synthetic() {
   }
 }
 
-void Synthetic::NotifyImageParamsChanged() {
+void Synthetic::NotifyImageParamsChanged(bool is_from_dev) {
+  if (is_from_dev && calib_model_ ==  CalibrationModel::PINHOLE) {
     intr_left_ = api_->GetIntrinsicsBase(Stream::LEFT);
     intr_right_ = api_->GetIntrinsicsBase(Stream::RIGHT);
     extr_ =  std::make_shared<Extrinsics>(
         api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
-  if (calib_model_ ==  CalibrationModel::PINHOLE) {
     auto &&processor = find_processor<RectifyProcessorOCV>(processor_);
     if (processor) processor->ReloadImageParams(intr_left_, intr_right_, extr_);
 #ifdef WITH_CAM_MODELS
-  } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+  } else if (is_from_dev && calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+    intr_left_ = api_->GetIntrinsicsBase(Stream::LEFT);
+    intr_right_ = api_->GetIntrinsicsBase(Stream::RIGHT);
+    extr_ =  std::make_shared<Extrinsics>(
+        api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
     auto &&processor = find_processor<RectifyProcessor>(processor_);
     if (processor) processor->ReloadImageParams(intr_left_, intr_right_, extr_);
 #endif

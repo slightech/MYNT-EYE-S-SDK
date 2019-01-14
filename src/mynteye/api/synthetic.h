@@ -44,7 +44,7 @@ class Synthetic {
   explicit Synthetic(API *api, CalibrationModel calib_model);
   ~Synthetic();
 
-  void NotifyImageParamsChanged();
+  void NotifyImageParamsChanged(bool is_from_dev = false);
 
   bool Supports(const Stream &stream) const;
   mode_t SupportsMode(const Stream &stream) const;

@@ -246,13 +246,16 @@ std::shared_ptr<API> API::Create(const std::shared_ptr<Device> &device) {
                     "to learn more.";
       LOG(WARNING) << "use pinhole as default";
       api = std::make_shared<API>(device, CalibrationModel::UNKNOW);
+      return api;
     } else {
       if (left_intr->calib_model() != right_intr->calib_model()) {
         LOG(ERROR) << "left camera and right camera use different calib models!";
         LOG(WARNING) << "use pinhole as default";
         api = std::make_shared<API>(device, CalibrationModel::UNKNOW);
+        return api;
       } else {
         api = std::make_shared<API>(device, left_intr->calib_model());
+        return api;
       }
     }
   } else {
