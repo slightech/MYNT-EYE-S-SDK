@@ -339,13 +339,21 @@ void RectifyProcessor::InitParams(
       generateCameraFromIntrinsicsEquidistant(in_left);
   camodocal::CameraPtr camera_odo_ptr_right =
       generateCameraFromIntrinsicsEquidistant(in_right);
-  calib_infos =
-      stereoRectify(camera_odo_ptr_left,
+  if (calib_infos) {
+    auto calib_info_tmp = stereoRectify(camera_odo_ptr_left,
+        camera_odo_ptr_right,
+        in_left,
+        in_right,
+        ex_right_to_left);
+    *calib_infos = *calib_info_tmp;
+  } else {
+    calib_infos =
+        stereoRectify(camera_odo_ptr_left,
                     camera_odo_ptr_right,
                     in_left,
                     in_right,
                     ex_right_to_left);
-
+  }
   cv::Mat rect_R_l =
       cv::Mat::eye(3, 3, CV_32F), rect_R_r = cv::Mat::eye(3, 3, CV_32F);
   for (size_t i = 0; i < 3; i++) {
