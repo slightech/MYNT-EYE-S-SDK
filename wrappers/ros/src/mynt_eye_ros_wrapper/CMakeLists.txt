@@ -83,13 +83,10 @@ if(NOT mynteye_WITH_API)
   message(FATAL_ERROR "Must with API layer :(")
 endif()
 
-include(cmake/DetectOpenCV.cmake)
+find_package(OpenCV REQUIRED)
 
 if(mynteye_WITH_GLOG)
   find_package(glog REQUIRED)
-  if(glog_FOUND)
-    add_definitions(-DWITH_GLOG)
-  endif()
 endif()
 
 # targets
