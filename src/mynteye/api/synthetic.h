@@ -120,6 +120,7 @@ class Synthetic {
   std::shared_ptr<IntrinsicsBase> intr_left_;
   std::shared_ptr<IntrinsicsBase> intr_right_;
   std::shared_ptr<Extrinsics> extr_;
+  bool calib_default_tag_;
 };
 
 template <class T, class P>
