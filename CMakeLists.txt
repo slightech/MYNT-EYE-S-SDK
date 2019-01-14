@@ -141,7 +141,7 @@ if(WITH_CAM_MODELS)
   message(STATUS "EIGEN_INCLUDE_DIRS: ${EIGEN_INCLUDE_DIRS}")
 
   include_directories(
-    ${catkin_INCLUDE_DIRS}
+    ${CERES_INCLUDE_DIRS}
     ${EIGEN_INCLUDE_DIRS}
     src/mynteye/api/camodocal/include
   )
@@ -246,7 +246,7 @@ if(WITH_API)
   endif()
 endif()
 
-if(NOT WITH_GLOG)
+if(NOT WITH_GLOG AND NOT WITH_CAM_MODELS)
   list(APPEND MYNTEYE_SRCS src/mynteye/miniglog.cc)
 endif()
 
@@ -269,8 +269,7 @@ if(OS_MAC)
   target_link_libraries( ${MYNTEYE_NAME} ${OSX_EXTRA_LIBS} )
 endif()
 if(WITH_CAM_MODELS)
-# link_directories("./_output/lib")
-target_link_libraries(${MYNTEYE_NAME} "${OUT_DIR}/lib/libcamodocal.a")
+  target_link_libraries(${MYNTEYE_NAME} camodocal)
 endif()
 target_link_threads(${MYNTEYE_NAME})
 
@@ -334,6 +333,12 @@ if(NOT WITH_GLOG)
     DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}
   )
 endif()
+if(WITH_CAM_MODELS)
+  install(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/ceres/include/ceres/internal/miniglog/glog/logging.h
+    DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}/glog
+  )
+endif()
 
 install(FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/include/deprecated/mynteye/callbacks.h
@@ -355,7 +360,12 @@ if(WITH_API)
   )
 endif()
 
-install(TARGETS ${MYNTEYE_NAME}
+set(__install_targets ${MYNTEYE_NAME})
+if(WITH_CAM_MODELS)
+  list(APPEND __install_targets camodocal)
+endif()
+
+install(TARGETS ${__install_targets}
   EXPORT ${MYNTEYE_NAME}-targets
   RUNTIME DESTINATION ${MYNTEYE_CMAKE_BINDIR}
   LIBRARY DESTINATION ${MYNTEYE_CMAKE_LIBDIR}

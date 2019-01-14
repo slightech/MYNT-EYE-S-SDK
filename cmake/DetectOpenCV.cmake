@@ -26,14 +26,13 @@ if(OpenCV_FOUND)
 #message(STATUS "Found OpenCV: ${OpenCV_VERSION}")
 
 set(WITH_OPENCV TRUE)
-add_definitions(-DWITH_OPENCV)
 
 if(OpenCV_VERSION VERSION_LESS 3.0)
-  add_definitions(-DWITH_OPENCV2)
+  set(WITH_OPENCV2 TRUE)
 elseif(OpenCV_VERSION VERSION_LESS 4.0)
-  add_definitions(-DWITH_OPENCV3)
+  set(WITH_OPENCV3 TRUE)
 else()
-  add_definitions(-DWITH_OPENCV4)
+  set(WITH_OPENCV4 TRUE)
 endif()
 
 list(FIND OpenCV_LIBS "opencv_world" __index)
