@@ -25,9 +25,7 @@
 #include "mynteye/device/device.h"
 #include <camodocal/camera_models/Camera.h>
 #include <camodocal/camera_models/CameraFactory.h>
-#include <camodocal/camera_models/CataCamera.h>
 #include <camodocal/camera_models/EquidistantCamera.h>
-#include <camodocal/camera_models/PinholeCamera.h>
 #include <camodocal/gpl/gpl.h>
 #include <camodocal/camera_models/Camera.h>
 #include <opencv2/core/eigen.hpp>

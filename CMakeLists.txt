@@ -236,15 +236,15 @@ if(WITH_API)
     src/mynteye/api/processor/depth_processor_ocv.cc
     src/mynteye/api/processor/rectify_processor_ocv.cc
   )
+  if(WITH_CAM_MODELS)
+    list(APPEND MYNTEYE_SRCS
+      src/mynteye/api/processor/depth_processor.cc
+      src/mynteye/api/processor/points_processor.cc
+      src/mynteye/api/processor/rectify_processor.cc
+    )
+  endif()
 endif()
 
-if(WITH_CAM_MODELS)
-  list(APPEND MYNTEYE_SRCS
-    src/mynteye/api/processor/depth_processor.cc
-    src/mynteye/api/processor/points_processor.cc
-    src/mynteye/api/processor/rectify_processor.cc
-  )
-endif()
 if(NOT WITH_GLOG)
   list(APPEND MYNTEYE_SRCS src/mynteye/miniglog.cc)
 endif()
