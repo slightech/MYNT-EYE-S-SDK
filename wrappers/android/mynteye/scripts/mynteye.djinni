@@ -1,0 +1,33 @@
+
+format = enum {
+  grey;
+  yuyv;
+  bgr888;
+  rgb888;
+}
+
+stream_request = record {
+  index: i32;
+  width: i32;
+  height: i32;
+  format: format;
+  fps: i32;
+}
+
+device_usb_info = record {
+  index: i32;
+  name: string;
+  sn: string;
+}
+
+device = interface +c {
+  static query(): list<device_usb_info>;
+
+  static create(info: device_usb_info): device;
+
+  get_stream_requests(): list<stream_request>;
+  config_stream_request(request: stream_request);
+
+  start();
+  stop();
+}

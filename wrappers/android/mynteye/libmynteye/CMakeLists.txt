@@ -5,28 +5,45 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
-get_filename_component(MYNTETE_ROOT "${PROJECT_SOURCE_DIR}/../../../../../../.." ABSOLUTE)
+get_filename_component(MYNTETE_ROOT "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
 message(STATUS "MYNTETE_ROOT: ${MYNTETE_ROOT}")
 
-set(MYNTEYE_NAME "mynteye")
+if(NOT DJINNI_DIR)
+  if(DEFINED ENV{DJINNI_DIR})
+    set(DJINNI_DIR $ENV{DJINNI_DIR})
+  else()
+    set(DJINNI_DIR "$ENV{HOME}/Workspace/Fever/Dropbox/djinni")
+  endif()
+endif()
 
-set(MYNTEYE_NAMESPACE "${MYNTEYE_NAME}")
-message(STATUS "Namespace: ${MYNTEYE_NAMESPACE}")
+# libs
+
+## log
+
+find_library(log-lib log)
+
+## djinni_jni
+
+include_directories(
+  ${DJINNI_DIR}/support-lib/jni
+)
+add_library(djinni_jni STATIC
+  ${DJINNI_DIR}/support-lib/jni/djinni_support.cpp
+)
+
+# targets
+
+## libmynteye
+
+add_definitions(-DMYNTEYE_EXPORTS)
+
+set(MYNTEYE_NAMESPACE "mynteye")
+#message(STATUS "Namespace: ${MYNTEYE_NAMESPACE}")
 
 configure_file(
   ${MYNTETE_ROOT}/include/mynteye/mynteye.h.in
   include/mynteye/mynteye.h @ONLY
 )
-
-## libs
-
-find_library(log-lib log)
-
-## targets
-
-# libmynteye
-
-add_definitions(-DMYNTEYE_EXPORTS)
 
 set(MYNTEYE_SRCS
   ${MYNTETE_ROOT}/src/mynteye/uvc/linux/uvc-v4l2.cc
@@ -56,12 +73,35 @@ set(MYNTEYE_SRCS
 
 list(APPEND MYNTEYE_SRCS ${MYNTETE_ROOT}/src/mynteye/miniglog.cc)
 
-add_library(${MYNTEYE_NAME} SHARED ${MYNTEYE_SRCS})
-target_link_libraries(${MYNTEYE_NAME} ${log-lib})
+add_library(mynteye STATIC ${MYNTEYE_SRCS})
+target_link_libraries(mynteye ${log-lib})
 
-target_include_directories(${MYNTEYE_NAME} PUBLIC
+target_include_directories(mynteye PUBLIC
   "$<BUILD_INTERFACE:${MYNTETE_ROOT}/include>"
   "$<BUILD_INTERFACE:${MYNTETE_ROOT}/src>"
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
   "$<INSTALL_INTERFACE:include>"
 )
+
+## libmynteye_jni
+
+set(CPP_DIR "${PROJECT_SOURCE_DIR}/src/main/cpp")
+
+include_directories(
+  ${CPP_DIR}/mynteye/cpp
+  ${CPP_DIR}/mynteye/impl
+  ${CPP_DIR}/mynteye/jni
+)
+
+set(MYNTEYE_JNI_SRCS "")
+foreach(__dir cpp impl jni)
+  file(GLOB __srcs "${CPP_DIR}/mynteye/${__dir}/*.cpp")
+  list(APPEND MYNTEYE_JNI_SRCS ${__srcs})
+endforeach()
+#message(STATUS "MYNTEYE_JNI_SRCS: ${MYNTEYE_JNI_SRCS}")
+
+add_library(mynteye_jni SHARED
+  ${DJINNI_DIR}/support-lib/jni/djinni_main.cpp
+  ${MYNTEYE_JNI_SRCS}
+)
+target_link_libraries(mynteye_jni ${log-lib} djinni_jni mynteye)

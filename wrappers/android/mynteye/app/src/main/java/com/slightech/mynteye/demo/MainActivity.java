@@ -1,7 +1,10 @@
 package com.slightech.mynteye.demo;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import com.slightech.mynteye.Device;
+import com.slightech.mynteye.DeviceUsbInfo;
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -9,5 +12,9 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+
+    for (DeviceUsbInfo info : Device.query()) {
+      Timber.i(info.toString());
+    }
   }
 }
