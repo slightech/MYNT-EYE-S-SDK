@@ -613,7 +613,7 @@ void Synthetic::InitProcessors() {
     rectify_processor = rectify_processor_ocv;
   }
   auto &&disparity_processor =
-      std::make_shared<DisparityProcessor>(DisparityProcessorType::BM,
+      std::make_shared<DisparityProcessor>(DisparityProcessorType::SGBM,
                                            DISPARITY_PROC_PERIOD);
   auto &&disparitynormalized_processor =
       std::make_shared<DisparityNormalizedProcessor>(

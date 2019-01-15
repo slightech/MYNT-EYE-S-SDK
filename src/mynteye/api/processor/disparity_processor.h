@@ -16,7 +16,6 @@
 #pragma once
 
 #include <string>
-#include <opencv2/ximgproc/disparity_filter.hpp>
 #include "mynteye/api/processor.h"
 
 namespace cv {
