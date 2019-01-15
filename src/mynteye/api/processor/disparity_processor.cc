@@ -160,10 +160,15 @@ bool DisparityProcessor::OnProcess(
   // It contains disparity values scaled by 16. So, to get the floating-point
   // disparity map,
   // you need to divide each disp element by 16.
-  if (type_ == SGBM) {
+  if (type_ == DisparityProcessorType::SGBM) {
     (*sgbm_matcher)(input->first, input->second, disparity);
-  } else if (type_ == BM) {
-    (*bm_matcher)(input->first, input->second, disparity);
+#ifdef WITH_BM_SOBEL_FILTER
+  } else if (type_ == DisparityProcessorType::BM) {
+    cv::Mat tmp1, tmp2;
+    cv::cvtColor(input->first, tmp1, CV_RGB2GRAY);
+    cv::cvtColor(input->second, tmp2, CV_RGB2GRAY);
+    (*bm_matcher)(tmp1, tmp2, disparity);
+#endif
   }
 #else
   // compute()
