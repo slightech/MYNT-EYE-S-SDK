@@ -55,7 +55,7 @@ macro(target_link_threads NAME)
     target_compile_options(PUBLIC ${NAME} "-pthread")
   endif()
   if(CMAKE_THREAD_LIBS_INIT)
-    target_link_libraries(${NAME} "${CMAKE_THREAD_LIBS_INIT}")
+    target_link_libraries(${NAME} PUBLIC "${CMAKE_THREAD_LIBS_INIT}")
   endif()
 endmacro()
 
@@ -264,12 +264,12 @@ endif()
 #message(STATUS "MYNTEYE_LINKLIBS: ${MYNTEYE_LINKLIBS}")
 
 add_library(${MYNTEYE_NAME} SHARED ${MYNTEYE_SRCS})
-target_link_libraries(${MYNTEYE_NAME} ${MYNTEYE_LINKLIBS})
+target_link_libraries(${MYNTEYE_NAME} PUBLIC ${MYNTEYE_LINKLIBS})
 if(OS_MAC)
-  target_link_libraries( ${MYNTEYE_NAME} ${OSX_EXTRA_LIBS} )
+  target_link_libraries(${MYNTEYE_NAME} PUBLIC ${OSX_EXTRA_LIBS} )
 endif()
 if(WITH_CAM_MODELS)
-  target_link_libraries(${MYNTEYE_NAME} camodocal)
+  target_link_libraries(${MYNTEYE_NAME} PRIVATE camodocal)
 endif()
 target_link_threads(${MYNTEYE_NAME})
 
@@ -335,7 +335,7 @@ if(NOT WITH_GLOG)
 endif()
 if(WITH_CAM_MODELS)
   install(FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/ceres/include/ceres/internal/miniglog/glog/logging.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/glog/logging.h
     DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}/glog
   )
 endif()
@@ -360,12 +360,7 @@ if(WITH_API)
   )
 endif()
 
-set(__install_targets ${MYNTEYE_NAME})
-if(WITH_CAM_MODELS)
-  list(APPEND __install_targets camodocal)
-endif()
-
-install(TARGETS ${__install_targets}
+install(TARGETS ${MYNTEYE_NAME}
   EXPORT ${MYNTEYE_NAME}-targets
   RUNTIME DESTINATION ${MYNTEYE_CMAKE_BINDIR}
   LIBRARY DESTINATION ${MYNTEYE_CMAKE_LIBDIR}
