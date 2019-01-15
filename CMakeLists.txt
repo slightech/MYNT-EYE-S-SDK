@@ -55,7 +55,7 @@ macro(target_link_threads NAME)
     target_compile_options(PUBLIC ${NAME} "-pthread")
   endif()
   if(CMAKE_THREAD_LIBS_INIT)
-    target_link_libraries(${NAME} "${CMAKE_THREAD_LIBS_INIT}")
+    target_link_libraries(${NAME} PUBLIC "${CMAKE_THREAD_LIBS_INIT}")
   endif()
 endmacro()
 
@@ -141,7 +141,7 @@ if(WITH_CAM_MODELS)
   message(STATUS "EIGEN_INCLUDE_DIRS: ${EIGEN_INCLUDE_DIRS}")
 
   include_directories(
-    ${catkin_INCLUDE_DIRS}
+    ${CERES_INCLUDE_DIRS}
     ${EIGEN_INCLUDE_DIRS}
     src/mynteye/api/camodocal/include
   )
@@ -235,17 +235,18 @@ if(WITH_API)
     src/mynteye/api/processor/points_processor_ocv.cc
     src/mynteye/api/processor/depth_processor_ocv.cc
     src/mynteye/api/processor/rectify_processor_ocv.cc
+    src/mynteye/api/config.cc
   )
+  if(WITH_CAM_MODELS)
+    list(APPEND MYNTEYE_SRCS
+      src/mynteye/api/processor/depth_processor.cc
+      src/mynteye/api/processor/points_processor.cc
+      src/mynteye/api/processor/rectify_processor.cc
+    )
+  endif()
 endif()
 
-if(WITH_CAM_MODELS)
-  list(APPEND MYNTEYE_SRCS
-    src/mynteye/api/processor/depth_processor.cc
-    src/mynteye/api/processor/points_processor.cc
-    src/mynteye/api/processor/rectify_processor.cc
-  )
-endif()
-if(NOT WITH_GLOG)
+if(NOT WITH_GLOG AND NOT WITH_CAM_MODELS)
   list(APPEND MYNTEYE_SRCS src/mynteye/miniglog.cc)
 endif()
 
@@ -263,13 +264,12 @@ endif()
 #message(STATUS "MYNTEYE_LINKLIBS: ${MYNTEYE_LINKLIBS}")
 
 add_library(${MYNTEYE_NAME} SHARED ${MYNTEYE_SRCS})
-target_link_libraries(${MYNTEYE_NAME} ${MYNTEYE_LINKLIBS})
+target_link_libraries(${MYNTEYE_NAME} PUBLIC ${MYNTEYE_LINKLIBS})
 if(OS_MAC)
-  target_link_libraries( ${MYNTEYE_NAME} ${OSX_EXTRA_LIBS} )
+  target_link_libraries(${MYNTEYE_NAME} PUBLIC ${OSX_EXTRA_LIBS} )
 endif()
 if(WITH_CAM_MODELS)
-# link_directories("./_output/lib")
-target_link_libraries(${MYNTEYE_NAME} "${OUT_DIR}/lib/libcamodocal.a")
+  target_link_libraries(${MYNTEYE_NAME} PRIVATE camodocal)
 endif()
 target_link_threads(${MYNTEYE_NAME})
 
@@ -331,6 +331,12 @@ if(NOT WITH_GLOG)
   install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/miniglog.h
     DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}
+  )
+endif()
+if(WITH_CAM_MODELS)
+  install(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/glog/logging.h
+    DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}/glog
   )
 endif()
 

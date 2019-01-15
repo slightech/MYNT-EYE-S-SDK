@@ -158,6 +158,7 @@ int main(int argc, char *argv[]) {
   api->SetOptionValue(Option::IR_CONTROL, 80);
 
   api->EnableStreamData(Stream::DISPARITY_NORMALIZED);
+  api->EnableStreamData(Stream::POINTS);
   api->EnableStreamData(Stream::DEPTH);
 
   api->Start(Source::VIDEO_STREAMING);

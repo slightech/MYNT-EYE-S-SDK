@@ -68,4 +68,19 @@ void UNUSED(T &&...) {}
 
 MYNTEYE_END_NAMESPACE
 
+#cmakedefine WITH_API
+#cmakedefine WITH_DEVICE_INFO_REQUIRED
+#cmakedefine WITH_CAM_MODELS
+
+#cmakedefine WITH_OPENCV
+#cmakedefine WITH_OPENCV2
+#cmakedefine WITH_OPENCV3
+#cmakedefine WITH_OPENCV4
+#cmakedefine WITH_OPENCV_WORLD
+
+#cmakedefine WITH_GLOG
+#cmakedefine WITH_FILESYSTEM
+#cmakedefine WITH_BOOST_FILESYSTEM
+#cmakedefine WITH_NATIVE_FILESYSTEM
+
 #endif  // MYNTEYE_MYNTEYE_H_

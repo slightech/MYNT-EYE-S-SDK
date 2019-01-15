@@ -57,7 +57,7 @@ PointsProcessor::PointsProcessor(
     std::int32_t proc_period)
     : Processor(std::move(proc_period)),
     calib_infos_(calib_infos) {
-  VLOG(2) << __func__ << ": proc_period=" << proc_period;
+  VLOG(2) << __func__;
 }
 
 PointsProcessor::~PointsProcessor() {

@@ -28,6 +28,7 @@
 #include "mynteye/api/processor/rectify_processor_ocv.h"
 #include "mynteye/api/processor/depth_processor_ocv.h"
 #include "mynteye/api/processor/points_processor_ocv.h"
+#include "mynteye/api/config.h"
 #ifdef WITH_CAM_MODELS
 #include "mynteye/api/processor/depth_processor.h"
 #include "mynteye/api/processor/points_processor.h"
@@ -74,27 +75,35 @@ void process_childs(
 }  // namespace
 
 void Synthetic::InitCalibInfo() {
-  if (calib_model_ == CalibrationModel::UNKNOW) {
-    calib_model_ = CalibrationModel::PINHOLE;
-    LOG(INFO) << "camera calib model: unknow";
-    // use default
-  } else {
-    if (calib_model_ == CalibrationModel::PINHOLE) {
-      LOG(INFO) << "camera calib model: pinhole";
-    } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-      LOG(INFO) << "camera calib model: kannala_brandt";
-    }
+  if (calib_model_ == CalibrationModel::PINHOLE) {
+    LOG(INFO) << "camera calib model: pinhole";
     intr_left_ = api_->GetIntrinsicsBase(Stream::LEFT);
     intr_right_ = api_->GetIntrinsicsBase(Stream::RIGHT);
     extr_ =  std::make_shared<Extrinsics>(
         api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
+#ifdef WITH_CAM_MODELS
+  } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+    LOG(INFO) << "camera calib model: kannala_brandt";
+    intr_left_ = api_->GetIntrinsicsBase(Stream::LEFT);
+    intr_right_ = api_->GetIntrinsicsBase(Stream::RIGHT);
+    extr_ =  std::make_shared<Extrinsics>(
+        api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
+#endif
+  } else {
+    calib_default_tag_ = true;
+    calib_model_ = CalibrationModel::PINHOLE;
+    LOG(INFO) << "camera calib model: unknow ,use default pinhole data";
+    intr_left_ = getDefaultIntrinsics();
+    intr_right_ = getDefaultIntrinsics();
+    extr_ =  getDefaultExtrinsics();
   }
 }
 
 Synthetic::Synthetic(API *api, CalibrationModel calib_model)
     : api_(api),
       plugin_(nullptr),
-      calib_model_(calib_model) {
+      calib_model_(calib_model),
+      calib_default_tag_(false) {
   VLOG(2) << __func__;
   CHECK_NOTNULL(api_);
   InitCalibInfo();
@@ -111,10 +120,12 @@ Synthetic::~Synthetic() {
 }
 
 void Synthetic::NotifyImageParamsChanged() {
+  if (!calib_default_tag_) {
     intr_left_ = api_->GetIntrinsicsBase(Stream::LEFT);
     intr_right_ = api_->GetIntrinsicsBase(Stream::RIGHT);
     extr_ =  std::make_shared<Extrinsics>(
         api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
+  }
   if (calib_model_ ==  CalibrationModel::PINHOLE) {
     auto &&processor = find_processor<RectifyProcessorOCV>(processor_);
     if (processor) processor->ReloadImageParams(intr_left_, intr_right_, extr_);
@@ -602,7 +613,8 @@ void Synthetic::InitProcessors() {
     rectify_processor = rectify_processor_ocv;
   }
   auto &&disparity_processor =
-      std::make_shared<DisparityProcessor>(DISPARITY_PROC_PERIOD);
+      std::make_shared<DisparityProcessor>(DisparityProcessorType::BM,
+                                           DISPARITY_PROC_PERIOD);
   auto &&disparitynormalized_processor =
       std::make_shared<DisparityNormalizedProcessor>(
           DISPARITY_NORM_PROC_PERIOD);

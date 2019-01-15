@@ -16,14 +16,24 @@
 #pragma once
 
 #include <string>
-
+#include <opencv2/ximgproc/disparity_filter.hpp>
 #include "mynteye/api/processor.h"
 
 namespace cv {
 
 class StereoSGBM;
-
+class StereoBM;
 }  // namespace cv
+
+enum class DisparityProcessorType : std::uint8_t {
+  /** bm */
+  SGBM = 0,
+  /** Equidistant: KANNALA_BRANDT */
+  BM = 1,
+  /** Unknow */
+  UNKNOW
+};
+
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -31,7 +41,8 @@ class DisparityProcessor : public Processor {
  public:
   static const char NAME[];
 
-  explicit DisparityProcessor(std::int32_t proc_period = 0);
+  explicit DisparityProcessor(DisparityProcessorType type,
+      std::int32_t proc_period = 0);
   virtual ~DisparityProcessor();
 
   std::string Name() override;
@@ -42,7 +53,9 @@ class DisparityProcessor : public Processor {
       Object *const in, Object *const out, Processor *const parent) override;
 
  private:
-  cv::Ptr<cv::StereoSGBM> sgbm_;
+  cv::Ptr<cv::StereoSGBM> sgbm_matcher;
+  cv::Ptr<cv::StereoBM> bm_matcher;
+  DisparityProcessorType type_;
 };
 
 MYNTEYE_END_NAMESPACE

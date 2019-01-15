@@ -21,6 +21,9 @@ MYNTEYE_BEGIN_NAMESPACE
 
 std::shared_ptr<IntrinsicsBase> getDefaultIntrinsics() {
   auto res = std::make_shared<IntrinsicsPinhole>();
+  res->width = 640;
+  res->height = 400;
+  res->model = 0;
   res->fx = 3.6220059643202876e+02;
   res->fy = 3.6350065250745848e+02;
   res->cx = 4.0658699068023441e+02;
