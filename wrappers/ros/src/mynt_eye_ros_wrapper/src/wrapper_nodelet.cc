@@ -72,14 +72,20 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                   << (right_count_ / compute_time(time_end, right_time_beg_));
       }
       if (imu_time_beg_ != -1) {
-        if (publish_imu_by_sync_) {
-          LOG(INFO) << "imu_sync_count: " << imu_sync_count_ << ", hz: "
-                    << (imu_sync_count_ /
-                    compute_time(time_end, imu_time_beg_));
-        } else {
-          LOG(INFO) << "Imu count: " << imu_count_ << ", hz: "
-                    << (imu_count_ /
-                    compute_time(time_end, imu_time_beg_));
+          if (model_ == Model::STANDARD) {
+            LOG(INFO) << "Imu count: " << imu_count_ << ", hz: "
+                      << (imu_count_ /
+                      compute_time(time_end, imu_time_beg_));
+          } else {
+          if (publish_imu_by_sync_) {
+            LOG(INFO) << "imu_sync_count: " << imu_sync_count_ << ", hz: "
+                      << (imu_sync_count_ /
+                      compute_time(time_end, imu_time_beg_));
+          } else {
+            LOG(INFO) << "Imu count: " << imu_count_ << ", hz: "
+                      << (imu_count_ /
+                      compute_time(time_end, imu_time_beg_));
+          }
         }
       }
 
