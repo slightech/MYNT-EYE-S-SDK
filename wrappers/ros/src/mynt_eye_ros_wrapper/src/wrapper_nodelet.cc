@@ -1327,7 +1327,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   std::size_t imu_sync_count_ = 0;
   std::shared_ptr<ImuData> imu_accel_;
   std::shared_ptr<ImuData> imu_gyro_;
-  bool publish_imu_by_sync_ = false;
+  bool publish_imu_by_sync_ = true;
   std::map<Stream, bool> is_published_;
   bool is_motion_published_;
   bool is_started_;
