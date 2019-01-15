@@ -23,6 +23,8 @@
 
 #include "mynteye/logger.h"
 
+#define WITH_BM_SOBEL_FILTER
+
 MYNTEYE_BEGIN_NAMESPACE
 
 const char DisparityProcessor::NAME[] = "DisparityProcessor";
@@ -67,6 +69,7 @@ DisparityProcessor::DisparityProcessor(DisparityProcessorType type,
 #endif
 #ifdef WITH_BM_SOBEL_FILTER
   } else if (type_ == DisparityProcessorType::BM) {
+    int bmWinSize = 3;
 #ifdef WITH_OPENCV2
     int bmWinSize = 3;
     // StereoBM
@@ -86,7 +89,7 @@ DisparityProcessor::DisparityProcessor(DisparityProcessorType type,
     bm_matcher = cv::StereoBM::create(0, 3);
     bm_matcher->setPreFilterSize(9);
     bm_matcher->setPreFilterCap(31);
-    bm_matcher->setBlockSize(15);
+    bm_matcher->setBlockSize(bmWinSize);
     bm_matcher->setMinDisparity(0);
     bm_matcher->setNumDisparities(64);
     bm_matcher->setUniquenessRatio(15);
@@ -183,8 +186,13 @@ bool DisparityProcessor::OnProcess(
 #ifdef WITH_BM_SOBEL_FILTER
   } else if (type_ == DisparityProcessorType::BM) {
     cv::Mat tmp1, tmp2;
-    cv::cvtColor(input->first, tmp1, CV_RGB2GRAY);
-    cv::cvtColor(input->second, tmp2, CV_RGB2GRAY);
+    if (input->first.channels() == 1) {
+      // s1030
+    } else if (input->first.channels() == 3) {
+      // s210
+      cv::cvtColor(input->first, tmp1, CV_RGB2GRAY);
+      cv::cvtColor(input->second, tmp2, CV_RGB2GRAY);
+    }
     bm_matcher->compute(tmp1, tmp2, disparity);
 #endif
   } else {
