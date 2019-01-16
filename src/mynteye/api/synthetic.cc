@@ -534,13 +534,28 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
         }
       } break;
       case Stream::DISPARITY: {
-        if (IsStreamEnabledSynthetic(Stream::DISPARITY_NORMALIZED)) {
-          DisableStreamData(Stream::DISPARITY_NORMALIZED, depth + 1);
+        if (calib_model_ ==  CalibrationModel::PINHOLE) {
+          if (IsStreamEnabledSynthetic(Stream::DISPARITY_NORMALIZED)) {
+            DisableStreamData(Stream::DISPARITY_NORMALIZED, depth + 1);
+          }
+          if (IsStreamEnabledSynthetic(Stream::POINTS)) {
+            DisableStreamData(Stream::POINTS, depth + 1);
+          }
+          DeactivateProcessor<DisparityProcessor>();
+#ifdef WITH_CAM_MODELS
+        } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+          if (IsStreamEnabledSynthetic(Stream::DISPARITY_NORMALIZED)) {
+            DisableStreamData(Stream::DISPARITY_NORMALIZED, depth + 1);
+          }
+          if (IsStreamEnabledSynthetic(Stream::DEPTH)) {
+            DisableStreamData(Stream::DEPTH, depth + 1);
+          }
+          DeactivateProcessor<DisparityProcessor>();
+#endif
+        } else {
+          LOG(ERROR) << "Unknow calib model type in device: "
+                    << calib_model_;
         }
-        if (IsStreamEnabledSynthetic(Stream::POINTS)) {
-          DisableStreamData(Stream::POINTS, depth + 1);
-        }
-        DeactivateProcessor<DisparityProcessor>();
       } break;
       case Stream::DISPARITY_NORMALIZED: {
         DeactivateProcessor<DisparityNormalizedProcessor>();
@@ -565,7 +580,7 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
           DeactivateProcessor<DepthProcessorOCV>();
 #ifdef WITH_CAM_MODELS
         } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-          if (IsStreamEnabledSynthetic(Stream::DEPTH)) {
+          if (IsStreamEnabledSynthetic(Stream::POINTS)) {
             DisableStreamData(Stream::POINTS, depth + 1);
           }
           DeactivateProcessor<DepthProcessor>();
