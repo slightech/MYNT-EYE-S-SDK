@@ -496,11 +496,11 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
     stream_enabled_mode_.erase(stream);
     switch (stream) {
       case Stream::LEFT_RECTIFIED: {
-        if (IsStreamEnabledSynthetic(Stream::RIGHT_RECTIFIED)) {
-          DisableStreamData(Stream::RIGHT_RECTIFIED, depth + 1);
-        }
         if (IsStreamEnabledSynthetic(Stream::DISPARITY)) {
           DisableStreamData(Stream::DISPARITY, depth + 1);
+        }
+        if (IsStreamEnabledSynthetic(Stream::RIGHT_RECTIFIED)) {
+          DisableStreamData(Stream::RIGHT_RECTIFIED, depth + 1);
         }
         if (calib_model_ ==  CalibrationModel::PINHOLE) {
           DeactivateProcessor<RectifyProcessorOCV>();
@@ -515,11 +515,11 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
         }
       } break;
       case Stream::RIGHT_RECTIFIED: {
-        if (IsStreamEnabledSynthetic(Stream::LEFT_RECTIFIED)) {
-          DisableStreamData(Stream::LEFT_RECTIFIED, depth + 1);
-        }
         if (IsStreamEnabledSynthetic(Stream::DISPARITY)) {
           DisableStreamData(Stream::DISPARITY, depth + 1);
+        }
+        if (IsStreamEnabledSynthetic(Stream::LEFT_RECTIFIED)) {
+          DisableStreamData(Stream::LEFT_RECTIFIED, depth + 1);
         }
         if (calib_model_ ==  CalibrationModel::PINHOLE) {
           DeactivateProcessor<RectifyProcessorOCV>();
