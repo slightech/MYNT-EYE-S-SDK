@@ -2,6 +2,7 @@
 
 #include "mynteye/device/context.h"
 #include "mynteye/device/device.h"
+#include "mynteye/logger.h"
 
 #include "device_usb_info.hpp"
 #include "stream_request.hpp"
@@ -12,6 +13,7 @@ MYNTEYE_USE_NAMESPACE
 namespace mynteye_jni {
 
 std::vector<DeviceUsbInfo> Device::Query() {
+  VLOG(2) << __func__;
   std::vector<DeviceUsbInfo> infos;
 
   Context context;
@@ -27,6 +29,7 @@ std::vector<DeviceUsbInfo> Device::Query() {
 }
 
 std::shared_ptr<Device> Device::Create(const DeviceUsbInfo & info) {
+  VLOG(2) << __func__;
   Context context;
   int32_t i = 0;
   for (auto&& d : context.devices()) {
@@ -39,12 +42,15 @@ std::shared_ptr<Device> Device::Create(const DeviceUsbInfo & info) {
 }
 
 DeviceImpl::DeviceImpl(const device_t & device) : Device(), device_(device) {
+  VLOG(2) << __func__;
 }
 
 DeviceImpl::~DeviceImpl() {
+  VLOG(2) << __func__;
 }
 
 std::vector<StreamRequest> DeviceImpl::GetStreamRequests() {
+  VLOG(2) << __func__;
   std::vector<StreamRequest> requests;
 
   int32_t i = 0;
@@ -58,6 +64,7 @@ std::vector<StreamRequest> DeviceImpl::GetStreamRequests() {
 }
 
 void DeviceImpl::ConfigStreamRequest(const StreamRequest & request) {
+  VLOG(2) << __func__;
   int32_t i = 0;
   for (auto&& req : device_->GetStreamRequests()) {
     if (i == request.index) {
@@ -69,9 +76,11 @@ void DeviceImpl::ConfigStreamRequest(const StreamRequest & request) {
 }
 
 void DeviceImpl::Start() {
+  VLOG(2) << __func__;
 }
 
 void DeviceImpl::Stop() {
+  VLOG(2) << __func__;
 }
 
 }  // namespace mynteye_jni

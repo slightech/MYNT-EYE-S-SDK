@@ -1,1 +1,1 @@
-include ':app', ':libmynteye'
+include ':app', ':libmynteye', ':libshell'

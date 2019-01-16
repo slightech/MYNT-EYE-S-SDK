@@ -1,3 +1,5 @@
 <resources>
   <string name="app_name">mynteye</string>
+
+  <string name="open">Open</string>
 </resources>

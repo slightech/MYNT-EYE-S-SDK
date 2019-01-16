@@ -37,6 +37,7 @@ dependencies {
   annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
 
   implementation project(':libmynteye')
+  implementation project(':libshell')
 
   testImplementation 'junit:junit:4.12'
   androidTestImplementation 'androidx.test:runner:1.1.1'
