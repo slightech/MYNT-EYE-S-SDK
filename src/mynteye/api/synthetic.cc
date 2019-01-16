@@ -496,11 +496,11 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
     stream_enabled_mode_.erase(stream);
     switch (stream) {
       case Stream::LEFT_RECTIFIED: {
-        if (IsStreamEnabledSynthetic(Stream::RIGHT_RECTIFIED)) {
-          DisableStreamData(Stream::RIGHT_RECTIFIED, depth + 1);
-        }
         if (IsStreamEnabledSynthetic(Stream::DISPARITY)) {
           DisableStreamData(Stream::DISPARITY, depth + 1);
+        }
+        if (IsStreamEnabledSynthetic(Stream::RIGHT_RECTIFIED)) {
+          DisableStreamData(Stream::RIGHT_RECTIFIED, depth + 1);
         }
         if (calib_model_ ==  CalibrationModel::PINHOLE) {
           DeactivateProcessor<RectifyProcessorOCV>();
@@ -515,11 +515,11 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
         }
       } break;
       case Stream::RIGHT_RECTIFIED: {
-        if (IsStreamEnabledSynthetic(Stream::LEFT_RECTIFIED)) {
-          DisableStreamData(Stream::LEFT_RECTIFIED, depth + 1);
-        }
         if (IsStreamEnabledSynthetic(Stream::DISPARITY)) {
           DisableStreamData(Stream::DISPARITY, depth + 1);
+        }
+        if (IsStreamEnabledSynthetic(Stream::LEFT_RECTIFIED)) {
+          DisableStreamData(Stream::LEFT_RECTIFIED, depth + 1);
         }
         if (calib_model_ ==  CalibrationModel::PINHOLE) {
           DeactivateProcessor<RectifyProcessorOCV>();
@@ -534,13 +534,28 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
         }
       } break;
       case Stream::DISPARITY: {
-        if (IsStreamEnabledSynthetic(Stream::DISPARITY_NORMALIZED)) {
-          DisableStreamData(Stream::DISPARITY_NORMALIZED, depth + 1);
+        if (calib_model_ ==  CalibrationModel::PINHOLE) {
+          if (IsStreamEnabledSynthetic(Stream::DISPARITY_NORMALIZED)) {
+            DisableStreamData(Stream::DISPARITY_NORMALIZED, depth + 1);
+          }
+          if (IsStreamEnabledSynthetic(Stream::POINTS)) {
+            DisableStreamData(Stream::POINTS, depth + 1);
+          }
+          DeactivateProcessor<DisparityProcessor>();
+#ifdef WITH_CAM_MODELS
+        } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+          if (IsStreamEnabledSynthetic(Stream::DISPARITY_NORMALIZED)) {
+            DisableStreamData(Stream::DISPARITY_NORMALIZED, depth + 1);
+          }
+          if (IsStreamEnabledSynthetic(Stream::DEPTH)) {
+            DisableStreamData(Stream::DEPTH, depth + 1);
+          }
+          DeactivateProcessor<DisparityProcessor>();
+#endif
+        } else {
+          LOG(ERROR) << "Unknow calib model type in device: "
+                    << calib_model_;
         }
-        if (IsStreamEnabledSynthetic(Stream::POINTS)) {
-          DisableStreamData(Stream::POINTS, depth + 1);
-        }
-        DeactivateProcessor<DisparityProcessor>();
       } break;
       case Stream::DISPARITY_NORMALIZED: {
         DeactivateProcessor<DisparityNormalizedProcessor>();
@@ -565,7 +580,7 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
           DeactivateProcessor<DepthProcessorOCV>();
 #ifdef WITH_CAM_MODELS
         } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-          if (IsStreamEnabledSynthetic(Stream::DEPTH)) {
+          if (IsStreamEnabledSynthetic(Stream::POINTS)) {
             DisableStreamData(Stream::POINTS, depth + 1);
           }
           DeactivateProcessor<DepthProcessor>();
@@ -613,7 +628,7 @@ void Synthetic::InitProcessors() {
     rectify_processor = rectify_processor_ocv;
   }
   auto &&disparity_processor =
-      std::make_shared<DisparityProcessor>(DisparityProcessorType::BM,
+      std::make_shared<DisparityProcessor>(DisparityProcessorType::SGBM,
                                            DISPARITY_PROC_PERIOD);
   auto &&disparitynormalized_processor =
       std::make_shared<DisparityNormalizedProcessor>(

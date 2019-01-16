@@ -69,7 +69,7 @@ roslaunch mynt_eye_ros_wrapper mynteye.launch
 ```
 
 ```bash
-rosbag record -O mynteye.bag /mynteye/left/image_raw /mynteye/imu/data_raw /mynteye/temp/data_raw
+rosbag record -O mynteye.bag /mynteye/left/image_raw /mynteye/imu/data_raw /mynteye/temperature/data_raw
 ```
 
 ## Analytics data (rosbag)

@@ -17,8 +17,13 @@
 
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#ifdef WITH_BM_SOBEL_FILTER
+#include <opencv2/ximgproc/disparity_filter.hpp>
+#endif
 
 #include "mynteye/logger.h"
+
+#define WITH_BM_SOBEL_FILTER
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -62,7 +67,9 @@ DisparityProcessor::DisparityProcessor(DisparityProcessorType type,
     sgbm_matcher->setSpeckleRange(32);
     sgbm_matcher->setDisp12MaxDiff(1);
 #endif
+#ifdef WITH_BM_SOBEL_FILTER
   } else if (type_ == DisparityProcessorType::BM) {
+    int bmWinSize = 3;
 #ifdef WITH_OPENCV2
     int bmWinSize = 3;
     // StereoBM
@@ -82,7 +89,7 @@ DisparityProcessor::DisparityProcessor(DisparityProcessorType type,
     bm_matcher = cv::StereoBM::create(0, 3);
     bm_matcher->setPreFilterSize(9);
     bm_matcher->setPreFilterCap(31);
-    bm_matcher->setBlockSize(15);
+    bm_matcher->setBlockSize(bmWinSize);
     bm_matcher->setMinDisparity(0);
     bm_matcher->setNumDisparities(64);
     bm_matcher->setUniquenessRatio(15);
@@ -91,8 +98,41 @@ DisparityProcessor::DisparityProcessor(DisparityProcessorType type,
     bm_matcher->setSpeckleRange(4);
     bm_matcher->setPreFilterType(cv::StereoBM::PREFILTER_XSOBEL);
 #endif
+#endif
   } else {
-    LOG(ERROR) << "no enum DisparityProcessorType" << static_cast<int>(type);
+    LOG(ERROR) << "no enum DisparityProcessorType,use default sgbm";
+    int sgbmWinSize = 3;
+    int numberOfDisparities = 64;
+
+#ifdef WITH_OPENCV2
+    // StereoSGBM
+    //   http://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html?#stereosgbm
+    sgbm_matcher = cv::Ptr<cv::StereoSGBM>(
+        new cv::StereoSGBM(
+            0,                               // minDisparity
+            numberOfDisparities,             // numDisparities
+            sgbmWinSize,                     // SADWindowSize
+            8 * sgbmWinSize * sgbmWinSize,   // P1
+            32 * sgbmWinSize * sgbmWinSize,  // P2
+            1,                               // disp12MaxDiff
+            63,                              // preFilterCap
+            10,                              // uniquenessRatio
+            100,                             // speckleWindowSize
+            32,                              // speckleRange
+            false));                         // fullDP
+#else
+    sgbm_matcher = cv::StereoSGBM::create(0, 16, 3);
+    sgbm_matcher->setPreFilterCap(63);
+    sgbm_matcher->setBlockSize(sgbmWinSize);
+    sgbm_matcher->setP1(8 * sgbmWinSize * sgbmWinSize);
+    sgbm_matcher->setP2(32 * sgbmWinSize * sgbmWinSize);
+    sgbm_matcher->setMinDisparity(0);
+    sgbm_matcher->setNumDisparities(numberOfDisparities);
+    sgbm_matcher->setUniquenessRatio(10);
+    sgbm_matcher->setSpeckleWindowSize(100);
+    sgbm_matcher->setSpeckleRange(32);
+    sgbm_matcher->setDisp12MaxDiff(1);
+#endif
   }
 }
 
@@ -123,10 +163,15 @@ bool DisparityProcessor::OnProcess(
   // It contains disparity values scaled by 16. So, to get the floating-point
   // disparity map,
   // you need to divide each disp element by 16.
-  if (type_ == SGBM) {
+  if (type_ == DisparityProcessorType::SGBM) {
     (*sgbm_matcher)(input->first, input->second, disparity);
-  } else if (type_ == BM) {
-    (*bm_matcher)(input->first, input->second, disparity);
+#ifdef WITH_BM_SOBEL_FILTER
+  } else if (type_ == DisparityProcessorType::BM) {
+    cv::Mat tmp1, tmp2;
+    cv::cvtColor(input->first, tmp1, CV_RGB2GRAY);
+    cv::cvtColor(input->second, tmp2, CV_RGB2GRAY);
+    (*bm_matcher)(tmp1, tmp2, disparity);
+#endif
   }
 #else
   // compute()
@@ -138,12 +183,21 @@ bool DisparityProcessor::OnProcess(
   // whereas other algorithms output 32-bit floating-point disparity map.
   if (type_ == DisparityProcessorType::SGBM) {
     sgbm_matcher->compute(input->first, input->second, disparity);
+#ifdef WITH_BM_SOBEL_FILTER
   } else if (type_ == DisparityProcessorType::BM) {
-    CvSize size = input->first.size();
     cv::Mat tmp1, tmp2;
-    cv::cvtColor(input->first, tmp1, CV_RGB2GRAY);
-    cv::cvtColor(input->second, tmp2, CV_RGB2GRAY);
+    if (input->first.channels() == 1) {
+      // s1030
+    } else if (input->first.channels() == 3) {
+      // s210
+      cv::cvtColor(input->first, tmp1, CV_RGB2GRAY);
+      cv::cvtColor(input->second, tmp2, CV_RGB2GRAY);
+    }
     bm_matcher->compute(tmp1, tmp2, disparity);
+#endif
+  } else {
+    // default
+    sgbm_matcher->compute(input->first, input->second, disparity);
   }
 #endif
   disparity.convertTo(output->value, CV_32F, 1./16, 1);

@@ -51,7 +51,7 @@ bool DepthProcessor::OnProcess(
   ObjMat *output = Object::Cast<ObjMat>(out);
   int rows = input->value.rows;
   int cols = input->value.cols;
-  std::cout << calib_infos_->T_mul_f << std::endl;
+  // std::cout << calib_infos_->T_mul_f << std::endl;
   // 0.0793434
   cv::Mat depth_mat = cv::Mat::zeros(rows, cols, CV_16U);
   for (int i = 0; i < rows; i++) {

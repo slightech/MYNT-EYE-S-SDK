@@ -15,7 +15,6 @@
 # limitations under the License.
 
 # pylint: disable=missing-docstring
-
 from __future__ import print_function
 
 import os
@@ -27,7 +26,6 @@ sys.path.append(os.path.join(TOOLBOX_DIR, 'internal'))
 # pylint: disable=import-error,wrong-import-position
 from data import ROSBag, MYNTEYE, What
 
-
 ANGLE_DEGREES = 'd'
 ANGLE_RADIANS = 'r'
 ANGLE_UNITS = (ANGLE_DEGREES, ANGLE_RADIANS)
@@ -36,6 +34,11 @@ BIN_IMG_NAME = 'stamp_analytics_img.bin'
 BIN_IMU_NAME = 'stamp_analytics_imu.bin'
 
 RESULT_FIGURE = 'stamp_analytics.png'
+
+
+IMU_ALL = 0
+IMU_ACCEL = 1
+IMU_GYRO = 2
 
 
 class BinDataset(object):
@@ -147,9 +150,9 @@ class BinDataset(object):
     imgs_t_diff = np.diff(imgs['t'])
     # imus_t_diff = np.diff(imus['t'])
 
-    accel = imus[imus['flag'] == 1]
+    accel = imus[(imus['flag'] == IMU_ALL) | (imus['flag'] == IMU_ACCEL)]
     accel_t_diff = np.diff(accel['t'])
-    gyro = imus[imus['flag'] == 2]
+    gyro = imus[(imus['flag'] == IMU_ALL) | (imus['flag'] == IMU_GYRO)]
     gyro_t_diff = np.diff(gyro['t'])
 
     print('\ncount')

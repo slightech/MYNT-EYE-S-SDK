@@ -16,7 +16,6 @@
 #pragma once
 
 #include <string>
-#include <opencv2/ximgproc/disparity_filter.hpp>
 #include "mynteye/api/processor.h"
 
 namespace cv {
@@ -28,9 +27,9 @@ class StereoBM;
 enum class DisparityProcessorType : std::uint8_t {
   /** bm */
   SGBM = 0,
-  /** Equidistant: KANNALA_BRANDT */
+  /** sgbm */
   BM = 1,
-  /** Unknow */
+  /** unknow */
   UNKNOW
 };
 

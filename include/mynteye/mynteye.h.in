@@ -71,6 +71,7 @@ MYNTEYE_END_NAMESPACE
 #cmakedefine WITH_API
 #cmakedefine WITH_DEVICE_INFO_REQUIRED
 #cmakedefine WITH_CAM_MODELS
+#cmakedefine WITH_BM_SOBEL_FILTER
 
 #cmakedefine WITH_OPENCV
 #cmakedefine WITH_OPENCV2

@@ -25,9 +25,6 @@
 #include "mynteye/device/device.h"
 #include <camodocal/camera_models/EquidistantCamera.h>
 #include <opencv2/core/eigen.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/program_options.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>

@@ -72,14 +72,20 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                   << (right_count_ / compute_time(time_end, right_time_beg_));
       }
       if (imu_time_beg_ != -1) {
-        if (publish_imu_by_sync_) {
-          LOG(INFO) << "imu_sync_count: " << imu_sync_count_ << ", hz: "
-                    << (imu_sync_count_ /
-                    compute_time(time_end, imu_time_beg_));
-        } else {
-          LOG(INFO) << "Imu count: " << imu_count_ << ", hz: "
-                    << (imu_count_ /
-                    compute_time(time_end, imu_time_beg_));
+          if (model_ == Model::STANDARD) {
+            LOG(INFO) << "Imu count: " << imu_count_ << ", hz: "
+                      << (imu_count_ /
+                      compute_time(time_end, imu_time_beg_));
+          } else {
+          if (publish_imu_by_sync_) {
+            LOG(INFO) << "imu_sync_count: " << imu_sync_count_ << ", hz: "
+                      << (imu_sync_count_ /
+                      compute_time(time_end, imu_time_beg_));
+          } else {
+            LOG(INFO) << "Imu count: " << imu_count_ << ", hz: "
+                      << (imu_count_ /
+                      compute_time(time_end, imu_time_beg_));
+          }
         }
       }
 
@@ -412,7 +418,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       } break;
       case Stream::RIGHT_RECTIFIED: {
         if (is_published_[Stream::LEFT_RECTIFIED]) {
-          SetIsPublished(Stream::RIGHT_RECTIFIED);
+          SetIsPublished(Stream::LEFT_RECTIFIED);
         }
         if (is_published_[Stream::DISPARITY]) {
           SetIsPublished(Stream::DISPARITY);
@@ -662,9 +668,11 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     header.seq = seq;
     header.stamp = stamp;
     header.frame_id = frame_ids_[stream];
+    pthread_mutex_lock(&mutex_data_);
     cv::Mat mono;
     cv::cvtColor(data.frame, mono, CV_RGB2GRAY);
     auto &&msg = cv_bridge::CvImage(header, enc::MONO8, mono).toImageMsg();
+    pthread_mutex_unlock(&mutex_data_);
     auto &&info = getCameraInfo(stream);
     info->header.stamp = msg->header.stamp;
     mono_publishers_[stream].publish(msg, info);
@@ -924,18 +932,71 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     computeRectTransforms();
   }
 
+  std::shared_ptr<IntrinsicsBase> getDefaultIntrinsics() {
+    auto res = std::make_shared<IntrinsicsPinhole>();
+    res->width = 640;
+    res->height = 400;
+    res->model = 0;
+    res->fx = 3.6220059643202876e+02;
+    res->fy = 3.6350065250745848e+02;
+    res->cx = 4.0658699068023441e+02;
+    res->cy = 2.3435161110061483e+02;
+    double codffs[5] = {
+      -2.5034765682756088e-01,
+      5.0579399202897619e-02,
+      -7.0536676161976066e-04,
+      -8.5255451307033846e-03,
+      0.
+    };
+    for (unsigned int i = 0; i < 5; i++) {
+      res->coeffs[i] = codffs[i];
+    }
+    return res;
+  }
+
+  std::shared_ptr<Extrinsics> getDefaultExtrinsics() {
+    auto res = std::make_shared<Extrinsics>();
+    double rotation[9] = {
+      9.9867908939669447e-01,  -6.3445566137485428e-03, 5.0988459509619687e-02,
+      5.9890316389333252e-03,  9.9995670037792639e-01,  7.1224201868366971e-03,
+      -5.1031440326695092e-02, -6.8076406092671274e-03, 9.9867384471984544e-01
+    };
+    double translation[3] = {-1.2002489764113250e+02, -1.1782637409050747e+00,
+        -5.2058205159996538e+00};
+    for (unsigned int i = 0; i < 3; i++) {
+      for (unsigned int j = 0; j < 3; j++) {
+        res->rotation[i][j] = rotation[i*3 + j];
+      }
+    }
+    for (unsigned int i = 0; i < 3; i++) {
+      res->translation[i] = translation[i];
+    }
+    return res;
+  }
+
+
   void computeRectTransforms() {
     ROS_ASSERT(api_);
     auto in_left_base = api_->GetIntrinsicsBase(Stream::LEFT);
     auto in_right_base = api_->GetIntrinsicsBase(Stream::RIGHT);
-    if (in_left_base->calib_model() != CalibrationModel::PINHOLE ||
-        in_right_base->calib_model() != CalibrationModel::PINHOLE) {
-      return;
+    is_intrinsics_enable_ = in_left_base && in_right_base;
+    if (is_intrinsics_enable_) {
+      if (in_left_base->calib_model() != CalibrationModel::PINHOLE ||
+          in_right_base->calib_model() != CalibrationModel::PINHOLE) {
+        return;
+      }
+    } else {
+      in_left_base = getDefaultIntrinsics();
+      in_right_base = getDefaultIntrinsics();
     }
+
     auto in_left = *std::dynamic_pointer_cast<IntrinsicsPinhole>(in_left_base);
     auto in_right = *std::dynamic_pointer_cast<IntrinsicsPinhole>(
         in_right_base);
     auto ex_right_to_left = api_->GetExtrinsics(Stream::RIGHT, Stream::LEFT);
+    if (!is_intrinsics_enable_) {
+      ex_right_to_left = *(getDefaultExtrinsics());
+    }
 
     cv::Size size{in_left.width, in_left.height};
     cv::Mat M1 =
@@ -975,10 +1036,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     camera_info_ptrs_[stream] = sensor_msgs::CameraInfoPtr(camera_info);
 
     std::shared_ptr<IntrinsicsBase> in_base;
-    if (stream == Stream::RIGHT || stream == Stream::RIGHT_RECTIFIED) {
-      in_base = api_->GetIntrinsicsBase(Stream::RIGHT);
+    if (is_intrinsics_enable_) {
+      if (stream == Stream::RIGHT || stream == Stream::RIGHT_RECTIFIED) {
+        in_base = api_->GetIntrinsicsBase(Stream::RIGHT);
+      } else {
+        in_base = api_->GetIntrinsicsBase(Stream::LEFT);
+      }
     } else {
-      in_base = api_->GetIntrinsicsBase(Stream::LEFT);
+      in_base = getDefaultIntrinsics();
     }
 
     camera_info->header.frame_id = frame_ids_[stream];
@@ -1270,11 +1335,12 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   std::size_t imu_sync_count_ = 0;
   std::shared_ptr<ImuData> imu_accel_;
   std::shared_ptr<ImuData> imu_gyro_;
-  bool publish_imu_by_sync_ = false;
+  bool publish_imu_by_sync_ = true;
   std::map<Stream, bool> is_published_;
   bool is_motion_published_;
   bool is_started_;
   int frame_rate_;
+  bool is_intrinsics_enable_;
 };
 
 MYNTEYE_END_NAMESPACE
