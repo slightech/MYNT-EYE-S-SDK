@@ -37,7 +37,7 @@
   <td id="projectlogo"><img alt="Logo" src="icon.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">MYNT EYE S SDK
-   &#160;<span id="projectnumber">2.2.4</span>
+   &#160;<span id="projectnumber">2.3.0</span>
    </div>
    <div id="projectbrief">http://www.myntai.com/mynteye/standard</div>
   </td>
@@ -117,6 +117,9 @@ $(document).ready(function(){initNavTree('functions.html','');});
 
 
 <h3><a id="index_c"></a>- c -</h3><ul>
+<li>calib_model()
+: <a class="el" href="structmynteye_1_1_intrinsics_base.html#a985b9aec917d5b773170c563cb9d9ffa">mynteye::IntrinsicsBase</a>
+</li>
 <li>Cast()
 : <a class="el" href="structmynteye_1_1_object.html#aa20aac9612c8147cd6b4ac5276b7a887">mynteye::Object</a>
 </li>
@@ -124,21 +127,22 @@ $(document).ready(function(){initNavTree('functions.html','');});
 : <a class="el" href="classmynteye_1_1device_1_1_frame.html#acc9c76f6ea4fc269efc00502805a63de">mynteye::device::Frame</a>
 </li>
 <li>coeffs
-: <a class="el" href="structmynteye_1_1_intrinsics.html#a89a7b915e5653f75e28231f9500fa75f">mynteye::Intrinsics</a>
+: <a class="el" href="structmynteye_1_1_intrinsics_equidistant.html#a1751857c17bb7d9f48d9c33c9fadc27e">mynteye::IntrinsicsEquidistant</a>
+, <a class="el" href="structmynteye_1_1_intrinsics_pinhole.html#ad0bb5fece8b6abf2604fc6fbbb07db6f">mynteye::IntrinsicsPinhole</a>
 </li>
 <li>ConfigStreamRequest()
 : <a class="el" href="classmynteye_1_1_a_p_i.html#ae5dfc550818235e9add90b19d484bdde">mynteye::API</a>
 , <a class="el" href="classmynteye_1_1_device.html#afb3612430320c1460bfc01b4a81c7da2">mynteye::Device</a>
 </li>
 <li>Create()
-: <a class="el" href="classmynteye_1_1_a_p_i.html#a7e70df58b46483307f9ab45cfc5f7c01">mynteye::API</a>
+: <a class="el" href="classmynteye_1_1_a_p_i.html#a976a0ef3efa64eb0f496fe608c34103e">mynteye::API</a>
 , <a class="el" href="classmynteye_1_1_device.html#ab97c5f57f2dfa795cdbc5dcfb5f14edc">mynteye::Device</a>
 </li>
 <li>cx
-: <a class="el" href="structmynteye_1_1_intrinsics.html#a3ffda656667dfddc5f31be9e808f053e">mynteye::Intrinsics</a>
+: <a class="el" href="structmynteye_1_1_intrinsics_pinhole.html#ae699428897b20d91dab1c658bb25798e">mynteye::IntrinsicsPinhole</a>
 </li>
 <li>cy
-: <a class="el" href="structmynteye_1_1_intrinsics.html#aa0ba21a8258a33bfde5236e341c46366">mynteye::Intrinsics</a>
+: <a class="el" href="structmynteye_1_1_intrinsics_pinhole.html#acf19a82262c10de0fcf33f586e5fb0fb">mynteye::IntrinsicsPinhole</a>
 </li>
 </ul>
 
@@ -146,6 +150,7 @@ $(document).ready(function(){initNavTree('functions.html','');});
 <h3><a id="index_d"></a>- d -</h3><ul>
 <li>data()
 : <a class="el" href="classmynteye_1_1device_1_1_frame.html#a696374dacdeb662c0d2574aaa6873e32">mynteye::device::Frame</a>
+, <a class="el" href="structmynteye_1_1_obj_mat.html#ab3910912184c42ce96273d2a82da2fae">mynteye::ObjMat</a>
 </li>
 <li>def
 : <a class="el" href="structmynteye_1_1_option_info.html#ae0c70fc14cc3d8e311fe49e4dc15e28b">mynteye::OptionInfo</a>
@@ -162,7 +167,7 @@ $(document).ready(function(){initNavTree('functions.html','');});
 <h3><a id="index_e"></a>- e -</h3><ul>
 <li>EnableMotionDatas()
 : <a class="el" href="classmynteye_1_1_a_p_i.html#ab7b79e7de29c24686881dee8a4e88e99">mynteye::API</a>
-, <a class="el" href="classmynteye_1_1_device.html#ad9f5e74dbead19028efa308f94b8350f">mynteye::Device</a>
+, <a class="el" href="classmynteye_1_1_device.html#a92d0aad8cb393d5fc3dc924de3250aa7">mynteye::Device</a>
 </li>
 <li>EnablePlugin()
 : <a class="el" href="classmynteye_1_1_a_p_i.html#a719925512f3acbdb7ca6bac29fa76fcf">mynteye::API</a>
@@ -180,6 +185,15 @@ $(document).ready(function(){initNavTree('functions.html','');});
 <li>first
 : <a class="el" href="structmynteye_1_1_obj_mat2.html#a53454d90a4f43c5ca1c0da1c6cdc5b7c">mynteye::ObjMat2</a>
 </li>
+<li>first_data
+: <a class="el" href="structmynteye_1_1_obj_mat2.html#aba74d1e07990686cd8b22a8f429242be">mynteye::ObjMat2</a>
+</li>
+<li>first_id
+: <a class="el" href="structmynteye_1_1_obj_mat2.html#a354ea9d6317bb4c4cd09c368ed996275">mynteye::ObjMat2</a>
+</li>
+<li>flag
+: <a class="el" href="structmynteye_1_1_imu_data.html#a6d65edc5377091f24b6fe70f60af3f78">mynteye::ImuData</a>
+</li>
 <li>format()
 : <a class="el" href="classmynteye_1_1device_1_1_frame.html#a0289fea1db18746e57f2b6b279a61b2c">mynteye::device::Frame</a>
 , <a class="el" href="structmynteye_1_1_stream_request.html#ac51046ab5d9f30fef02302f5285e8f42">mynteye::StreamRequest</a>
@@ -191,23 +205,25 @@ $(document).ready(function(){initNavTree('functions.html','');});
 : <a class="el" href="structmynteye_1_1api_1_1_stream_data.html#aca817c9d680be84729a09b1975d6fa0c">mynteye::api::StreamData</a>
 </li>
 <li>Frame()
-: <a class="el" href="classmynteye_1_1device_1_1_frame.html#af2200786e674d4cbba106bc9cfd4e4f9">mynteye::device::Frame</a>
+: <a class="el" href="classmynteye_1_1device_1_1_frame.html#a01db2013fb00320792c7e45698083bcc">mynteye::device::Frame</a>
 </li>
 <li>frame
 : <a class="el" href="structmynteye_1_1device_1_1_stream_data.html#a3e905734118732c2beb81fee75b50898">mynteye::device::StreamData</a>
 </li>
 <li>frame_id
-: <a class="el" href="structmynteye_1_1_img_data.html#ab340a11d8f8ca6cae89aa26d1271b383">mynteye::ImgData</a>
-, <a class="el" href="structmynteye_1_1_imu_data.html#a614187bc8ea73ee38610d8875c656a23">mynteye::ImuData</a>
+: <a class="el" href="structmynteye_1_1api_1_1_stream_data.html#a586e9b8d4c4b1a26158a5ae2297cb7dd">mynteye::api::StreamData</a>
+, <a class="el" href="structmynteye_1_1device_1_1_stream_data.html#a96b17b2a90ec3b33b6cfc34d8e6aa53d">mynteye::device::StreamData</a>
+, <a class="el" href="structmynteye_1_1_img_data.html#ab340a11d8f8ca6cae89aa26d1271b383">mynteye::ImgData</a>
+, <a class="el" href="structmynteye_1_1_imu_data.html#af6629ab208d83b1856142e44bd8fe476">mynteye::ImuData</a>
 </li>
 <li>frame_raw
 : <a class="el" href="structmynteye_1_1api_1_1_stream_data.html#ad1f40618a599c30cb18575a24d57e79d">mynteye::api::StreamData</a>
 </li>
 <li>fx
-: <a class="el" href="structmynteye_1_1_intrinsics.html#a066d8b710a3bf055f0bad4a3a5808efb">mynteye::Intrinsics</a>
+: <a class="el" href="structmynteye_1_1_intrinsics_pinhole.html#a22e651737b2b3e8e79d7aebbc3069b77">mynteye::IntrinsicsPinhole</a>
 </li>
 <li>fy
-: <a class="el" href="structmynteye_1_1_intrinsics.html#a1921a49eb15c3c519ed5cb48fbea0c36">mynteye::Intrinsics</a>
+: <a class="el" href="structmynteye_1_1_intrinsics_pinhole.html#acaeadc71f19f7cadab58b10b20be40d4">mynteye::IntrinsicsPinhole</a>
 </li>
 </ul>
 
@@ -218,12 +234,15 @@ $(document).ready(function(){initNavTree('functions.html','');});
 , <a class="el" href="classmynteye_1_1_device.html#a48bae469e7c334a7e3e0e7414adad3e0">mynteye::Device</a>
 </li>
 <li>GetInfo()
-: <a class="el" href="classmynteye_1_1_a_p_i.html#a766028e7cc0cb10f161be38fad94b25f">mynteye::API</a>
+: <a class="el" href="classmynteye_1_1_a_p_i.html#ae1ac780b31a33a15aa9d9d38594b3970">mynteye::API</a>
 , <a class="el" href="classmynteye_1_1_device.html#af139f1fb5344b01672db4024b563829c">mynteye::Device</a>
 </li>
 <li>GetIntrinsics()
-: <a class="el" href="classmynteye_1_1_a_p_i.html#acd281829efb0fcf58eb9fc819eda3cb1">mynteye::API</a>
-, <a class="el" href="classmynteye_1_1_device.html#a62195499de6779cad5bc790151d920d5">mynteye::Device</a>
+: <a class="el" href="classmynteye_1_1_a_p_i.html#adb0846963ed694745d4dc4a3f3c3a5a0">mynteye::API</a>
+, <a class="el" href="classmynteye_1_1_device.html#ab0675c3acd689e3d18d485ddb62b4b0d">mynteye::Device</a>
+</li>
+<li>GetIntrinsicsBase()
+: <a class="el" href="classmynteye_1_1_a_p_i.html#a55ae8edffe9caf737195ef486b9364c4">mynteye::API</a>
 </li>
 <li>GetLatestStreamData()
 : <a class="el" href="classmynteye_1_1_device.html#a9a397115352b5c7350ca5ee6a29c844f">mynteye::Device</a>
@@ -254,10 +273,15 @@ $(document).ready(function(){initNavTree('functions.html','');});
 </li>
 <li>GetStreamData()
 : <a class="el" href="classmynteye_1_1_a_p_i.html#a49a4447f9dbcb85f3aef0a013174f362">mynteye::API</a>
+, <a class="el" href="classmynteye_1_1_device.html#a720fbc70a2ddb55aa29bbca3d5057157">mynteye::Device</a>
 </li>
 <li>GetStreamDatas()
 : <a class="el" href="classmynteye_1_1_a_p_i.html#a81f6b26a1f3e136247b6088ce0d61b90">mynteye::API</a>
 , <a class="el" href="classmynteye_1_1_device.html#ac1ce8fd9e9d164a7a547eac8d266d382">mynteye::Device</a>
+</li>
+<li>GetStreamRequest()
+: <a class="el" href="classmynteye_1_1_a_p_i.html#a3205feafedf151ed79ee146beed3be07">mynteye::API</a>
+, <a class="el" href="classmynteye_1_1_device.html#ac41dc4574e487d37eae7f3d8dfaaed71">mynteye::Device</a>
 </li>
 <li>GetStreamRequests()
 : <a class="el" href="classmynteye_1_1_a_p_i.html#a7b45104aa50cf10819993ccb875620ae">mynteye::API</a>
@@ -281,13 +305,17 @@ $(document).ready(function(){initNavTree('functions.html','');});
 </li>
 <li>height()
 : <a class="el" href="classmynteye_1_1device_1_1_frame.html#ae9eb0cb45c4d138448d5dfc5711233b1">mynteye::device::Frame</a>
-, <a class="el" href="structmynteye_1_1_intrinsics.html#a98118fc5deee328b4bd46cbd5b4cba17">mynteye::Intrinsics</a>
+, <a class="el" href="structmynteye_1_1_intrinsics_base.html#a453a0fc4819c48f795cc5deb484d91b1">mynteye::IntrinsicsBase</a>
+, <a class="el" href="structmynteye_1_1_resolution.html#aa79487f62a28616fe034d9751f089475">mynteye::Resolution</a>
 , <a class="el" href="structmynteye_1_1_stream_request.html#afb0e8833153eaa43febaa375db2909df">mynteye::StreamRequest</a>
 </li>
 </ul>
 
 
 <h3><a id="index_i"></a>- i -</h3><ul>
+<li>id
+: <a class="el" href="structmynteye_1_1_obj_mat.html#ac783289d52dfc2e1a7add0e7a09e4332">mynteye::ObjMat</a>
+</li>
 <li>img
 : <a class="el" href="structmynteye_1_1api_1_1_stream_data.html#a3aa852cfa84d5d2ce9db4826dbe49429">mynteye::api::StreamData</a>
 , <a class="el" href="structmynteye_1_1device_1_1_stream_data.html#a32c9ade80d5de7b5b9d25722962e7a05">mynteye::device::StreamData</a>
@@ -318,7 +346,7 @@ $(document).ready(function(){initNavTree('functions.html','');});
 : <a class="el" href="structmynteye_1_1_option_info.html#aea518a87d614129be18337807eda63fc">mynteye::OptionInfo</a>
 </li>
 <li>model
-: <a class="el" href="structmynteye_1_1_intrinsics.html#a4bf521372d4be67ae75a28dd99c7fa5e">mynteye::Intrinsics</a>
+: <a class="el" href="structmynteye_1_1_intrinsics_pinhole.html#a27aca5fef342f08676d48260a4884ec8">mynteye::IntrinsicsPinhole</a>
 </li>
 <li>motion_callback_t
 : <a class="el" href="classmynteye_1_1_a_p_i.html#ac8f9a40e30e6b01662d1170eb5bd4735">mynteye::API</a>
@@ -374,11 +402,20 @@ $(document).ready(function(){initNavTree('functions.html','');});
 <li>second
 : <a class="el" href="structmynteye_1_1_obj_mat2.html#aa4cc5f3e82a6015973dd62a8eb83d30f">mynteye::ObjMat2</a>
 </li>
+<li>second_data
+: <a class="el" href="structmynteye_1_1_obj_mat2.html#ac05be738724cc954fd43144398d04e8f">mynteye::ObjMat2</a>
+</li>
+<li>second_id
+: <a class="el" href="structmynteye_1_1_obj_mat2.html#ad2f16b2d3f0d3e941fcbdec51f4c0a4f">mynteye::ObjMat2</a>
+</li>
+<li>SelectStreamRequest()
+: <a class="el" href="classmynteye_1_1_a_p_i.html#a9e893cc3a7bf42792ffd74cf3f462380">mynteye::API</a>
+</li>
 <li>SetExtrinsics()
 : <a class="el" href="classmynteye_1_1_device.html#a2de0b3ed05490f678d8b8066d87ad4d3">mynteye::Device</a>
 </li>
 <li>SetIntrinsics()
-: <a class="el" href="classmynteye_1_1_device.html#a13cd24c47c8242d92b25585eea5ac2d1">mynteye::Device</a>
+: <a class="el" href="classmynteye_1_1_device.html#a95aaa0ae1d9f2e265896f569f60e090d">mynteye::Device</a>
 </li>
 <li>SetMotionCallback()
 : <a class="el" href="classmynteye_1_1_a_p_i.html#af20017e9e1e0dd1008c0571dae43bf27">mynteye::API</a>
@@ -425,8 +462,8 @@ $(document).ready(function(){initNavTree('functions.html','');});
 : <a class="el" href="structmynteye_1_1_imu_data.html#a47f263f2268c4fa2ae3a91a5ba053c34">mynteye::ImuData</a>
 </li>
 <li>timestamp
-: <a class="el" href="structmynteye_1_1_img_data.html#a890d42339d531c2b13114273aef20be5">mynteye::ImgData</a>
-, <a class="el" href="structmynteye_1_1_imu_data.html#a8305245493f284e9bb4ab6c653650641">mynteye::ImuData</a>
+: <a class="el" href="structmynteye_1_1_img_data.html#a997b1582ad2ac1b2c84a8bd9f90d680a">mynteye::ImgData</a>
+, <a class="el" href="structmynteye_1_1_imu_data.html#abdd1b91f9e1a07e8d558b7404260bb7a">mynteye::ImuData</a>
 </li>
 <li>translation
 : <a class="el" href="structmynteye_1_1_extrinsics.html#a36093cc06059d4f59663b9e7006c79ff">mynteye::Extrinsics</a>
@@ -448,7 +485,8 @@ $(document).ready(function(){initNavTree('functions.html','');});
 </li>
 <li>width()
 : <a class="el" href="classmynteye_1_1device_1_1_frame.html#ade1bb1caeb4c1474afb844385c3f55bf">mynteye::device::Frame</a>
-, <a class="el" href="structmynteye_1_1_intrinsics.html#a20add3992097d22c9088ffce1a00f470">mynteye::Intrinsics</a>
+, <a class="el" href="structmynteye_1_1_intrinsics_base.html#ae8320b152f27425813caef54f26c4f1f">mynteye::IntrinsicsBase</a>
+, <a class="el" href="structmynteye_1_1_resolution.html#aec1fcd5aa468ea9b008a64c7a23dcaf2">mynteye::Resolution</a>
 , <a class="el" href="structmynteye_1_1_stream_request.html#a027c3dee1f9cc4c2588e0ed6c1e2fd72">mynteye::StreamRequest</a>
 </li>
 </ul>

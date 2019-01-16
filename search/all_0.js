@@ -1,6 +1,8 @@
 var searchData=
 [
   ['accel',['accel',['../structmynteye_1_1_motion_intrinsics.html#adf9bf1b2ece41726f105086ff92d796c',1,'mynteye::MotionIntrinsics::accel()'],['../structmynteye_1_1_imu_data.html#a7513d9784133b67199dd26db6ac0b091',1,'mynteye::ImuData::accel()']]],
+  ['accelerometer_5flow_5fpass_5ffilter',['ACCELEROMETER_LOW_PASS_FILTER',['../group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6ad5a7cdda802b872b880e4044b4896108',1,'mynteye']]],
+  ['accelerometer_5frange',['ACCELEROMETER_RANGE',['../group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6aae48cd1fe06bc2dda361dbb5d1f47511',1,'mynteye']]],
   ['addons',['AddOns',['../group__enumerations.html#gac5354b730c4500e6371a8b7048185a71',1,'mynteye']]],
   ['all',['ALL',['../group__enumerations.html#gga2d9ba6438b1f9ed91cff3587b491d0b3a5fb1f955b45e38e31789286a1790398d',1,'mynteye']]],
   ['api',['API',['../classmynteye_1_1_a_p_i.html',1,'mynteye']]],

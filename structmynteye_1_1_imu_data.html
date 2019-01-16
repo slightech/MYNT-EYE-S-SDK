@@ -37,7 +37,7 @@
   <td id="projectlogo"><img alt="Logo" src="icon.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">MYNT EYE S SDK
-   &#160;<span id="projectnumber">2.2.4</span>
+   &#160;<span id="projectnumber">2.3.0</span>
    </div>
    <div id="projectbrief">http://www.myntai.com/mynteye/standard</div>
   </td>
@@ -112,14 +112,17 @@ $(document).ready(function(){initNavTree('structmynteye_1_1_imu_data.html','');}
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a614187bc8ea73ee38610d8875c656a23"><td class="memItemLeft" align="right" valign="top"><a id="a614187bc8ea73ee38610d8875c656a23"></a>
-std::uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmynteye_1_1_imu_data.html#a614187bc8ea73ee38610d8875c656a23">frame_id</a></td></tr>
-<tr class="memdesc:a614187bc8ea73ee38610d8875c656a23"><td class="mdescLeft">&#160;</td><td class="mdescRight">Image frame id. <br /></td></tr>
-<tr class="separator:a614187bc8ea73ee38610d8875c656a23"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8305245493f284e9bb4ab6c653650641"><td class="memItemLeft" align="right" valign="top"><a id="a8305245493f284e9bb4ab6c653650641"></a>
-std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmynteye_1_1_imu_data.html#a8305245493f284e9bb4ab6c653650641">timestamp</a></td></tr>
-<tr class="memdesc:a8305245493f284e9bb4ab6c653650641"><td class="mdescLeft">&#160;</td><td class="mdescRight">IMU timestamp in 0.01ms. <br /></td></tr>
-<tr class="separator:a8305245493f284e9bb4ab6c653650641"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6629ab208d83b1856142e44bd8fe476"><td class="memItemLeft" align="right" valign="top"><a id="af6629ab208d83b1856142e44bd8fe476"></a>
+std::uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmynteye_1_1_imu_data.html#af6629ab208d83b1856142e44bd8fe476">frame_id</a></td></tr>
+<tr class="memdesc:af6629ab208d83b1856142e44bd8fe476"><td class="mdescLeft">&#160;</td><td class="mdescRight">IMU frame id. <br /></td></tr>
+<tr class="separator:af6629ab208d83b1856142e44bd8fe476"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d65edc5377091f24b6fe70f60af3f78"><td class="memItemLeft" align="right" valign="top">std::uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmynteye_1_1_imu_data.html#a6d65edc5377091f24b6fe70f60af3f78">flag</a></td></tr>
+<tr class="memdesc:a6d65edc5377091f24b6fe70f60af3f78"><td class="mdescLeft">&#160;</td><td class="mdescRight">IMU accel or gyro flag.  <a href="#a6d65edc5377091f24b6fe70f60af3f78">More...</a><br /></td></tr>
+<tr class="separator:a6d65edc5377091f24b6fe70f60af3f78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abdd1b91f9e1a07e8d558b7404260bb7a"><td class="memItemLeft" align="right" valign="top"><a id="abdd1b91f9e1a07e8d558b7404260bb7a"></a>
+std::uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmynteye_1_1_imu_data.html#abdd1b91f9e1a07e8d558b7404260bb7a">timestamp</a></td></tr>
+<tr class="memdesc:abdd1b91f9e1a07e8d558b7404260bb7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">IMU timestamp in 1us. <br /></td></tr>
+<tr class="separator:abdd1b91f9e1a07e8d558b7404260bb7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7513d9784133b67199dd26db6ac0b091"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmynteye_1_1_imu_data.html#a7513d9784133b67199dd26db6ac0b091">accel</a> [3]</td></tr>
 <tr class="memdesc:a7513d9784133b67199dd26db6ac0b091"><td class="mdescLeft">&#160;</td><td class="mdescRight">IMU accelerometer data for 3-axis: X, Y, Z.  <a href="#a7513d9784133b67199dd26db6ac0b091">More...</a><br /></td></tr>
 <tr class="separator:a7513d9784133b67199dd26db6ac0b091"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -147,6 +150,23 @@ double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 </div><div class="memdoc">
 
 <p>IMU accelerometer data for 3-axis: X, Y, Z. </p>
+
+</div>
+</div>
+<a id="a6d65edc5377091f24b6fe70f60af3f78"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d65edc5377091f24b6fe70f60af3f78">&#9670;&nbsp;</a></span>flag</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::uint8_t mynteye::ImuData::flag</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>IMU accel or gyro flag. </p>
+<p>0: accel and gyro are both valid 1: accel is valid 2: gyro is valid </p>
 
 </div>
 </div>

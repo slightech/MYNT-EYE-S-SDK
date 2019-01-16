@@ -2,6 +2,7 @@ var group__datatypes =
 [
     [ "StreamData", "structmynteye_1_1api_1_1_stream_data.html", [
       [ "frame", "structmynteye_1_1api_1_1_stream_data.html#aca817c9d680be84729a09b1975d6fa0c", null ],
+      [ "frame_id", "structmynteye_1_1api_1_1_stream_data.html#a586e9b8d4c4b1a26158a5ae2297cb7dd", null ],
       [ "frame_raw", "structmynteye_1_1api_1_1_stream_data.html#ad1f40618a599c30cb18575a24d57e79d", null ],
       [ "img", "structmynteye_1_1api_1_1_stream_data.html#a3aa852cfa84d5d2ce9db4826dbe49429", null ]
     ] ],
@@ -21,22 +22,25 @@ var group__datatypes =
     ] ],
     [ "StreamData", "structmynteye_1_1device_1_1_stream_data.html", [
       [ "frame", "structmynteye_1_1device_1_1_stream_data.html#a3e905734118732c2beb81fee75b50898", null ],
+      [ "frame_id", "structmynteye_1_1device_1_1_stream_data.html#a96b17b2a90ec3b33b6cfc34d8e6aa53d", null ],
       [ "img", "structmynteye_1_1device_1_1_stream_data.html#a32c9ade80d5de7b5b9d25722962e7a05", null ]
     ] ],
     [ "MotionData", "structmynteye_1_1device_1_1_motion_data.html", [
       [ "imu", "structmynteye_1_1device_1_1_motion_data.html#a551819c9d38e3d2ec2eb8e1febf1d18c", null ]
     ] ],
+    [ "DeviceInfo", "structmynteye_1_1_device_info.html", null ],
     [ "ImgData", "structmynteye_1_1_img_data.html", [
       [ "exposure_time", "structmynteye_1_1_img_data.html#ad919e6094d3c21d1f49d85b13c450d62", null ],
       [ "frame_id", "structmynteye_1_1_img_data.html#ab340a11d8f8ca6cae89aa26d1271b383", null ],
-      [ "timestamp", "structmynteye_1_1_img_data.html#a890d42339d531c2b13114273aef20be5", null ]
+      [ "timestamp", "structmynteye_1_1_img_data.html#a997b1582ad2ac1b2c84a8bd9f90d680a", null ]
     ] ],
     [ "ImuData", "structmynteye_1_1_imu_data.html", [
       [ "accel", "structmynteye_1_1_imu_data.html#a7513d9784133b67199dd26db6ac0b091", null ],
-      [ "frame_id", "structmynteye_1_1_imu_data.html#a614187bc8ea73ee38610d8875c656a23", null ],
+      [ "flag", "structmynteye_1_1_imu_data.html#a6d65edc5377091f24b6fe70f60af3f78", null ],
+      [ "frame_id", "structmynteye_1_1_imu_data.html#af6629ab208d83b1856142e44bd8fe476", null ],
       [ "gyro", "structmynteye_1_1_imu_data.html#acc6cfa25ac3d6435690f60b3000eaa43", null ],
       [ "temperature", "structmynteye_1_1_imu_data.html#a47f263f2268c4fa2ae3a91a5ba053c34", null ],
-      [ "timestamp", "structmynteye_1_1_imu_data.html#a8305245493f284e9bb4ab6c653650641", null ]
+      [ "timestamp", "structmynteye_1_1_imu_data.html#abdd1b91f9e1a07e8d558b7404260bb7a", null ]
     ] ],
     [ "OptionInfo", "structmynteye_1_1_option_info.html", [
       [ "def", "structmynteye_1_1_option_info.html#ae0c70fc14cc3d8e311fe49e4dc15e28b", null ],

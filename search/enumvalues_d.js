@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['right',['RIGHT',['../group__enumerations.html#gga8fb1bf5d859ee1a5b321cbae0b422280a21507b40c80068eda19865706fdc2403',1,'mynteye']]],
-  ['right_5frectified',['RIGHT_RECTIFIED',['../group__enumerations.html#gga8fb1bf5d859ee1a5b321cbae0b422280a4837e2b085e9712cabf89d097fc3ccf5',1,'mynteye']]]
+  ['pinhole',['PINHOLE',['../group__calibration.html#gga9eaadf0efa8f99a0de1fc8f049d708e3aa26b5d5659fbc90615fd36cf5d0a29c0',1,'mynteye']]],
+  ['points',['POINTS',['../group__enumerations.html#gga8fb1bf5d859ee1a5b321cbae0b422280a70b71cabeeaf8c2bf473c896d5442ddb',1,'mynteye::POINTS()'],['../group__enumerations.html#gga924c6892a17872477999697dfb5269c6a70b71cabeeaf8c2bf473c896d5442ddb',1,'mynteye::POINTS()']]]
 ];

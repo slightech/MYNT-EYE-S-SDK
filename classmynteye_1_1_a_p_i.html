@@ -37,7 +37,7 @@
   <td id="projectlogo"><img alt="Logo" src="icon.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">MYNT EYE S SDK
-   &#160;<span id="projectnumber">2.2.4</span>
+   &#160;<span id="projectnumber">2.3.0</span>
    </div>
    <div id="projectbrief">http://www.myntai.com/mynteye/standard</div>
   </td>
@@ -143,6 +143,10 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#a72b09033247db5b4d6442124c0f41f68">Supports</a> (const <a class="el" href="group__enumerations.html#gac5354b730c4500e6371a8b7048185a71">AddOns</a> &amp;addon) const</td></tr>
 <tr class="memdesc:a72b09033247db5b4d6442124c0f41f68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Supports the addon or not. <br /></td></tr>
 <tr class="separator:a72b09033247db5b4d6442124c0f41f68"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e893cc3a7bf42792ffd74cf3f462380"><td class="memItemLeft" align="right" valign="top"><a id="a9e893cc3a7bf42792ffd74cf3f462380"></a>
+<a class="el" href="structmynteye_1_1_stream_request.html">StreamRequest</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#a9e893cc3a7bf42792ffd74cf3f462380">SelectStreamRequest</a> (bool *ok) const</td></tr>
+<tr class="memdesc:a9e893cc3a7bf42792ffd74cf3f462380"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log all stream requests and prompt user to select one. <br /></td></tr>
+<tr class="separator:a9e893cc3a7bf42792ffd74cf3f462380"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b45104aa50cf10819993ccb875620ae"><td class="memItemLeft" align="right" valign="top"><a id="a7b45104aa50cf10819993ccb875620ae"></a>
 const std::vector&lt; <a class="el" href="structmynteye_1_1_stream_request.html">StreamRequest</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#a7b45104aa50cf10819993ccb875620ae">GetStreamRequests</a> (const <a class="el" href="group__enumerations.html#ga924c6892a17872477999697dfb5269c6">Capabilities</a> &amp;capability) const</td></tr>
 <tr class="memdesc:a7b45104aa50cf10819993ccb875620ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get all stream requests of the capability. <br /></td></tr>
@@ -151,14 +155,41 @@ const std::vector&lt; <a class="el" href="structmynteye_1_1_stream_request.html"
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#ae5dfc550818235e9add90b19d484bdde">ConfigStreamRequest</a> (const <a class="el" href="group__enumerations.html#ga924c6892a17872477999697dfb5269c6">Capabilities</a> &amp;capability, const <a class="el" href="structmynteye_1_1_stream_request.html">StreamRequest</a> &amp;request)</td></tr>
 <tr class="memdesc:ae5dfc550818235e9add90b19d484bdde"><td class="mdescLeft">&#160;</td><td class="mdescRight">Config the stream request to the capability. <br /></td></tr>
 <tr class="separator:ae5dfc550818235e9add90b19d484bdde"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3205feafedf151ed79ee146beed3be07"><td class="memItemLeft" align="right" valign="top"><a id="a3205feafedf151ed79ee146beed3be07"></a>
+const <a class="el" href="structmynteye_1_1_stream_request.html">StreamRequest</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#a3205feafedf151ed79ee146beed3be07">GetStreamRequest</a> (const <a class="el" href="group__enumerations.html#ga924c6892a17872477999697dfb5269c6">Capabilities</a> &amp;capability) const</td></tr>
+<tr class="memdesc:a3205feafedf151ed79ee146beed3be07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the config stream requests of the capability. <br /></td></tr>
+<tr class="separator:a3205feafedf151ed79ee146beed3be07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f30d5f3e01db57e2ff18f7126ac4e5e"><td class="memItemLeft" align="right" valign="top"><a id="a3f30d5f3e01db57e2ff18f7126ac4e5e"></a>
+const std::vector&lt; <a class="el" href="structmynteye_1_1_stream_request.html">StreamRequest</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#a3f30d5f3e01db57e2ff18f7126ac4e5e">GetStreamRequests</a> () const</td></tr>
+<tr class="memdesc:a3f30d5f3e01db57e2ff18f7126ac4e5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get all stream requests of the key stream capability. <br /></td></tr>
+<tr class="separator:a3f30d5f3e01db57e2ff18f7126ac4e5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e889313161109b0d3b46514260fe72e"><td class="memItemLeft" align="right" valign="top"><a id="a1e889313161109b0d3b46514260fe72e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#a1e889313161109b0d3b46514260fe72e">ConfigStreamRequest</a> (const <a class="el" href="structmynteye_1_1_stream_request.html">StreamRequest</a> &amp;request)</td></tr>
+<tr class="memdesc:a1e889313161109b0d3b46514260fe72e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Config the stream request to the key stream capability. <br /></td></tr>
+<tr class="separator:a1e889313161109b0d3b46514260fe72e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5562690487612d00dddeb7061e4e82f5"><td class="memItemLeft" align="right" valign="top"><a id="a5562690487612d00dddeb7061e4e82f5"></a>
+const <a class="el" href="structmynteye_1_1_stream_request.html">StreamRequest</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#a5562690487612d00dddeb7061e4e82f5">GetStreamRequest</a> () const</td></tr>
+<tr class="memdesc:a5562690487612d00dddeb7061e4e82f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the config stream requests of the key stream capability. <br /></td></tr>
+<tr class="separator:a5562690487612d00dddeb7061e4e82f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1ac780b31a33a15aa9d9d38594b3970"><td class="memItemLeft" align="right" valign="top"><a id="ae1ac780b31a33a15aa9d9d38594b3970"></a>
+std::shared_ptr&lt; <a class="el" href="structmynteye_1_1_device_info.html">DeviceInfo</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#ae1ac780b31a33a15aa9d9d38594b3970">GetInfo</a> () const</td></tr>
+<tr class="memdesc:ae1ac780b31a33a15aa9d9d38594b3970"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the device info. <br /></td></tr>
+<tr class="separator:ae1ac780b31a33a15aa9d9d38594b3970"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a766028e7cc0cb10f161be38fad94b25f"><td class="memItemLeft" align="right" valign="top"><a id="a766028e7cc0cb10f161be38fad94b25f"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#a766028e7cc0cb10f161be38fad94b25f">GetInfo</a> (const <a class="el" href="group__enumerations.html#ga1176072d2ba347a194801362de7fc0eb">Info</a> &amp;info) const</td></tr>
 <tr class="memdesc:a766028e7cc0cb10f161be38fad94b25f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the device info. <br /></td></tr>
 <tr class="separator:a766028e7cc0cb10f161be38fad94b25f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd281829efb0fcf58eb9fc819eda3cb1"><td class="memItemLeft" align="right" valign="top"><a id="acd281829efb0fcf58eb9fc819eda3cb1"></a>
-<a class="el" href="structmynteye_1_1_intrinsics.html">Intrinsics</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#acd281829efb0fcf58eb9fc819eda3cb1">GetIntrinsics</a> (const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;stream) const</td></tr>
-<tr class="memdesc:acd281829efb0fcf58eb9fc819eda3cb1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the intrinsics of stream. <br /></td></tr>
-<tr class="separator:acd281829efb0fcf58eb9fc819eda3cb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb0846963ed694745d4dc4a3f3c3a5a0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structmynteye_1_1_intrinsics_pinhole.html">IntrinsicsPinhole</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#adb0846963ed694745d4dc4a3f3c3a5a0">GetIntrinsics</a> (const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;stream) const</td></tr>
+<tr class="separator:adb0846963ed694745d4dc4a3f3c3a5a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a050ba243b53157753ff960ff48e6cdb8"><td class="memTemplParams" colspan="2"><a id="a050ba243b53157753ff960ff48e6cdb8"></a>
+template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a050ba243b53157753ff960ff48e6cdb8"><td class="memTemplItemLeft" align="right" valign="top">T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#a050ba243b53157753ff960ff48e6cdb8">GetIntrinsics</a> (const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;stream) const</td></tr>
+<tr class="memdesc:a050ba243b53157753ff960ff48e6cdb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the intrinsics of stream. <br /></td></tr>
+<tr class="separator:a050ba243b53157753ff960ff48e6cdb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55ae8edffe9caf737195ef486b9364c4"><td class="memItemLeft" align="right" valign="top"><a id="a55ae8edffe9caf737195ef486b9364c4"></a>
+std::shared_ptr&lt; <a class="el" href="structmynteye_1_1_intrinsics_base.html">IntrinsicsBase</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#a55ae8edffe9caf737195ef486b9364c4">GetIntrinsicsBase</a> (const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;stream) const</td></tr>
+<tr class="memdesc:a55ae8edffe9caf737195ef486b9364c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the intrinsics base of stream. <br /></td></tr>
+<tr class="separator:a55ae8edffe9caf737195ef486b9364c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba7b6ea229e944c9528be2a88d7db873"><td class="memItemLeft" align="right" valign="top"><a id="aba7b6ea229e944c9528be2a88d7db873"></a>
 <a class="el" href="structmynteye_1_1_extrinsics.html">Extrinsics</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#aba7b6ea229e944c9528be2a88d7db873">GetExtrinsics</a> (const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;from, const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;to) const</td></tr>
 <tr class="memdesc:aba7b6ea229e944c9528be2a88d7db873"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the extrinsics from one stream to another. <br /></td></tr>
@@ -248,18 +279,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:abcebda97943377b33851af3216ea4a41"><td class="memItemLeft" align="right" valign="top">static std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_a_p_i.html">API</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#abcebda97943377b33851af3216ea4a41">Create</a> ()</td></tr>
-<tr class="memdesc:abcebda97943377b33851af3216ea4a41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create the <a class="el" href="classmynteye_1_1_a_p_i.html" title="The API class to communicate with MYNT® EYE device. ">API</a> instance.  <a href="#abcebda97943377b33851af3216ea4a41">More...</a><br /></td></tr>
-<tr class="separator:abcebda97943377b33851af3216ea4a41"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a64d0ef79706d2e7978ae0a0ff7c64c"><td class="memItemLeft" align="right" valign="top">static std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_a_p_i.html">API</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#a0a64d0ef79706d2e7978ae0a0ff7c64c">Create</a> (std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_device.html">Device</a> &gt; device)</td></tr>
-<tr class="memdesc:a0a64d0ef79706d2e7978ae0a0ff7c64c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create the <a class="el" href="classmynteye_1_1_a_p_i.html" title="The API class to communicate with MYNT® EYE device. ">API</a> instance.  <a href="#a0a64d0ef79706d2e7978ae0a0ff7c64c">More...</a><br /></td></tr>
-<tr class="separator:a0a64d0ef79706d2e7978ae0a0ff7c64c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7e70df58b46483307f9ab45cfc5f7c01"><td class="memItemLeft" align="right" valign="top">static std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_a_p_i.html">API</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#a7e70df58b46483307f9ab45cfc5f7c01">Create</a> (int argc, char *argv[])</td></tr>
 <tr class="memdesc:a7e70df58b46483307f9ab45cfc5f7c01"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create the <a class="el" href="classmynteye_1_1_a_p_i.html" title="The API class to communicate with MYNT® EYE device. ">API</a> instance.  <a href="#a7e70df58b46483307f9ab45cfc5f7c01">More...</a><br /></td></tr>
 <tr class="separator:a7e70df58b46483307f9ab45cfc5f7c01"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc4e3bb87487025fdcae5ed558f22c1f"><td class="memItemLeft" align="right" valign="top">static std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_a_p_i.html">API</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#adc4e3bb87487025fdcae5ed558f22c1f">Create</a> (int argc, char *argv[], std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_device.html">Device</a> &gt; device)</td></tr>
-<tr class="memdesc:adc4e3bb87487025fdcae5ed558f22c1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create the <a class="el" href="classmynteye_1_1_a_p_i.html" title="The API class to communicate with MYNT® EYE device. ">API</a> instance.  <a href="#adc4e3bb87487025fdcae5ed558f22c1f">More...</a><br /></td></tr>
-<tr class="separator:adc4e3bb87487025fdcae5ed558f22c1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad807bf23b09460e7cc9599db88aa532b"><td class="memItemLeft" align="right" valign="top">static std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_a_p_i.html">API</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#ad807bf23b09460e7cc9599db88aa532b">Create</a> (int argc, char *argv[], const std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_device.html">Device</a> &gt; &amp;device)</td></tr>
+<tr class="memdesc:ad807bf23b09460e7cc9599db88aa532b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create the <a class="el" href="classmynteye_1_1_a_p_i.html" title="The API class to communicate with MYNT® EYE device. ">API</a> instance.  <a href="#ad807bf23b09460e7cc9599db88aa532b">More...</a><br /></td></tr>
+<tr class="separator:ad807bf23b09460e7cc9599db88aa532b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a976a0ef3efa64eb0f496fe608c34103e"><td class="memItemLeft" align="right" valign="top">static std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_a_p_i.html">API</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmynteye_1_1_a_p_i.html#a976a0ef3efa64eb0f496fe608c34103e">Create</a> (const std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_device.html">Device</a> &gt; &amp;device)</td></tr>
+<tr class="memdesc:a976a0ef3efa64eb0f496fe608c34103e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create the <a class="el" href="classmynteye_1_1_a_p_i.html" title="The API class to communicate with MYNT® EYE device. ">API</a> instance.  <a href="#a976a0ef3efa64eb0f496fe608c34103e">More...</a><br /></td></tr>
+<tr class="separator:a976a0ef3efa64eb0f496fe608c34103e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The <a class="el" href="classmynteye_1_1_a_p_i.html" title="The API class to communicate with MYNT® EYE device. ">API</a> class to communicate with MYNT® EYE device. </p>
@@ -297,72 +325,8 @@ Static Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="abcebda97943377b33851af3216ea4a41"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abcebda97943377b33851af3216ea4a41">&#9670;&nbsp;</a></span>Create() <span class="overload">[1/4]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static std::shared_ptr&lt;<a class="el" href="classmynteye_1_1_a_p_i.html">API</a>&gt; mynteye::API::Create </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Create the <a class="el" href="classmynteye_1_1_a_p_i.html" title="The API class to communicate with MYNT® EYE device. ">API</a> instance. </p>
-<dl class="section return"><dt>Returns</dt><dd>the <a class="el" href="classmynteye_1_1_a_p_i.html" title="The API class to communicate with MYNT® EYE device. ">API</a> instance. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>This will call <a class="el" href="group__utils.html#gadaaa451b569023317e4d224b44381d41" title="Detecting MYNT EYE devices and prompt user to select one. ">device::select()</a> to select a device. </dd></dl>
-
-</div>
-</div>
-<a id="a0a64d0ef79706d2e7978ae0a0ff7c64c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0a64d0ef79706d2e7978ae0a0ff7c64c">&#9670;&nbsp;</a></span>Create() <span class="overload">[2/4]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static std::shared_ptr&lt;<a class="el" href="classmynteye_1_1_a_p_i.html">API</a>&gt; mynteye::API::Create </td>
-          <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_device.html">Device</a> &gt;&#160;</td>
-          <td class="paramname"><em>device</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Create the <a class="el" href="classmynteye_1_1_a_p_i.html" title="The API class to communicate with MYNT® EYE device. ">API</a> instance. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">device</td><td>the selected device. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>the <a class="el" href="classmynteye_1_1_a_p_i.html" title="The API class to communicate with MYNT® EYE device. ">API</a> instance. </dd></dl>
-
-</div>
-</div>
 <a id="a7e70df58b46483307f9ab45cfc5f7c01"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7e70df58b46483307f9ab45cfc5f7c01">&#9670;&nbsp;</a></span>Create() <span class="overload">[3/4]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e70df58b46483307f9ab45cfc5f7c01">&#9670;&nbsp;</a></span>Create() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -408,8 +372,8 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="adc4e3bb87487025fdcae5ed558f22c1f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adc4e3bb87487025fdcae5ed558f22c1f">&#9670;&nbsp;</a></span>Create() <span class="overload">[4/4]</span></h2>
+<a id="ad807bf23b09460e7cc9599db88aa532b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad807bf23b09460e7cc9599db88aa532b">&#9670;&nbsp;</a></span>Create() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -432,7 +396,7 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_device.html">Device</a> &gt;&#160;</td>
+          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_device.html">Device</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>device</em>&#160;</td>
         </tr>
         <tr>
@@ -462,6 +426,41 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a976a0ef3efa64eb0f496fe608c34103e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a976a0ef3efa64eb0f496fe608c34103e">&#9670;&nbsp;</a></span>Create() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static std::shared_ptr&lt;<a class="el" href="classmynteye_1_1_a_p_i.html">API</a>&gt; mynteye::API::Create </td>
+          <td>(</td>
+          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_device.html">Device</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>device</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create the <a class="el" href="classmynteye_1_1_a_p_i.html" title="The API class to communicate with MYNT® EYE device. ">API</a> instance. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">device</td><td>the selected device. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the <a class="el" href="classmynteye_1_1_a_p_i.html" title="The API class to communicate with MYNT® EYE device. ">API</a> instance. </dd></dl>
+
+</div>
+</div>
 <a id="a46f714ee5c92c18fff5ca20d98ad3392"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a46f714ee5c92c18fff5ca20d98ad3392">&#9670;&nbsp;</a></span>EnableStreamData()</h2>
 
@@ -480,6 +479,25 @@ Static Public Member Functions</h2></td></tr>
 
 <p>Enable the data of stream. </p>
 <dl class="section note"><dt>Note</dt><dd>must enable the stream if it's a synthetic one. This means the stream in not native, the device has the capability to provide this stream, but still support this stream. </dd></dl>
+
+</div>
+</div>
+<a id="adb0846963ed694745d4dc4a3f3c3a5a0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb0846963ed694745d4dc4a3f3c3a5a0">&#9670;&nbsp;</a></span>GetIntrinsics()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structmynteye_1_1_intrinsics_pinhole.html">IntrinsicsPinhole</a> mynteye::API::GetIntrinsics </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__enumerations.html#ga8fb1bf5d859ee1a5b321cbae0b422280">Stream</a> &amp;&#160;</td>
+          <td class="paramname"><em>stream</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000001">Deprecated:</a></b></dt><dd>Get the intrinsics (pinhole) of stream.</dd></dl>
 
 </div>
 </div>

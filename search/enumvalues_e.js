@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['serial_5fnumber',['SERIAL_NUMBER',['../group__enumerations.html#gga1176072d2ba347a194801362de7fc0ebabac5402bcf9584b3014bd64b8b6ad282',1,'mynteye']]],
-  ['spec_5fversion',['SPEC_VERSION',['../group__enumerations.html#gga1176072d2ba347a194801362de7fc0ebaa76fb0c34923698e9016e12e7ab1d971',1,'mynteye']]],
-  ['standard',['STANDARD',['../group__enumerations.html#gga3d88e0528ad84eed0e7915c7ed632087a94e94133f4bdc1794c6b647b8ea134d0',1,'mynteye']]],
-  ['stereo',['STEREO',['../group__enumerations.html#gga924c6892a17872477999697dfb5269c6a830dff3c27992cca35a4b46282e10530',1,'mynteye']]]
+  ['rgb888',['RGB888',['../group__enumerations.html#gga40c22565756e51ccaf616884e3b3e9e2a30ff380a3be74628024063a99fba10f0',1,'mynteye']]],
+  ['right',['RIGHT',['../group__enumerations.html#gga8fb1bf5d859ee1a5b321cbae0b422280a21507b40c80068eda19865706fdc2403',1,'mynteye']]],
+  ['right_5frectified',['RIGHT_RECTIFIED',['../group__enumerations.html#gga8fb1bf5d859ee1a5b321cbae0b422280a4837e2b085e9712cabf89d097fc3ccf5',1,'mynteye']]]
 ];

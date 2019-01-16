@@ -37,7 +37,7 @@
   <td id="projectlogo"><img alt="Logo" src="icon.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">MYNT EYE S SDK
-   &#160;<span id="projectnumber">2.2.4</span>
+   &#160;<span id="projectnumber">2.3.0</span>
    </div>
    <div id="projectbrief">http://www.myntai.com/mynteye/standard</div>
   </td>
@@ -100,7 +100,8 @@ $(document).ready(function(){initNavTree('group__calibration.html','');});
 
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a>  </div>
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#enum-members">Enumerations</a>  </div>
   <div class="headertitle">
 <div class="title">Intrinsics &amp; Extrinsics</div>  </div>
 </div><!--header-->
@@ -111,8 +112,11 @@ $(document).ready(function(){initNavTree('group__calibration.html','');});
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmynteye_1_1_intrinsics.html">mynteye::Intrinsics</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stream intrinsics,.  <a href="structmynteye_1_1_intrinsics.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmynteye_1_1_intrinsics_pinhole.html">mynteye::IntrinsicsPinhole</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stream intrinsics (Pinhole)  <a href="structmynteye_1_1_intrinsics_pinhole.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmynteye_1_1_intrinsics_equidistant.html">mynteye::IntrinsicsEquidistant</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stream intrinsics (Equidistant: KANNALA_BRANDT)  <a href="structmynteye_1_1_intrinsics_equidistant.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmynteye_1_1_imu_intrinsics.html">mynteye::ImuIntrinsics</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">IMU intrinsics: scale, drift and variances.  <a href="structmynteye_1_1_imu_intrinsics.html#details">More...</a><br /></td></tr>
@@ -123,9 +127,51 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmynteye_1_1_extrinsics.html">mynteye::Extrinsics</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="structmynteye_1_1_extrinsics.html" title="Extrinsics, represent how the different datas are connected. ">Extrinsics</a>, represent how the different datas are connected.  <a href="structmynteye_1_1_extrinsics.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:ga9eaadf0efa8f99a0de1fc8f049d708e3"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__calibration.html#ga9eaadf0efa8f99a0de1fc8f049d708e3">mynteye::CalibrationModel</a> : std::uint8_t { <a class="el" href="group__calibration.html#gga9eaadf0efa8f99a0de1fc8f049d708e3aa26b5d5659fbc90615fd36cf5d0a29c0">mynteye::CalibrationModel::PINHOLE</a> = 0, 
+<a class="el" href="group__calibration.html#gga9eaadf0efa8f99a0de1fc8f049d708e3aeaa1976ba7ec623bbc2d09ead32e7b18">mynteye::CalibrationModel::KANNALA_BRANDT</a> = 1, 
+<a class="el" href="group__calibration.html#gga9eaadf0efa8f99a0de1fc8f049d708e3a4de97a9981203bdf3d1f9c51b0ba341f">mynteye::CalibrationModel::UNKNOW</a>
+ }</td></tr>
+<tr class="memdesc:ga9eaadf0efa8f99a0de1fc8f049d708e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Camera calibration model.  <a href="group__calibration.html#ga9eaadf0efa8f99a0de1fc8f049d708e3">More...</a><br /></td></tr>
+<tr class="separator:ga9eaadf0efa8f99a0de1fc8f049d708e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Intrinsic and extrinsic properties. </p>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="ga9eaadf0efa8f99a0de1fc8f049d708e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9eaadf0efa8f99a0de1fc8f049d708e3">&#9670;&nbsp;</a></span>CalibrationModel</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__calibration.html#ga9eaadf0efa8f99a0de1fc8f049d708e3">mynteye::CalibrationModel</a> : std::uint8_t</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Camera calibration model. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga9eaadf0efa8f99a0de1fc8f049d708e3aa26b5d5659fbc90615fd36cf5d0a29c0"></a>PINHOLE&#160;</td><td class="fielddoc"><p>Pinhole. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9eaadf0efa8f99a0de1fc8f049d708e3aeaa1976ba7ec623bbc2d09ead32e7b18"></a>KANNALA_BRANDT&#160;</td><td class="fielddoc"><p>Equidistant: KANNALA_BRANDT. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9eaadf0efa8f99a0de1fc8f049d708e3a4de97a9981203bdf3d1f9c51b0ba341f"></a>UNKNOW&#160;</td><td class="fielddoc"><p>Unknow. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

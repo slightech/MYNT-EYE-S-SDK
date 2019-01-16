@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['points',['POINTS',['../group__enumerations.html#gga8fb1bf5d859ee1a5b321cbae0b422280a70b71cabeeaf8c2bf473c896d5442ddb',1,'mynteye::POINTS()'],['../group__enumerations.html#gga924c6892a17872477999697dfb5269c6a70b71cabeeaf8c2bf473c896d5442ddb',1,'mynteye::POINTS()']]]
+  ['nominal_5fbaseline',['NOMINAL_BASELINE',['../group__enumerations.html#gga1176072d2ba347a194801362de7fc0ebaa8ae9e38485e04fd6b6f68158fae52c9',1,'mynteye']]]
 ];

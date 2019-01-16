@@ -37,7 +37,7 @@
   <td id="projectlogo"><img alt="Logo" src="icon.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">MYNT EYE S SDK
-   &#160;<span id="projectnumber">2.2.4</span>
+   &#160;<span id="projectnumber">2.3.0</span>
    </div>
    <div id="projectbrief">http://www.myntai.com/mynteye/standard</div>
   </td>
@@ -111,9 +111,20 @@ Functions</h2></td></tr>
 <tr class="memitem:gadaaa451b569023317e4d224b44381d41"><td class="memItemLeft" align="right" valign="top">MYNTEYE_API std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_device.html">Device</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utils.html#gadaaa451b569023317e4d224b44381d41">mynteye::device::select</a> ()</td></tr>
 <tr class="memdesc:gadaaa451b569023317e4d224b44381d41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detecting MYNT EYE devices and prompt user to select one.  <a href="group__utils.html#gadaaa451b569023317e4d224b44381d41">More...</a><br /></td></tr>
 <tr class="separator:gadaaa451b569023317e4d224b44381d41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4df382a41fb39fc89565683fe5c09ea3"><td class="memItemLeft" align="right" valign="top">MYNTEYE_API MYNTEYE_NAMESPACE::StreamRequest&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utils.html#ga4df382a41fb39fc89565683fe5c09ea3">mynteye::device::select_request</a> (const std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_device.html">Device</a> &gt; &amp;device, bool *ok)</td></tr>
+<tr class="memdesc:ga4df382a41fb39fc89565683fe5c09ea3"><td class="mdescLeft">&#160;</td><td class="mdescRight">List stream requests and prompt user to select one.  <a href="group__utils.html#ga4df382a41fb39fc89565683fe5c09ea3">More...</a><br /></td></tr>
+<tr class="separator:ga4df382a41fb39fc89565683fe5c09ea3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gafc64aeffd4ae830d5a57b9e503f09254"><td class="memItemLeft" align="right" valign="top">MYNTEYE_API float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utils.html#gafc64aeffd4ae830d5a57b9e503f09254">mynteye::utils::get_real_exposure_time</a> (std::int32_t frame_rate, std::uint16_t exposure_time)</td></tr>
 <tr class="memdesc:gafc64aeffd4ae830d5a57b9e503f09254"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get real exposure time in ms from virtual value, according to its frame rate.  <a href="group__utils.html#gafc64aeffd4ae830d5a57b9e503f09254">More...</a><br /></td></tr>
 <tr class="separator:gafc64aeffd4ae830d5a57b9e503f09254"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5052b8dc348e6c84d4ea2f925c7435a1"><td class="memItemLeft" align="right" valign="top"><a id="ga5052b8dc348e6c84d4ea2f925c7435a1"></a>
+MYNTEYE_API std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utils.html#ga5052b8dc348e6c84d4ea2f925c7435a1">mynteye::utils::get_sdk_root_dir</a> ()</td></tr>
+<tr class="memdesc:ga5052b8dc348e6c84d4ea2f925c7435a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get sdk root dir. <br /></td></tr>
+<tr class="separator:ga5052b8dc348e6c84d4ea2f925c7435a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0cf85ec0188023d24730306ef747aa87"><td class="memItemLeft" align="right" valign="top"><a id="ga0cf85ec0188023d24730306ef747aa87"></a>
+MYNTEYE_API std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utils.html#ga0cf85ec0188023d24730306ef747aa87">mynteye::utils::get_sdk_install_dir</a> ()</td></tr>
+<tr class="memdesc:ga0cf85ec0188023d24730306ef747aa87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get sdk install dir. <br /></td></tr>
+<tr class="separator:ga0cf85ec0188023d24730306ef747aa87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <h2 class="groupheader">Function Documentation</h2>
@@ -172,6 +183,37 @@ Functions</h2></td></tr>
 
 <p>Detecting MYNT EYE devices and prompt user to select one. </p>
 <dl class="section return"><dt>Returns</dt><dd>the selected device, or <code>nullptr</code> if none. </dd></dl>
+
+</div>
+</div>
+<a id="ga4df382a41fb39fc89565683fe5c09ea3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4df382a41fb39fc89565683fe5c09ea3">&#9670;&nbsp;</a></span>select_request()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">MYNTEYE_API MYNTEYE_NAMESPACE::StreamRequest mynteye::device::select_request </td>
+          <td>(</td>
+          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="classmynteye_1_1_device.html">Device</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>device</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool *&#160;</td>
+          <td class="paramname"><em>ok</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>List stream requests and prompt user to select one. </p>
+<dl class="section return"><dt>Returns</dt><dd>the selected request. </dd></dl>
 
 </div>
 </div>

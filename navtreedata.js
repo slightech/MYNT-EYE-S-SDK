@@ -26,6 +26,7 @@ var NAVTREE =
   [ "MYNT EYE S SDK", "index.html", [
     [ "Device Data Specification", "specs_data.html", "specs_data" ],
     [ "Device Control Specification", "specs_ctrl.html", "specs_ctrl" ],
+    [ "Deprecated List", "deprecated.html", null ],
     [ "Modules", "modules.html", "modules" ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
@@ -43,7 +44,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-".html"
+".html",
+"structmynteye_1_1_intrinsics_pinhole.html#ad0bb5fece8b6abf2604fc6fbbb07db6f"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

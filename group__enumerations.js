@@ -7,6 +7,7 @@ var group__enumerations =
     ] ],
     [ "Capabilities", "group__enumerations.html#ga924c6892a17872477999697dfb5269c6", [
       [ "STEREO", "group__enumerations.html#gga924c6892a17872477999697dfb5269c6a830dff3c27992cca35a4b46282e10530", null ],
+      [ "STEREO_COLOR", "group__enumerations.html#gga924c6892a17872477999697dfb5269c6ac2069f6fa4f6c1c72847f2996f6a60c0", null ],
       [ "COLOR", "group__enumerations.html#gga924c6892a17872477999697dfb5269c6a04bd834032febb3fda8c6936ee140949", null ],
       [ "DEPTH", "group__enumerations.html#gga924c6892a17872477999697dfb5269c6aaa1780b4fcce2d5d9af13dc25386d111", null ],
       [ "POINTS", "group__enumerations.html#gga924c6892a17872477999697dfb5269c6a70b71cabeeaf8c2bf473c896d5442ddb", null ],
@@ -19,6 +20,8 @@ var group__enumerations =
     [ "Format", "group__enumerations.html#ga40c22565756e51ccaf616884e3b3e9e2", [
       [ "GREY", "group__enumerations.html#gga40c22565756e51ccaf616884e3b3e9e2a3c551f0d1a06b4f852d1832daed357bf", null ],
       [ "YUYV", "group__enumerations.html#gga40c22565756e51ccaf616884e3b3e9e2a52c8796e733cb603dc16270c874e91d7", null ],
+      [ "BGR888", "group__enumerations.html#gga40c22565756e51ccaf616884e3b3e9e2a7cec9e9c2dffb6982c75cdbf5f2af9ef", null ],
+      [ "RGB888", "group__enumerations.html#gga40c22565756e51ccaf616884e3b3e9e2a30ff380a3be74628024063a99fba10f0", null ],
       [ "LAST", "group__enumerations.html#gga40c22565756e51ccaf616884e3b3e9e2af447f5c03508de4d88e340390ba7c78f", null ]
     ] ],
     [ "Info", "group__enumerations.html#ga1176072d2ba347a194801362de7fc0eb", [
@@ -34,6 +37,8 @@ var group__enumerations =
     ] ],
     [ "Model", "group__enumerations.html#ga3d88e0528ad84eed0e7915c7ed632087", [
       [ "STANDARD", "group__enumerations.html#gga3d88e0528ad84eed0e7915c7ed632087a94e94133f4bdc1794c6b647b8ea134d0", null ],
+      [ "STANDARD2", "group__enumerations.html#gga3d88e0528ad84eed0e7915c7ed632087a1357e7135e00c82c6261077bdc95296c", null ],
+      [ "STANDARD210A", "group__enumerations.html#gga3d88e0528ad84eed0e7915c7ed632087a314d65b72d84b34b2505ed4027a2ad88", null ],
       [ "LAST", "group__enumerations.html#gga3d88e0528ad84eed0e7915c7ed632087af447f5c03508de4d88e340390ba7c78f", null ]
     ] ],
     [ "Option", "group__enumerations.html#ga31bb3da30332d5af00c1851cf0020fb6", [
@@ -45,9 +50,14 @@ var group__enumerations =
       [ "EXPOSURE_MODE", "group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6a209f11b2c44b3c719f2563406500c853", null ],
       [ "MAX_GAIN", "group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6a83633b8ef60a69118be45fd762271e16", null ],
       [ "MAX_EXPOSURE_TIME", "group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6a7117dff1c380545ebd93eb7792f1b855", null ],
+      [ "MIN_EXPOSURE_TIME", "group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6ac642fd83a9b8f1891f7fe89282b309f4", null ],
       [ "DESIRED_BRIGHTNESS", "group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6ae2e4d6b6f10313f33314626f48b3d444", null ],
       [ "IR_CONTROL", "group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6a0249a4200b93b75c1c37618a790d4b4d", null ],
       [ "HDR_MODE", "group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6a04f10c48c4b531373c0420d664774f5a", null ],
+      [ "ACCELEROMETER_RANGE", "group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6aae48cd1fe06bc2dda361dbb5d1f47511", null ],
+      [ "GYROSCOPE_RANGE", "group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6a8f258ffa41f60e7ad38bc6a33eaff3fc", null ],
+      [ "ACCELEROMETER_LOW_PASS_FILTER", "group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6ad5a7cdda802b872b880e4044b4896108", null ],
+      [ "GYROSCOPE_LOW_PASS_FILTER", "group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6a2baa3f47260e022c1eb67afc40ac6cbe", null ],
       [ "ZERO_DRIFT_CALIBRATION", "group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6acf959f2b9b2faa62e335794378635766", null ],
       [ "ERASE_CHIP", "group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6a3f9fe028069f7cbbf64c858ccd0a155a", null ],
       [ "LAST", "group__enumerations.html#gga31bb3da30332d5af00c1851cf0020fb6af447f5c03508de4d88e340390ba7c78f", null ]
