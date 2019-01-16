@@ -49,6 +49,7 @@ public class MainActivity extends BaseActivity {
 
   private void actionOpen(final Runnable completeEvent) {
     if (!RootUtils.isRooted()) {
+      if (completeEvent != null) completeEvent.run();
       alert("Warning", "Root denied :(");
       return;
     }
