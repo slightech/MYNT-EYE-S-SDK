@@ -17,9 +17,6 @@
 
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#ifdef WITH_BM_SOBEL_FILTER
-#include <opencv2/ximgproc/disparity_filter.hpp>
-#endif
 
 #include "mynteye/logger.h"
 
@@ -71,25 +68,26 @@ DisparityProcessor::DisparityProcessor(DisparityProcessorType type,
   } else if (type_ == DisparityProcessorType::BM) {
     int bmWinSize = 3;
 #ifdef WITH_OPENCV2
-    int bmWinSize = 3;
-    // StereoBM
-    //   https://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html#stereobm-stereobm
-    bm_matcher = cv::Ptr<cv::StereoBM>(new cv::StereoBM(
-        int 0,
-        64,
-        100,
-        8 * bmWinSize * bmWinSize,
-        32 * bmWinSize * bmWinSize,
-        int -1,
-        int 31,
-        15,
-        100,
-        4));
+    LOG(ERROR) << "not supported in opencv 2.x";
+    // int bmWinSize = 3;
+    // // StereoBM
+    // //   https://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html#stereobm-stereobm
+    // bm_matcher = cv::Ptr<cv::StereoBM>(new cv::StereoBM(
+    //     int 0,
+    //     64,
+    //     100,
+    //     8 * bmWinSize * bmWinSize,
+    //     32 * bmWinSize * bmWinSize,
+    //     int -1,
+    //     int 31,
+    //     15,
+    //     100,
+    //     4));
 #else
     bm_matcher = cv::StereoBM::create(0, 3);
     bm_matcher->setPreFilterSize(9);
     bm_matcher->setPreFilterCap(31);
-    bm_matcher->setBlockSize(bmWinSize);
+    bm_matcher->setBlockSize(15);
     bm_matcher->setMinDisparity(0);
     bm_matcher->setNumDisparities(64);
     bm_matcher->setUniquenessRatio(15);
@@ -167,10 +165,11 @@ bool DisparityProcessor::OnProcess(
     (*sgbm_matcher)(input->first, input->second, disparity);
 #ifdef WITH_BM_SOBEL_FILTER
   } else if (type_ == DisparityProcessorType::BM) {
-    cv::Mat tmp1, tmp2;
-    cv::cvtColor(input->first, tmp1, CV_RGB2GRAY);
-    cv::cvtColor(input->second, tmp2, CV_RGB2GRAY);
-    (*bm_matcher)(tmp1, tmp2, disparity);
+    LOG(ERROR) << "not supported in opencv 2.x";
+    // cv::Mat tmp1, tmp2;
+    // cv::cvtColor(input->first, tmp1, CV_RGB2GRAY);
+    // cv::cvtColor(input->second, tmp2, CV_RGB2GRAY);
+    // (*bm_matcher)(tmp1, tmp2, disparity);
 #endif
   }
 #else
@@ -188,7 +187,9 @@ bool DisparityProcessor::OnProcess(
     cv::Mat tmp1, tmp2;
     if (input->first.channels() == 1) {
       // s1030
-    } else if (input->first.channels() == 3) {
+      tmp1 = input->first;
+      tmp2 = input->second;
+    } else if (input->first.channels() >= 3) {
       // s210
       cv::cvtColor(input->first, tmp1, CV_RGB2GRAY);
       cv::cvtColor(input->second, tmp2, CV_RGB2GRAY);
