@@ -412,7 +412,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       } break;
       case Stream::RIGHT_RECTIFIED: {
         if (is_published_[Stream::LEFT_RECTIFIED]) {
-          SetIsPublished(Stream::RIGHT_RECTIFIED);
+          SetIsPublished(Stream::LEFT_RECTIFIED);
         }
         if (is_published_[Stream::DISPARITY]) {
           SetIsPublished(Stream::DISPARITY);
