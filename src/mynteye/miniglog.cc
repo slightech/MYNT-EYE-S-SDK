@@ -36,6 +36,4 @@ namespace google {
 // that there is only one instance of this across the entire program.
 std::set<google::LogSink *> log_sinks_global;
 
-int log_severity_global(INFO);
-
 }  // namespace google
