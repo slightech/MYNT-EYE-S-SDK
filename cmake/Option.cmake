@@ -44,7 +44,7 @@ else()
 endif()
 
 if(WITH_BOOST)
-  find_package(Boost COMPONENTS filesystem)
+  find_package(Boost QUIET COMPONENTS filesystem)
   if(Boost_FOUND)
     set(Boost_VERSION_STRING "${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}")
     set(WITH_FILESYSTEM TRUE)

@@ -668,9 +668,11 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     header.seq = seq;
     header.stamp = stamp;
     header.frame_id = frame_ids_[stream];
+    pthread_mutex_lock(&mutex_data_);
     cv::Mat mono;
     cv::cvtColor(data.frame, mono, CV_RGB2GRAY);
     auto &&msg = cv_bridge::CvImage(header, enc::MONO8, mono).toImageMsg();
+    pthread_mutex_unlock(&mutex_data_);
     auto &&info = getCameraInfo(stream);
     info->header.stamp = msg->header.stamp;
     mono_publishers_[stream].publish(msg, info);
