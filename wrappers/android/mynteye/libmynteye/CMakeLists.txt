@@ -8,11 +8,17 @@ cmake_minimum_required(VERSION 3.4.1)
 get_filename_component(MYNTETE_ROOT "${PROJECT_SOURCE_DIR}/../../../.." ABSOLUTE)
 message(STATUS "MYNTETE_ROOT: ${MYNTETE_ROOT}")
 
+get_filename_component(PRO_ROOT "${PROJECT_SOURCE_DIR}/.." ABSOLUTE)
+message(STATUS "PRO_ROOT: ${PRO_ROOT}")
+
+set(LIB_ROOT "${PROJECT_SOURCE_DIR}")
+message(STATUS "LIB_ROOT: ${LIB_ROOT}")
+
 if(NOT DJINNI_DIR)
   if(DEFINED ENV{DJINNI_DIR})
     set(DJINNI_DIR $ENV{DJINNI_DIR})
   else()
-    set(DJINNI_DIR "$ENV{HOME}/Workspace/Fever/Dropbox/djinni")
+    set(DJINNI_DIR "${PRO_ROOT}/third_party/djinni")
   endif()
 endif()
 
