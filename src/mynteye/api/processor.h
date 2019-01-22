@@ -133,18 +133,36 @@ void iterate_processors_PtoC_before(
 }
 
 template <typename T>
-void iterate_processors_CtoP_before(
+void iterate_processor_PtoC_after(
     T processor, std::function<void(std::shared_ptr<Processor>)> fn) {
-  if (processor->GetParent() != nullptr)
-    iterate_processors_CtoP_before(processor->GetParent(), fn);
+  fn(processor);
+  auto chids = processor->GetChilds();
+  for (auto it : chids) {
+    iterate_processor_PtoC_after(it, fn);
+  }
+}
+template <typename T>
+void iterate_processor_PtoC_before(
+    T processor, std::function<void(std::shared_ptr<Processor>)> fn) {
+  auto chids = processor->GetChilds();
+  for (auto it : chids) {
+    iterate_processor_PtoC_before(it, fn);
+  }
   fn(processor);
 }
 template <typename T>
-void iterate_processors_CtoP_after(
+void iterate_processor_CtoP_before(
+    T processor, std::function<void(std::shared_ptr<Processor>)> fn) {
+  if (processor->GetParent() != nullptr)
+    iterate_processor_CtoP_before(processor->GetParent(), fn);
+  fn(processor);
+}
+template <typename T>
+void iterate_processor_CtoP_after(
     T processor, std::function<void(std::shared_ptr<Processor>)> fn) {
   fn(processor);
   if (processor->GetParent() != nullptr)
-    iterate_processors_CtoP_after(processor->GetParent(), fn);
+    iterate_processor_CtoP_after(processor->GetParent(), fn);
 }
 
 MYNTEYE_END_NAMESPACE

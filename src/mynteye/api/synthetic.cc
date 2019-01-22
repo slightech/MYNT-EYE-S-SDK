@@ -42,6 +42,7 @@
 #define DISPARITY_NORM_PROC_PERIOD 0
 #define POINTS_PROC_PERIOD 0
 #define DEPTH_PROC_PERIOD 0
+#define ROOT_PROC_PERIOD 0
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -183,21 +184,6 @@ void Synthetic::setControlDateCallbackWithStream(
   LOG(ERROR) << "ERROR: no suited processor for stream "<< ctr_data.stream;
 }
 
-// void Synthetic::setControlDateModeWithStream(
-//     const struct stream_control_t& ctr_data) {
-//   for (auto &&it : processors_) {
-//     int i = 0;
-//     for (auto it_s : it->getTargetStreams()) {
-//       if (it_s.stream == ctr_data.stream) {
-//         it->target_streams_[i].mode = ctr_data.mode;
-//         return;
-//       }
-//       i++;
-//     }
-//   }
-//   LOG(ERROR) << "ERROR: no suited processor for stream "<< ctr_data.stream;
-// }
-
 bool Synthetic::checkControlDateWithStream(const Stream& stream) const {
   for (auto &&it : processors_) {
     for (auto it_s : it->getTargetStreams()) {
@@ -209,40 +195,25 @@ bool Synthetic::checkControlDateWithStream(const Stream& stream) const {
   return false;
 }
 
-// bool Synthetic::Supports(const Stream &stream) const {
-//   return checkControlDateWithStream(stream);
-// }
-
-// Synthetic::status_mode_t Synthetic::GetStreamStatusMode(
-//     const Stream &stream) const {
-//   if (checkControlDateWithStream(stream)) {
-//     auto ctrData = getControlDateWithStream(stream);
-//     return ctrData.mode;
-//   } else {
-//     return MODE_STATUS_LAST;
-//   }
-// }
-
-// void Synthetic::EnableStreamData(const Stream &stream) {
-//   // Activate processors of synthetic stream
-//   auto processor = getProcessorWithStream(stream);
-//   iterate_processors_CtoP_before(processor,
-//       [](std::shared_ptr<Processor> proce){
-//         auto streams = proce->getTargetStreams();
-//         int act_tag = 0;
-//         for (unsigned int i = 0; i < proce->getStreamsSum() ; i++) {
-//           if (proce->target_streams_[i].mode == MODE_STATUS_DISABLE) {
-//             act_tag++;
-//             proce->target_streams_[i].mode = MODE_STATUS_ENABLE;
-//           }
-//         }
-//         if (act_tag > 0) {
-//           std::cout << proce->Name() << "active" << std::endl;
-//           proce->Activate();
-//         }
-//         // std::cout <<std::endl;
-//       });
-// }
+void Synthetic::EnableStreamData(const Stream &stream) {
+  // Activate processors of synthetic stream
+  auto processor = getProcessorWithStream(stream);
+  iterate_processor_CtoP_before(processor,
+      [](std::shared_ptr<Processor> proce){
+        auto streams = proce->getTargetStreams();
+        int act_tag = 0;
+        for (unsigned int i = 0; i < proce->getStreamsSum() ; i++) {
+          if (proce->target_streams_[i].enabled_mode_ == MODE_LAST) {
+            act_tag++;
+            proce->target_streams_[i].enabled_mode_ = MODE_SYNTHETIC;
+          }
+        }
+        if (act_tag > 0 && !proce->IsActivated()) {
+          // std::cout << proce->Name() << " Active now" << std::endl;
+          proce->Activate();
+        }
+      });
+}
 
 
 bool Synthetic::Supports(const Stream &stream) const {
@@ -257,12 +228,23 @@ Synthetic::mode_t Synthetic::SupportsMode(const Stream &stream) const {
   return MODE_LAST;
 }
 
-void Synthetic::EnableStreamData(const Stream &stream) {
-  EnableStreamData(stream, 0);
-}
-
 void Synthetic::DisableStreamData(const Stream &stream) {
-  DisableStreamData(stream, 0);
+  auto processor = getProcessorWithStream(stream);
+  iterate_processor_PtoC_before(processor,
+      [](std::shared_ptr<Processor> proce){
+        auto streams = proce->getTargetStreams();
+        int act_tag = 0;
+        for (unsigned int i = 0; i < proce->getStreamsSum() ; i++) {
+          if (proce->target_streams_[i].enabled_mode_ == MODE_SYNTHETIC) {
+            act_tag++;
+            proce->target_streams_[i].enabled_mode_ = MODE_LAST;
+          }
+        }
+        if (act_tag > 0 && proce->IsActivated()) {
+          // std::cout << proce->Name() << "Deactive now" << std::endl;
+          proce->Deactivate();
+        }
+      });
 }
 
 bool Synthetic::IsStreamDataEnabled(const Stream &stream) const {
@@ -349,7 +331,6 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
     auto sum = processor->getStreamsSum();
     auto &&out = processor->GetOutput();
     static std::shared_ptr<ObjMat2> output = nullptr;
-    std::cout << processor->Name() << stream <<std::endl;
     if (sum == 1) {
       if (out != nullptr) {
         auto &&output = Object::Cast<ObjMat>(out);
@@ -467,205 +448,6 @@ bool Synthetic::IsStreamEnabledNative(const Stream &stream) const {
 
 bool Synthetic::IsStreamEnabledSynthetic(const Stream &stream) const {
   return GetStreamEnabledMode(stream) == MODE_SYNTHETIC;
-}
-
-void Synthetic::EnableStreamData(const Stream &stream, std::uint32_t depth) {
-  if (IsStreamDataEnabled(stream))
-    return;
-  // Activate processors of synthetic stream
-
-  auto processor = getProcessorWithStream(stream);
-  for (unsigned int i = 0; i< processor->target_streams_.size(); i++) {
-    if (processor->target_streams_[i].stream == stream) {
-      processor->target_streams_[i].enabled_mode_ = MODE_SYNTHETIC;
-    }
-  }
-  switch (stream) {
-    case Stream::LEFT_RECTIFIED: {
-      if (!IsStreamDataEnabled(Stream::LEFT))
-        break;
-      if (calib_model_ ==  CalibrationModel::PINHOLE) {
-        CHECK(ActivateProcessor<RectifyProcessorOCV>());
-#ifdef WITH_CAM_MODELS
-      } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-        CHECK(ActivateProcessor<RectifyProcessor>());
-#endif
-      } else {
-        LOG(ERROR) << "Unknow calib model type in device: "
-                  << calib_model_ << ", use default pinhole model";
-        CHECK(ActivateProcessor<RectifyProcessorOCV>());
-      }
-    } return;
-    case Stream::RIGHT_RECTIFIED: {
-      if (!IsStreamDataEnabled(Stream::RIGHT))
-        break;
-      if (calib_model_ ==  CalibrationModel::PINHOLE) {
-        CHECK(ActivateProcessor<RectifyProcessorOCV>());
-#ifdef WITH_CAM_MODELS
-      } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-        CHECK(ActivateProcessor<RectifyProcessor>());
-#endif
-      } else {
-        LOG(ERROR) << "Unknow calib model type in device: "
-                  << calib_model_ << ", use default pinhole model";
-        CHECK(ActivateProcessor<RectifyProcessorOCV>());
-      }
-    } return;
-    case Stream::DISPARITY: {
-      EnableStreamData(Stream::LEFT_RECTIFIED, depth + 1);
-      EnableStreamData(Stream::RIGHT_RECTIFIED, depth + 1);
-      CHECK(ActivateProcessor<DisparityProcessor>());
-    } return;
-    case Stream::DISPARITY_NORMALIZED: {
-      EnableStreamData(Stream::DISPARITY, depth + 1);
-      CHECK(ActivateProcessor<DisparityNormalizedProcessor>());
-    } return;
-    case Stream::POINTS: {
-      if (calib_model_ ==  CalibrationModel::PINHOLE) {
-        EnableStreamData(Stream::DISPARITY, depth + 1);
-        CHECK(ActivateProcessor<PointsProcessorOCV>());
-#ifdef WITH_CAM_MODELS
-      } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-        EnableStreamData(Stream::DEPTH, depth + 1);
-        CHECK(ActivateProcessor<PointsProcessor>());
-#endif
-      } else {
-        LOG(ERROR) << "Unknow calib model type in device: "
-                   << calib_model_;
-      }
-    } return;
-    case Stream::DEPTH: {
-      if (calib_model_ ==  CalibrationModel::PINHOLE) {
-        EnableStreamData(Stream::POINTS, depth + 1);
-        CHECK(ActivateProcessor<DepthProcessorOCV>());
-#ifdef WITH_CAM_MODELS
-      } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-        EnableStreamData(Stream::DISPARITY, depth + 1);
-        CHECK(ActivateProcessor<DepthProcessor>());
-#endif
-      } else {
-        LOG(ERROR) << "Unknow calib model type in device: "
-                   << calib_model_;
-      }
-    } return;
-    default: break;
-  }
-  if (depth == 0) {
-    LOG(WARNING) << "Enable stream data of " << stream << " failed";
-  }
-}
-
-void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
-  if (!IsStreamDataEnabled(stream))
-    return;
-  // Deactivate processors of synthetic stream
-  auto data = getControlDateWithStream(stream);
-  if (data.enabled_mode_ != MODE_NATIVE) {
-    data.enabled_mode_ = MODE_LAST;
-    switch (stream) {
-      case Stream::LEFT_RECTIFIED: {
-        if (IsStreamEnabledSynthetic(Stream::DISPARITY)) {
-          DisableStreamData(Stream::DISPARITY, depth + 1);
-        }
-        if (IsStreamEnabledSynthetic(Stream::RIGHT_RECTIFIED)) {
-          DisableStreamData(Stream::RIGHT_RECTIFIED, depth + 1);
-        }
-        if (calib_model_ ==  CalibrationModel::PINHOLE) {
-          DeactivateProcessor<RectifyProcessorOCV>();
-#ifdef WITH_CAM_MODELS
-        } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-          DeactivateProcessor<RectifyProcessor>();
-#endif
-        } else {
-          LOG(ERROR) << "Unknow calib model type in device: "
-                    << calib_model_ << ", use default pinhole model";
-          DeactivateProcessor<RectifyProcessorOCV>();
-        }
-      } break;
-      case Stream::RIGHT_RECTIFIED: {
-        if (IsStreamEnabledSynthetic(Stream::DISPARITY)) {
-          DisableStreamData(Stream::DISPARITY, depth + 1);
-        }
-        if (IsStreamEnabledSynthetic(Stream::LEFT_RECTIFIED)) {
-          DisableStreamData(Stream::LEFT_RECTIFIED, depth + 1);
-        }
-        if (calib_model_ ==  CalibrationModel::PINHOLE) {
-          DeactivateProcessor<RectifyProcessorOCV>();
-#ifdef WITH_CAM_MODELS
-        } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-          DeactivateProcessor<RectifyProcessor>();
-#endif
-        } else {
-          LOG(ERROR) << "Unknow calib model type in device: "
-                    << calib_model_ << ", use default pinhole model";
-          DeactivateProcessor<RectifyProcessorOCV>();
-        }
-      } break;
-      case Stream::DISPARITY: {
-        if (calib_model_ ==  CalibrationModel::PINHOLE) {
-          if (IsStreamEnabledSynthetic(Stream::DISPARITY_NORMALIZED)) {
-            DisableStreamData(Stream::DISPARITY_NORMALIZED, depth + 1);
-          }
-          if (IsStreamEnabledSynthetic(Stream::POINTS)) {
-            DisableStreamData(Stream::POINTS, depth + 1);
-          }
-          DeactivateProcessor<DisparityProcessor>();
-#ifdef WITH_CAM_MODELS
-        } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-          if (IsStreamEnabledSynthetic(Stream::DISPARITY_NORMALIZED)) {
-            DisableStreamData(Stream::DISPARITY_NORMALIZED, depth + 1);
-          }
-          if (IsStreamEnabledSynthetic(Stream::DEPTH)) {
-            DisableStreamData(Stream::DEPTH, depth + 1);
-          }
-          DeactivateProcessor<DisparityProcessor>();
-#endif
-        } else {
-          LOG(ERROR) << "Unknow calib model type in device: "
-                    << calib_model_;
-        }
-      } break;
-      case Stream::DISPARITY_NORMALIZED: {
-        DeactivateProcessor<DisparityNormalizedProcessor>();
-      } break;
-      case Stream::POINTS: {
-        if (calib_model_ ==  CalibrationModel::PINHOLE) {
-          if (IsStreamEnabledSynthetic(Stream::DEPTH)) {
-            DisableStreamData(Stream::DEPTH, depth + 1);
-          }
-          DeactivateProcessor<PointsProcessorOCV>();
-#ifdef WITH_CAM_MODELS
-        } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-          DeactivateProcessor<PointsProcessor>();
-#endif
-        } else {
-          LOG(ERROR) << "Unknow calib model type in device: "
-                    << calib_model_;
-        }
-      } break;
-      case Stream::DEPTH: {
-        if (calib_model_ ==  CalibrationModel::PINHOLE) {
-          DeactivateProcessor<DepthProcessorOCV>();
-#ifdef WITH_CAM_MODELS
-        } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-          if (IsStreamEnabledSynthetic(Stream::POINTS)) {
-            DisableStreamData(Stream::POINTS, depth + 1);
-          }
-          DeactivateProcessor<DepthProcessor>();
-#endif
-        } else {
-          LOG(ERROR) << "Unknow calib model type in device: "
-                    << calib_model_;
-        }
-      } break;
-      default: return;
-    }
-    if (depth > 0) {
-      LOG(WARNING) << "Disable synthetic stream data of " << stream << " too";
-    }
-  } else if (depth == 0) {
-    LOG(WARNING) << "Disable native stream data of " << stream << " failed";
-  }
 }
 
 void Synthetic::InitProcessors() {
