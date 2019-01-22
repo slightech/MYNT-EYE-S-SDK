@@ -66,7 +66,6 @@ DisparityProcessor::DisparityProcessor(DisparityProcessorType type,
 #endif
 #ifdef WITH_BM_SOBEL_FILTER
   } else if (type_ == DisparityProcessorType::BM) {
-    int bmWinSize = 3;
 #ifdef WITH_OPENCV2
     LOG(ERROR) << "not supported in opencv 2.x";
     // int bmWinSize = 3;
@@ -147,7 +146,8 @@ Object *DisparityProcessor::OnCreateOutput() {
 }
 
 bool DisparityProcessor::OnProcess(
-    Object *const in, Object *const out, Processor *const parent) {
+    Object *const in, Object *const out,
+    std::shared_ptr<Processor> const parent) {
   MYNTEYE_UNUSED(parent)
   const ObjMat2 *input = Object::Cast<ObjMat2>(in);
   ObjMat *output = Object::Cast<ObjMat>(out);

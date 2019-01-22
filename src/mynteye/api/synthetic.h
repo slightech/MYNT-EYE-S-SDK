@@ -88,15 +88,20 @@ class Synthetic {
   void ProcessNativeStream(const Stream &stream, const api::StreamData &data);
 
   bool OnRectifyProcess(
-      Object *const in, Object *const out, Processor *const parent);
+      Object *const in, Object *const out,
+      std::shared_ptr<Processor> const parent);
   bool OnDisparityProcess(
-      Object *const in, Object *const out, Processor *const parent);
+      Object *const in, Object *const out,
+      std::shared_ptr<Processor> const parent);
   bool OnDisparityNormalizedProcess(
-      Object *const in, Object *const out, Processor *const parent);
+      Object *const in, Object *const out,
+      std::shared_ptr<Processor> const parent);
   bool OnPointsProcess(
-      Object *const in, Object *const out, Processor *const parent);
+      Object *const in, Object *const out,
+      std::shared_ptr<Processor> const parent);
   bool OnDepthProcess(
-      Object *const in, Object *const out, Processor *const parent);
+      Object *const in, Object *const out,
+      std::shared_ptr<Processor> const parent);
 
   void OnRectifyPostProcess(Object *const out);
   void OnDisparityPostProcess(Object *const out);

@@ -809,7 +809,8 @@ void Synthetic::ProcessNativeStream(
 }
 
 bool Synthetic::OnRectifyProcess(
-    Object *const in, Object *const out, Processor *const parent) {
+    Object *const in, Object *const out,
+    std::shared_ptr<Processor> const parent) {
   MYNTEYE_UNUSED(parent)
   if (plugin_ && plugin_->OnRectifyProcess(in, out)) {
     return true;
@@ -819,7 +820,8 @@ bool Synthetic::OnRectifyProcess(
 }
 
 bool Synthetic::OnDisparityProcess(
-    Object *const in, Object *const out, Processor *const parent) {
+    Object *const in, Object *const out,
+    std::shared_ptr<Processor> const parent) {
   MYNTEYE_UNUSED(parent)
   if (plugin_ && plugin_->OnDisparityProcess(in, out)) {
     return true;
@@ -828,7 +830,8 @@ bool Synthetic::OnDisparityProcess(
 }
 
 bool Synthetic::OnDisparityNormalizedProcess(
-    Object *const in, Object *const out, Processor *const parent) {
+    Object *const in, Object *const out,
+    std::shared_ptr<Processor> const parent) {
   MYNTEYE_UNUSED(parent)
   if (plugin_ && plugin_->OnDisparityNormalizedProcess(in, out)) {
     return true;
@@ -837,7 +840,8 @@ bool Synthetic::OnDisparityNormalizedProcess(
 }
 
 bool Synthetic::OnPointsProcess(
-    Object *const in, Object *const out, Processor *const parent) {
+    Object *const in, Object *const out,
+    std::shared_ptr<Processor> const parent) {
   MYNTEYE_UNUSED(parent)
   if (plugin_ && plugin_->OnPointsProcess(in, out)) {
     return true;
@@ -846,7 +850,8 @@ bool Synthetic::OnPointsProcess(
 }
 
 bool Synthetic::OnDepthProcess(
-    Object *const in, Object *const out, Processor *const parent) {
+    Object *const in, Object *const out,
+    std::shared_ptr<Processor> const parent) {
   MYNTEYE_UNUSED(parent)
   if (plugin_ && plugin_->OnDepthProcess(in, out)) {
     return true;
