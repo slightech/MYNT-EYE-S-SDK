@@ -158,16 +158,9 @@ const struct Synthetic::stream_control_t Synthetic::getControlDateWithStream(
 
 std::shared_ptr<Processor> Synthetic::getProcessorWithStream(
     const Stream& stream) {
-  // for (auto &&it : processors_) {
-  //   std::cout << it->Name();
-  //   for (auto it_s : it->getTargetStreams()) {
-  //     std::cout << it_s.stream << "----" << it_s.mode << std::endl;
-  //   }
-  // }
   for (auto &&it : processors_) {
     for (auto it_s : it->getTargetStreams()) {
       if (it_s.stream == stream) {
-        // std::cout << it_s.stream << "----" << it_s.mode << std::endl;
         return it;
       }
     }
@@ -190,20 +183,20 @@ void Synthetic::setControlDateCallbackWithStream(
   LOG(ERROR) << "ERROR: no suited processor for stream "<< ctr_data.stream;
 }
 
-void Synthetic::setControlDateModeWithStream(
-    const struct stream_control_t& ctr_data) {
-  for (auto &&it : processors_) {
-    int i = 0;
-    for (auto it_s : it->getTargetStreams()) {
-      if (it_s.stream == ctr_data.stream) {
-        it->target_streams_[i].mode = ctr_data.mode;
-        return;
-      }
-      i++;
-    }
-  }
-  LOG(ERROR) << "ERROR: no suited processor for stream "<< ctr_data.stream;
-}
+// void Synthetic::setControlDateModeWithStream(
+//     const struct stream_control_t& ctr_data) {
+//   for (auto &&it : processors_) {
+//     int i = 0;
+//     for (auto it_s : it->getTargetStreams()) {
+//       if (it_s.stream == ctr_data.stream) {
+//         it->target_streams_[i].mode = ctr_data.mode;
+//         return;
+//       }
+//       i++;
+//     }
+//   }
+//   LOG(ERROR) << "ERROR: no suited processor for stream "<< ctr_data.stream;
+// }
 
 bool Synthetic::checkControlDateWithStream(const Stream& stream) const {
   for (auto &&it : processors_) {
@@ -220,15 +213,15 @@ bool Synthetic::checkControlDateWithStream(const Stream& stream) const {
 //   return checkControlDateWithStream(stream);
 // }
 
-Synthetic::status_mode_t Synthetic::GetStreamStatusMode(
-    const Stream &stream) const {
-  if (checkControlDateWithStream(stream)) {
-    auto ctrData = getControlDateWithStream(stream);
-    return ctrData.mode;
-  } else {
-    return MODE_STATUS_LAST;
-  }
-}
+// Synthetic::status_mode_t Synthetic::GetStreamStatusMode(
+//     const Stream &stream) const {
+//   if (checkControlDateWithStream(stream)) {
+//     auto ctrData = getControlDateWithStream(stream);
+//     return ctrData.mode;
+//   } else {
+//     return MODE_STATUS_LAST;
+//   }
+// }
 
 // void Synthetic::EnableStreamData(const Stream &stream) {
 //   // Activate processors of synthetic stream
@@ -283,15 +276,24 @@ bool Synthetic::IsStreamDataEnabled(const Stream &stream) const {
 
 void Synthetic::SetStreamCallback(
     const Stream &stream, stream_callback_t callback) {
+  stream_control_t data;
+  data.stream = stream;
   if (callback == nullptr) {
-    stream_callbacks_.erase(stream);
+    data.stream_callback = nullptr;
   } else {
-    stream_callbacks_[stream] = callback;
+    data.stream_callback = callback;
   }
+  setControlDateCallbackWithStream(data);
 }
 
 bool Synthetic::HasStreamCallback(const Stream &stream) const {
-  return stream_callbacks_.find(stream) != stream_callbacks_.end();
+  if (checkControlDateWithStream(stream)) {
+    auto data = getControlDateWithStream(stream);
+    if (data.stream_callback != nullptr) {
+      return true;
+    }
+  }
+  return false;
 }
 
 void Synthetic::StartVideoStreaming() {
@@ -308,7 +310,8 @@ void Synthetic::StartVideoStreaming() {
             ProcessNativeStream(stream, stream_data);
             // Need mutex if set callback after start
             if (HasStreamCallback(stream)) {
-              stream_callbacks_.at(stream)(stream_data);
+              auto data = getControlDateWithStream(stream);
+              data.stream_callback(stream_data);
             }
           },
           true);
@@ -790,14 +793,22 @@ void Synthetic::InitProcessors() {
         std::make_shared<RootProcessor>(RECTIFY_PROC_PERIOD);
   root_processor->AddChild(rectify_processor);
 
-  rectify_processor->addTargetStreams({Stream::LEFT_RECTIFIED, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
-  rectify_processor->addTargetStreams({Stream::RIGHT_RECTIFIED, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
-  disparity_processor->addTargetStreams({Stream::DISPARITY, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
-  disparitynormalized_processor->addTargetStreams({Stream::DISPARITY_NORMALIZED, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
-  points_processor->addTargetStreams({Stream::POINTS, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
-  depth_processor->addTargetStreams({Stream::DEPTH, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
-  root_processor->addTargetStreams({Stream::LEFT, StatusMode::MODE_STATUS_LAST, Mode::MODE_NATIVE, Mode::MODE_NATIVE, nullptr});
-  root_processor->addTargetStreams({Stream::RIGHT, StatusMode::MODE_STATUS_LAST, Mode::MODE_NATIVE, Mode::MODE_NATIVE, nullptr});
+  rectify_processor->addTargetStreams(
+      {Stream::LEFT_RECTIFIED, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
+  rectify_processor->addTargetStreams(
+      {Stream::RIGHT_RECTIFIED, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
+  disparity_processor->addTargetStreams(
+      {Stream::DISPARITY, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
+  disparitynormalized_processor->addTargetStreams(
+      {Stream::DISPARITY_NORMALIZED, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
+  points_processor->addTargetStreams(
+      {Stream::POINTS, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
+  depth_processor->addTargetStreams(
+      {Stream::DEPTH, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
+  root_processor->addTargetStreams(
+      {Stream::LEFT, Mode::MODE_NATIVE, Mode::MODE_NATIVE, nullptr});
+  root_processor->addTargetStreams(
+      {Stream::RIGHT, Mode::MODE_NATIVE, Mode::MODE_NATIVE, nullptr});
 
   processors_.push_back(root_processor);
   processors_.push_back(rectify_processor);
@@ -1007,11 +1018,13 @@ bool Synthetic::OnDepthProcess(
 void Synthetic::OnRectifyPostProcess(Object *const out) {
   const ObjMat2 *output = Object::Cast<ObjMat2>(out);
   if (HasStreamCallback(Stream::LEFT_RECTIFIED)) {
-    stream_callbacks_.at(Stream::LEFT_RECTIFIED)(
+    auto data = getControlDateWithStream(Stream::LEFT_RECTIFIED);
+    data.stream_callback(
         {output->first_data, output->first, nullptr, output->first_id});
   }
   if (HasStreamCallback(Stream::RIGHT_RECTIFIED)) {
-    stream_callbacks_.at(Stream::RIGHT_RECTIFIED)(
+    auto data = getControlDateWithStream(Stream::RIGHT_RECTIFIED);
+    data.stream_callback(
         {output->second_data, output->second, nullptr, output->second_id});
   }
 }
@@ -1019,7 +1032,8 @@ void Synthetic::OnRectifyPostProcess(Object *const out) {
 void Synthetic::OnDisparityPostProcess(Object *const out) {
   const ObjMat *output = Object::Cast<ObjMat>(out);
   if (HasStreamCallback(Stream::DISPARITY)) {
-    stream_callbacks_.at(Stream::DISPARITY)(
+    auto data = getControlDateWithStream(Stream::DISPARITY);
+    data.stream_callback(
         {output->data, output->value, nullptr, output->id});
   }
 }
@@ -1027,7 +1041,8 @@ void Synthetic::OnDisparityPostProcess(Object *const out) {
 void Synthetic::OnDisparityNormalizedPostProcess(Object *const out) {
   const ObjMat *output = Object::Cast<ObjMat>(out);
   if (HasStreamCallback(Stream::DISPARITY_NORMALIZED)) {
-    stream_callbacks_.at(Stream::DISPARITY_NORMALIZED)(
+    auto data = getControlDateWithStream(Stream::DISPARITY_NORMALIZED);
+    data.stream_callback(
         {output->data, output->value, nullptr, output->id});
   }
 }
@@ -1035,7 +1050,8 @@ void Synthetic::OnDisparityNormalizedPostProcess(Object *const out) {
 void Synthetic::OnPointsPostProcess(Object *const out) {
   const ObjMat *output = Object::Cast<ObjMat>(out);
   if (HasStreamCallback(Stream::POINTS)) {
-    stream_callbacks_.at(Stream::POINTS)(
+    auto data = getControlDateWithStream(Stream::POINTS);
+    data.stream_callback(
         {output->data, output->value, nullptr, output->id});
   }
 }
@@ -1043,7 +1059,8 @@ void Synthetic::OnPointsPostProcess(Object *const out) {
 void Synthetic::OnDepthPostProcess(Object *const out) {
   const ObjMat *output = Object::Cast<ObjMat>(out);
   if (HasStreamCallback(Stream::DEPTH)) {
-    stream_callbacks_.at(Stream::DEPTH)(
+    auto data = getControlDateWithStream(Stream::DEPTH);
+    data.stream_callback(
         {output->data, output->value, nullptr, output->id});
   }
 }
