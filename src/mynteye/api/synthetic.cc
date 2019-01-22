@@ -156,6 +156,25 @@ const struct Synthetic::stream_control_t Synthetic::getControlDateWithStream(
   return {};
 }
 
+std::shared_ptr<Processor> Synthetic::getProcessorWithStream(
+    const Stream& stream) {
+  // for (auto &&it : processors_) {
+  //   std::cout << it->Name();
+  //   for (auto it_s : it->getTargetStreams()) {
+  //     std::cout << it_s.stream << "----" << it_s.mode << std::endl;
+  //   }
+  // }
+  for (auto &&it : processors_) {
+    for (auto it_s : it->getTargetStreams()) {
+      if (it_s.stream == stream) {
+        // std::cout << it_s.stream << "----" << it_s.mode << std::endl;
+        return it;
+      }
+    }
+  }
+  LOG(ERROR) << "ERROR: no suited processor for stream "<< stream;
+}
+
 void Synthetic::setControlDateCallbackWithStream(
     const struct stream_control_t& ctr_data) {
   for (auto &&it : processors_) {
@@ -194,7 +213,7 @@ bool Synthetic::checkControlDateWithStream(const Stream& stream) const {
       }
     }
   }
-  return stream == Stream::LEFT || stream == Stream::RIGHT;
+  return false;
 }
 
 // bool Synthetic::Supports(const Stream &stream) const {
@@ -234,15 +253,15 @@ Synthetic::status_mode_t Synthetic::GetStreamStatusMode(
 
 
 bool Synthetic::Supports(const Stream &stream) const {
-  return stream_supports_mode_.find(stream) != stream_supports_mode_.end();
+  return checkControlDateWithStream(stream);
 }
 
 Synthetic::mode_t Synthetic::SupportsMode(const Stream &stream) const {
-  try {
-    return stream_supports_mode_.at(stream);
-  } catch (const std::out_of_range &e) {
-    return MODE_LAST;
+  if (checkControlDateWithStream(stream)) {
+    auto data = getControlDateWithStream(stream);
+    return data.support_mode_;
   }
+  return MODE_LAST;
 }
 
 void Synthetic::EnableStreamData(const Stream &stream) {
@@ -254,7 +273,12 @@ void Synthetic::DisableStreamData(const Stream &stream) {
 }
 
 bool Synthetic::IsStreamDataEnabled(const Stream &stream) const {
-  return stream_enabled_mode_.find(stream) != stream_enabled_mode_.end();
+  if (checkControlDateWithStream(stream)) {
+    auto data = getControlDateWithStream(stream);
+    return data.enabled_mode_ == MODE_SYNTHETIC ||
+        data.enabled_mode_ == MODE_NATIVE;
+  }
+  return false;
 }
 
 void Synthetic::SetStreamCallback(
@@ -272,11 +296,12 @@ bool Synthetic::HasStreamCallback(const Stream &stream) const {
 
 void Synthetic::StartVideoStreaming() {
   auto &&device = api_->device();
-  for (auto &&it = stream_supports_mode_.begin();
-       it != stream_supports_mode_.end(); it++) {
-    if (it->second == MODE_NATIVE) {
-      auto &&stream = it->first;
-      device->SetStreamCallback(
+  for (unsigned int i =0; i< processors_.size(); i++) {
+    auto streams = processors_[i]->getTargetStreams();
+    for (unsigned int j =0; j< streams.size(); j++) {
+      if (processors_[i]->target_streams_[j].support_mode_ == MODE_NATIVE) {
+        auto stream = processors_[i]->target_streams_[j].stream;
+        device->SetStreamCallback(
           stream,
           [this, stream](const device::StreamData &data) {
             auto &&stream_data = data2api(data);
@@ -287,6 +312,7 @@ void Synthetic::StartVideoStreaming() {
             }
           },
           true);
+      }
     }
   }
   device->Start(Source::VIDEO_STREAMING);
@@ -294,10 +320,13 @@ void Synthetic::StartVideoStreaming() {
 
 void Synthetic::StopVideoStreaming() {
   auto &&device = api_->device();
-  for (auto &&it = stream_supports_mode_.begin();
-       it != stream_supports_mode_.end(); it++) {
-    if (it->second == MODE_NATIVE) {
-      device->SetStreamCallback(it->first, nullptr);
+  for (unsigned int i =0; i< processors_.size(); i++) {
+    auto streams = processors_[i]->getTargetStreams();
+    for (unsigned int j =0; j< streams.size(); j++) {
+      if (processors_[i]->target_streams_[j].support_mode_ == MODE_NATIVE) {
+        auto stream = processors_[i]->target_streams_[j].stream;
+        device->SetStreamCallback(stream, nullptr);
+      }
     }
   }
   device->Stop(Source::VIDEO_STREAMING);
@@ -453,37 +482,42 @@ bool Synthetic::HasPlugin() const {
 void Synthetic::InitStreamSupports() {
   auto &&device = api_->device();
   if (device->Supports(Stream::LEFT) && device->Supports(Stream::RIGHT)) {
-    stream_supports_mode_[Stream::LEFT] = MODE_NATIVE;
-    stream_supports_mode_[Stream::RIGHT] = MODE_NATIVE;
+    auto processor = getProcessorWithStream(Stream::LEFT);
+    for (unsigned int i = 0; i< processor->target_streams_.size(); i++) {
+      if (processor->target_streams_[i].stream == Stream::LEFT) {
+        processor->target_streams_[i].support_mode_ = MODE_NATIVE;
+      }
+      if (processor->target_streams_[i].stream == Stream::RIGHT) {
+        processor->target_streams_[i].support_mode_ = MODE_NATIVE;
+      }
+    }
 
     std::vector<Stream> stream_chain{
         Stream::LEFT_RECTIFIED, Stream::RIGHT_RECTIFIED,
         Stream::DISPARITY,      Stream::DISPARITY_NORMALIZED,
         Stream::POINTS,         Stream::DEPTH};
     for (auto &&stream : stream_chain) {
-      if (device->Supports(stream)) {
-        stream_supports_mode_[stream] = MODE_NATIVE;
-      } else {
-        stream_supports_mode_[stream] = MODE_SYNTHETIC;
+      auto processor = getProcessorWithStream(stream);
+      for (unsigned int i = 0; i< processor->target_streams_.size(); i++) {
+        if (processor->target_streams_[i].stream == stream) {
+          if (device->Supports(stream)) {
+            processor->target_streams_[i].support_mode_ = MODE_NATIVE;
+            processor->target_streams_[i].enabled_mode_ = MODE_NATIVE;
+          } else {
+            processor->target_streams_[i].support_mode_ = MODE_SYNTHETIC;
+          }
+        }
       }
-    }
-  }
-
-  // Enabled native streams by default
-  for (auto &&it = stream_supports_mode_.begin();
-       it != stream_supports_mode_.end(); it++) {
-    if (it->second == MODE_NATIVE) {
-      stream_enabled_mode_[it->first] = MODE_NATIVE;
     }
   }
 }
 
 Synthetic::mode_t Synthetic::GetStreamEnabledMode(const Stream &stream) const {
-  try {
-    return stream_enabled_mode_.at(stream);
-  } catch (const std::out_of_range &e) {
-    return MODE_LAST;
+  if (checkControlDateWithStream(stream)) {
+    auto data = getControlDateWithStream(stream);
+    return data.enabled_mode_;
   }
+  return MODE_LAST;
 }
 
 bool Synthetic::IsStreamEnabledNative(const Stream &stream) const {
@@ -498,11 +532,17 @@ void Synthetic::EnableStreamData(const Stream &stream, std::uint32_t depth) {
   if (IsStreamDataEnabled(stream))
     return;
   // Activate processors of synthetic stream
+
+  auto processor = getProcessorWithStream(stream);
+  for (unsigned int i = 0; i< processor->target_streams_.size(); i++) {
+    if (processor->target_streams_[i].stream == stream) {
+      processor->target_streams_[i].enabled_mode_ = MODE_SYNTHETIC;
+    }
+  }
   switch (stream) {
     case Stream::LEFT_RECTIFIED: {
       if (!IsStreamDataEnabled(Stream::LEFT))
         break;
-      stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       if (calib_model_ ==  CalibrationModel::PINHOLE) {
         CHECK(ActivateProcessor<RectifyProcessorOCV>());
 #ifdef WITH_CAM_MODELS
@@ -518,7 +558,6 @@ void Synthetic::EnableStreamData(const Stream &stream, std::uint32_t depth) {
     case Stream::RIGHT_RECTIFIED: {
       if (!IsStreamDataEnabled(Stream::RIGHT))
         break;
-      stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       if (calib_model_ ==  CalibrationModel::PINHOLE) {
         CHECK(ActivateProcessor<RectifyProcessorOCV>());
 #ifdef WITH_CAM_MODELS
@@ -532,18 +571,15 @@ void Synthetic::EnableStreamData(const Stream &stream, std::uint32_t depth) {
       }
     } return;
     case Stream::DISPARITY: {
-      stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       EnableStreamData(Stream::LEFT_RECTIFIED, depth + 1);
       EnableStreamData(Stream::RIGHT_RECTIFIED, depth + 1);
       CHECK(ActivateProcessor<DisparityProcessor>());
     } return;
     case Stream::DISPARITY_NORMALIZED: {
-      stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       EnableStreamData(Stream::DISPARITY, depth + 1);
       CHECK(ActivateProcessor<DisparityNormalizedProcessor>());
     } return;
     case Stream::POINTS: {
-      stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       if (calib_model_ ==  CalibrationModel::PINHOLE) {
         EnableStreamData(Stream::DISPARITY, depth + 1);
         CHECK(ActivateProcessor<PointsProcessorOCV>());
@@ -558,7 +594,6 @@ void Synthetic::EnableStreamData(const Stream &stream, std::uint32_t depth) {
       }
     } return;
     case Stream::DEPTH: {
-      stream_enabled_mode_[stream] = MODE_SYNTHETIC;
       if (calib_model_ ==  CalibrationModel::PINHOLE) {
         EnableStreamData(Stream::POINTS, depth + 1);
         CHECK(ActivateProcessor<DepthProcessorOCV>());
@@ -583,8 +618,9 @@ void Synthetic::DisableStreamData(const Stream &stream, std::uint32_t depth) {
   if (!IsStreamDataEnabled(stream))
     return;
   // Deactivate processors of synthetic stream
-  if (stream_enabled_mode_[stream] != MODE_NATIVE) {
-    stream_enabled_mode_.erase(stream);
+  auto data = getControlDateWithStream(stream);
+  if (data.enabled_mode_ != MODE_NATIVE) {
+    data.enabled_mode_ = MODE_LAST;
     switch (stream) {
       case Stream::LEFT_RECTIFIED: {
         if (IsStreamEnabledSynthetic(Stream::DISPARITY)) {
@@ -750,18 +786,18 @@ void Synthetic::InitProcessors() {
   } else {
     depth_processor = std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
   }
+  auto root_processor =
+        std::make_shared<RootProcessor>(RECTIFY_PROC_PERIOD);
+  root_processor->AddChild(rectify_processor);
+
   rectify_processor->addTargetStreams({Stream::LEFT_RECTIFIED, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
   rectify_processor->addTargetStreams({Stream::RIGHT_RECTIFIED, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
   disparity_processor->addTargetStreams({Stream::DISPARITY, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
   disparitynormalized_processor->addTargetStreams({Stream::DISPARITY_NORMALIZED, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
   points_processor->addTargetStreams({Stream::POINTS, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
   depth_processor->addTargetStreams({Stream::DEPTH, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
-
-  auto root_processor =
-        std::make_shared<RootProcessor>(RECTIFY_PROC_PERIOD);
-  root_processor->addTargetStreams({Stream::LEFT, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
-  root_processor->addTargetStreams({Stream::RIGHT, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
-  root_processor->AddChild(rectify_processor);
+  root_processor->addTargetStreams({Stream::LEFT, StatusMode::MODE_STATUS_LAST, Mode::MODE_NATIVE, Mode::MODE_NATIVE, nullptr});
+  root_processor->addTargetStreams({Stream::RIGHT, StatusMode::MODE_STATUS_LAST, Mode::MODE_NATIVE, Mode::MODE_NATIVE, nullptr});
 
   processors_.push_back(root_processor);
   processors_.push_back(rectify_processor);

@@ -87,6 +87,7 @@ class Synthetic {
   void setControlDateModeWithStream(const struct stream_control_t& ctr_data);
   bool checkControlDateWithStream(const Stream& stream) const;
   status_mode_t GetStreamStatusMode(const Stream &stream) const;
+  std::shared_ptr<Processor> getProcessorWithStream(const Stream& stream);
 
  private:
   void InitCalibInfo();
@@ -131,9 +132,6 @@ class Synthetic {
   void OnDepthPostProcess(Object *const out);
 
   API *api_;
-
-  std::map<Stream, mode_t> stream_supports_mode_;
-  std::map<Stream, mode_t> stream_enabled_mode_;
 
   std::map<Stream, stream_callback_t> stream_callbacks_;
 
