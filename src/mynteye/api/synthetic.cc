@@ -345,108 +345,46 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
     auto &&device = api_->device();
     return data2api(device->GetStreamData(stream));
   } else if (mode == MODE_SYNTHETIC) {
-    if (stream == Stream::LEFT_RECTIFIED || stream == Stream::RIGHT_RECTIFIED) {
-      static std::shared_ptr<ObjMat2> output = nullptr;
-      std::shared_ptr<Processor> processor = nullptr;
-      if (calib_model_ ==  CalibrationModel::PINHOLE) {
-        processor = find_processor<RectifyProcessorOCV>(processor_);
-#ifdef WITH_CAM_MODELS
-      } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-        processor = find_processor<RectifyProcessor>(processor_);
-#endif
-      } else {
-        LOG(ERROR) << "Unknow calib model type in device: "
-                  << calib_model_ << ", use default pinhole model";
-        processor = find_processor<RectifyProcessorOCV>(processor_);
-      }
-      auto &&out = processor->GetOutput();
+    auto processor = getProcessorWithStream(stream);
+    auto sum = processor->getStreamsSum();
+    auto &&out = processor->GetOutput();
+    static std::shared_ptr<ObjMat2> output = nullptr;
+    std::cout << processor->Name() << stream <<std::endl;
+    if (sum == 1) {
       if (out != nullptr) {
-        // Obtain the output, out will be nullptr if get again immediately.
+        auto &&output = Object::Cast<ObjMat>(out);
+        if (output != nullptr) {
+          return {output->data, output->value, nullptr, output->id};
+        }
+        VLOG(2) << "Rectify not ready now";
+      }
+    } else if (sum == 2) {
+      if (out != nullptr) {
         output = Object::Cast<ObjMat2>(out);
       }
+      auto streams = processor->getTargetStreams();
       if (output != nullptr) {
-        if (stream == Stream::LEFT_RECTIFIED) {
-          return {output->first_data, output->first, nullptr, output->first_id};
-        } else {
-          return {output->second_data, output->second, nullptr,
+        int num = 0;
+        for (auto it : streams) {
+          if (it.stream == stream) {
+            if (num == 0) {
+              return {output->first_data,
+                  output->first,
+                  nullptr,
+                  output->first_id};
+            } else {
+              return {output->second_data,
+                  output->second,
+                  nullptr,
                   output->second_id};
+            }
+          }
+          num++;
         }
       }
       VLOG(2) << "Rectify not ready now";
-      return {};
-    }
-    switch (stream) {
-      case Stream::DISPARITY: {
-        auto &&processor = find_processor<DisparityProcessor>(processor_);
-        auto &&out = processor->GetOutput();
-        if (out != nullptr) {
-          auto &&output = Object::Cast<ObjMat>(out);
-          return {output->data, output->value, nullptr, output->id};
-        }
-        VLOG(2) << "Disparity not ready now";
-      } break;
-      case Stream::DISPARITY_NORMALIZED: {
-        auto &&processor =
-            find_processor<DisparityNormalizedProcessor>(processor_);
-        auto &&out = processor->GetOutput();
-        if (out != nullptr) {
-          auto &&output = Object::Cast<ObjMat>(out);
-          return {output->data, output->value, nullptr, output->id};
-        }
-        VLOG(2) << "Disparity normalized not ready now";
-      } break;
-      case Stream::POINTS: {
-        if (calib_model_ ==  CalibrationModel::PINHOLE) {
-          auto &&processor = find_processor<PointsProcessorOCV>(processor_);
-          auto &&out = processor->GetOutput();
-          if (out != nullptr) {
-            auto &&output = Object::Cast<ObjMat>(out);
-            return {output->data, output->value, nullptr, output->id};
-          }
-          VLOG(2) << "Points not ready now";
-#ifdef WITH_CAM_MODELS
-        } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-          auto &&processor = find_processor<PointsProcessor>(processor_);
-          auto &&out = processor->GetOutput();
-          if (out != nullptr) {
-            auto &&output = Object::Cast<ObjMat>(out);
-            return {output->data, output->value, nullptr, output->id};
-          }
-          VLOG(2) << "Points not ready now";
-#endif
-        } else {
-          // UNKNOW
-          LOG(ERROR) << "Unknow calib model type in device: "
-                     << calib_model_;
-        }
-      } break;
-      case Stream::DEPTH: {
-        if (calib_model_ ==  CalibrationModel::PINHOLE) {
-          auto &&processor = find_processor<DepthProcessorOCV>(processor_);
-          auto &&out = processor->GetOutput();
-          if (out != nullptr) {
-            auto &&output = Object::Cast<ObjMat>(out);
-            return {output->data, output->value, nullptr, output->id};
-          }
-          VLOG(2) << "Depth not ready now";
-#ifdef WITH_CAM_MODELS
-        } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-          auto &&processor = find_processor<DepthProcessor>(processor_);
-          auto &&out = processor->GetOutput();
-          if (out != nullptr) {
-            auto &&output = Object::Cast<ObjMat>(out);
-            return {output->data, output->value, nullptr, output->id};
-          }
-          VLOG(2) << "Depth not ready now";
-#endif
-        } else {
-          // UNKNOW
-          LOG(ERROR) << "Unknow calib model type in device: "
-                     << calib_model_;
-        }
-      } break;
-      default:
-        break;
+    } else {
+      LOG(ERROR) << "error: invalid sum!";
     }
     return {};  // frame.empty() == true
   } else {
