@@ -25,6 +25,7 @@
 #include "mynteye/api/processor.h"
 #include "mynteye/api/processor/disparity_normalized_processor.h"
 #include "mynteye/api/processor/disparity_processor.h"
+#include "mynteye/api/processor/root_camera_processor.h"
 #include "mynteye/api/processor/rectify_processor_ocv.h"
 #include "mynteye/api/processor/depth_processor_ocv.h"
 #include "mynteye/api/processor/points_processor_ocv.h"
@@ -107,8 +108,8 @@ Synthetic::Synthetic(API *api, CalibrationModel calib_model)
   VLOG(2) << __func__;
   CHECK_NOTNULL(api_);
   InitCalibInfo();
-  InitStreamSupports();
   InitProcessors();
+  InitStreamSupports();
 }
 
 Synthetic::~Synthetic() {
@@ -141,6 +142,96 @@ void Synthetic::NotifyImageParamsChanged() {
     if (processor) processor->ReloadImageParams(intr_left_, intr_right_, extr_);
   }
 }
+
+const struct Synthetic::stream_control_t Synthetic::getControlDateWithStream(
+    const Stream& stream) const {
+  for (auto &&it : processors_) {
+    for (auto it_s : it->getTargetStreams()) {
+      if (it_s.stream == stream) {
+        return it_s;
+      }
+    }
+  }
+  LOG(ERROR) << "ERROR: no suited processor for stream "<< stream;
+  return {};
+}
+
+void Synthetic::setControlDateCallbackWithStream(
+    const struct stream_control_t& ctr_data) {
+  for (auto &&it : processors_) {
+    int i = 0;
+    for (auto it_s : it->getTargetStreams()) {
+      if (it_s.stream == ctr_data.stream) {
+        it->target_streams_[i].stream_callback = ctr_data.stream_callback;
+        return;
+      }
+      i++;
+    }
+  }
+  LOG(ERROR) << "ERROR: no suited processor for stream "<< ctr_data.stream;
+}
+
+void Synthetic::setControlDateModeWithStream(
+    const struct stream_control_t& ctr_data) {
+  for (auto &&it : processors_) {
+    int i = 0;
+    for (auto it_s : it->getTargetStreams()) {
+      if (it_s.stream == ctr_data.stream) {
+        it->target_streams_[i].mode = ctr_data.mode;
+        return;
+      }
+      i++;
+    }
+  }
+  LOG(ERROR) << "ERROR: no suited processor for stream "<< ctr_data.stream;
+}
+
+bool Synthetic::checkControlDateWithStream(const Stream& stream) const {
+  for (auto &&it : processors_) {
+    for (auto it_s : it->getTargetStreams()) {
+      if (it_s.stream == stream) {
+        return true;
+      }
+    }
+  }
+  return stream == Stream::LEFT || stream == Stream::RIGHT;
+}
+
+// bool Synthetic::Supports(const Stream &stream) const {
+//   return checkControlDateWithStream(stream);
+// }
+
+Synthetic::status_mode_t Synthetic::GetStreamStatusMode(
+    const Stream &stream) const {
+  if (checkControlDateWithStream(stream)) {
+    auto ctrData = getControlDateWithStream(stream);
+    return ctrData.mode;
+  } else {
+    return MODE_STATUS_LAST;
+  }
+}
+
+// void Synthetic::EnableStreamData(const Stream &stream) {
+//   // Activate processors of synthetic stream
+//   auto processor = getProcessorWithStream(stream);
+//   iterate_processors_CtoP_before(processor,
+//       [](std::shared_ptr<Processor> proce){
+//         auto streams = proce->getTargetStreams();
+//         int act_tag = 0;
+//         for (unsigned int i = 0; i < proce->getStreamsSum() ; i++) {
+//           if (proce->target_streams_[i].mode == MODE_STATUS_DISABLE) {
+//             act_tag++;
+//             proce->target_streams_[i].mode = MODE_STATUS_ENABLE;
+//           }
+//         }
+//         if (act_tag > 0) {
+//           std::cout << proce->Name() << "active" << std::endl;
+//           proce->Activate();
+//         }
+//         // std::cout <<std::endl;
+//       });
+// }
+
 
 bool Synthetic::Supports(const Stream &stream) const {
   return stream_supports_mode_.find(stream) != stream_supports_mode_.end();
@@ -659,7 +750,25 @@ void Synthetic::InitProcessors() {
   } else {
     depth_processor = std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
   }
+  rectify_processor->addTargetStreams({Stream::LEFT_RECTIFIED, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
+  rectify_processor->addTargetStreams({Stream::RIGHT_RECTIFIED, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
+  disparity_processor->addTargetStreams({Stream::DISPARITY, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
+  disparitynormalized_processor->addTargetStreams({Stream::DISPARITY_NORMALIZED, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
+  points_processor->addTargetStreams({Stream::POINTS, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
+  depth_processor->addTargetStreams({Stream::DEPTH, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
 
+  auto root_processor =
+        std::make_shared<RootProcessor>(RECTIFY_PROC_PERIOD);
+  root_processor->addTargetStreams({Stream::LEFT, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
+  root_processor->addTargetStreams({Stream::RIGHT, StatusMode::MODE_STATUS_LAST, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
+  root_processor->AddChild(rectify_processor);
+
+  processors_.push_back(root_processor);
+  processors_.push_back(rectify_processor);
+  processors_.push_back(disparity_processor);
+  processors_.push_back(disparitynormalized_processor);
+  processors_.push_back(points_processor);
+  processors_.push_back(depth_processor);
   using namespace std::placeholders;  // NOLINT
   rectify_processor->SetProcessCallback(
       std::bind(&Synthetic::OnRectifyProcess, this, _1, _2, _3));

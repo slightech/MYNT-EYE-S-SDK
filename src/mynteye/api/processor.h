@@ -24,7 +24,7 @@
 #include <string>
 #include <thread>
 #include <vector>
-// #include "mynteye/api/synthetic.h"
+#include "mynteye/api/synthetic.h"
 
 #include "mynteye/mynteye.h"
 #include "mynteye/api/object.h"
@@ -32,7 +32,8 @@
 MYNTEYE_BEGIN_NAMESPACE
 
 class Processor :
-    public std::enable_shared_from_this<Processor> {
+    public std::enable_shared_from_this<Processor>,
+    public SyntheticProcessorPart {
  public:
   using PreProcessCallback = std::function<void(Object *const)>;
   using PostProcessCallback = std::function<void(Object *const)>;

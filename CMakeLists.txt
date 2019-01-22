@@ -232,6 +232,7 @@ if(WITH_API)
     src/mynteye/api/synthetic.cc
     src/mynteye/api/processor/disparity_processor.cc
     src/mynteye/api/processor/disparity_normalized_processor.cc
+    src/mynteye/api/processor/root_camera_processor.cc
     src/mynteye/api/processor/points_processor_ocv.cc
     src/mynteye/api/processor/depth_processor_ocv.cc
     src/mynteye/api/processor/rectify_processor_ocv.cc
