@@ -24,7 +24,6 @@ option(WITH_API "Build with API layer, need OpenCV" ON)
 option(WITH_DEVICE_INFO_REQUIRED "Build with device info required" ON)
 
 option(WITH_CAM_MODELS "Build with more camera models, WITH_API must be ON" OFF)
-option(WITH_BM_SOBEL_FILTER "Build with bm and sobel filter, need OpenCV contronb" OFF)
 
 # 3rdparty components
 

@@ -80,6 +80,8 @@ class Synthetic {
       const struct stream_control_t& ctr_data);
   bool checkControlDateWithStream(const Stream& stream) const;
   std::shared_ptr<Processor> getProcessorWithStream(const Stream& stream);
+  void SetDisparityComputingMethodType(
+      const DisparityComputingMethod &MethoType);
 
  private:
   void InitCalibInfo();

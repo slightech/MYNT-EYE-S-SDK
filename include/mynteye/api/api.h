@@ -224,6 +224,13 @@ class MYNTEYE_API API {
    * Get the option value.
    */
   std::int32_t GetOptionValue(const Option &option) const;
+
+  /**
+   * Set the disparity computing method.
+   */
+  void SetDisparityComputingMethodType(
+      const DisparityComputingMethod &MethodType);
+
   /**
    * Set the option value.
    */
