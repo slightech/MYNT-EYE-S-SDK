@@ -348,7 +348,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
         int num = 0;
         for (auto it : streams) {
           if (it.stream == stream) {
-            if (num == 0) {
+            if (num == 1) {
               return {output->first_data,
                   output->first,
                   nullptr,
@@ -510,7 +510,7 @@ void Synthetic::InitProcessors() {
     depth_processor = std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
   }
   auto root_processor =
-        std::make_shared<RootProcessor>(RECTIFY_PROC_PERIOD);
+        std::make_shared<RootProcessor>(ROOT_PROC_PERIOD);
   root_processor->AddChild(rectify_processor);
 
   rectify_processor->addTargetStreams(
