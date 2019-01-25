@@ -791,7 +791,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     static ImuData gyro;
 
     if (!get_first_acc && imu_accel_ != nullptr) {
-      imu_accel_->flag = 0;
       acc = *imu_accel_;
       imu_accel_ = nullptr;
       get_first_acc = true;
@@ -799,7 +798,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
 
     if (!get_first_gyro && imu_gyro_ != nullptr) {
-      imu_gyro_->flag = 0;
       gyro = *imu_gyro_;
       imu_gyro_ = nullptr;
       get_first_gyro = true;
@@ -808,7 +806,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     if (imu_accel_ != nullptr) {
       if (!has_gyro) {
-        imu_accel_->flag = 0;
         acc = *imu_accel_;
         imu_accel_ = nullptr;
         return;
