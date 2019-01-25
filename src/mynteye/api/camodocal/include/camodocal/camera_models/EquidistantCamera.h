@@ -1,10 +1,22 @@
-#ifndef EQUIDISTANTCAMERA_H
-#define EQUIDISTANTCAMERA_H
+// Copyright 2018 Slightech Co., Ltd. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+#ifndef SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_CAMERA_MODELS_EQUIDISTANTCAMERA_H_
+#define SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_CAMERA_MODELS_EQUIDISTANTCAMERA_H_
 
-#include <opencv2/core/core.hpp>
 #include <string>
-
 #include "Camera.h"
+#include <opencv2/core/core.hpp>
 
 namespace camodocal {
 
@@ -59,9 +71,6 @@ class EquidistantCamera : public Camera {
     double u0(void) const;
     double v0(void) const;
 
-    bool readFromYamlFile(const std::string &filename);
-    void writeToYamlFile(const std::string &filename) const;
-
     Parameters &operator=(const Parameters &other);
     friend std::ostream &operator<<(
         std::ostream &out, const Parameters &params);
@@ -91,7 +100,7 @@ class EquidistantCamera : public Camera {
   /**
   * \brief Constructor from the projection model parameters
   */
-  EquidistantCamera(const Parameters &params);
+  explicit EquidistantCamera(const Parameters &params);
 
   Camera::ModelType modelType(void) const;
   const std::string &cameraName(void) const;
@@ -103,38 +112,31 @@ class EquidistantCamera : public Camera {
       const std::vector<std::vector<cv::Point3f> > &objectPoints,
       const std::vector<std::vector<cv::Point2f> > &imagePoints);
 
-  // Lift points from the image plane to the sphere
-  virtual void liftSphere(const Eigen::Vector2d &p, Eigen::Vector3d &P) const;
-  //%output P
-
   // Lift points from the image plane to the projective space
-  void liftProjective(const Eigen::Vector2d &p, Eigen::Vector3d &P) const;
-  //%output P
+  void liftProjective(const Eigen::Vector2d &p, Eigen::Vector3d &P) const;  // NOLINT
+  // %output P
 
   // Projects 3D points to the image plane (Pi function)
-  void spaceToPlane(const Eigen::Vector3d &P, Eigen::Vector2d &p) const;
-  //%output p
+  void spaceToPlane(const Eigen::Vector3d &P, Eigen::Vector2d &p) const;  // NOLINT
+  // %output p
 
   // Projects 3D points to the image plane (Pi function)
   // and calculates jacobian
   void spaceToPlane(
-      const Eigen::Vector3d &P, Eigen::Vector2d &p,
-      Eigen::Matrix<double, 2, 3> &J) const;
-  //%output p
-  //%output J
-
-  void undistToPlane(const Eigen::Vector2d &p_u, Eigen::Vector2d &p) const;
-  //%output p
+      const Eigen::Vector3d &P, Eigen::Vector2d &p,  // NOLINT
+      Eigen::Matrix<double, 2, 3> &J) const;  // NOLINT
+  // %output p
+  // %output J
 
   template <typename T>
   static void spaceToPlane(
       const T *const params, const T *const q, const T *const t,
-      const Eigen::Matrix<T, 3, 1> &P, Eigen::Matrix<T, 2, 1> &p);
+      const Eigen::Matrix<T, 3, 1> &P, Eigen::Matrix<T, 2, 1> &p);  // NOLINT
 
   void initUndistortMap(
-      cv::Mat &map1, cv::Mat &map2, double fScale = 1.0) const;
+      cv::Mat &map1, cv::Mat &map2, double fScale = 1.0) const;  // NOLINT
   cv::Mat initUndistortRectifyMap(
-      cv::Mat &map1, cv::Mat &map2, float fx = -1.0f, float fy = -1.0f,
+      cv::Mat &map1, cv::Mat &map2, float fx = -1.0f, float fy = -1.0f,  // NOLINT
       cv::Size imageSize = cv::Size(0, 0), float cx = -1.0f, float cy = -1.0f,
       cv::Mat rmat = cv::Mat::eye(3, 3, CV_32F)) const;
 
@@ -144,9 +146,7 @@ class EquidistantCamera : public Camera {
   void setParameters(const Parameters &parameters);
 
   void readParameters(const std::vector<double> &parameterVec);
-  void writeParameters(std::vector<double> &parameterVec) const;
-
-  void writeParametersToYamlFile(const std::string &filename) const;
+  void writeParameters(std::vector<double> &parameterVec) const;  // NOLINT
 
   std::string parametersToString(void) const;
 
@@ -156,10 +156,10 @@ class EquidistantCamera : public Camera {
 
   void fitOddPoly(
       const std::vector<double> &x, const std::vector<double> &y, int n,
-      std::vector<double> &coeffs) const;
+      std::vector<double> &coeffs) const;  // NOLINT
 
   void backprojectSymmetric(
-      const Eigen::Vector2d &p_u, double &theta, double &phi) const;
+      const Eigen::Vector2d &p_u, double &theta, double &phi) const;  // NOLINT
 
   Parameters mParameters;
 
@@ -227,4 +227,5 @@ void EquidistantCamera::spaceToPlane(
 }
 }
 
-#endif
+#endif  // SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_CAMERA_MODELS_EQUIDISTANTCAMERA_H_
+

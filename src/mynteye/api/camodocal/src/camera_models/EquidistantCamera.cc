@@ -1,14 +1,26 @@
-#include "camodocal/camera_models/EquidistantCamera.h"
+// Copyright 2018 Slightech Co., Ltd. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+#include <iomanip>
+#include <iostream>
 #include <cstdint>
 #include <cmath>
 #include <cstdio>
+#include "camodocal/camera_models/EquidistantCamera.h"
 #include "eigen3/Eigen/Dense"
-#include <iomanip>
-#include <iostream>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/eigen.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-
 #include "camodocal/gpl/gpl.h"
 
 namespace camodocal {
@@ -17,39 +29,43 @@ namespace camodocal {
 float ApproxAtan2(float y, float x)
 {
     const float n1 = 0.97239411f;
-    const float n2 = -0.19194795f;    
+    const float n2 = -0.19194795f;
     float result = 0.0f;
-    if (x != 0.0f)
-    {
-        const union { float flVal; std::uint32_t nVal; } tYSign = { y };
-        const union { float flVal; std::uint32_t nVal; } tXSign = { x };
-        if (fabsf(x) >= fabsf(y))
-        {
-            union { float flVal; std::uint32_t nVal; } tOffset = { PI };
-            // Add or subtract PI based on y's sign.
-            tOffset.nVal |= tYSign.nVal & 0x80000000u;
-            // No offset if x is positive, so multiply by 0 or based on x's sign.
-            tOffset.nVal *= tXSign.nVal >> 31;
-            result = tOffset.flVal;
-            const float z = y / x;
-            result += (n1 + n2 * z * z) * z;
+    if (x != 0.0f) {
+        const union {
+            float flVal;
+            std::uint32_t nVal;
+        } tYSign = { y };
+        const union {
+            float flVal;
+            std::uint32_t nVal;
+        } tXSign = { x };
+        if (fabsf(x) >= fabsf(y)) {
+          union {
+              float flVal;
+              std::uint32_t nVal;
+          } tOffset = { PI };
+          // Add or subtract PI based on y's sign.
+          tOffset.nVal |= tYSign.nVal & 0x80000000u;
+          // No offset if x is positive, so multiply by 0 or based on x's sign.
+          tOffset.nVal *= tXSign.nVal >> 31;
+          result = tOffset.flVal;
+          const float z = y / x;
+          result += (n1 + n2 * z * z) * z;
+        } else {  // Use atan(y/x) = pi/2 - atan(x/y) if |y/x| > 1. n
+          union {
+              float flVal;
+              std::uint32_t nVal;
+          } tOffset = { PI_2 };
+          // Add or subtract PI/2 based on y's sign.
+          tOffset.nVal |= tYSign.nVal & 0x80000000u;
+          result = tOffset.flVal;
+          const float z = x / y;
+          result -= (n1 + n2 * z * z) * z;
         }
-        else // Use atan(y/x) = pi/2 - atan(x/y) if |y/x| > 1.
-        {
-            union { float flVal; std::uint32_t nVal; } tOffset = { PI_2 };
-            // Add or subtract PI/2 based on y's sign.
-            tOffset.nVal |= tYSign.nVal & 0x80000000u;            
-            result = tOffset.flVal;
-            const float z = x / y;
-            result -= (n1 + n2 * z * z) * z;            
-        }
-    }
-    else if (y > 0.0f)
-    {
+    } else if (y > 0.0f) {
         result = PI_2;
-    }
-    else if (y < 0.0f)
-    {
+    } else if (y < 0.0f) {
         result = -PI_2;
     }
     return result;
@@ -141,60 +157,6 @@ double EquidistantCamera::Parameters::u0(void) const {
 
 double EquidistantCamera::Parameters::v0(void) const {
   return m_v0;
-}
-
-bool EquidistantCamera::Parameters::readFromYamlFile(
-    const std::string &filename) {
-  cv::FileStorage fs(filename, cv::FileStorage::READ);
-
-  if (!fs.isOpened()) {
-    return false;
-  }
-
-  if (!fs["model_type"].isNone()) {
-    std::string sModelType;
-    fs["model_type"] >> sModelType;
-
-    if (sModelType.compare("KANNALA_BRANDT") != 0) {
-      return false;
-    }
-  }
-
-  m_modelType = KANNALA_BRANDT;
-  fs["camera_name"] >> m_cameraName;
-  m_imageWidth = static_cast<int>(fs["image_width"]);
-  m_imageHeight = static_cast<int>(fs["image_height"]);
-
-  cv::FileNode n = fs["projection_parameters"];
-  m_k2 = static_cast<double>(n["k2"]);
-  m_k3 = static_cast<double>(n["k3"]);
-  m_k4 = static_cast<double>(n["k4"]);
-  m_k5 = static_cast<double>(n["k5"]);
-  m_mu = static_cast<double>(n["mu"]);
-  m_mv = static_cast<double>(n["mv"]);
-  m_u0 = static_cast<double>(n["u0"]);
-  m_v0 = static_cast<double>(n["v0"]);
-
-  return true;
-}
-
-void EquidistantCamera::Parameters::writeToYamlFile(
-    const std::string &filename) const {
-  cv::FileStorage fs(filename, cv::FileStorage::WRITE);
-
-  fs << "model_type"
-     << "KANNALA_BRANDT";
-  fs << "camera_name" << m_cameraName;
-  fs << "image_width" << m_imageWidth;
-  fs << "image_height" << m_imageHeight;
-
-  // projection: k2, k3, k4, k5, mu, mv, u0, v0
-  fs << "projection_parameters";
-  fs << "{"
-     << "k2" << m_k2 << "k3" << m_k3 << "k4" << m_k4 << "k5" << m_k5 << "mu"
-     << m_mu << "mv" << m_mv << "u0" << m_u0 << "v0" << m_v0 << "}";
-
-  fs.release();
 }
 
 EquidistantCamera::Parameters &EquidistantCamera::Parameters::operator=(
@@ -313,7 +275,7 @@ void EquidistantCamera::estimateIntrinsics(
   double f0 = 0.0;
   for (size_t i = 0; i < imagePoints.size(); ++i) {
     std::vector<Eigen::Vector2d> center(boardSize.height);
-    double radius[boardSize.height];
+    double radius[boardSize.height];  // NOLINT
     for (int r = 0; r < boardSize.height; ++r) {
       std::vector<cv::Point2d> circle;
       for (int c = 0; c < boardSize.width; ++c) {
@@ -374,17 +336,6 @@ void EquidistantCamera::estimateIntrinsics(
 }
 
 /**
- * \brief Lifts a point from the image plane to the unit sphere
- *
- * \param p image coordinates
- * \param P coordinates of the point on the sphere
- */
-void EquidistantCamera::liftSphere(
-    const Eigen::Vector2d &p, Eigen::Vector3d &P) const {
-  liftProjective(p, P);
-}
-
-/**
  * \brief Lifts a point from the image plane to its projective ray
  *
  * \param p image coordinates
@@ -413,15 +364,15 @@ void EquidistantCamera::liftProjective(
  */
 void EquidistantCamera::spaceToPlane(
     const Eigen::Vector3d &P, Eigen::Vector2d &p) const {
- // double theta = acos(0.5);
-  //double theta = 0.5;
-//  double phi = 0.5;
-//  Eigen::Vector2d p_u = r(mParameters.k2(), mParameters.k3(), mParameters.k4(),
-//                          mParameters.k5(), theta) *
-//                        Eigen::Vector2d(cos(0.5), sin(0.5));
+// double theta = acos(0.5);
+// double theta = 0.5;
+// double phi = 0.5;
+// Eigen::Vector2d p_u = r(mParameters.k2(), mParameters.k3(), mParameters.k4(),
+//                         mParameters.k5(), theta) *
+// Eigen::Vector2d(cos(0.5), sin(0.5));
   double theta = acos(P(2) / P.norm());
   double phi = atan2(P(1), P(0));
-  //double phi = ApproxAtan2(P(1), P(0));
+// double phi = ApproxAtan2(P(1), P(0));
 
   Eigen::Vector2d p_u = r(mParameters.k2(), mParameters.k3(), mParameters.k4(),
                           mParameters.k5(), theta) *
@@ -451,33 +402,6 @@ void EquidistantCamera::spaceToPlane(
   // Apply generalised projection matrix
   p << mParameters.mu() * p_u(0) + mParameters.u0(),
       mParameters.mv() * p_u(1) + mParameters.v0();
-}
-
-/**
- * \brief Projects an undistorted 2D point p_u to the image plane
- *
- * \param p_u 2D point coordinates
- * \return image point coordinates
- */
-void EquidistantCamera::undistToPlane(
-    const Eigen::Vector2d &p_u, Eigen::Vector2d &p) const {
-  //    Eigen::Vector2d p_d;
-  //
-  //    if (m_noDistortion)
-  //    {
-  //        p_d = p_u;
-  //    }
-  //    else
-  //    {
-  //        // Apply distortion
-  //        Eigen::Vector2d d_u;
-  //        distortion(p_u, d_u);
-  //        p_d = p_u + d_u;
-  //    }
-  //
-  //    // Apply generalised projection matrix
-  //    p << mParameters.gamma1() * p_d(0) + mParameters.u0(),
-  //         mParameters.gamma2() * p_d(1) + mParameters.v0();
 }
 
 void EquidistantCamera::initUndistortMap(
@@ -613,11 +537,6 @@ void EquidistantCamera::writeParameters(
   parameterVec.at(7) = mParameters.v0();
 }
 
-void EquidistantCamera::writeParametersToYamlFile(
-    const std::string &filename) const {
-  mParameters.writeToYamlFile(filename);
-}
-
 std::string EquidistantCamera::parametersToString(void) const {
   std::ostringstream oss;
   oss << mParameters;
@@ -730,4 +649,4 @@ void EquidistantCamera::backprojectSymmetric(
     }
   }
 }
-}
+}  // namespace camodocal
