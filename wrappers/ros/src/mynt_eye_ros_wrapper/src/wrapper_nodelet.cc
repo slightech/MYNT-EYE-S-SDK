@@ -783,7 +783,75 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     pub_imu_.publish(msg);
   }
 
+  void timestampAlign() {
+    static bool get_first_acc = false;
+    static bool get_first_gyro = false;
+    static bool has_gyro = false;
+    static ImuData acc;
+    static ImuData gyro;
+
+    if (!get_first_acc && imu_accel_ != nullptr) {
+      imu_accel_->flag = 0;
+      acc = *imu_accel_;
+      imu_accel_ = nullptr;
+      get_first_acc = true;
+      return;
+    }
+
+    if (!get_first_gyro && imu_gyro_ != nullptr) {
+      imu_gyro_->flag = 0;
+      gyro = *imu_gyro_;
+      imu_gyro_ = nullptr;
+      get_first_gyro = true;
+      return;
+    }
+
+    if (imu_accel_ != nullptr) {
+      if (!has_gyro) {
+        imu_accel_->flag = 0;
+        acc = *imu_accel_;
+        imu_accel_ = nullptr;
+        return;
+      }
+
+      if (acc.timestamp <= gyro.timestamp) {
+        ImuData acc_temp;
+        acc_temp = *imu_accel_;
+        acc_temp.timestamp = gyro.timestamp;
+
+        double k = static_cast<double>(imu_accel_->timestamp - acc.timestamp);
+        k = static_cast<double>(gyro.timestamp - acc.timestamp) / k;
+
+        acc_temp.accel[0] = acc.accel[0] +
+                            (imu_accel_->accel[0] - acc.accel[0]) * k;
+        acc_temp.accel[1] = acc.accel[1] +
+                            (imu_accel_->accel[1] - acc.accel[1]) * k;
+        acc_temp.accel[2] = acc.accel[2] +
+                            (imu_accel_->accel[2] - acc.accel[2]) * k;
+
+        acc = *imu_accel_;
+        *imu_accel_ = acc_temp;
+        imu_gyro_.reset(new ImuData(gyro));
+        has_gyro = false;
+        return;
+      } else {
+        acc = *imu_accel_;
+        imu_accel_ = nullptr;
+        return;
+      }
+    }
+
+    if (imu_gyro_ != nullptr) {
+      has_gyro = true;
+      gyro = *imu_gyro_;
+      imu_gyro_ = nullptr;
+      return;
+    }
+  }
+
   void publishImuBySync(ros::Time stamp) {
+    timestampAlign();
+
     if (imu_accel_ == nullptr || imu_gyro_ == nullptr) {
       return;
     }
