@@ -17,6 +17,7 @@
 
 #include <string>
 #include "mynteye/api/processor.h"
+#include "mynteye/types.h"
 
 namespace cv {
 
@@ -24,37 +25,31 @@ class StereoSGBM;
 class StereoBM;
 }  // namespace cv
 
-enum class DisparityProcessorType : std::uint8_t {
-  /** bm */
-  SGBM = 0,
-  /** sgbm */
-  BM = 1,
-  /** unknow */
-  UNKNOW
-};
-
-
 MYNTEYE_BEGIN_NAMESPACE
 
 class DisparityProcessor : public Processor {
  public:
   static const char NAME[];
 
-  explicit DisparityProcessor(DisparityProcessorType type,
+  explicit DisparityProcessor(DisparityComputingMethod type,
       std::int32_t proc_period = 0);
   virtual ~DisparityProcessor();
 
   std::string Name() override;
+  void SetDisparityComputingMethodType(
+      const DisparityComputingMethod &MethodType);
+  void NotifyComputingTypeChanged(const DisparityComputingMethod &MethodType);
 
  protected:
   Object *OnCreateOutput() override;
   bool OnProcess(
-      Object *const in, Object *const out, Processor *const parent) override;
+      Object *const in, Object *const out,
+      std::shared_ptr<Processor> const parent) override;
 
  private:
   cv::Ptr<cv::StereoSGBM> sgbm_matcher;
   cv::Ptr<cv::StereoBM> bm_matcher;
-  DisparityProcessorType type_;
+  DisparityComputingMethod type_;
 };
 
 MYNTEYE_END_NAMESPACE

@@ -5,7 +5,6 @@
 #include <string>
 
 #include "Camera.h"
-#include "ceres/rotation.h"
 
 namespace camodocal {
 
@@ -13,6 +12,25 @@ namespace camodocal {
  * J. Kannala, and S. Brandt, A Generic Camera Model and Calibration Method
  * for Conventional, Wide-Angle, and Fish-Eye Lenses, PAMI 2006
  */
+
+template <typename T> inline
+void QuaternionRotatePoint(const T q[4], const T pt[3], T result[3]) {
+  // 'scale' is 1 / norm(q).
+  const T scale = T(1) / sqrt(q[0] * q[0] +
+                              q[1] * q[1] +
+                              q[2] * q[2] +
+                              q[3] * q[3]);
+
+  // Make unit-norm version of q.
+  const T unit[4] = {
+    scale * q[0],
+    scale * q[1],
+    scale * q[2],
+    scale * q[3],
+  };
+
+  UnitQuaternionRotatePoint(unit, pt, result);
+}
 
 class EquidistantCamera : public Camera {
  public:
@@ -181,7 +199,7 @@ void EquidistantCamera::spaceToPlane(
   T q_ceres[4] = {q[3], q[0], q[1], q[2]};
 
   T P_c[3];
-  ceres::QuaternionRotatePoint(q_ceres, P_w, P_c);
+  QuaternionRotatePoint(q_ceres, P_w, P_c);
 
   P_c[0] += t[0];
   P_c[1] += t[1];

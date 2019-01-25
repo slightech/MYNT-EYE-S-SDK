@@ -52,7 +52,7 @@ std::string Processor::Name() {
 }
 
 void Processor::AddChild(const std::shared_ptr<Processor> &child) {
-  child->parent_ = this;
+  child->parent_ = shared_from_this();
   childs_.push_back(child);
 }
 
@@ -81,7 +81,8 @@ void Processor::Activate(bool parents) {
     return;
   if (parents) {
     // Activate all parents
-    Processor *parent = parent_;
+    auto parent = parent_;
+    // Processor *parent = parent_;
     while (parent != nullptr) {
       parent->Activate();
       parent = parent->parent_;
@@ -97,7 +98,8 @@ void Processor::Deactivate(bool childs) {
     return;
   if (childs) {
     // Deactivate all childs
-    iterate_processors(GetChilds(), [](std::shared_ptr<Processor> proc) {
+    iterate_processors_PtoC_after(GetChilds(),
+        [](std::shared_ptr<Processor> proc) {
       proc->Deactivate();
     });
   }
@@ -150,6 +152,10 @@ std::shared_ptr<Object> Processor::GetOutput() {
 std::uint64_t Processor::GetDroppedCount() {
   std::lock_guard<std::mutex> lk(mtx_state_);
   return dropped_count_;
+}
+
+std::shared_ptr<Processor> Processor::GetParent() {
+  return parent_;
 }
 
 void Processor::Run() {

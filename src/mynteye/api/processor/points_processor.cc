@@ -73,7 +73,8 @@ Object *PointsProcessor::OnCreateOutput() {
 }
 
 bool PointsProcessor::OnProcess(
-  Object *const in, Object *const out, Processor *const parent) {
+  Object *const in, Object *const out,
+  std::shared_ptr<Processor> const parent) {
   MYNTEYE_UNUSED(parent)
 
   float fx = calib_infos_->left.K[0];

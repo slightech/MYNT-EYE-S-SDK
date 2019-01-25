@@ -51,7 +51,8 @@ class RectifyProcessorOCV : public Processor {
  protected:
   Object *OnCreateOutput() override;
   bool OnProcess(
-      Object *const in, Object *const out, Processor *const parent) override;
+      Object *const in, Object *const out,
+      std::shared_ptr<Processor> const parent) override;
 
  private:
   void InitParams(IntrinsicsPinhole in_left,

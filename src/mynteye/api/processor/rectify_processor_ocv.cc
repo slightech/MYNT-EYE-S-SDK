@@ -61,7 +61,8 @@ Object *RectifyProcessorOCV::OnCreateOutput() {
 }
 
 bool RectifyProcessorOCV::OnProcess(
-    Object *const in, Object *const out, Processor *const parent) {
+    Object *const in, Object *const out,
+    std::shared_ptr<Processor> const parent) {
   MYNTEYE_UNUSED(parent)
   const ObjMat2 *input = Object::Cast<ObjMat2>(in);
   ObjMat2 *output = Object::Cast<ObjMat2>(out);

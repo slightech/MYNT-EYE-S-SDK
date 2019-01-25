@@ -485,6 +485,11 @@ void API::EnablePlugin(const std::string &path) {
   synthetic_->SetPlugin(plugin);
 }
 
+void API::SetDisparityComputingMethodType(
+      const DisparityComputingMethod &MethodType) {
+  synthetic_->SetDisparityComputingMethodType(MethodType);
+}
+
 std::shared_ptr<Device> API::device() {
   return device_;
 }

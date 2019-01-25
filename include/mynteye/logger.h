@@ -76,21 +76,10 @@ struct glog_init {
 
 #include "mynteye/mynteye.h"
 
-#ifdef WITH_CAM_MODELS
-
-#define MAX_LOG_LEVEL google::INFO
-
-// include ceres miniglog
-#include "glog/logging.h"
-
-#else
-
 #define MYNTEYE_MAX_LOG_LEVEL google::INFO
 // #define MYNTEYE_MAX_LOG_LEVEL 2
 
 #include "mynteye/miniglog.h"
-
-#endif
 
 #endif
 
