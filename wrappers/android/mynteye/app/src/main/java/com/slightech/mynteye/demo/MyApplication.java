@@ -1,6 +1,7 @@
 package com.slightech.mynteye.demo;
 
 import android.app.Application;
+//import com.stericson.RootShell.RootShell;
 import timber.log.Timber;
 
 public class MyApplication extends Application {
@@ -16,6 +17,7 @@ public class MyApplication extends Application {
   @Override public void onCreate() {
     super.onCreate();
     Timber.plant(new Timber.DebugTree());
+    //RootShell.debugMode = true;
   }
 
   @Override public void onLowMemory() {

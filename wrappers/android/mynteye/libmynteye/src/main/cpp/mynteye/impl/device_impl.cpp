@@ -81,30 +81,43 @@ void DeviceImpl::ConfigStreamRequest(
 }
 
 void DeviceImpl::Start(::mynteye_jni::Source source) {
+  device_->Start(from_jni(source));
 }
 
 void DeviceImpl::Stop(::mynteye_jni::Source source) {
+  device_->Stop(from_jni(source));
 }
 
 void DeviceImpl::WaitForStreams() {
+  device_->WaitForStreams();
 }
 
 std::shared_ptr<::mynteye_jni::StreamData> DeviceImpl::GetStreamData(
     ::mynteye_jni::Stream stream) {
-  return nullptr;
+  auto&& data = device_->GetStreamData(from_jni(stream));
+  return std::make_shared<StreamDataImpl>(data);
 }
 
 std::vector<std::shared_ptr<::mynteye_jni::StreamData>>
 DeviceImpl::GetStreamDatas(::mynteye_jni::Stream stream) {
-  return {};
+  std::vector<std::shared_ptr<::mynteye_jni::StreamData>> datas;
+  for (auto&& data : device_->GetStreamDatas(from_jni(stream))) {
+    datas.push_back(std::make_shared<StreamDataImpl>(data));
+  }
+  return datas;
 }
 
-void DeviceImpl::EnableCacheMotionDatas(int32_t max_size) {
+void DeviceImpl::EnableMotionDatas(int32_t max_size) {
+  device_->EnableMotionDatas(max_size);
 }
 
 std::vector<std::shared_ptr<::mynteye_jni::MotionData>>
 DeviceImpl::GetMotionDatas() {
-  return {};
+  std::vector<std::shared_ptr<::mynteye_jni::MotionData>> datas;
+  for (auto&& data : device_->GetMotionDatas()) {
+    datas.push_back(std::make_shared<MotionDataImpl>(data));
+  }
+  return datas;
 }
 
 }  // namespace mynteye_jni

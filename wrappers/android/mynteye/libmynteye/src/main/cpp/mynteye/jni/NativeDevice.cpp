@@ -109,12 +109,12 @@ CJNIEXPORT jobject JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_nativ
     } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
 }
 
-CJNIEXPORT void JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1enableCacheMotionDatas(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, jint j_maxSize)
+CJNIEXPORT void JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1enableMotionDatas(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, jint j_maxSize)
 {
     try {
         DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
         const auto& ref = ::djinni::objectFromHandleAddress<::mynteye_jni::Device>(nativeRef);
-        ref->EnableCacheMotionDatas(::djinni::I32::toCpp(jniEnv, j_maxSize));
+        ref->EnableMotionDatas(::djinni::I32::toCpp(jniEnv, j_maxSize));
     } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
 }
 

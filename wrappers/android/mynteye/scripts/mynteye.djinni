@@ -26,8 +26,8 @@ device = interface +c {
   # Get the datas of stream
   get_stream_datas(stream: stream): list<stream_data>;
 
-  # Enable cache motion datas
-  enable_cache_motion_datas(max_size: i32);
+  # Enable cache motion datas until get them, otherwise using callback instead
+  enable_motion_datas(max_size: i32);
   # Get the motion datas
   get_motion_datas(): list<motion_data>;
 }

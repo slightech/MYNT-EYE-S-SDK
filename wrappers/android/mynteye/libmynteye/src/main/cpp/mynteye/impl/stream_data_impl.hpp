@@ -10,13 +10,13 @@ namespace mynteye_jni {
 
 class StreamDataImpl : public StreamData {
  public:
-  using stream_data_t = std::shared_ptr<MYNTEYE_NAMESPACE::device::StreamData>;
+  using stream_data_t = MYNTEYE_NAMESPACE::device::StreamData;
 
   explicit StreamDataImpl(const stream_data_t& data) : data_(data) {}
   ~StreamDataImpl() {}
 
   ImgData Img() override {
-    auto&& img = data_->img;
+    auto&& img = data_.img;
     return {
       img->frame_id,
       static_cast<int64_t>(img->timestamp),
@@ -25,11 +25,11 @@ class StreamDataImpl : public StreamData {
   }
 
   std::shared_ptr<::mynteye_jni::Frame> Frame() override {
-    return std::make_shared<::mynteye_jni::FrameImpl>(data_->frame);
+    return std::make_shared<::mynteye_jni::FrameImpl>(data_.frame);
   }
 
   int64_t FrameId() override {
-    return data_->frame_id;
+    return data_.frame_id;
   }
 
  private:

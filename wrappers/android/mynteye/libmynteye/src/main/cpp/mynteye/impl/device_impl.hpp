@@ -37,8 +37,8 @@ class DeviceImpl : public Device {
   /** Get the datas of stream */
   std::vector<std::shared_ptr<::mynteye_jni::StreamData>> GetStreamDatas(::mynteye_jni::Stream stream) override;
 
-  /** Enable cache motion datas */
-  void EnableCacheMotionDatas(int32_t max_size) override;
+    /** Enable cache motion datas until get them, otherwise using callback instead */
+  void EnableMotionDatas(int32_t max_size) override;
 
   /** Get the motion datas */
   std::vector<std::shared_ptr<::mynteye_jni::MotionData>> GetMotionDatas() override;

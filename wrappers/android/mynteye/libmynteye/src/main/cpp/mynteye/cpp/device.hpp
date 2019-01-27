@@ -47,8 +47,8 @@ public:
     /** Get the datas of stream */
     virtual std::vector<std::shared_ptr<::mynteye_jni::StreamData>> GetStreamDatas(::mynteye_jni::Stream stream) = 0;
 
-    /** Enable cache motion datas */
-    virtual void EnableCacheMotionDatas(int32_t max_size) = 0;
+    /** Enable cache motion datas until get them, otherwise using callback instead */
+    virtual void EnableMotionDatas(int32_t max_size) = 0;
 
     /** Get the motion datas */
     virtual std::vector<std::shared_ptr<::mynteye_jni::MotionData>> GetMotionDatas() = 0;

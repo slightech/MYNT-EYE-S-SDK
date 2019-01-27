@@ -34,8 +34,8 @@ public interface Device {
     @NonNull
     public ArrayList<com.slightech.mynteye.StreamData> getStreamDatas(@NonNull com.slightech.mynteye.Stream stream);
 
-    /** Enable cache motion datas */
-    public void enableCacheMotionDatas(int maxSize);
+    /** Enable cache motion datas until get them, otherwise using callback instead */
+    public void enableMotionDatas(int maxSize);
 
     /** Get the motion datas */
     @NonNull
@@ -135,12 +135,12 @@ public interface Device {
         private native ArrayList<com.slightech.mynteye.StreamData> native_getStreamDatas(long _nativeRef, com.slightech.mynteye.Stream stream);
 
         @Override
-        public void enableCacheMotionDatas(int maxSize)
+        public void enableMotionDatas(int maxSize)
         {
             assert !this.destroyed.get() : "trying to use a destroyed object";
-            native_enableCacheMotionDatas(this.nativeRef, maxSize);
+            native_enableMotionDatas(this.nativeRef, maxSize);
         }
-        private native void native_enableCacheMotionDatas(long _nativeRef, int maxSize);
+        private native void native_enableMotionDatas(long _nativeRef, int maxSize);
 
         @Override
         public ArrayList<com.slightech.mynteye.MotionData> getMotionDatas()

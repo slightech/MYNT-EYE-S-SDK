@@ -9,13 +9,13 @@ namespace mynteye_jni {
 
 class MotionDataImpl : public MotionData {
  public:
-  using motion_data_t = std::shared_ptr<MYNTEYE_NAMESPACE::device::MotionData>;
+  using motion_data_t = MYNTEYE_NAMESPACE::device::MotionData;
 
   explicit MotionDataImpl(const motion_data_t& data) : data_(data) {}
   ~MotionDataImpl() {}
 
   ImuData Imu() override {
-    auto&& imu = data_->imu;
+    auto&& imu = data_.imu;
     return {
       imu->frame_id,
       imu->flag,
