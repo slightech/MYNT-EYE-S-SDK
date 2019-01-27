@@ -607,8 +607,8 @@ void Device::ReadAllInfos() {
       SetIntrinsics(Stream::LEFT, img_params.in_left);
       SetIntrinsics(Stream::RIGHT, img_params.in_right);
       SetExtrinsics(Stream::LEFT, Stream::RIGHT, img_params.ex_right_to_left);
-      VLOG(2) << "Intrinsics left: {" << GetIntrinsics(Stream::LEFT) << "}";
-      VLOG(2) << "Intrinsics right: {" << GetIntrinsics(Stream::RIGHT) << "}";
+      VLOG(2) << "Intrinsics left: {" << *GetIntrinsics(Stream::LEFT) << "}";
+      VLOG(2) << "Intrinsics right: {" << *GetIntrinsics(Stream::RIGHT) << "}";
       VLOG(2) << "Extrinsics left to right: {"
               << GetExtrinsics(Stream::LEFT, Stream::RIGHT) << "}";
       break;
