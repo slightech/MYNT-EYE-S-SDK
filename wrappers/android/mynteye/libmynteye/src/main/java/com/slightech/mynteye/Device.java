@@ -8,24 +8,49 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/** Device class to communicate with MYNT® EYE device */
 public interface Device {
+    /** Get all stream requests */
     @NonNull
-    public ArrayList<StreamRequest> getStreamRequests();
+    public ArrayList<com.slightech.mynteye.StreamRequest> getStreamRequests();
 
-    public void configStreamRequest(@NonNull StreamRequest request);
+    /** Config the stream request */
+    public void configStreamRequest(@NonNull com.slightech.mynteye.StreamRequest request);
 
-    public void start();
+    /** Start capturing the source */
+    public void start(@NonNull com.slightech.mynteye.Source source);
 
-    public void stop();
+    /** Stop capturing the source */
+    public void stop(@NonNull com.slightech.mynteye.Source source);
 
+    /** Wait the streams are ready */
+    public void waitForStreams();
+
+    /** Get the latest data of stream */
+    @Nullable
+    public com.slightech.mynteye.StreamData getStreamData(@NonNull com.slightech.mynteye.Stream stream);
+
+    /** Get the datas of stream */
     @NonNull
-    public static ArrayList<DeviceUsbInfo> query()
+    public ArrayList<com.slightech.mynteye.StreamData> getStreamDatas(@NonNull com.slightech.mynteye.Stream stream);
+
+    /** Enable cache motion datas */
+    public void enableCacheMotionDatas(int maxSize);
+
+    /** Get the motion datas */
+    @NonNull
+    public ArrayList<com.slightech.mynteye.MotionData> getMotionDatas();
+
+    /** Query devices */
+    @NonNull
+    public static ArrayList<com.slightech.mynteye.DeviceUsbInfo> query()
     {
         return CppProxy.query();
     }
 
+    /** Create the device instance */
     @Nullable
-    public static Device create(@NonNull DeviceUsbInfo info)
+    public static Device create(@NonNull com.slightech.mynteye.DeviceUsbInfo info)
     {
         return CppProxy.create(info);
     }
@@ -54,41 +79,81 @@ public interface Device {
         }
 
         @Override
-        public ArrayList<StreamRequest> getStreamRequests()
+        public ArrayList<com.slightech.mynteye.StreamRequest> getStreamRequests()
         {
             assert !this.destroyed.get() : "trying to use a destroyed object";
             return native_getStreamRequests(this.nativeRef);
         }
-        private native ArrayList<StreamRequest> native_getStreamRequests(long _nativeRef);
+        private native ArrayList<com.slightech.mynteye.StreamRequest> native_getStreamRequests(long _nativeRef);
 
         @Override
-        public void configStreamRequest(StreamRequest request)
+        public void configStreamRequest(com.slightech.mynteye.StreamRequest request)
         {
             assert !this.destroyed.get() : "trying to use a destroyed object";
             native_configStreamRequest(this.nativeRef, request);
         }
-        private native void native_configStreamRequest(long _nativeRef, StreamRequest request);
+        private native void native_configStreamRequest(long _nativeRef, com.slightech.mynteye.StreamRequest request);
 
         @Override
-        public void start()
+        public void start(com.slightech.mynteye.Source source)
         {
             assert !this.destroyed.get() : "trying to use a destroyed object";
-            native_start(this.nativeRef);
+            native_start(this.nativeRef, source);
         }
-        private native void native_start(long _nativeRef);
+        private native void native_start(long _nativeRef, com.slightech.mynteye.Source source);
 
         @Override
-        public void stop()
+        public void stop(com.slightech.mynteye.Source source)
         {
             assert !this.destroyed.get() : "trying to use a destroyed object";
-            native_stop(this.nativeRef);
+            native_stop(this.nativeRef, source);
         }
-        private native void native_stop(long _nativeRef);
+        private native void native_stop(long _nativeRef, com.slightech.mynteye.Source source);
+
+        @Override
+        public void waitForStreams()
+        {
+            assert !this.destroyed.get() : "trying to use a destroyed object";
+            native_waitForStreams(this.nativeRef);
+        }
+        private native void native_waitForStreams(long _nativeRef);
+
+        @Override
+        public com.slightech.mynteye.StreamData getStreamData(com.slightech.mynteye.Stream stream)
+        {
+            assert !this.destroyed.get() : "trying to use a destroyed object";
+            return native_getStreamData(this.nativeRef, stream);
+        }
+        private native com.slightech.mynteye.StreamData native_getStreamData(long _nativeRef, com.slightech.mynteye.Stream stream);
+
+        @Override
+        public ArrayList<com.slightech.mynteye.StreamData> getStreamDatas(com.slightech.mynteye.Stream stream)
+        {
+            assert !this.destroyed.get() : "trying to use a destroyed object";
+            return native_getStreamDatas(this.nativeRef, stream);
+        }
+        private native ArrayList<com.slightech.mynteye.StreamData> native_getStreamDatas(long _nativeRef, com.slightech.mynteye.Stream stream);
+
+        @Override
+        public void enableCacheMotionDatas(int maxSize)
+        {
+            assert !this.destroyed.get() : "trying to use a destroyed object";
+            native_enableCacheMotionDatas(this.nativeRef, maxSize);
+        }
+        private native void native_enableCacheMotionDatas(long _nativeRef, int maxSize);
+
+        @Override
+        public ArrayList<com.slightech.mynteye.MotionData> getMotionDatas()
+        {
+            assert !this.destroyed.get() : "trying to use a destroyed object";
+            return native_getMotionDatas(this.nativeRef);
+        }
+        private native ArrayList<com.slightech.mynteye.MotionData> native_getMotionDatas(long _nativeRef);
 
         @NonNull
-        public static native ArrayList<DeviceUsbInfo> query();
+        public static native ArrayList<com.slightech.mynteye.DeviceUsbInfo> query();
 
         @Nullable
-        public static native Device create(@NonNull DeviceUsbInfo info);
+        public static native Device create(@NonNull com.slightech.mynteye.DeviceUsbInfo info);
     }
 }

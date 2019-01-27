@@ -3,29 +3,55 @@
 
 #pragma once
 
+#include "device_usb_info.hpp"
+#include "motion_data.hpp"
+#include "source.hpp"
+#include "stream.hpp"
+#include "stream_data.hpp"
+#include "stream_request.hpp"
+#include <cstdint>
 #include <memory>
 #include <vector>
 
 namespace mynteye_jni {
 
-struct DeviceUsbInfo;
-struct StreamRequest;
-
+/** Device class to communicate with MYNT® EYE device */
 class Device {
 public:
     virtual ~Device() {}
 
-    static std::vector<DeviceUsbInfo> Query();
+    /** Query devices */
+    static std::vector<::mynteye_jni::DeviceUsbInfo> Query();
 
-    static std::shared_ptr<Device> Create(const DeviceUsbInfo & info);
+    /** Create the device instance */
+    static std::shared_ptr<Device> Create(const ::mynteye_jni::DeviceUsbInfo & info);
 
-    virtual std::vector<StreamRequest> GetStreamRequests() = 0;
+    /** Get all stream requests */
+    virtual std::vector<::mynteye_jni::StreamRequest> GetStreamRequests() = 0;
 
-    virtual void ConfigStreamRequest(const StreamRequest & request) = 0;
+    /** Config the stream request */
+    virtual void ConfigStreamRequest(const ::mynteye_jni::StreamRequest & request) = 0;
 
-    virtual void Start() = 0;
+    /** Start capturing the source */
+    virtual void Start(::mynteye_jni::Source source) = 0;
 
-    virtual void Stop() = 0;
+    /** Stop capturing the source */
+    virtual void Stop(::mynteye_jni::Source source) = 0;
+
+    /** Wait the streams are ready */
+    virtual void WaitForStreams() = 0;
+
+    /** Get the latest data of stream */
+    virtual std::shared_ptr<::mynteye_jni::StreamData> GetStreamData(::mynteye_jni::Stream stream) = 0;
+
+    /** Get the datas of stream */
+    virtual std::vector<std::shared_ptr<::mynteye_jni::StreamData>> GetStreamDatas(::mynteye_jni::Stream stream) = 0;
+
+    /** Enable cache motion datas */
+    virtual void EnableCacheMotionDatas(int32_t max_size) = 0;
+
+    /** Get the motion datas */
+    virtual std::vector<std::shared_ptr<::mynteye_jni::MotionData>> GetMotionDatas() = 0;
 };
 
 }  // namespace mynteye_jni

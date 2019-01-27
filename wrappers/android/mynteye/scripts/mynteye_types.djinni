@@ -1,0 +1,119 @@
+
+# Device USB information
+device_usb_info = record {
+  # Device index
+  index: i32;
+  # Device name
+  name: string;
+  # Device serial number
+  sn: string;
+}
+
+# Device model
+model = enum {
+  # Standard
+  standard;
+  # Standard 2
+  standard2;
+  # Standard 210a
+  standard210a;
+}
+
+# Formats define how each stream can be encoded
+format = enum {
+  # Greyscale, 8 bits per pixel
+  grey;
+  # YUV 4:2:2, 16 bits per pixel
+  yuyv;
+  # BGR 8:8:8, 24 bits per pixel
+  bgr888;
+  # RGB 8:8:8, 24 bits per pixel
+  rgb888;
+}
+
+# Stream request
+stream_request = record {
+  # Stream index
+  index: i32;
+  # Stream width in pixels
+  width: i32;
+  # Stream height in pixels
+  height: i32;
+  # Stream pixel format
+  format: format;
+  # Stream frames per second
+  fps: i32;
+}
+
+# Source allows the user to choose which data to be captured
+source = enum {
+  # Video streaming of stereo, color, depth, etc.
+  video_streaming;
+  # Motion tracking of IMU (accelerometer, gyroscope)
+  motion_tracking;
+  # Enable everything together
+  all;
+}
+
+# Streams define different type of data
+stream = enum {
+  # Left stream
+  left;
+  # Right stream
+  right;
+}
+
+# Frame with raw data
+frame = interface +c {
+  # Get the width
+  width(): i32;
+  # Get the height
+  height(): i32;
+  # Get the pixel format
+  format(): format;
+  # Get the size
+  size(): i32;
+  # Get the data
+  data(): binary;
+}
+
+# Image data
+img_data = record {
+  # Image frame id
+  frame_id: i64;
+  # Image timestamp in 1us
+  timestamp: i64;
+  # Image exposure time, virtual value in [1, 480]
+  exposure_time: i64;
+}
+
+# IMU data
+imu_data = record {
+  # IMU frame id
+  frame_id: i64;
+  # IMU accel or gyro flag
+  #   0: accel and gyro are both valid
+  #   1: accel is valid
+  #   2: gyro is valid
+  flag: i32;
+  # IMU timestamp in 1us
+  timestamp: i64;
+  # IMU accelerometer data for 3-axis: X, Y, Z.
+  accel: list<f64>;
+  # IMU gyroscope data for 3-axis: X, Y, Z.
+  gyro: list<f64>;
+  # IMU temperature
+  temperature: f64;
+}
+
+# Device stream data
+stream_data = interface +c {
+  img(): img_data;
+  frame(): frame;
+  frame_id(): i64;
+}
+
+# Device motion data
+motion_data = interface +c {
+  imu(): imu_data;
+}

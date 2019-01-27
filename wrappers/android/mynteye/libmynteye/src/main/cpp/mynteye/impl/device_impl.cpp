@@ -8,11 +8,15 @@
 #include "stream_request.hpp"
 #include "type_conversion.hpp"
 
+#include "frame_impl.hpp"
+#include "motion_data_impl.hpp"
+#include "stream_data_impl.hpp"
+
 MYNTEYE_USE_NAMESPACE
 
 namespace mynteye_jni {
 
-std::vector<DeviceUsbInfo> Device::Query() {
+std::vector<::mynteye_jni::DeviceUsbInfo> Device::Query() {
   VLOG(2) << __func__;
   std::vector<DeviceUsbInfo> infos;
 
@@ -28,7 +32,7 @@ std::vector<DeviceUsbInfo> Device::Query() {
   return infos;
 }
 
-std::shared_ptr<Device> Device::Create(const DeviceUsbInfo & info) {
+std::shared_ptr<Device> Device::Create(const ::mynteye_jni::DeviceUsbInfo & info) {
   VLOG(2) << __func__;
   Context context;
   int32_t i = 0;
@@ -49,9 +53,9 @@ DeviceImpl::~DeviceImpl() {
   VLOG(2) << __func__;
 }
 
-std::vector<StreamRequest> DeviceImpl::GetStreamRequests() {
+std::vector<::mynteye_jni::StreamRequest> DeviceImpl::GetStreamRequests() {
   VLOG(2) << __func__;
-  std::vector<StreamRequest> requests;
+  std::vector<::mynteye_jni::StreamRequest> requests;
 
   int32_t i = 0;
   for (auto&& req : device_->GetStreamRequests()) {
@@ -63,7 +67,8 @@ std::vector<StreamRequest> DeviceImpl::GetStreamRequests() {
   return requests;
 }
 
-void DeviceImpl::ConfigStreamRequest(const StreamRequest & request) {
+void DeviceImpl::ConfigStreamRequest(
+    const ::mynteye_jni::StreamRequest & request) {
   VLOG(2) << __func__;
   int32_t i = 0;
   for (auto&& req : device_->GetStreamRequests()) {
@@ -75,12 +80,31 @@ void DeviceImpl::ConfigStreamRequest(const StreamRequest & request) {
   }
 }
 
-void DeviceImpl::Start() {
-  VLOG(2) << __func__;
+void DeviceImpl::Start(::mynteye_jni::Source source) {
 }
 
-void DeviceImpl::Stop() {
-  VLOG(2) << __func__;
+void DeviceImpl::Stop(::mynteye_jni::Source source) {
+}
+
+void DeviceImpl::WaitForStreams() {
+}
+
+std::shared_ptr<::mynteye_jni::StreamData> DeviceImpl::GetStreamData(
+    ::mynteye_jni::Stream stream) {
+  return nullptr;
+}
+
+std::vector<std::shared_ptr<::mynteye_jni::StreamData>>
+DeviceImpl::GetStreamDatas(::mynteye_jni::Stream stream) {
+  return {};
+}
+
+void DeviceImpl::EnableCacheMotionDatas(int32_t max_size) {
+}
+
+std::vector<std::shared_ptr<::mynteye_jni::MotionData>>
+DeviceImpl::GetMotionDatas() {
+  return {};
 }
 
 }  // namespace mynteye_jni

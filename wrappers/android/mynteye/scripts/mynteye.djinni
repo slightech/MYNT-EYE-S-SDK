@@ -1,33 +1,33 @@
+@extern "mynteye_types.yaml"
 
-format = enum {
-  grey;
-  yuyv;
-  bgr888;
-  rgb888;
-}
-
-stream_request = record {
-  index: i32;
-  width: i32;
-  height: i32;
-  format: format;
-  fps: i32;
-}
-
-device_usb_info = record {
-  index: i32;
-  name: string;
-  sn: string;
-}
-
+# Device class to communicate with MYNT® EYE device
 device = interface +c {
+  # Query devices
   static query(): list<device_usb_info>;
 
+  # Create the device instance
   static create(info: device_usb_info): device;
 
+  # Get all stream requests
   get_stream_requests(): list<stream_request>;
+  # Config the stream request
   config_stream_request(request: stream_request);
 
-  start();
-  stop();
+  # Start capturing the source
+  start(source: source);
+  # Stop capturing the source
+  stop(source: source);
+
+  # Wait the streams are ready
+  wait_for_streams();
+
+  # Get the latest data of stream
+  get_stream_data(stream: stream): stream_data;
+  # Get the datas of stream
+  get_stream_datas(stream: stream): list<stream_data>;
+
+  # Enable cache motion datas
+  enable_cache_motion_datas(max_size: i32);
+  # Get the motion datas
+  get_motion_datas(): list<motion_data>;
 }

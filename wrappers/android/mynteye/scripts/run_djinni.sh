@@ -6,11 +6,10 @@ base_dir=$(cd "$(dirname "$0")" && pwd)
 
 # options
 
-while getopts "d:i:" opt; do
+while getopts "d:" opt; do
   case "$opt" in
     d) djinni_dir="$OPTARG" ;;
-    i) in_idl="$OPTARG" ;;
-    ?) echo "Usage: $0 <-d DJINNI_DIR> [-i IN_IDL]"
+    ?) echo "Usage: $0 <-d DJINNI_DIR>"
        exit 2 ;;
   esac
 done
@@ -19,8 +18,6 @@ if [ -z "$djinni_dir" ]; then
   echo "<-d DJINNI_DIR> option is required" 1>&2
   exit 2
 fi
-
-[ -n "$in_idl" ] || in_idl="$base_dir/mynteye.djinni"
 
 # generate
 
@@ -36,25 +33,35 @@ java_package="com.slightech.mynteye"
 cpp_namespace="mynteye_jni"
 
 [ ! -e "$temp_out" ] || rm -r "$temp_out"
-"$djinni_run" \
---java-out "$temp_out/java" \
---java-package "$java_package" \
---java-class-access-modifier "public" \
---java-generate-interfaces true \
---java-nullable-annotation "androidx.annotation.Nullable" \
---java-nonnull-annotation "androidx.annotation.NonNull" \
---ident-java-field mFooBar \
-\
---cpp-out "$temp_out/cpp" \
---cpp-namespace "$cpp_namespace" \
---ident-cpp-enum-type FooBar \
---ident-cpp-method FooBar \
-\
---jni-out "$temp_out/jni" \
---ident-jni-class NativeFooBar \
---ident-jni-file NativeFooBar \
-\
---idl "$in_idl"
+
+djinni_build() {
+  local in_idl="$1"; shift
+  "$djinni_run" \
+  --java-out "$temp_out/java" \
+  --java-package "$java_package" \
+  --java-class-access-modifier "public" \
+  --java-generate-interfaces true \
+  --java-nullable-annotation "androidx.annotation.Nullable" \
+  --java-nonnull-annotation "androidx.annotation.NonNull" \
+  --ident-java-field mFooBar \
+  \
+  --cpp-out "$temp_out/cpp" \
+  --cpp-namespace "$cpp_namespace" \
+  --ident-cpp-enum-type FooBar \
+  --ident-cpp-method FooBar \
+  \
+  --jni-out "$temp_out/jni" \
+  --ident-jni-class NativeFooBar \
+  --ident-jni-file NativeFooBar \
+  \
+  --yaml-out $(dirname "$in_idl") \
+  --yaml-out-file "$(basename "$in_idl" .djinni).yaml" \
+  \
+  --idl "$in_idl"
+}
+
+djinni_build "$base_dir/mynteye_types.djinni"
+djinni_build "$base_dir/mynteye.djinni"
 
 # copy
 
