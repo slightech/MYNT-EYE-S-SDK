@@ -59,7 +59,7 @@
   <!-- disparity computing method type -->
   <arg name="sgbm"   default="0" />
   <arg name="bm"   default="1" />
-  <arg name="disparity_computing_method"   default="$(arg bm)" />
+  <arg name="disparity_computing_method"   default="$(arg sgbm)" />
 
   <arg name="enable_left_rect" default="false" />
   <arg name="enable_right_rect" default="false" />
