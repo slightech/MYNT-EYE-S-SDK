@@ -131,7 +131,7 @@ endif()
 ## camodocal
 
 if(WITH_CAM_MODELS)
-  set(EIGEN_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/eigen3)
+  set(EIGEN_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
   message(STATUS "EIGEN_INCLUDE_DIR: ${EIGEN_INCLUDE_DIR}")
 
   include_directories(
