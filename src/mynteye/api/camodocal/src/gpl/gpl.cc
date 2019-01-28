@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "camodocal/gpl/gpl.h"
+#include "mynteye/logger.h"
 
 #include <set>
 #ifdef _WIN32
@@ -685,10 +686,12 @@ void UTMtoLL(
   double N1, T1, C1, R1, D, M;
   double LongOrigin;
   double mu, phi1, phi1Rad;
+  MYNTEYE_UNUSED(phi1);
   double x, y;
   int ZoneNumber;
   char ZoneLetter;
   bool NorthernHemisphere;
+  MYNTEYE_UNUSED(NorthernHemisphere);
 
   x = utmEasting - 500000.0;  // remove 500,000 meter offset for longitude
   y = utmNorthing;

@@ -22,6 +22,7 @@
 #include <opencv2/core/eigen.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "camodocal/gpl/gpl.h"
+#include "mynteye/logger.h"
 
 namespace camodocal {
 #define PI M_PI
@@ -506,7 +507,8 @@ void EquidistantCamera::setParameters(
 
 void EquidistantCamera::readParameters(
     const std::vector<double> &parameterVec) {
-  if (parameterVec.size() != parameterCount()) {
+  if (parameterVec.size() != static_cast<unsigned int>(parameterCount())) {
+    MYNTEYE_UNUSED(parameterVec);
     return;
   }
 
