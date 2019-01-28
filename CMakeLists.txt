@@ -132,10 +132,10 @@ endif()
 
 if(WITH_CAM_MODELS)
   set(EIGEN_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/eigen3)
-  message(STATUS "EIGEN_INCLUDE_DIRS: ${EIGEN_INCLUDE_DIRS}")
+  message(STATUS "EIGEN_INCLUDE_DIR: ${EIGEN_INCLUDE_DIR}")
 
   include_directories(
-    ${EIGEN_INCLUDE_DIRS}
+    ${EIGEN_INCLUDE_DIR}
     src/mynteye/api/camodocal/include
   )
 
