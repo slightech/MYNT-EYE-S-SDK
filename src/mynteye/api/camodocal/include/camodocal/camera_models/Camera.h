@@ -15,7 +15,7 @@
 #define SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_CAMERA_MODELS_CAMERA_H_
 
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include "eigen3/Eigen/Dense"
 #include <opencv2/core/core.hpp>
 
@@ -130,8 +130,8 @@ class Camera {
   cv::Mat m_mask;
 };
 
-typedef boost::shared_ptr<Camera> CameraPtr;
-typedef boost::shared_ptr<const Camera> CameraConstPtr;
+typedef std::shared_ptr<Camera> CameraPtr;
+typedef std::shared_ptr<const Camera> CameraConstPtr;
 }
 
 #endif  // SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_CAMERA_MODELS_CAMERA_H_

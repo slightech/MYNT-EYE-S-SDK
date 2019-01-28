@@ -226,6 +226,12 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     gravity_ = 9.8;
     private_nh_.getParam("gravity", gravity_);
 
+    int tmp_disparity_type_ = 0;
+    disparity_type_ = DisparityComputingMethod::BM;
+    private_nh_.getParam("disparity_computing_method", tmp_disparity_type_);
+    disparity_type_ = (DisparityComputingMethod)tmp_disparity_type_;
+    api_->SetDisparityComputingMethodType(disparity_type_);
+
     // device options of standard210a
     if (model_ == Model::STANDARD210A) {
       option_names_ = {
@@ -1317,6 +1323,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
   double gravity_;
 
+  // disparity type
+  DisparityComputingMethod disparity_type_;
   // api
 
   std::shared_ptr<API> api_;
