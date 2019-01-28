@@ -164,6 +164,7 @@ const char *to_string(const Format &value) {
     CASE(GREY)
     CASE(YUYV)
     CASE(BGR888)
+    CASE(RGB888)
     default:
       return "Format::UNKNOWN";
   }
