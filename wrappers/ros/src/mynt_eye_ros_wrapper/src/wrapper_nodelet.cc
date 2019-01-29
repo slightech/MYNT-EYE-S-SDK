@@ -37,6 +37,9 @@
 #include "mynteye/api/api.h"
 #include "mynteye/device/context.h"
 #include "mynteye/device/device.h"
+#define CONFIGURU_IMPLEMENTATION 1
+#include "configuru.hpp"
+using namespace configuru;  // NOLINT
 
 #define FULL_PRECISION \
   std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10)
@@ -403,6 +406,115 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         break;
       case Request::NOMINAL_BASELINE:
         res.value = api_->GetInfo(Info::NOMINAL_BASELINE);
+        break;
+      case Request::IMG_INTRINSICS:
+      {
+        auto intri_left = api_->GetIntrinsicsBase(Stream::LEFT);
+        auto calib_model = intri_left->calib_model();
+        if (calib_model == CalibrationModel::PINHOLE) {
+          auto intri_left =
+              api_->GetIntrinsics<IntrinsicsPinhole>(Stream::LEFT);
+          auto intri_right =
+              api_->GetIntrinsics<IntrinsicsPinhole>(Stream::RIGHT);
+          Config intrinsics{
+            {"calib_model", "pinhole"},
+            {"left", {
+              {"width", intri_left.width},
+              {"height", intri_left.height},
+              {"fx", intri_left.fx},
+              {"fy", intri_left.fy},
+              {"cx", intri_left.cx},
+              {"cy", intri_left.cy},
+              {"model", intri_left.model},
+              {"coeffs", Config::array(
+                  {intri_left.coeffs[0],
+                   intri_left.coeffs[1],
+                   intri_left.coeffs[2],
+                   intri_left.coeffs[3],
+                   intri_left.coeffs[4]})}
+            }},
+            {"right", {
+              {"width", intri_right.width},
+              {"height", intri_right.height},
+              {"fx", intri_right.fx},
+              {"fy", intri_right.fy},
+              {"cx", intri_right.cx},
+              {"cy", intri_right.cy},
+              {"model", intri_right.model},
+              {"coeffs", Config::array(
+                  {intri_right.coeffs[0],
+                   intri_right.coeffs[1],
+                   intri_right.coeffs[2],
+                   intri_right.coeffs[3],
+                   intri_right.coeffs[4]})}
+            }}
+          };
+          std::string json = dump_string(intrinsics, configuru::JSON);
+          res.value = json;
+        } else if (calib_model == CalibrationModel::KANNALA_BRANDT) {
+          auto intri_left =
+              api_->GetIntrinsics<IntrinsicsEquidistant>(Stream::LEFT);
+          auto intri_right =
+              api_->GetIntrinsics<IntrinsicsEquidistant>(Stream::RIGHT);
+          Config intrinsics{
+            {"calib_model", "kannala_brandt"},
+            {"left", {
+              {"width", intri_left.width},
+              {"height", intri_left.height},
+              {"coeffs", Config::array(
+                  {intri_left.coeffs[0],
+                   intri_left.coeffs[1],
+                   intri_left.coeffs[2],
+                   intri_left.coeffs[3],
+                   intri_left.coeffs[4],
+                   intri_left.coeffs[5],
+                   intri_left.coeffs[6],
+                   intri_left.coeffs[7]})
+              }
+            }},
+            {"right", {
+              {"width", intri_right.width},
+              {"height", intri_right.height},
+              {"coeffs", Config::array(
+                  {intri_right.coeffs[0],
+                   intri_right.coeffs[1],
+                   intri_right.coeffs[2],
+                   intri_right.coeffs[3],
+                   intri_right.coeffs[4],
+                   intri_right.coeffs[5],
+                   intri_right.coeffs[6],
+                   intri_right.coeffs[7]})
+              }
+            }}
+          };
+          std::string json = dump_string(intrinsics, configuru::JSON);
+          res.value = json;
+        } else {
+          NODELET_INFO_STREAM("INVALID CALIB MODEL:" << calib_model);
+          Config intrinsics{};
+          std::string json = dump_string(intrinsics, configuru::JSON);
+          res.value = json;
+        }
+      }
+      break;
+      case Request::IMG_EXTRINSICS_RTOL:
+      {
+        auto extri = api_->GetExtrinsics(Stream::RIGHT, Stream::LEFT);
+        Config extrinsics{
+          {"rotation",     Config::array({extri.rotation[0][0], extri.rotation[0][1], extri.rotation[0][2],   // NOLINT
+                                          extri.rotation[1][0], extri.rotation[1][1], extri.rotation[1][2],   // NOLINT
+                                          extri.rotation[2][0], extri.rotation[2][1], extri.rotation[2][2]})},// NOLINT
+          {"translation",  Config::array({extri.translation[0], extri.translation[1], extri.translation[2]})} // NOLINT
+        };
+        std::string json = dump_string(extrinsics, configuru::JSON);
+        res.value = json;
+      }
+      break;
+      case Request::IMU_INTRINSICS:
+        res.value = "TODO";
+        break;
+      case Request::IMU_EXTRINSICS:
+        res.value = "TODO";
         break;
       default:
         NODELET_WARN_STREAM("Info of key " << req.key << " not exist");
