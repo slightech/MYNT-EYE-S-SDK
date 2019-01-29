@@ -155,8 +155,8 @@ bool DisparityProcessor::OnProcess(
       tmp2 = input->second;
     } else if (input->first.channels() >= 3) {
       // s210
-      cv::cvtColor(input->first, tmp1, CV_RGB2GRAY);
-      cv::cvtColor(input->second, tmp2, CV_RGB2GRAY);
+      cv::cvtColor(input->first, tmp1, cv::COLOR_RGB2GRAY);
+      cv::cvtColor(input->second, tmp2, cv::COLOR_RGB2GRAY);
     }
     bm_matcher->compute(tmp1, tmp2, disparity);
   } else {
