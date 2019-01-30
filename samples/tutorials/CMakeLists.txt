@@ -129,14 +129,10 @@ make_executable2(ctrl_manual_exposure
 
 if(PCL_FOUND)
 
-if(OpenCV_VERSION VERSION_LESS 4.0)
-
 make_executable2(get_depth_and_points
   SRCS intermediate/get_depth_and_points.cc util/cv_painter.cc util/pc_viewer.cc
   WITH_OPENCV WITH_PCL
 )
-
-endif()
 
 endif()
 
