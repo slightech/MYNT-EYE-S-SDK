@@ -46,7 +46,7 @@ DisparityProcessor::DisparityProcessor(DisparityComputingMethod type,
             100,                             // speckleWindowSize
             32,                              // speckleRange
             false));                         // fullDP
-    LOG(ERROR) << "not supported in opencv 2.x";
+    LOG(ERROR) << "BM not supported in opencv 2.x, use sgbm";
     // int bmWinSize = 3;
     // // StereoBM
     // //   https://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html#stereobm-stereobm
@@ -130,7 +130,8 @@ bool DisparityProcessor::OnProcess(
   if (type_ == DisparityComputingMethod::SGBM) {
     (*sgbm_matcher)(input->first, input->second, disparity);
   } else if (type_ == DisparityComputingMethod::BM) {
-    LOG(ERROR) << "not supported in opencv 2.x";
+    // LOG(ERROR) << "not supported in opencv 2.x";
+    (*sgbm_matcher)(input->first, input->second, disparity);
     // cv::Mat tmp1, tmp2;
     // cv::cvtColor(input->first, tmp1, CV_RGB2GRAY);
     // cv::cvtColor(input->second, tmp2, CV_RGB2GRAY);
@@ -154,8 +155,8 @@ bool DisparityProcessor::OnProcess(
       tmp2 = input->second;
     } else if (input->first.channels() >= 3) {
       // s210
-      cv::cvtColor(input->first, tmp1, CV_RGB2GRAY);
-      cv::cvtColor(input->second, tmp2, CV_RGB2GRAY);
+      cv::cvtColor(input->first, tmp1, cv::COLOR_RGB2GRAY);
+      cv::cvtColor(input->second, tmp2, cv::COLOR_RGB2GRAY);
     }
     bm_matcher->compute(tmp1, tmp2, disparity);
   } else {

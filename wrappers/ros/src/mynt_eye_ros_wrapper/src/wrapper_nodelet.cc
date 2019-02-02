@@ -37,6 +37,9 @@
 #include "mynteye/api/api.h"
 #include "mynteye/device/context.h"
 #include "mynteye/device/device.h"
+#define CONFIGURU_IMPLEMENTATION 1
+#include "configuru.hpp"
+using namespace configuru;  // NOLINT
 
 #define FULL_PRECISION \
   std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10)
@@ -226,6 +229,12 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     gravity_ = 9.8;
     private_nh_.getParam("gravity", gravity_);
 
+    int tmp_disparity_type_ = 0;
+    disparity_type_ = DisparityComputingMethod::BM;
+    private_nh_.getParam("disparity_computing_method", tmp_disparity_type_);
+    disparity_type_ = (DisparityComputingMethod)tmp_disparity_type_;
+    api_->SetDisparityComputingMethodType(disparity_type_);
+
     // device options of standard210a
     if (model_ == Model::STANDARD210A) {
       option_names_ = {
@@ -397,6 +406,115 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         break;
       case Request::NOMINAL_BASELINE:
         res.value = api_->GetInfo(Info::NOMINAL_BASELINE);
+        break;
+      case Request::IMG_INTRINSICS:
+      {
+        auto intri_left = api_->GetIntrinsicsBase(Stream::LEFT);
+        auto calib_model = intri_left->calib_model();
+        if (calib_model == CalibrationModel::PINHOLE) {
+          auto intri_left =
+              api_->GetIntrinsics<IntrinsicsPinhole>(Stream::LEFT);
+          auto intri_right =
+              api_->GetIntrinsics<IntrinsicsPinhole>(Stream::RIGHT);
+          Config intrinsics{
+            {"calib_model", "pinhole"},
+            {"left", {
+              {"width", intri_left.width},
+              {"height", intri_left.height},
+              {"fx", intri_left.fx},
+              {"fy", intri_left.fy},
+              {"cx", intri_left.cx},
+              {"cy", intri_left.cy},
+              {"model", intri_left.model},
+              {"coeffs", Config::array(
+                  {intri_left.coeffs[0],
+                   intri_left.coeffs[1],
+                   intri_left.coeffs[2],
+                   intri_left.coeffs[3],
+                   intri_left.coeffs[4]})}
+            }},
+            {"right", {
+              {"width", intri_right.width},
+              {"height", intri_right.height},
+              {"fx", intri_right.fx},
+              {"fy", intri_right.fy},
+              {"cx", intri_right.cx},
+              {"cy", intri_right.cy},
+              {"model", intri_right.model},
+              {"coeffs", Config::array(
+                  {intri_right.coeffs[0],
+                   intri_right.coeffs[1],
+                   intri_right.coeffs[2],
+                   intri_right.coeffs[3],
+                   intri_right.coeffs[4]})}
+            }}
+          };
+          std::string json = dump_string(intrinsics, configuru::JSON);
+          res.value = json;
+        } else if (calib_model == CalibrationModel::KANNALA_BRANDT) {
+          auto intri_left =
+              api_->GetIntrinsics<IntrinsicsEquidistant>(Stream::LEFT);
+          auto intri_right =
+              api_->GetIntrinsics<IntrinsicsEquidistant>(Stream::RIGHT);
+          Config intrinsics{
+            {"calib_model", "kannala_brandt"},
+            {"left", {
+              {"width", intri_left.width},
+              {"height", intri_left.height},
+              {"coeffs", Config::array(
+                  {intri_left.coeffs[0],
+                   intri_left.coeffs[1],
+                   intri_left.coeffs[2],
+                   intri_left.coeffs[3],
+                   intri_left.coeffs[4],
+                   intri_left.coeffs[5],
+                   intri_left.coeffs[6],
+                   intri_left.coeffs[7]})
+              }
+            }},
+            {"right", {
+              {"width", intri_right.width},
+              {"height", intri_right.height},
+              {"coeffs", Config::array(
+                  {intri_right.coeffs[0],
+                   intri_right.coeffs[1],
+                   intri_right.coeffs[2],
+                   intri_right.coeffs[3],
+                   intri_right.coeffs[4],
+                   intri_right.coeffs[5],
+                   intri_right.coeffs[6],
+                   intri_right.coeffs[7]})
+              }
+            }}
+          };
+          std::string json = dump_string(intrinsics, configuru::JSON);
+          res.value = json;
+        } else {
+          NODELET_INFO_STREAM("INVALID CALIB MODEL:" << calib_model);
+          Config intrinsics{};
+          std::string json = dump_string(intrinsics, configuru::JSON);
+          res.value = json;
+        }
+      }
+      break;
+      case Request::IMG_EXTRINSICS_RTOL:
+      {
+        auto extri = api_->GetExtrinsics(Stream::RIGHT, Stream::LEFT);
+        Config extrinsics{
+          {"rotation",     Config::array({extri.rotation[0][0], extri.rotation[0][1], extri.rotation[0][2],   // NOLINT
+                                          extri.rotation[1][0], extri.rotation[1][1], extri.rotation[1][2],   // NOLINT
+                                          extri.rotation[2][0], extri.rotation[2][1], extri.rotation[2][2]})},// NOLINT
+          {"translation",  Config::array({extri.translation[0], extri.translation[1], extri.translation[2]})} // NOLINT
+        };
+        std::string json = dump_string(extrinsics, configuru::JSON);
+        res.value = json;
+      }
+      break;
+      case Request::IMU_INTRINSICS:
+        res.value = "TODO";
+        break;
+      case Request::IMU_EXTRINSICS:
+        res.value = "TODO";
         break;
       default:
         NODELET_WARN_STREAM("Info of key " << req.key << " not exist");
@@ -783,7 +901,72 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     pub_imu_.publish(msg);
   }
 
+  void timestampAlign() {
+    static bool get_first_acc = false;
+    static bool get_first_gyro = false;
+    static bool has_gyro = false;
+    static ImuData acc;
+    static ImuData gyro;
+
+    if (!get_first_acc && imu_accel_ != nullptr) {
+      acc = *imu_accel_;
+      imu_accel_ = nullptr;
+      get_first_acc = true;
+      return;
+    }
+
+    if (!get_first_gyro && imu_gyro_ != nullptr) {
+      gyro = *imu_gyro_;
+      imu_gyro_ = nullptr;
+      get_first_gyro = true;
+      return;
+    }
+
+    if (imu_accel_ != nullptr) {
+      if (!has_gyro) {
+        acc = *imu_accel_;
+        imu_accel_ = nullptr;
+        return;
+      }
+
+      if (acc.timestamp <= gyro.timestamp) {
+        ImuData acc_temp;
+        acc_temp = *imu_accel_;
+        acc_temp.timestamp = gyro.timestamp;
+
+        double k = static_cast<double>(imu_accel_->timestamp - acc.timestamp);
+        k = static_cast<double>(gyro.timestamp - acc.timestamp) / k;
+
+        acc_temp.accel[0] = acc.accel[0] +
+                            (imu_accel_->accel[0] - acc.accel[0]) * k;
+        acc_temp.accel[1] = acc.accel[1] +
+                            (imu_accel_->accel[1] - acc.accel[1]) * k;
+        acc_temp.accel[2] = acc.accel[2] +
+                            (imu_accel_->accel[2] - acc.accel[2]) * k;
+
+        acc = *imu_accel_;
+        *imu_accel_ = acc_temp;
+        imu_gyro_.reset(new ImuData(gyro));
+        has_gyro = false;
+        return;
+      } else {
+        acc = *imu_accel_;
+        imu_accel_ = nullptr;
+        return;
+      }
+    }
+
+    if (imu_gyro_ != nullptr) {
+      has_gyro = true;
+      gyro = *imu_gyro_;
+      imu_gyro_ = nullptr;
+      return;
+    }
+  }
+
   void publishImuBySync(ros::Time stamp) {
+    timestampAlign();
+
     if (imu_accel_ == nullptr || imu_gyro_ == nullptr) {
       return;
     }
@@ -1317,6 +1500,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
   double gravity_;
 
+  // disparity type
+  DisparityComputingMethod disparity_type_;
   // api
 
   std::shared_ptr<API> api_;
