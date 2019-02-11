@@ -146,7 +146,7 @@ class SyntheticProcessorPart {
   inline std::vector<Synthetic::stream_control_t> getTargetStreams() {
     return target_streams_;
   }
-  inline Stream addTargetStreams(const Synthetic::stream_control_t& strm) {
+  inline void addTargetStreams(const Synthetic::stream_control_t& strm) {
     target_streams_.push_back(strm);
   }
 
