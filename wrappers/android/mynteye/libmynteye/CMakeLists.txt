@@ -37,6 +37,13 @@ add_library(djinni_jni STATIC
   ${DJINNI_DIR}/support-lib/jni/djinni_support.cpp
 )
 
+## mynteye_internal
+
+add_library(mynteye_internal SHARED IMPORTED)
+set_target_properties(mynteye_internal PROPERTIES
+  IMPORTED_LOCATION "${LIB_ROOT}/src/main/jniLibs/${ANDROID_ABI}/libmynteye_internal.so"
+)
+
 # targets
 
 ## libmynteye
@@ -52,7 +59,7 @@ configure_file(
 )
 
 set(MYNTEYE_SRCS
-  ${MYNTETE_ROOT}/src/mynteye/uvc/linux/uvc-v4l2.cc
+  #${MYNTETE_ROOT}/src/mynteye/uvc/linux/uvc-v4l2.cc
   ${MYNTETE_ROOT}/src/mynteye/types.cc
   ${MYNTETE_ROOT}/src/mynteye/util/files.cc
   ${MYNTETE_ROOT}/src/mynteye/util/strings.cc
@@ -110,4 +117,4 @@ add_library(mynteye_jni SHARED
   ${DJINNI_DIR}/support-lib/jni/djinni_main.cpp
   ${MYNTEYE_JNI_SRCS}
 )
-target_link_libraries(mynteye_jni ${log-lib} djinni_jni mynteye)
+target_link_libraries(mynteye_jni ${log-lib} djinni_jni mynteye mynteye_internal)

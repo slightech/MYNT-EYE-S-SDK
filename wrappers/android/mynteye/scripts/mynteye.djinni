@@ -2,9 +2,6 @@
 
 # Device class to communicate with MYNT® EYE device
 device = interface +c {
-  # Query devices
-  static query(): list<device_usb_info>;
-
   # Create the device instance
   static create(info: device_usb_info): device;
 

@@ -2,8 +2,11 @@ package com.slightech.mynteye.demo.ui;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.hardware.usb.UsbDevice;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -12,6 +15,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.FragmentActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.slightech.mynteye.Device;
@@ -24,17 +28,23 @@ import com.slightech.mynteye.StreamRequest;
 import com.slightech.mynteye.demo.R;
 import com.slightech.mynteye.demo.camera.Mynteye;
 import com.slightech.mynteye.demo.util.RootUtils;
+import com.slightech.mynteye.usb.CameraDialog;
+import com.slightech.mynteye.usb.USBMonitor;
+import com.slightech.mynteye.usb.USBMonitor.OnDeviceConnectListener;
+import com.slightech.mynteye.usb.USBMonitor.UsbControlBlock;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Locale;
 import timber.log.Timber;
 
-public class MainActivity extends BaseActivity implements Mynteye.OnStreamDataReceiveListener,
-    Mynteye.OnMotionDataReceiveListener{
+public class MainActivity extends BaseActivity implements CameraDialog.CameraDialogParent,
+    Mynteye.OnStreamDataReceiveListener, Mynteye.OnMotionDataReceiveListener {
 
   @BindView(R.id.text) TextView mTextView;
   @BindView(R.id.image_left) ImageView mLeftImageView;
   @BindView(R.id.image_right) ImageView mRightImageView;
+
+  private USBMonitor mUSBMonitor;
 
   private Mynteye mMynteye;
   private Bitmap mLeftBitmap, mRightBitmap;
@@ -44,7 +54,91 @@ public class MainActivity extends BaseActivity implements Mynteye.OnStreamDataRe
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
+
+    mUSBMonitor = new USBMonitor(this, mOnDeviceConnectListener);
   }
+
+  @Override
+  protected void onStart() {
+    super.onStart();
+    mUSBMonitor.register();
+  }
+
+  @Override
+  protected void onStop() {
+    super.onStop();
+    if (mUSBMonitor != null) {
+      mUSBMonitor.unregister();
+    }
+  }
+
+  @Override
+  protected void onDestroy() {
+    if (mMynteye != null) {
+      mMynteye.close();
+      mMynteye = null;
+    }
+    if (mUSBMonitor != null) {
+      mUSBMonitor.destroy();
+      mUSBMonitor = null;
+    }
+    super.onDestroy();
+  }
+
+  private final OnDeviceConnectListener mOnDeviceConnectListener = new OnDeviceConnectListener() {
+
+    @Override
+    public void onAttach(final UsbDevice device) {
+      toast("USB_DEVICE_ATTACHED");
+    }
+
+    @Override
+    public void onConnect(final UsbDevice device, final UsbControlBlock ctrlBlock, final boolean createNew) {
+      toast(String.format(Locale.getDefault(), "CONNECT, %s: %s", ctrlBlock.getProductName(), ctrlBlock.getSerial()));
+      openDevice(new DeviceUsbInfo(
+          ctrlBlock.getVenderId(),
+          ctrlBlock.getProductId(),
+          ctrlBlock.getFileDescriptor(),
+          ctrlBlock.getBusNum(),
+          ctrlBlock.getDevNum(),
+          getUSBFSName(ctrlBlock),
+          ctrlBlock.getProductName(),
+          ctrlBlock.getSerial()));
+    }
+
+    @Override
+    public void onDisconnect(final UsbDevice device, final UsbControlBlock ctrlBlock) {
+      toast(String.format(Locale.getDefault(), "DISCONNECT, %s: %s", ctrlBlock.getProductName(), ctrlBlock.getSerial()));
+    }
+
+    @Override
+    public void onDetach(final UsbDevice device) {
+      toast("USB_DEVICE_DETACHED");
+    }
+
+    @Override
+    public void onCancel(final UsbDevice device) {
+    }
+
+    private static final String DEFAULT_USBFS = "/dev/bus/usb";
+
+    private final String getUSBFSName(final UsbControlBlock ctrlBlock) {
+      String result = null;
+      final String name = ctrlBlock.getDeviceName();
+      final String[] v = !TextUtils.isEmpty(name) ? name.split("/") : null;
+      if ((v != null) && (v.length > 2)) {
+        final StringBuilder sb = new StringBuilder(v[0]);
+        for (int i = 1; i < v.length - 2; i++)
+          sb.append("/").append(v[i]);
+        result = sb.toString();
+      }
+      if (TextUtils.isEmpty(result)) {
+        Timber.w("failed to get USBFS path, try to use default path: %s", name);
+        result = DEFAULT_USBFS;
+      }
+      return result;
+    }
+  };
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
@@ -70,6 +164,9 @@ public class MainActivity extends BaseActivity implements Mynteye.OnStreamDataRe
   }
 
   private void actionOpen(final Runnable completeEvent) {
+    if (completeEvent != null) completeEvent.run();
+    CameraDialog.showDialog(this);
+    /*
     if (!RootUtils.isRooted()) {
       if (completeEvent != null) completeEvent.run();
       alert("Warning", "Root denied :(");
@@ -84,8 +181,10 @@ public class MainActivity extends BaseActivity implements Mynteye.OnStreamDataRe
         alert("Warning", "There are no devices accessible.");
       }
     });
+    */
   }
 
+  /*
   private void showDevices() {
     ArrayList<DeviceUsbInfo> infos = Device.query();
     if (infos.isEmpty()) {
@@ -110,6 +209,7 @@ public class MainActivity extends BaseActivity implements Mynteye.OnStreamDataRe
       dialog.show();
     }
   }
+  */
 
   private void openDevice(DeviceUsbInfo info) {
     mMynteye = new Mynteye(info);
@@ -136,6 +236,15 @@ public class MainActivity extends BaseActivity implements Mynteye.OnStreamDataRe
       dialog.setView(listView);
       dialog.show();
     }
+  }
+
+  @Override
+  public USBMonitor getUSBMonitor() {
+    return mUSBMonitor;
+  }
+
+  @Override
+  public void onDialogResult(boolean canceled) {
   }
 
   @Override
@@ -180,15 +289,6 @@ public class MainActivity extends BaseActivity implements Mynteye.OnStreamDataRe
   public void onMotionDataReceive(ArrayList<MotionData> datas, Handler handler) {
     if (datas.isEmpty()) return;
     mTextView.post(() -> mTextView.setText(datas.get(0).imu().toString()));
-  }
-
-  @Override
-  protected void onDestroy() {
-    if (mMynteye != null) {
-      mMynteye.close();
-      mMynteye = null;
-    }
-    super.onDestroy();
   }
 
   private void toast(CharSequence text) {

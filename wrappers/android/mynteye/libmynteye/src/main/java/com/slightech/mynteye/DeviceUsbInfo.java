@@ -10,44 +10,95 @@ import androidx.annotation.Nullable;
 public final class DeviceUsbInfo {
 
 
-    /*package*/ final int mIndex;
+    /*package*/ final int mVid;
+
+    /*package*/ final int mPid;
+
+    /*package*/ final int mFd;
+
+    /*package*/ final int mBusNum;
+
+    /*package*/ final int mDevNum;
+
+    /*package*/ final String mUsbFs;
 
     /*package*/ final String mName;
 
-    /*package*/ final String mSn;
+    /*package*/ final String mSerial;
 
     public DeviceUsbInfo(
-            int index,
+            int vid,
+            int pid,
+            int fd,
+            int busNum,
+            int devNum,
+            @NonNull String usbFs,
             @NonNull String name,
-            @NonNull String sn) {
-        this.mIndex = index;
+            @NonNull String serial) {
+        this.mVid = vid;
+        this.mPid = pid;
+        this.mFd = fd;
+        this.mBusNum = busNum;
+        this.mDevNum = devNum;
+        this.mUsbFs = usbFs;
         this.mName = name;
-        this.mSn = sn;
+        this.mSerial = serial;
     }
 
-    /** Device index */
-    public int getIndex() {
-        return mIndex;
+    /** Vendor id */
+    public int getVid() {
+        return mVid;
     }
 
-    /** Device name */
+    /** Product id */
+    public int getPid() {
+        return mPid;
+    }
+
+    /** File descriptor */
+    public int getFd() {
+        return mFd;
+    }
+
+    /** Bus number */
+    public int getBusNum() {
+        return mBusNum;
+    }
+
+    /** Dev number */
+    public int getDevNum() {
+        return mDevNum;
+    }
+
+    /** Usb file system path */
+    @NonNull
+    public String getUsbFs() {
+        return mUsbFs;
+    }
+
+    /** Product name */
     @NonNull
     public String getName() {
         return mName;
     }
 
-    /** Device serial number */
+    /** Serial number */
     @NonNull
-    public String getSn() {
-        return mSn;
+    public String getSerial() {
+        return mSerial;
     }
 
     @Override
     public String toString() {
         return "DeviceUsbInfo{" +
-                "mIndex=" + mIndex +
+                "mVid=" + mVid +
+                "," + "mPid=" + mPid +
+                "," + "mFd=" + mFd +
+                "," + "mBusNum=" + mBusNum +
+                "," + "mDevNum=" + mDevNum +
+                "," + "mUsbFs=" + mUsbFs +
                 "," + "mName=" + mName +
-                "," + "mSn=" + mSn +
+                "," + "mSerial=" + mSerial +
         "}";
     }
 

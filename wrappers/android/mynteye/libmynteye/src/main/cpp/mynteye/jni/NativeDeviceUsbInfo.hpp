@@ -25,10 +25,15 @@ private:
     friend ::djinni::JniClass<NativeDeviceUsbInfo>;
 
     const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("com/slightech/mynteye/DeviceUsbInfo") };
-    const jmethodID jconstructor { ::djinni::jniGetMethodID(clazz.get(), "<init>", "(ILjava/lang/String;Ljava/lang/String;)V") };
-    const jfieldID field_mIndex { ::djinni::jniGetFieldID(clazz.get(), "mIndex", "I") };
+    const jmethodID jconstructor { ::djinni::jniGetMethodID(clazz.get(), "<init>", "(IIIIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V") };
+    const jfieldID field_mVid { ::djinni::jniGetFieldID(clazz.get(), "mVid", "I") };
+    const jfieldID field_mPid { ::djinni::jniGetFieldID(clazz.get(), "mPid", "I") };
+    const jfieldID field_mFd { ::djinni::jniGetFieldID(clazz.get(), "mFd", "I") };
+    const jfieldID field_mBusNum { ::djinni::jniGetFieldID(clazz.get(), "mBusNum", "I") };
+    const jfieldID field_mDevNum { ::djinni::jniGetFieldID(clazz.get(), "mDevNum", "I") };
+    const jfieldID field_mUsbFs { ::djinni::jniGetFieldID(clazz.get(), "mUsbFs", "Ljava/lang/String;") };
     const jfieldID field_mName { ::djinni::jniGetFieldID(clazz.get(), "mName", "Ljava/lang/String;") };
-    const jfieldID field_mSn { ::djinni::jniGetFieldID(clazz.get(), "mSn", "Ljava/lang/String;") };
+    const jfieldID field_mSerial { ::djinni::jniGetFieldID(clazz.get(), "mSerial", "Ljava/lang/String;") };
 };
 
 }  // namespace djinni_generated

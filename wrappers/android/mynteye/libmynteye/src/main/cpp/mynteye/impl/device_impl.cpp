@@ -12,10 +12,14 @@
 #include "motion_data_impl.hpp"
 #include "stream_data_impl.hpp"
 
+#include "mynteye/uvc/uvc.h"
+#include "internal/uvc_device.h"
+
 MYNTEYE_USE_NAMESPACE
 
 namespace mynteye_jni {
 
+/*
 std::vector<::mynteye_jni::DeviceUsbInfo> Device::Query() {
   VLOG(2) << __func__;
   std::vector<DeviceUsbInfo> infos;
@@ -43,6 +47,19 @@ std::shared_ptr<Device> Device::Create(const ::mynteye_jni::DeviceUsbInfo & info
     ++i;
   }
   return nullptr;
+}
+*/
+
+std::shared_ptr<Device> Device::Create(const ::mynteye_jni::DeviceUsbInfo & info) {
+  VLOG(2) << __func__;
+  auto device = uvc::create_device(from_jni(info));
+  auto name = uvc::get_name(*device);
+  auto vid = uvc::get_vendor_id(*device);
+  auto pid = uvc::get_product_id(*device);
+  VLOG(2) << "UVC device detected, name: " << name << ", vid: 0x" << std::hex
+          << vid << ", pid: 0x" << std::hex << pid;
+  return std::make_shared<DeviceImpl>(
+      MYNTEYE_NAMESPACE::Device::Create(name, device));
 }
 
 DeviceImpl::DeviceImpl(const device_t & device) : Device(), device_(device) {

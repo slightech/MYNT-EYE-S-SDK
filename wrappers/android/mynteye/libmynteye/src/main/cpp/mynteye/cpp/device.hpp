@@ -20,9 +20,6 @@ class Device {
 public:
     virtual ~Device() {}
 
-    /** Query devices */
-    static std::vector<::mynteye_jni::DeviceUsbInfo> Query();
-
     /** Create the device instance */
     static std::shared_ptr<Device> Create(const ::mynteye_jni::DeviceUsbInfo & info);
 

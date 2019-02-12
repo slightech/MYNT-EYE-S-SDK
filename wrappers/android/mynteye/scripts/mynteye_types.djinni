@@ -1,12 +1,22 @@
 
 # Device USB information
 device_usb_info = record {
-  # Device index
-  index: i32;
-  # Device name
+  # Vendor id
+  vid: i32;
+  # Product id
+  pid: i32;
+  # File descriptor
+  fd: i32;
+  # Bus number
+  bus_num: i32;
+  # Dev number
+  dev_num: i32;
+  # Usb file system path
+  usb_fs: string;
+  # Product name
   name: string;
-  # Device serial number
-  sn: string;
+  # Serial number
+  serial: string;
 }
 
 # Device model

@@ -11,19 +11,39 @@ namespace mynteye_jni {
 
 /** Device USB information */
 struct DeviceUsbInfo final {
-    /** Device index */
-    int32_t index;
-    /** Device name */
+    /** Vendor id */
+    int32_t vid;
+    /** Product id */
+    int32_t pid;
+    /** File descriptor */
+    int32_t fd;
+    /** Bus number */
+    int32_t bus_num;
+    /** Dev number */
+    int32_t dev_num;
+    /** Usb file system path */
+    std::string usb_fs;
+    /** Product name */
     std::string name;
-    /** Device serial number */
-    std::string sn;
+    /** Serial number */
+    std::string serial;
 
-    DeviceUsbInfo(int32_t index_,
+    DeviceUsbInfo(int32_t vid_,
+                  int32_t pid_,
+                  int32_t fd_,
+                  int32_t bus_num_,
+                  int32_t dev_num_,
+                  std::string usb_fs_,
                   std::string name_,
-                  std::string sn_)
-    : index(std::move(index_))
+                  std::string serial_)
+    : vid(std::move(vid_))
+    , pid(std::move(pid_))
+    , fd(std::move(fd_))
+    , bus_num(std::move(bus_num_))
+    , dev_num(std::move(dev_num_))
+    , usb_fs(std::move(usb_fs_))
     , name(std::move(name_))
-    , sn(std::move(sn_))
+    , serial(std::move(serial_))
     {}
 };
 

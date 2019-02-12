@@ -13,20 +13,30 @@ NativeDeviceUsbInfo::~NativeDeviceUsbInfo() = default;
 auto NativeDeviceUsbInfo::fromCpp(JNIEnv* jniEnv, const CppType& c) -> ::djinni::LocalRef<JniType> {
     const auto& data = ::djinni::JniClass<NativeDeviceUsbInfo>::get();
     auto r = ::djinni::LocalRef<JniType>{jniEnv->NewObject(data.clazz.get(), data.jconstructor,
-                                                           ::djinni::get(::djinni::I32::fromCpp(jniEnv, c.index)),
+                                                           ::djinni::get(::djinni::I32::fromCpp(jniEnv, c.vid)),
+                                                           ::djinni::get(::djinni::I32::fromCpp(jniEnv, c.pid)),
+                                                           ::djinni::get(::djinni::I32::fromCpp(jniEnv, c.fd)),
+                                                           ::djinni::get(::djinni::I32::fromCpp(jniEnv, c.bus_num)),
+                                                           ::djinni::get(::djinni::I32::fromCpp(jniEnv, c.dev_num)),
+                                                           ::djinni::get(::djinni::String::fromCpp(jniEnv, c.usb_fs)),
                                                            ::djinni::get(::djinni::String::fromCpp(jniEnv, c.name)),
-                                                           ::djinni::get(::djinni::String::fromCpp(jniEnv, c.sn)))};
+                                                           ::djinni::get(::djinni::String::fromCpp(jniEnv, c.serial)))};
     ::djinni::jniExceptionCheck(jniEnv);
     return r;
 }
 
 auto NativeDeviceUsbInfo::toCpp(JNIEnv* jniEnv, JniType j) -> CppType {
-    ::djinni::JniLocalScope jscope(jniEnv, 4);
+    ::djinni::JniLocalScope jscope(jniEnv, 9);
     assert(j != nullptr);
     const auto& data = ::djinni::JniClass<NativeDeviceUsbInfo>::get();
-    return {::djinni::I32::toCpp(jniEnv, jniEnv->GetIntField(j, data.field_mIndex)),
+    return {::djinni::I32::toCpp(jniEnv, jniEnv->GetIntField(j, data.field_mVid)),
+            ::djinni::I32::toCpp(jniEnv, jniEnv->GetIntField(j, data.field_mPid)),
+            ::djinni::I32::toCpp(jniEnv, jniEnv->GetIntField(j, data.field_mFd)),
+            ::djinni::I32::toCpp(jniEnv, jniEnv->GetIntField(j, data.field_mBusNum)),
+            ::djinni::I32::toCpp(jniEnv, jniEnv->GetIntField(j, data.field_mDevNum)),
+            ::djinni::String::toCpp(jniEnv, (jstring)jniEnv->GetObjectField(j, data.field_mUsbFs)),
             ::djinni::String::toCpp(jniEnv, (jstring)jniEnv->GetObjectField(j, data.field_mName)),
-            ::djinni::String::toCpp(jniEnv, (jstring)jniEnv->GetObjectField(j, data.field_mSn))};
+            ::djinni::String::toCpp(jniEnv, (jstring)jniEnv->GetObjectField(j, data.field_mSerial))};
 }
 
 }  // namespace djinni_generated

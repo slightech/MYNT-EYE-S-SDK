@@ -41,13 +41,6 @@ public interface Device {
     @NonNull
     public ArrayList<com.slightech.mynteye.MotionData> getMotionDatas();
 
-    /** Query devices */
-    @NonNull
-    public static ArrayList<com.slightech.mynteye.DeviceUsbInfo> query()
-    {
-        return CppProxy.query();
-    }
-
     /** Create the device instance */
     @Nullable
     public static Device create(@NonNull com.slightech.mynteye.DeviceUsbInfo info)
@@ -149,9 +142,6 @@ public interface Device {
             return native_getMotionDatas(this.nativeRef);
         }
         private native ArrayList<com.slightech.mynteye.MotionData> native_getMotionDatas(long _nativeRef);
-
-        @NonNull
-        public static native ArrayList<com.slightech.mynteye.DeviceUsbInfo> query();
 
         @Nullable
         public static native Device create(@NonNull com.slightech.mynteye.DeviceUsbInfo info);

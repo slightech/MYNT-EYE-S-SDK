@@ -5,10 +5,13 @@
 #include "mynteye/logger.h"
 #include "mynteye/types.h"
 
+#include "device_usb_info.hpp"
 #include "format.hpp"
 #include "model.hpp"
 #include "source.hpp"
 #include "stream.hpp"
+
+#include "internal/usb_info.h"
 
 namespace mynteye_jni {
 
@@ -110,6 +113,37 @@ JniStream to_jni(const RawStream& stream) {
     default:
       LOG(FATAL) << "Stream is unknown";
   }
+}
+
+using RawUsbInfo = MYNTEYE_NAMESPACE::UsbInfo;
+using JniUsbInfo = mynteye_jni::DeviceUsbInfo;
+
+inline
+RawUsbInfo from_jni(const JniUsbInfo& info) {
+  RawUsbInfo raw;
+  raw.vid = info.vid;
+  raw.pid = info.pid;
+  raw.fd = info.fd;
+  raw.busnum = info.bus_num;
+  raw.devaddr = info.dev_num;
+  raw.usbfs = info.usb_fs;
+  raw.name = info.name;
+  raw.serial = info.serial;
+  return std::move(raw);
+}
+
+inline
+JniUsbInfo to_jni(const RawUsbInfo& info) {
+  return JniUsbInfo{
+    info.vid,
+    info.pid,
+    info.fd,
+    info.busnum,
+    info.devaddr,
+    info.usbfs,
+    info.name,
+    info.serial,
+  };
 }
 
 }  // namespace mynteye_jni
