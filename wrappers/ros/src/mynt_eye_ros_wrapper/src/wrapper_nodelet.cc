@@ -490,10 +490,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           std::string json = dump_string(intrinsics, configuru::JSON);
           res.value = json;
         } else {
-          NODELET_INFO_STREAM("INVALID CALIB MODEL:" << calib_model);
-          Config intrinsics{};
-          std::string json = dump_string(intrinsics, configuru::JSON);
-          res.value = json;
+          NODELET_INFO_STREAM("INVALID CALIB INTRINSICS" << calib_model);
+          res.value = "null";
         }
       }
       break;
@@ -511,11 +509,44 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       }
       break;
       case Request::IMU_INTRINSICS:
-        res.value = "TODO";
-        break;
+      {
+        bool is_ok;
+        auto intri = api_->GetMotionIntrinsics();
+        Config intrinsics {
+          {"accel", {
+            {"scale",     Config::array({ intri.accel.scale[0][0], intri.accel.scale[0][1],  intri.accel.scale[0][2],   // NOLINT
+                                          intri.accel.scale[1][0], intri.accel.scale[1][1],  intri.accel.scale[1][2],   // NOLINT
+                                          intri.accel.scale[2][0], intri.accel.scale[2][1],  intri.accel.scale[2][2]})},// NOLINT
+            {"drift",     Config::array({ intri.accel.drift[0],    intri.accel.drift[1],     intri.accel.drift[2]})}, // NOLINT
+            {"noise",     Config::array({ intri.accel.noise[0],    intri.accel.noise[1],     intri.accel.noise[2]})}, // NOLINT
+            {"bias",      Config::array({ intri.accel.bias[0],     intri.accel.bias[1],      intri.accel.bias[2]})} // NOLINT
+          }},
+          {"gyro", {
+            {"scale",     Config::array({ intri.gyro.scale[0][0], intri.gyro.scale[0][1],  intri.gyro.scale[0][2],   // NOLINT
+                                          intri.gyro.scale[1][0], intri.gyro.scale[1][1],  intri.gyro.scale[1][2],   // NOLINT
+                                          intri.gyro.scale[2][0], intri.gyro.scale[2][1],  intri.gyro.scale[2][2]})},// NOLINT
+            {"drift",     Config::array({ intri.gyro.drift[0],    intri.gyro.drift[1],     intri.gyro.drift[2]})}, // NOLINT
+            {"noise",     Config::array({ intri.gyro.noise[0],    intri.gyro.noise[1],     intri.gyro.noise[2]})}, // NOLINT
+            {"bias",      Config::array({ intri.gyro.bias[0],     intri.gyro.bias[1],      intri.gyro.bias[2]})} // NOLINT
+          }}
+        };
+        std::string json = dump_string(intrinsics, JSON);
+        res.value = json;
+      }
+      break;
       case Request::IMU_EXTRINSICS:
-        res.value = "TODO";
-        break;
+      {
+        auto extri = api_->GetMotionExtrinsics(Stream::LEFT);
+        Config extrinsics{
+          {"rotation",     Config::array({extri.rotation[0][0], extri.rotation[0][1], extri.rotation[0][2],   // NOLINT
+                                          extri.rotation[1][0], extri.rotation[1][1], extri.rotation[1][2],   // NOLINT
+                                          extri.rotation[2][0], extri.rotation[2][1], extri.rotation[2][2]})},// NOLINT
+          {"translation",  Config::array({extri.translation[0], extri.translation[1], extri.translation[2]})} // NOLINT
+        };
+        std::string json = dump_string(extrinsics, configuru::JSON);
+        res.value = json;
+      }
+      break;
       default:
         NODELET_WARN_STREAM("Info of key " << req.key << " not exist");
         return false;
