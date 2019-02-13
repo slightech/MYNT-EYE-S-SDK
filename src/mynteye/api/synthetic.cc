@@ -460,8 +460,8 @@ void Synthetic::InitProcessors() {
     auto &&rectify_processor_ocv =
         std::make_shared<RectifyProcessorOCV>(intr_left_, intr_right_, extr_,
                                               RECTIFY_PROC_PERIOD);
-    rectify_processor = rectify_processor_ocv;
     Q = rectify_processor_ocv->Q;
+    rectify_processor = rectify_processor_ocv;
 #ifdef WITH_CAM_MODELS
   } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
     rectify_processor_imp =
