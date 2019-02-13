@@ -36,7 +36,6 @@ option(WITH_GLOG "Include glog support" OFF)
 # packages
 if(WITH_API)
   include(${CMAKE_CURRENT_LIST_DIR}/DetectOpenCV.cmake)
-  set(WITH_OPENCV4 true)
   if(WITH_OPENCV4)
     set(WITH_CAM_MODELS OFF)
   endif()
