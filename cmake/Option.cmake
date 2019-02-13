@@ -34,9 +34,12 @@ option(WITH_BOOST "Include Boost support" ON)
 option(WITH_GLOG "Include glog support" OFF)
 
 # packages
-
 if(WITH_API)
   include(${CMAKE_CURRENT_LIST_DIR}/DetectOpenCV.cmake)
+  set(WITH_OPENCV4 true)
+  if(WITH_OPENCV4)
+    set(WITH_CAM_MODELS OFF)
+  endif()
 else()
   # Disable WITH_CAM_MODELS if WITH_API is OFF
   set(WITH_CAM_MODELS OFF)

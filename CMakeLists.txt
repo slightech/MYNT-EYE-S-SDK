@@ -130,14 +130,6 @@ endif()
 
 ## camodocal
 
-if(WITH_OPENCV4)
-  message(STATUS "opencv4 calib models not supported")
-  include_directories(
-    src/mynteye/api/camodocal/include
-  )
-  ADD_DEFINITIONS(-DWITH_CAM_MODELS=OFF)
-endif()
-
 if(WITH_CAM_MODELS)
   set(EIGEN_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
   message(STATUS "EIGEN_INCLUDE_DIR: ${EIGEN_INCLUDE_DIR}")
@@ -324,12 +316,6 @@ if(NOT WITH_GLOG)
     DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}
   )
 endif()
-# if(WITH_CAM_MODELS)
-#   install(FILES
-#     ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/glog/logging.h
-#     DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}/glog
-#   )
-# endif()
 
 install(FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/include/deprecated/mynteye/callbacks.h
