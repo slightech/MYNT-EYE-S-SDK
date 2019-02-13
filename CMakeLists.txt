@@ -130,7 +130,7 @@ endif()
 
 ## camodocal
 
-if(WITH_CAM_MODELS)
+if(WITH_CAM_MODELS AND (NOT WITH_OPENCV4))
   set(EIGEN_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
   message(STATUS "EIGEN_INCLUDE_DIR: ${EIGEN_INCLUDE_DIR}")
 
@@ -220,7 +220,7 @@ if(WITH_API)
     src/mynteye/api/processor/rectify_processor_ocv.cc
     src/mynteye/api/config.cc
   )
-  if(WITH_CAM_MODELS)
+  if(WITH_CAM_MODELS AND (NOT WITH_OPENCV4))
     list(APPEND MYNTEYE_SRCS
       src/mynteye/api/processor/depth_processor.cc
       src/mynteye/api/processor/points_processor.cc
