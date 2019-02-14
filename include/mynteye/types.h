@@ -543,6 +543,20 @@ MYNTEYE_API
 std::ostream &operator<<(std::ostream &os, const Extrinsics &ex);
 
 /**
+ * @ingroup disparity
+ * Camera disparity computing method type.
+ */
+enum class DisparityComputingMethod : std::uint8_t {
+  /** bm */
+  SGBM = 0,
+  /** sgbm */
+  BM = 1,
+  /** unknow */
+  UNKNOW
+};
+
+
+/**
  * @defgroup datatypes Datatypes
  * @brief Public data types.
  */

@@ -56,6 +56,11 @@
 
   <arg name="request_index" default="$(arg index_s2_2)" />
 
+  <!-- disparity computing method type -->
+  <arg name="sgbm"   default="0" />
+  <arg name="bm"   default="1" />
+  <arg name="disparity_computing_method"   default="$(arg bm)" />
+
   <arg name="enable_left_rect" default="false" />
   <arg name="enable_right_rect" default="false" />
   <arg name="enable_disparity" default="false" />
@@ -241,6 +246,8 @@
       <param name="temperature_frame_id" value="$(arg temperature_frame_id)" />
 
       <param name="gravity" value="$(arg gravity)" />
+
+      <param name="disparity_computing_method" value="$(arg disparity_computing_method)" />
 
       <!-- stream toggles -->
 

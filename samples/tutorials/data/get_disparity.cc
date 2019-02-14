@@ -29,6 +29,8 @@ int main(int argc, char *argv[]) {
   // api->EnableStreamData(Stream::DISPARITY);
   api->EnableStreamData(Stream::DISPARITY_NORMALIZED);
 
+  api->SetDisparityComputingMethodType(DisparityComputingMethod::BM);
+
   api->Start(Source::VIDEO_STREAMING);
 
   cv::namedWindow("frame");

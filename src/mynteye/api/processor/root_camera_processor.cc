@@ -22,9 +22,7 @@ MYNTEYE_BEGIN_NAMESPACE
 const char RootProcessor::NAME[] = "RootProcessor";
 
 RootProcessor::RootProcessor(std::int32_t proc_period)
-    : Processor(std::move(proc_period)) {
-  // todo
-}
+    : Processor(std::move(proc_period)) {}
 RootProcessor::~RootProcessor() {
   VLOG(2) << __func__;
 }
@@ -40,14 +38,6 @@ bool RootProcessor::OnProcess(
     Object *const in, Object *const out,
     std::shared_ptr<Processor> const parent) {
   MYNTEYE_UNUSED(parent)
-  // const ObjMat2 *input = Object::Cast<ObjMat2>(in);
-  // ObjMat2 *output = Object::Cast<ObjMat2>(out);
-  // cv::remap(input->first, output->first, map11, map12, cv::INTER_LINEAR);
-  // cv::remap(input->second, output->second, map21, map22, cv::INTER_LINEAR);
-  // output->first_id = input->first_id;
-  // output->first_data = input->first_data;
-  // output->second_id = input->second_id;
-  // output->second_data = input->second_data;
   return true;
 }
 MYNTEYE_END_NAMESPACE

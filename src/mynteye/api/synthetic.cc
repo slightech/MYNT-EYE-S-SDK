@@ -348,7 +348,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
         int num = 0;
         for (auto it : streams) {
           if (it.stream == stream) {
-            if (num == 0) {
+            if (num == 1) {
               return {output->first_data,
                   output->first,
                   nullptr,
@@ -478,7 +478,7 @@ void Synthetic::InitProcessors() {
     rectify_processor = rectify_processor_ocv;
   }
   auto &&disparity_processor =
-      std::make_shared<DisparityProcessor>(DisparityProcessorType::SGBM,
+      std::make_shared<DisparityProcessor>(DisparityComputingMethod::SGBM,
                                            DISPARITY_PROC_PERIOD);
   auto &&disparitynormalized_processor =
       std::make_shared<DisparityNormalizedProcessor>(
@@ -510,7 +510,7 @@ void Synthetic::InitProcessors() {
     depth_processor = std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
   }
   auto root_processor =
-        std::make_shared<RootProcessor>(RECTIFY_PROC_PERIOD);
+        std::make_shared<RootProcessor>(ROOT_PROC_PERIOD);
   root_processor->AddChild(rectify_processor);
 
   rectify_processor->addTargetStreams(
@@ -783,6 +783,17 @@ void Synthetic::OnDepthPostProcess(Object *const out) {
     data.stream_callback(
         {output->data, output->value, nullptr, output->id});
   }
+}
+
+void Synthetic::SetDisparityComputingMethodType(
+      const DisparityComputingMethod &MethodType) {
+  if (checkControlDateWithStream(Stream::LEFT_RECTIFIED)) {
+    auto processor = find_processor<DisparityProcessor>(processor_);
+    if (processor)
+      processor->SetDisparityComputingMethodType(MethodType);
+    return;
+  }
+  LOG(ERROR) << "ERROR: no suited processor for disparity computing.";
 }
 
 MYNTEYE_END_NAMESPACE

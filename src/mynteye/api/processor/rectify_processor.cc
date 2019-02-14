@@ -339,13 +339,6 @@ void RectifyProcessor::InitParams(
       generateCameraFromIntrinsicsEquidistant(in_left);
   camodocal::CameraPtr camera_odo_ptr_right =
       generateCameraFromIntrinsicsEquidistant(in_right);
-  auto calib_infos_temp =
-      stereoRectify(camera_odo_ptr_left,
-                    camera_odo_ptr_right,
-                    in_left,
-                    in_right,
-                    ex_right_to_left);
-  *calib_infos = *calib_infos_temp;
   auto calib_info_tmp = stereoRectify(camera_odo_ptr_left,
         camera_odo_ptr_right,
         in_left,

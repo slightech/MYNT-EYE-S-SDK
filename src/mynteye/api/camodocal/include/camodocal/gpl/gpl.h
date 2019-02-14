@@ -1,6 +1,20 @@
-#ifndef GPL_H
-#define GPL_H
+// Copyright 2018 Slightech Co., Ltd. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+#ifndef SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_GPL_GPL_H_
+#define SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_GPL_GPL_H_
 
+#include <vector>
 #include <algorithm>
 #include <cmath>
 #include <opencv2/core/core.hpp>
@@ -48,7 +62,7 @@ const T cube(const T &x) {
 
 template <class T>
 const T random(const T &a, const T &b) {
-  return static_cast<double>(rand()) / RAND_MAX * (b - a) + a;
+  return static_cast<double>(rand()) / RAND_MAX * (b - a) + a;  // NOLINT
 }
 
 template <class T>
@@ -66,35 +80,36 @@ const T randomNormal(const T &sigma) {
   return x1 * w * sigma;
 }
 
-unsigned long long timeInMicroseconds(void);
+unsigned long long timeInMicroseconds(void);  // NOLINT
 
 double timeInSeconds(void);
 
 void colorDepthImage(
-    cv::Mat &imgDepth, cv::Mat &imgColoredDepth, float minRange,
+    cv::Mat &imgDepth, cv::Mat &imgColoredDepth, float minRange,  // NOLINT
     float maxRange);
 
 bool colormap(
-    const std::string &name, unsigned char idx, float &r, float &g, float &b);
+    const std::string &name, unsigned char idx, float &r, float &g, float &b);  // NOLINT
 
 std::vector<cv::Point2i> bresLine(int x0, int y0, int x1, int y1);
 std::vector<cv::Point2i> bresCircle(int x0, int y0, int r);
 
 void fitCircle(
-    const std::vector<cv::Point2d> &points, double &centerX, double &centerY,
-    double &radius);
+    const std::vector<cv::Point2d> &points, double &centerX, double &centerY,  // NOLINT
+    double &radius);  // NOLINT
 
 std::vector<cv::Point2d> intersectCircles(
     double x1, double y1, double r1, double x2, double y2, double r2);
 
 void LLtoUTM(
-    double latitude, double longitude, double &utmNorthing, double &utmEasting,
-    std::string &utmZone);
+    double latitude, double longitude, double &utmNorthing, double &utmEasting,  // NOLINT
+    std::string &utmZone);  // NOLINT
 void UTMtoLL(
-    double utmNorthing, double utmEasting, const std::string &utmZone,
-    double &latitude, double &longitude);
+    double utmNorthing, double utmEasting, const std::string &utmZone,  // NOLINT
+    double &latitude, double &longitude);  // NOLINT
 
-long int timestampDiff(uint64_t t1, uint64_t t2);
+long int timestampDiff(uint64_t t1, uint64_t t2);  // NOLINT
 }
 
-#endif
+#endif  // SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_GPL_GPL_H_
+
