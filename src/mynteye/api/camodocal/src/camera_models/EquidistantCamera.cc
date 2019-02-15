@@ -276,7 +276,8 @@ void EquidistantCamera::estimateIntrinsics(
   double f0 = 0.0;
   for (size_t i = 0; i < imagePoints.size(); ++i) {
     std::vector<Eigen::Vector2d> center(boardSize.height);
-    double radius[boardSize.height];  // NOLINT
+    int arrayLength = boardSize.height;
+    double *radius = new double[arrayLength];
     for (int r = 0; r < boardSize.height; ++r) {
       std::vector<cv::Point2d> circle;
       for (int c = 0; c < boardSize.width; ++c) {
@@ -320,6 +321,7 @@ void EquidistantCamera::estimateIntrinsics(
         }
       }
     }
+    delete[] radius;
   }
 
   if (f0 <= 0.0 && minReprojErr >= std::numeric_limits<double>::max()) {

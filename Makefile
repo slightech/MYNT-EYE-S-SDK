@@ -36,9 +36,11 @@ CAM_MODELS ?=
 
 CMAKE_BUILD_EXTRA_OPTIONS :=
 ifeq ($(CAM_MODELS),)
-	CMAKE_BUILD_EXTRA_OPTIONS := $(CMAKE_BUILD_EXTRA_OPTIONS) -DWITH_CAM_MODELS=OFF
+  $(warning "the value of LOCAL_PATH ibbbbbbbbbbbbbbbbbbbbbbbbs")
+  CMAKE_BUILD_EXTRA_OPTIONS := $(CMAKE_BUILD_EXTRA_OPTIONS) -DWITH_CAM_MODELS=OFF
 else
-	CMAKE_BUILD_EXTRA_OPTIONS := $(CMAKE_BUILD_EXTRA_OPTIONS) -DWITH_CAM_MODELS=ON
+  $(warning "the value of LOCAL_PATH iaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaas")
+  CMAKE_BUILD_EXTRA_OPTIONS := $(CMAKE_BUILD_EXTRA_OPTIONS) -DWITH_CAM_MODELS=ON
 endif
 
 .DEFAULT_GOAL := all
@@ -106,7 +108,7 @@ init:
 build:
 	@$(call echo,Make $@)
 ifeq ($(HOST_OS),Win)
-	@$(call cmake_build,./_build,..,-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/_install)
+	@$(call cmake_build,./_build,..,-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/_install $(CMAKE_BUILD_EXTRA_OPTIONS))
 else
 	@$(call cmake_build,./_build,..,$(CMAKE_BUILD_EXTRA_OPTIONS))
 endif
