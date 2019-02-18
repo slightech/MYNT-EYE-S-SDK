@@ -191,7 +191,13 @@ samples: install
 
 tools: install
 	@$(call echo,Make $@)
+ifeq ($(HOST_OS),Mac)
+	$(error "Can't make tools on $(HOST_OS)")
+else
 	@$(call cmake_build,./tools/_build)
+endif
+	
+	
 
 .PHONY: tools
 
