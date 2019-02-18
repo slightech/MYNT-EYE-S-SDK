@@ -316,12 +316,6 @@ if(NOT WITH_GLOG)
     DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}
   )
 endif()
-# if(WITH_CAM_MODELS)
-#   install(FILES
-#     ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/glog/logging.h
-#     DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}/glog
-#   )
-# endif()
 
 install(FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/include/deprecated/mynteye/callbacks.h

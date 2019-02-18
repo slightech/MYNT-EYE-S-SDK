@@ -34,12 +34,7 @@ SUDO ?= sudo
 
 CAM_MODELS ?=
 
-CMAKE_BUILD_EXTRA_OPTIONS :=
-ifeq ($(CAM_MODELS),)
-	CMAKE_BUILD_EXTRA_OPTIONS := $(CMAKE_BUILD_EXTRA_OPTIONS) -DWITH_CAM_MODELS=OFF
-else
-	CMAKE_BUILD_EXTRA_OPTIONS := $(CMAKE_BUILD_EXTRA_OPTIONS) -DWITH_CAM_MODELS=ON
-endif
+CMAKE_BUILD_EXTRA_OPTIONS := $(CMAKE_BUILD_EXTRA_OPTIONS) -DWITH_CAM_MODELS=ON
 
 .DEFAULT_GOAL := all
 
@@ -106,7 +101,7 @@ init:
 build:
 	@$(call echo,Make $@)
 ifeq ($(HOST_OS),Win)
-	@$(call cmake_build,./_build,..,-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/_install)
+	@$(call cmake_build,./_build,..,-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/_install $(CMAKE_BUILD_EXTRA_OPTIONS))
 else
 	@$(call cmake_build,./_build,..,$(CMAKE_BUILD_EXTRA_OPTIONS))
 endif
@@ -176,7 +171,13 @@ samples: install
 
 tools: install
 	@$(call echo,Make $@)
+ifeq ($(HOST_OS),Mac)
+	$(error "Can't make tools on $(HOST_OS)")
+else
 	@$(call cmake_build,./tools/_build)
+endif
+	
+	
 
 .PHONY: tools
 
