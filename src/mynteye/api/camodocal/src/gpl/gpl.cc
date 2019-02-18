@@ -1,8 +1,22 @@
+// Copyright 2018 Slightech Co., Ltd. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #include "camodocal/gpl/gpl.h"
 
 #include <set>
 #ifdef _WIN32
 #include <winsock.h>
+#define M_PI (3.14159265358979323846)
 #else
 #include <time.h>
 #endif
@@ -96,68 +110,7 @@ getFILETIMEoffset() {
   return (t);
 }
 
-int clock_gettime(int X, struct timespec *tp) {
-  LARGE_INTEGER t;
-  FILETIME f;
-  double microseconds;
-  static LARGE_INTEGER offset;
-  static double frequencyToMicroseconds;
-  static int initialized = 0;
-  static BOOL usePerformanceCounter = 0;
-
-  if (!initialized) {
-    LARGE_INTEGER performanceFrequency;
-    initialized = 1;
-    usePerformanceCounter = QueryPerformanceFrequency(&performanceFrequency);
-    if (usePerformanceCounter) {
-      QueryPerformanceCounter(&offset);
-      frequencyToMicroseconds =
-          (double)performanceFrequency.QuadPart / 1000000.;
-    } else {
-      offset = getFILETIMEoffset();
-      frequencyToMicroseconds = 10.;
-    }
-  }
-  if (usePerformanceCounter)
-    QueryPerformanceCounter(&t);
-  else {
-    GetSystemTimeAsFileTime(&f);
-    t.QuadPart = f.dwHighDateTime;
-    t.QuadPart <<= 32;
-    t.QuadPart |= f.dwLowDateTime;
-  }
-
-  t.QuadPart -= offset.QuadPart;
-  microseconds = (double)t.QuadPart / frequencyToMicroseconds;
-  t.QuadPart = microseconds;
-  tp->tv_sec = t.QuadPart / 1000000;
-  tp->tv_nsec = (t.QuadPart % 1000000) * 1000;
-  return (0);
-}
 #endif
-
-unsigned long long timeInMicroseconds(void) {
-  struct timespec tp;
-#ifdef __APPLE__
-  tp = orwl_gettime();
-#else
-  clock_gettime(CLOCK_REALTIME, &tp);
-#endif
-
-  return tp.tv_sec * 1000000 + tp.tv_nsec / 1000;
-}
-
-double timeInSeconds(void) {
-  struct timespec tp;
-#ifdef __APPLE__
-  tp = orwl_gettime();
-#else
-  clock_gettime(CLOCK_REALTIME, &tp);
-#endif
-
-  return static_cast<double>(tp.tv_sec) +
-         static_cast<double>(tp.tv_nsec) / 1000000000.0;
-}
 
 float colormapAutumn[128][3] = {
     {1.0f, 0.f, 0.f},       {1.0f, 0.007874f, 0.f}, {1.0f, 0.015748f, 0.f},
@@ -271,7 +224,7 @@ float colormapJet[128][3] = {
     {0.53125f, 0.0f, 0.0f},     {0.5f, 0.0f, 0.0f}};
 
 void colorDepthImage(
-    cv::Mat &imgDepth, cv::Mat &imgColoredDepth, float minRange,
+    cv::Mat &imgDepth, cv::Mat &imgColoredDepth, float minRange,  // NOLINT
     float maxRange) {
   imgColoredDepth = cv::Mat::zeros(imgDepth.size(), CV_8UC3);
 
@@ -295,7 +248,7 @@ void colorDepthImage(
 }
 
 bool colormap(
-    const std::string &name, unsigned char idx, float &r, float &g, float &b) {
+    const std::string &name, unsigned char idx, float &r, float &g, float &b) {  // NOLINT
   if (name.compare("jet") == 0) {
     float *color = colormapJet[idx];
 
@@ -434,8 +387,8 @@ std::vector<cv::Point2i> bresCircle(int x0, int y0, int r) {
 }
 
 void fitCircle(
-    const std::vector<cv::Point2d> &points, double &centerX, double &centerY,
-    double &radius) {
+    const std::vector<cv::Point2d> &points, double &centerX, double &centerY,  // NOLINT
+    double &radius) {  // NOLINT
   // D. Umbach, and K. Jones, A Few Methods for Fitting Circles to Data,
   // IEEE Transactions on Instrumentation and Measurement, 2000
   // We use the modified least squares method.
@@ -573,8 +526,8 @@ char UTMLetterDesignator(double latitude) {
 }
 
 void LLtoUTM(
-    double latitude, double longitude, double &utmNorthing, double &utmEasting,
-    std::string &utmZone) {
+    double latitude, double longitude, double &utmNorthing, double &utmEasting,  // NOLINT
+    std::string &utmZone) {  // NOLINT
   // converts lat/long to UTM coords.  Equations from USGS Bulletin 1532
   // East Longitudes are positive, West longitudes are negative.
   // North latitudes are positive, South latitudes are negative
@@ -610,7 +563,7 @@ void LLtoUTM(
       ZoneNumber = 37;
   }
   LongOrigin = static_cast<double>(
-      (ZoneNumber - 1) * 6 - 180 + 3);  //+3 puts origin in middle of zone
+      (ZoneNumber - 1) * 6 - 180 + 3);  // +3 puts origin in middle of zone
   LongOriginRad = LongOrigin * M_PI / 180.0;
 
   // compute the UTM Zone from the latitude and longitude
@@ -659,7 +612,7 @@ void LLtoUTM(
 
 void UTMtoLL(
     double utmNorthing, double utmEasting, const std::string &utmZone,
-    double &latitude, double &longitude) {
+    double &latitude, double &longitude) {  // NOLINT
   // converts UTM coords to lat/long.  Equations from USGS Bulletin 1532
   // East Longitudes are positive, West longitudes are negative.
   // North latitudes are positive, South latitudes are negative
@@ -691,7 +644,7 @@ void UTMtoLL(
   }
 
   LongOrigin = (ZoneNumber - 1.0) * 6.0 - 180.0 +
-               3.0;  //+3 puts origin in middle of zone
+               3.0;  // +3 puts origin in middle of zone
 
   eccPrimeSquared = WGS84_ECCSQ / (1.0 - WGS84_ECCSQ);
 
@@ -732,23 +685,4 @@ void UTMtoLL(
   longitude = LongOrigin + longitude / M_PI * 180.0;
 }
 
-long int timestampDiff(uint64_t t1, uint64_t t2) {
-  if (t2 > t1) {
-    uint64_t d = t2 - t1;
-
-    if (d > std::numeric_limits<long int>::max()) {
-      return std::numeric_limits<long int>::max();
-    } else {
-      return d;
-    }
-  } else {
-    uint64_t d = t1 - t2;
-
-    if (d > std::numeric_limits<long int>::max()) {
-      return std::numeric_limits<long int>::min();
-    } else {
-      return -static_cast<long int>(d);
-    }
-  }
-}
 }

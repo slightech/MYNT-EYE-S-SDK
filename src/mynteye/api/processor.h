@@ -23,18 +23,23 @@
 #include <mutex>
 #include <string>
 #include <thread>
+#include <vector>
+#include "mynteye/api/synthetic.h"
 
 #include "mynteye/mynteye.h"
 #include "mynteye/api/object.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
-class Processor /*: public std::enable_shared_from_this<Processor>*/ {
+class Processor :
+    public std::enable_shared_from_this<Processor>,
+    public SyntheticProcessorPart {
  public:
   using PreProcessCallback = std::function<void(Object *const)>;
   using PostProcessCallback = std::function<void(Object *const)>;
   using ProcessCallback = std::function<bool(
-      Object *const in, Object *const out, Processor *const parent)>;
+      Object *const in, Object *const out,
+      std::shared_ptr<Processor> const parent)>;
 
   explicit Processor(std::int32_t proc_period = 0);
   virtual ~Processor();
@@ -45,6 +50,7 @@ class Processor /*: public std::enable_shared_from_this<Processor>*/ {
 
   void RemoveChild(const std::shared_ptr<Processor> &child);
 
+  std::shared_ptr<Processor> GetParent();
   std::list<std::shared_ptr<Processor>> GetChilds();
 
   void SetPreProcessCallback(PreProcessCallback callback);
@@ -71,7 +77,8 @@ class Processor /*: public std::enable_shared_from_this<Processor>*/ {
  protected:
   virtual Object *OnCreateOutput() = 0;
   virtual bool OnProcess(
-      Object *const in, Object *const out, Processor *const parent) = 0;
+      Object *const in, Object *const out,
+      std::shared_ptr<Processor> const parent) = 0;
 
  private:
   /** Run in standalone thread. */
@@ -101,19 +108,61 @@ class Processor /*: public std::enable_shared_from_this<Processor>*/ {
   PostProcessCallback post_callback_;
   ProcessCallback callback_;
 
-  Processor *parent_;
+  // Processor *parent_;
+  std::shared_ptr<Processor> parent_;
   std::list<std::shared_ptr<Processor>> childs_;
 
   std::thread thread_;
 };
 
 template <typename T>
-void iterate_processors(
+void iterate_processors_PtoC_after(
     const T &processors, std::function<void(std::shared_ptr<Processor>)> fn) {
   for (auto &&proc : processors) {
     fn(proc);
-    iterate_processors(proc->GetChilds(), fn);
+    iterate_processors_PtoC_after(proc->GetChilds(), fn);
   }
+}
+template <typename T>
+void iterate_processors_PtoC_before(
+    const T &processors, std::function<void(std::shared_ptr<Processor>)> fn) {
+  for (auto &&proc : processors) {
+    iterate_processors_PtoC_before(proc->GetChilds(), fn);
+    fn(proc);
+  }
+}
+
+template <typename T>
+void iterate_processor_PtoC_after(
+    T processor, std::function<void(std::shared_ptr<Processor>)> fn) {
+  fn(processor);
+  auto chids = processor->GetChilds();
+  for (auto it : chids) {
+    iterate_processor_PtoC_after(it, fn);
+  }
+}
+template <typename T>
+void iterate_processor_PtoC_before(
+    T processor, std::function<void(std::shared_ptr<Processor>)> fn) {
+  auto chids = processor->GetChilds();
+  for (auto it : chids) {
+    iterate_processor_PtoC_before(it, fn);
+  }
+  fn(processor);
+}
+template <typename T>
+void iterate_processor_CtoP_before(
+    T processor, std::function<void(std::shared_ptr<Processor>)> fn) {
+  if (processor->GetParent() != nullptr)
+    iterate_processor_CtoP_before(processor->GetParent(), fn);
+  fn(processor);
+}
+template <typename T>
+void iterate_processor_CtoP_after(
+    T processor, std::function<void(std::shared_ptr<Processor>)> fn) {
+  fn(processor);
+  if (processor->GetParent() != nullptr)
+    iterate_processor_CtoP_after(processor->GetParent(), fn);
 }
 
 MYNTEYE_END_NAMESPACE

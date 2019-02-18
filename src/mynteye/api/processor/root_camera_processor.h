@@ -11,22 +11,25 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef MYNTEYE_API_PROCESSOR_DEPTH_PROCESSOR_OCV_H_
-#define MYNTEYE_API_PROCESSOR_DEPTH_PROCESSOR_OCV_H_
+#ifndef MYNTEYE_API_PROCESSOR_ROOT_CAMERA_PROCESSOR_H_
+#define MYNTEYE_API_PROCESSOR_ROOT_CAMERA_PROCESSOR_H_
 #pragma once
 
 #include <string>
 
+#include <opencv2/core/core.hpp>
+
 #include "mynteye/api/processor.h"
+#include "mynteye/logger.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
-class DepthProcessorOCV : public Processor {
+class RootProcessor : public Processor {
  public:
   static const char NAME[];
 
-  explicit DepthProcessorOCV(std::int32_t proc_period = 0);
-  virtual ~DepthProcessorOCV();
+  explicit RootProcessor(std::int32_t proc_period = 0);
+  virtual ~RootProcessor();
 
   std::string Name() override;
 
@@ -39,4 +42,4 @@ class DepthProcessorOCV : public Processor {
 
 MYNTEYE_END_NAMESPACE
 
-#endif  // MYNTEYE_API_PROCESSOR_DEPTH_PROCESSOR_OCV_H_
+#endif  // MYNTEYE_API_PROCESSOR_ROOT_CAMERA_PROCESSOR_H_

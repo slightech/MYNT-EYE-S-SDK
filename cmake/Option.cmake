@@ -24,7 +24,6 @@ option(WITH_API "Build with API layer, need OpenCV" ON)
 option(WITH_DEVICE_INFO_REQUIRED "Build with device info required" ON)
 
 option(WITH_CAM_MODELS "Build with more camera models, WITH_API must be ON" OFF)
-option(WITH_BM_SOBEL_FILTER "Build with bm and sobel filter, need OpenCV contronb" OFF)
 
 # 3rdparty components
 
@@ -35,9 +34,11 @@ option(WITH_BOOST "Include Boost support" ON)
 option(WITH_GLOG "Include glog support" OFF)
 
 # packages
-
 if(WITH_API)
   include(${CMAKE_CURRENT_LIST_DIR}/DetectOpenCV.cmake)
+  if(WITH_OPENCV4)
+    set(WITH_CAM_MODELS OFF)
+  endif()
 else()
   # Disable WITH_CAM_MODELS if WITH_API is OFF
   set(WITH_CAM_MODELS OFF)

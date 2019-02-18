@@ -131,37 +131,19 @@ endif()
 ## camodocal
 
 if(WITH_CAM_MODELS)
-  set(EIGEN_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/eigen3)
-
-  LIST(APPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/ceres/share/Ceres)
-  find_package(Ceres REQUIRED)
-
-  message(STATUS "CERES_INCLUDE_DIRS: ${CERES_INCLUDE_DIRS}")
-  message(STATUS "CERES_LIBRARIES: ${CERES_LIBRARIES}")
-  message(STATUS "EIGEN_INCLUDE_DIRS: ${EIGEN_INCLUDE_DIRS}")
+  set(EIGEN_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
+  message(STATUS "EIGEN_INCLUDE_DIR: ${EIGEN_INCLUDE_DIR}")
 
   include_directories(
-    ${CERES_INCLUDE_DIRS}
-    ${EIGEN_INCLUDE_DIRS}
+    ${EIGEN_INCLUDE_DIR}
     src/mynteye/api/camodocal/include
   )
 
   add_library(camodocal STATIC
-    src/mynteye/api/camodocal/src/chessboard/Chessboard.cc
-    src/mynteye/api/camodocal/src/calib/CameraCalibration.cc
-    src/mynteye/api/camodocal/src/calib/StereoCameraCalibration.cc
     src/mynteye/api/camodocal/src/camera_models/Camera.cc
-    src/mynteye/api/camodocal/src/camera_models/CameraFactory.cc
-    src/mynteye/api/camodocal/src/camera_models/CostFunctionFactory.cc
-    src/mynteye/api/camodocal/src/camera_models/PinholeCamera.cc
-    src/mynteye/api/camodocal/src/camera_models/CataCamera.cc
     src/mynteye/api/camodocal/src/camera_models/EquidistantCamera.cc
-    src/mynteye/api/camodocal/src/camera_models/ScaramuzzaCamera.cc
-    src/mynteye/api/camodocal/src/sparse_graph/Transform.cc
     src/mynteye/api/camodocal/src/gpl/gpl.cc
-    src/mynteye/api/camodocal/src/gpl/EigenQuaternionParameterization.cc
   )
-  target_link_libraries(camodocal ${CERES_LIBRARIES})
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 endif()
 
@@ -232,6 +214,7 @@ if(WITH_API)
     src/mynteye/api/synthetic.cc
     src/mynteye/api/processor/disparity_processor.cc
     src/mynteye/api/processor/disparity_normalized_processor.cc
+    src/mynteye/api/processor/root_camera_processor.cc
     src/mynteye/api/processor/points_processor_ocv.cc
     src/mynteye/api/processor/depth_processor_ocv.cc
     src/mynteye/api/processor/rectify_processor_ocv.cc
@@ -246,7 +229,7 @@ if(WITH_API)
   endif()
 endif()
 
-if(NOT WITH_GLOG AND NOT WITH_CAM_MODELS)
+if(NOT WITH_GLOG)
   list(APPEND MYNTEYE_SRCS src/mynteye/miniglog.cc)
 endif()
 
@@ -331,12 +314,6 @@ if(NOT WITH_GLOG)
   install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/mynteye/miniglog.h
     DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}
-  )
-endif()
-if(WITH_CAM_MODELS)
-  install(FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/glog/logging.h
-    DESTINATION ${MYNTEYE_CMAKE_INCLUDE_DIR}/glog
   )
 endif()
 

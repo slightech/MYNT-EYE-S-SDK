@@ -41,7 +41,8 @@ Object *PointsProcessorOCV::OnCreateOutput() {
 }
 
 bool PointsProcessorOCV::OnProcess(
-  Object *const in, Object *const out, Processor *const parent) {
+  Object *const in, Object *const out,
+  std::shared_ptr<Processor> const parent) {
   MYNTEYE_UNUSED(parent)
   const ObjMat *input = Object::Cast<ObjMat>(in);
   ObjMat *output = Object::Cast<ObjMat>(out);

@@ -339,13 +339,6 @@ void RectifyProcessor::InitParams(
       generateCameraFromIntrinsicsEquidistant(in_left);
   camodocal::CameraPtr camera_odo_ptr_right =
       generateCameraFromIntrinsicsEquidistant(in_right);
-  auto calib_infos_temp =
-      stereoRectify(camera_odo_ptr_left,
-                    camera_odo_ptr_right,
-                    in_left,
-                    in_right,
-                    ex_right_to_left);
-  *calib_infos = *calib_infos_temp;
   auto calib_info_tmp = stereoRectify(camera_odo_ptr_left,
         camera_odo_ptr_right,
         in_left,
@@ -417,7 +410,8 @@ Object *RectifyProcessor::OnCreateOutput() {
 }
 
 bool RectifyProcessor::OnProcess(
-    Object *const in, Object *const out, Processor *const parent) {
+    Object *const in, Object *const out,
+    std::shared_ptr<Processor> const parent) {
   MYNTEYE_UNUSED(parent)
   const ObjMat2 *input = Object::Cast<ObjMat2>(in);
   ObjMat2 *output = Object::Cast<ObjMat2>(out);
