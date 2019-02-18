@@ -48,8 +48,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.slightech.mynteye.utils.BuildCheck;
-import com.slightech.mynteye.utils.HandlerThreadHandler;
+import com.slightech.mynteye.util.BuildCheck;
+import com.slightech.mynteye.util.HandlerThreadHandler;
 
 public final class USBMonitor {
 

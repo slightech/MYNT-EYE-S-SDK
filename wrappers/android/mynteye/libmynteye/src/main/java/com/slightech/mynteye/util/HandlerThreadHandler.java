@@ -1,4 +1,4 @@
-package com.slightech.mynteye.utils;
+package com.slightech.mynteye.util;
 /*
  * libcommon
  * utility/helper classes for myself
