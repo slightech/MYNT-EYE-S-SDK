@@ -16,6 +16,7 @@
 #include <set>
 #ifdef _WIN32
 #include <winsock.h>
+#define M_PI (3.14159265358979323846)
 #else
 #include <time.h>
 #endif
@@ -109,68 +110,7 @@ getFILETIMEoffset() {
   return (t);
 }
 
-int clock_gettime(int X, struct timespec *tp) {
-  LARGE_INTEGER t;
-  FILETIME f;
-  double microseconds;
-  static LARGE_INTEGER offset;
-  static double frequencyToMicroseconds;
-  static int initialized = 0;
-  static BOOL usePerformanceCounter = 0;
-
-  if (!initialized) {
-    LARGE_INTEGER performanceFrequency;
-    initialized = 1;
-    usePerformanceCounter = QueryPerformanceFrequency(&performanceFrequency);
-    if (usePerformanceCounter) {
-      QueryPerformanceCounter(&offset);
-      frequencyToMicroseconds =
-      static_cast<double>(performanceFrequency.QuadPart / 1000000.);
-    } else {
-      offset = getFILETIMEoffset();
-      frequencyToMicroseconds = 10.;
-    }
-  }
-  if (usePerformanceCounter) {
-    QueryPerformanceCounter(&t);
-  } else {
-    GetSystemTimeAsFileTime(&f);
-    t.QuadPart = f.dwHighDateTime;
-    t.QuadPart <<= 32;
-    t.QuadPart |= f.dwLowDateTime;
-  }
-
-  t.QuadPart -= offset.QuadPart;
-  microseconds = static_cast<double>(t.QuadPart / frequencyToMicroseconds);
-  t.QuadPart = microseconds;
-  tp->tv_sec = t.QuadPart / 1000000;
-  tp->tv_nsec = (t.QuadPart % 1000000) * 1000;
-  return (0);
-}
 #endif
-
-unsigned long long timeInMicroseconds(void) {  // NOLINT
-  struct timespec tp;
-#ifdef __APPLE__
-  tp = orwl_gettime();
-#else
-  clock_gettime(CLOCK_REALTIME, &tp);
-#endif
-
-  return tp.tv_sec * 1000000 + tp.tv_nsec / 1000;
-}
-
-double timeInSeconds(void) {
-  struct timespec tp;
-#ifdef __APPLE__
-  tp = orwl_gettime();
-#else
-  clock_gettime(CLOCK_REALTIME, &tp);
-#endif
-
-  return static_cast<double>(tp.tv_sec) +
-         static_cast<double>(tp.tv_nsec) / 1000000000.0;
-}
 
 float colormapAutumn[128][3] = {
     {1.0f, 0.f, 0.f},       {1.0f, 0.007874f, 0.f}, {1.0f, 0.015748f, 0.f},
@@ -745,23 +685,4 @@ void UTMtoLL(
   longitude = LongOrigin + longitude / M_PI * 180.0;
 }
 
-long int timestampDiff(uint64_t t1, uint64_t t2) {  // NOLINT
-  if (t2 > t1) {
-    uint64_t d = t2 - t1;
-
-    if (d > std::numeric_limits<long int>::max()) {  // NOLINT
-      return std::numeric_limits<long int>::max();  // NOLINT
-    } else {
-      return d;
-    }
-  } else {
-    uint64_t d = t1 - t2;
-
-    if (d > std::numeric_limits<long int>::max()) {  // NOLINT
-      return std::numeric_limits<long int>::min();  // NOLINT
-    } else {
-      return -static_cast<long int>(d);  // NOLINT
-    }
-  }
-}
 }
