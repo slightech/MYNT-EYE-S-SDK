@@ -32,6 +32,7 @@ import com.slightech.mynteye.usb.CameraDialog;
 import com.slightech.mynteye.usb.USBMonitor;
 import com.slightech.mynteye.usb.USBMonitor.OnDeviceConnectListener;
 import com.slightech.mynteye.usb.USBMonitor.UsbControlBlock;
+import com.slightech.mynteye.util.BitmapUtils;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -166,50 +167,7 @@ public class MainActivity extends BaseActivity implements CameraDialog.CameraDia
   private void actionOpen(final Runnable completeEvent) {
     if (completeEvent != null) completeEvent.run();
     CameraDialog.showDialog(this);
-    /*
-    if (!RootUtils.isRooted()) {
-      if (completeEvent != null) completeEvent.run();
-      alert("Warning", "Root denied :(");
-      return;
-    }
-    RootUtils.requestAccessible(ok -> {
-      if (completeEvent != null) completeEvent.run();
-      if (ok) {
-        toast("Root granted :)");
-        showDevices();
-      } else {
-        alert("Warning", "There are no devices accessible.");
-      }
-    });
-    */
   }
-
-  /*
-  private void showDevices() {
-    ArrayList<DeviceUsbInfo> infos = Device.query();
-    if (infos.isEmpty()) {
-      alert("Warning", "There are no devices :(");
-    } else {
-      ArrayList<String> items = new ArrayList<>();
-      for (DeviceUsbInfo info : infos) {
-        items.add(String.format(Locale.getDefault(), "%d, %s, SN: %s",
-            info.getIndex(), info.getName(), info.getSn()));
-      }
-
-      AlertDialog dialog = new AlertDialog.Builder(this)
-          .setTitle("Devices")
-          .create();
-      ListView listView = new ListView(this);
-      listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items));
-      listView.setOnItemClickListener((parent, view, position, id) -> {
-        dialog.dismiss();
-        openDevice(infos.get(position));
-      });
-      dialog.setView(listView);
-      dialog.show();
-    }
-  }
-  */
 
   private void openDevice(DeviceUsbInfo info) {
     mMynteye = new Mynteye(info);
@@ -256,15 +214,9 @@ public class MainActivity extends BaseActivity implements CameraDialog.CameraDia
     //Timber.i("onStreamLeftReceive");
     Frame frame = data.frame();
     if (mLeftBitmap == null) {
-      Bitmap.Config config;
-      switch (frame.format()) {
-        case GREY: config = Bitmap.Config.ALPHA_8; break;
-        case RGB888: config = Bitmap.Config.ARGB_8888; break;
-        default: Timber.e("Unaccepted stream format"); return;
-      }
-      mLeftBitmap = Bitmap.createBitmap(frame.width(), frame.height(), config);
+      mLeftBitmap = Bitmap.createBitmap(frame.width(), frame.height(), Bitmap.Config.ARGB_8888);
     }
-    mLeftBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(frame.data()));
+    BitmapUtils.copyPixels(frame, mLeftBitmap);
     mLeftImageView.post(() -> mLeftImageView.setImageBitmap(mLeftBitmap));
   }
 
@@ -273,15 +225,9 @@ public class MainActivity extends BaseActivity implements CameraDialog.CameraDia
     //Timber.i("onStreamRightReceive");
     Frame frame = data.frame();
     if (mRightBitmap == null) {
-      Bitmap.Config config;
-      switch (frame.format()) {
-        case GREY: config = Bitmap.Config.ALPHA_8; break;
-        case RGB888: config = Bitmap.Config.ARGB_8888; break;
-        default: Timber.e("Unaccepted stream format"); return;
-      }
-      mRightBitmap = Bitmap.createBitmap(frame.width(), frame.height(), config);
+      mRightBitmap = Bitmap.createBitmap(frame.width(), frame.height(), Bitmap.Config.ARGB_8888);
     }
-    mRightBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(frame.data()));
+    BitmapUtils.copyPixels(frame, mRightBitmap);
     mRightImageView.post(() -> mRightImageView.setImageBitmap(mRightBitmap));
   }
 

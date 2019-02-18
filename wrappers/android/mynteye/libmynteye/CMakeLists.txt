@@ -28,6 +28,10 @@ endif()
 
 find_library(log-lib log)
 
+## jnigraphics
+
+find_library(jnigraphics-lib jnigraphics)
+
 ## djinni_jni
 
 include_directories(
@@ -115,6 +119,7 @@ endforeach()
 
 add_library(mynteye_jni SHARED
   ${DJINNI_DIR}/support-lib/jni/djinni_main.cpp
+  ${CPP_DIR}/mynteye/impl/util/jni_util.cpp
   ${MYNTEYE_JNI_SRCS}
 )
-target_link_libraries(mynteye_jni ${log-lib} djinni_jni mynteye mynteye_internal)
+target_link_libraries(mynteye_jni ${log-lib} ${jnigraphics-lib} djinni_jni mynteye mynteye_internal)

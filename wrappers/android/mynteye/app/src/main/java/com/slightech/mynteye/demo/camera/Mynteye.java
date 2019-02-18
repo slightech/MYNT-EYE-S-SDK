@@ -56,8 +56,9 @@ public final class Mynteye implements Runnable {
     startBackgroundThread();
 
     mDevice.configStreamRequest(request);
-    mDevice.enableMotionDatas(Integer.MAX_VALUE);
-    mDevice.start(Source.ALL);
+    //mDevice.enableMotionDatas(Integer.MAX_VALUE);
+    //mDevice.start(Source.ALL);
+    mDevice.start(Source.VIDEO_STREAMING);
 
     mBackgroundHandler.post(this);
   }
@@ -91,12 +92,14 @@ public final class Mynteye implements Runnable {
     }
 
     //Timber.i("get motions");
+    /*
     {
       ArrayList<MotionData> datas = mDevice.getMotionDatas();
       if (mOnMotionDataReceiveListener != null) {
         mOnMotionDataReceiveListener.onMotionDataReceive(datas, mBackgroundHandler);
       }
     }
+    */
 
     if (mOpened) mBackgroundHandler.post(this);
   }

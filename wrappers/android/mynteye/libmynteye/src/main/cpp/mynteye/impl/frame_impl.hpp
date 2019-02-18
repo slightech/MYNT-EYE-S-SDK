@@ -39,6 +39,10 @@ class FrameImpl : public Frame {
     return std::vector<uint8_t>(frame_->data(), frame_->data() + frame_->size());
   }
 
+  frame_t RawFrame() const {
+    return frame_;
+  }
+
  private:
   frame_t frame_;
 };
