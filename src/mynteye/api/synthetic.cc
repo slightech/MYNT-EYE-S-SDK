@@ -584,10 +584,13 @@ void Synthetic::ProcessNativeStream(
     const Stream &stream, const api::StreamData &data) {
   if (stream == Stream::LEFT || stream == Stream::RIGHT) {
     static api::StreamData left_data, right_data;
+    cv::Mat tmp1, tmp2;
     if (stream == Stream::LEFT) {
       left_data = data;
+      tmp1 = left_data.frame.clone();
     } else if (stream == Stream::RIGHT) {
       right_data = data;
+      tmp2 = right_data.frame.clone();
     }
     if (left_data.img && right_data.img &&
         left_data.img->frame_id == right_data.img->frame_id) {
@@ -604,8 +607,8 @@ void Synthetic::ProcessNativeStream(
         processor = find_processor<RectifyProcessorOCV>(processor_);
       }
       processor->Process(ObjMat2{
-          left_data.frame, left_data.frame_id, left_data.img,
-          right_data.frame, right_data.frame_id, right_data.img});
+          tmp1, left_data.frame_id, left_data.img,
+          tmp2, right_data.frame_id, right_data.img});
     }
     return;
   }
