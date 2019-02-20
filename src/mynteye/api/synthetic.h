@@ -19,6 +19,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <mutex>
 
 #include "mynteye/api/api.h"
 #include "mynteye/api/config.h"
@@ -132,6 +133,7 @@ class Synthetic {
   std::shared_ptr<Plugin> plugin_;
 
   CalibrationModel calib_model_;
+  std::mutex mtx_left_right_ready_;
 
   std::shared_ptr<IntrinsicsBase> intr_left_;
   std::shared_ptr<IntrinsicsBase> intr_right_;
