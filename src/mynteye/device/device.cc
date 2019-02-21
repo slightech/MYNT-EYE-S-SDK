@@ -466,6 +466,11 @@ std::vector<device::StreamData> Device::GetStreamDatas(const Stream &stream) {
   return streams_->GetStreamDatas(stream);
 }
 
+void Device::DisableMotionDatas() {
+  CHECK_NOTNULL(motions_);
+  motions_->DisableMotionDatas();
+}
+
 void Device::EnableMotionDatas() {
   EnableMotionDatas(std::numeric_limits<std::size_t>::max());
 }
