@@ -219,6 +219,7 @@ if(WITH_API)
     src/mynteye/api/processor/depth_processor_ocv.cc
     src/mynteye/api/processor/rectify_processor_ocv.cc
     src/mynteye/api/config.cc
+    src/mynteye/api/correspondence.cc
   )
   if(WITH_CAM_MODELS)
     list(APPEND MYNTEYE_SRCS

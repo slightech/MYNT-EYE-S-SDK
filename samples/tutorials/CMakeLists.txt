@@ -105,6 +105,10 @@ if(PCL_FOUND)
     WITH_OPENCV WITH_PCL
   )
 endif()
+make_executable2(get_imu_correspondence
+  SRCS data/get_imu_correspondence.cc util/cv_painter.cc
+  WITH_OPENCV
+)
 make_executable2(get_imu SRCS data/get_imu.cc util/cv_painter.cc WITH_OPENCV)
 make_executable2(get_from_callbacks
   SRCS data/get_from_callbacks.cc util/cv_painter.cc

@@ -30,6 +30,7 @@ MYNTEYE_BEGIN_NAMESPACE
 
 struct DeviceInfo;
 
+class Correspondence;
 class Device;
 class Synthetic;
 
@@ -306,6 +307,11 @@ class MYNTEYE_API API {
   std::vector<api::MotionData> GetMotionDatas();
 
   /**
+   * Enable motion datas with timestamp correspondence of some stream.
+   */
+  void EnableTimestampCorrespondence(const Stream &stream);
+
+  /**
    * Enable the plugin.
    */
   void EnablePlugin(const std::string &path);
@@ -316,6 +322,10 @@ class MYNTEYE_API API {
   std::shared_ptr<Device> device_;
 
   std::unique_ptr<Synthetic> synthetic_;
+
+  std::unique_ptr<Correspondence> correspondence_;
+
+  motion_callback_t callback_;
 
   void CheckImageParams();
 };

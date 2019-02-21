@@ -22,6 +22,7 @@
 #include <thread>
 
 #include "mynteye/logger.h"
+#include "mynteye/api/correspondence.h"
 #include "mynteye/api/dl.h"
 #include "mynteye/api/plugin.h"
 #include "mynteye/api/synthetic.h"
@@ -208,7 +209,7 @@ std::vector<std::string> get_plugin_paths() {
 }  // namespace
 
 API::API(std::shared_ptr<Device> device, CalibrationModel calib_model)
-    : device_(device) {
+    : device_(device), correspondence_(nullptr) {
   VLOG(2) << __func__;
   // std::dynamic_pointer_cast<StandardDevice>(device_);
   synthetic_.reset(new Synthetic(this, calib_model));
@@ -377,10 +378,15 @@ void API::SetStreamCallback(const Stream &stream, stream_callback_t callback) {
 }
 
 void API::SetMotionCallback(motion_callback_t callback) {
-  static auto callback_ = callback;
+  if (correspondence_) {
+    correspondence_->SetMotionCallback(callback);
+    return;
+  }
+  callback_ = callback;
   if (callback_) {
-    device_->SetMotionCallback(
-        [](const device::MotionData &data) { callback_({data.imu}); }, true);
+    device_->SetMotionCallback([this](const device::MotionData &data) {
+      callback_({data.imu});
+    }, true);
   } else {
     device_->SetMotionCallback(nullptr);
   }
@@ -455,15 +461,41 @@ std::vector<api::StreamData> API::GetStreamDatas(const Stream &stream) {
 }
 
 void API::EnableMotionDatas(std::size_t max_size) {
+  if (correspondence_) return;  // not cache them
   device_->EnableMotionDatas(max_size);
 }
 
 std::vector<api::MotionData> API::GetMotionDatas() {
-  std::vector<api::MotionData> datas;
-  for (auto &&data : device_->GetMotionDatas()) {
-    datas.push_back({data.imu});
+  if (correspondence_) {
+    return correspondence_->GetMotionDatas();
+  } else {
+    std::vector<api::MotionData> datas;
+    for (auto &&data : device_->GetMotionDatas()) {
+      datas.push_back({data.imu});
+    }
+    return datas;
   }
-  return datas;
+}
+
+void API::EnableTimestampCorrespondence(const Stream &stream) {
+  if (correspondence_ == nullptr) {
+    correspondence_.reset(new Correspondence(device_, stream));
+    {
+      device_->DisableMotionDatas();
+      if (callback_) {
+        correspondence_->SetMotionCallback(callback_);
+        callback_ = nullptr;
+      }
+    }
+    using namespace std::placeholders;  // NOLINT
+    device_->SetMotionCallback(
+        std::bind(&Correspondence::OnMotionDataCallback,
+            correspondence_.get(), _1),
+        true);
+    synthetic_->SetStreamDataListener(
+        std::bind(&Correspondence::OnStreamDataCallback,
+            correspondence_.get(), _1, _2));
+  }
 }
 
 void API::EnablePlugin(const std::string &path) {
