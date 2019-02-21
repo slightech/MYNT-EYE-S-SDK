@@ -35,6 +35,8 @@ struct Object;
 class Synthetic {
  public:
   using stream_callback_t = API::stream_callback_t;
+  using stream_data_listener_t =
+      std::function<void(const Stream &stream, const api::StreamData &data)>;
 
   typedef enum Mode {
     MODE_NATIVE,     // Native stream
@@ -51,6 +53,8 @@ class Synthetic {
 
   explicit Synthetic(API *api, CalibrationModel calib_model);
   ~Synthetic();
+
+  void SetStreamDataListener(stream_data_listener_t listener);
 
   void NotifyImageParamsChanged();
 
@@ -126,6 +130,8 @@ class Synthetic {
   void OnPointsPostProcess(Object *const out);
   void OnDepthPostProcess(Object *const out);
 
+  void NotifyStreamData(const Stream &stream, const api::StreamData &data);
+
   API *api_;
 
   std::shared_ptr<Processor> processor_;
@@ -141,6 +147,8 @@ class Synthetic {
   bool calib_default_tag_;
 
   std::vector<std::shared_ptr<Processor>> processors_;
+
+  stream_data_listener_t stream_data_listener_;
 };
 
 class SyntheticProcessorPart {
