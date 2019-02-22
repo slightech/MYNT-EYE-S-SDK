@@ -51,6 +51,9 @@ class Correspondence {
 
   bool IsStreamDataReady();
 
+  std::vector<api::StreamData> GetReadyStreamData(bool matched);
+  std::vector<api::MotionData> GetReadyMotionDatas();
+
   std::shared_ptr<Device> device_;
   Stream stream_;
   Stream stream_match_;
@@ -67,6 +70,8 @@ class Correspondence {
   std::vector<api::StreamData> stream_datas_match_;
   std::recursive_mutex mtx_stream_datas_;
   std::condition_variable_any cond_stream_datas_;
+
+  std::uint64_t ready_image_timestamp_;
 };
 
 MYNTEYE_END_NAMESPACE

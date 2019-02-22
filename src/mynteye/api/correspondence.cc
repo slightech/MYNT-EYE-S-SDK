@@ -20,7 +20,7 @@ MYNTEYE_BEGIN_NAMESPACE
 
 Correspondence::Correspondence(const std::shared_ptr<Device> &device,
     const Stream &stream)
-  : device_(device), stream_(stream) {
+  : device_(device), stream_(stream), ready_image_timestamp_(0) {
   VLOG(2) << __func__;
   // set matched stream to be watched too,
   // aim to make stream and matched stream correspondence
@@ -56,16 +56,19 @@ bool Correspondence::Watch(const Stream &stream) const {
 
 void Correspondence::OnStreamDataCallback(
     const Stream &stream, const api::StreamData &data) {
-  // LOG(INFO) << __func__ << ", " << stream
-  //     << ", id: " << data.frame_id << ", stamp: " << data.img->timestamp;
   if (!Watch(stream)) {
     return;  // unwatched
   }
+  // LOG(INFO) << __func__ << ", " << stream
+  //     << ", id: " << data.frame_id << ", stamp: " << data.img->timestamp;
+  // if (data.img == nullptr) {
+  //   LOG(FATAL) << "stream data image info is empty!";
+  // }
   std::lock_guard<std::recursive_mutex> _(mtx_stream_datas_);
   if (stream == stream_) {
-    stream_datas_.push_back(data);
+    stream_datas_.push_back(std::move(data));
   } else if (/*stream_match_enabled_ && */stream == stream_match_) {
-    stream_datas_match_.push_back(data);
+    stream_datas_match_.push_back(std::move(data));
   }
   NotifyStreamDataReady();
 }
@@ -114,7 +117,7 @@ std::vector<api::StreamData> Correspondence::GetStreamDatas(
   static std::uint32_t stream_match_count_ = 0;
 
   if (stream == stream_) {
-    auto datas = std::move(stream_datas_);
+    auto datas = GetReadyStreamData(false);
 
     if (stream_count_ < 10) {
       ++stream_count_;
@@ -127,7 +130,7 @@ std::vector<api::StreamData> Correspondence::GetStreamDatas(
 
     return datas;
   } else if (/*stream_match_enabled_ && */stream == stream_match_) {
-    auto datas = std::move(stream_datas_match_);
+    auto datas = GetReadyStreamData(true);
 
     if (stream_match_count_ < 10) {
       ++stream_match_count_;
@@ -140,13 +143,7 @@ std::vector<api::StreamData> Correspondence::GetStreamDatas(
 }
 
 std::vector<api::MotionData> Correspondence::GetMotionDatas() {
-  std::lock_guard<std::recursive_mutex> _(mtx_motion_datas_);
-  std::vector<api::MotionData> datas;
-  for (auto &&data : motion_datas_) {
-    datas.push_back({data.imu});
-  }
-  motion_datas_.clear();
-  return datas;
+  return GetReadyMotionDatas();
 }
 
 void Correspondence::EnableStreamMatch() {
@@ -196,6 +193,69 @@ bool Correspondence::IsStreamDataReady() {
   }
 
   return img_stamp + stream_interval_us_half_ < imu_stamp;
+}
+
+std::vector<api::StreamData> Correspondence::GetReadyStreamData(bool matched) {
+  std::uint64_t imu_stamp = 0;
+  {
+    std::lock_guard<std::recursive_mutex> _(mtx_motion_datas_);
+    if (motion_datas_.empty()) {
+      LOG(WARNING) << "motion data is unexpected empty!";
+      return {};
+    }
+    imu_stamp = motion_datas_.back().imu->timestamp;
+  }
+  std::lock_guard<std::recursive_mutex> _(mtx_stream_datas_);
+
+  std::vector<api::StreamData> &datas =
+      matched ? stream_datas_match_ : stream_datas_;
+
+  // LOG(INFO) << "datas.size: " << datas.size() << ", matched: " << matched;
+  std::vector<api::StreamData> result;
+
+  for (auto it = datas.begin(); it != datas.end(); ) {
+    // LOG(INFO) << "data.id: " << it->frame_id;
+    auto img_stamp = it->img->timestamp;
+    if (img_stamp + stream_interval_us_half_ < imu_stamp) {
+      // LOG(INFO) << "data.id: " << it->frame_id << " > result";
+      result.push_back(std::move(*it));
+      it = datas.erase(it);
+    } else {
+      // ++it;
+      break;
+    }
+  }
+  // LOG(INFO) << "datas.size: " << datas.size()
+  //     << ", result.size: " << result.size();
+
+  if (!matched && !result.empty()) {
+    // last match stream timestamp
+    ready_image_timestamp_ = result.back().img->timestamp;
+  }
+  return result;
+}
+
+std::vector<api::MotionData> Correspondence::GetReadyMotionDatas() {
+  if (ready_image_timestamp_ == 0) return {};
+  std::lock_guard<std::recursive_mutex> _(mtx_motion_datas_);
+
+  std::vector<api::MotionData> result;
+
+  auto &&datas = motion_datas_;
+  for (auto it = datas.begin(); it != datas.end(); ) {
+    auto imu_stamp = it->imu->timestamp;
+    if (imu_stamp < ready_image_timestamp_ - stream_interval_us_half_) {
+      it = datas.erase(it);
+    } else if (imu_stamp > ready_image_timestamp_ + stream_interval_us_half_) {
+      // ++it;
+      break;
+    } else {
+      result.push_back({it->imu});
+      it = datas.erase(it);
+    }
+  }
+
+  return result;
 }
 
 MYNTEYE_END_NAMESPACE

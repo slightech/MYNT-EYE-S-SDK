@@ -38,22 +38,30 @@ int main(int argc, char *argv[]) {
 
   cv::namedWindow("frame");
 
+  std::uint64_t prev_img_stamp = 0;
+  std::uint64_t prev_imu_stamp = 0;
   while (true) {
     api->WaitForStreams();
 
     auto &&left_data = api->GetStreamData(Stream::LEFT);
     auto &&right_data = api->GetStreamData(Stream::RIGHT);
 
-    LOG(INFO) << "Img frame_id: " << left_data.img->frame_id
-              << ", timestamp: " << left_data.img->timestamp;
+    auto img_stamp = left_data.img->timestamp;
+    LOG(INFO) << "Img timestamp: " << img_stamp
+        << ", diff_prev=" << (img_stamp - prev_img_stamp);
+    prev_img_stamp = img_stamp;
 
     cv::Mat img;
     cv::hconcat(left_data.frame, right_data.frame, img);
 
     auto &&motion_datas = api->GetMotionDatas();
+    LOG(INFO) << "Imu count: " << motion_datas.size();
     for (auto &&data : motion_datas) {
-      LOG(INFO) << "Imu frame_id: " << data.imu->frame_id
-                << ", timestamp: " << data.imu->timestamp;
+      auto imu_stamp = data.imu->timestamp;
+      LOG(INFO) << "Imu timestamp: " << imu_stamp
+          << ", diff_prev=" << (imu_stamp - prev_imu_stamp)
+          << ", diff_img=" << (1.f + imu_stamp - img_stamp);
+      prev_imu_stamp = imu_stamp;
     }
     LOG(INFO);
 

@@ -349,6 +349,9 @@ OptionInfo Device::GetOptionInfo(const Option &option) const {
 
 std::int32_t Device::GetOptionValue(const Option &option) const {
   if (!Supports(option)) {
+    if (option == Option::FRAME_RATE) {
+      return GetStreamRequest().fps;
+    }
     LOG(WARNING) << "Unsupported option: " << option;
     return -1;
   }
