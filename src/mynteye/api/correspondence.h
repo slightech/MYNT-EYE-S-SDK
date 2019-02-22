@@ -20,7 +20,7 @@
 #include <mutex>
 #include <vector>
 
-#include "mynteye/api.h"
+#include "mynteye/api/api.h"
 #include "mynteye/device/callbacks.h"
 
 MYNTEYE_BEGIN_NAMESPACE
