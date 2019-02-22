@@ -441,7 +441,11 @@ void API::Stop(const Source &source) {
 }
 
 void API::WaitForStreams() {
-  synthetic_->WaitForStreams();
+  if (correspondence_) {
+    correspondence_->WaitForStreams();
+  } else {
+    synthetic_->WaitForStreams();
+  }
 }
 
 void API::EnableStreamData(const Stream &stream) {
@@ -453,11 +457,19 @@ void API::DisableStreamData(const Stream &stream) {
 }
 
 api::StreamData API::GetStreamData(const Stream &stream) {
-  return synthetic_->GetStreamData(stream);
+  if (correspondence_ && correspondence_->Watch(stream)) {
+    return correspondence_->GetStreamData(stream);
+  } else {
+    return synthetic_->GetStreamData(stream);
+  }
 }
 
 std::vector<api::StreamData> API::GetStreamDatas(const Stream &stream) {
-  return synthetic_->GetStreamDatas(stream);
+  if (correspondence_ && correspondence_->Watch(stream)) {
+    return correspondence_->GetStreamDatas(stream);
+  } else {
+    return synthetic_->GetStreamDatas(stream);
+  }
 }
 
 void API::EnableMotionDatas(std::size_t max_size) {

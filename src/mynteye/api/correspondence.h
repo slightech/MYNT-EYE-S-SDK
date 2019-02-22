@@ -15,6 +15,7 @@
 #define MYNTEYE_API_CONFIG_H_
 #pragma once
 
+#include <condition_variable>
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -29,19 +30,43 @@ class Correspondence {
   Correspondence(const std::shared_ptr<Device> &device, const Stream &stream);
   ~Correspondence();
 
+  bool Watch(const Stream &stream) const;
+
   void OnStreamDataCallback(const Stream &stream, const api::StreamData &data);
   void OnMotionDataCallback(const device::MotionData &data);
 
   void SetMotionCallback(API::motion_callback_t callback);
 
+  void WaitForStreams();
+  api::StreamData GetStreamData(const Stream &stream);
+  std::vector<api::StreamData> GetStreamDatas(const Stream &stream);
   std::vector<api::MotionData> GetMotionDatas();
 
  private:
+  void EnableStreamMatch();
+  void DisableStreamMatch();
+
+  void WaitStreamDataReady();
+  void NotifyStreamDataReady();
+
+  bool IsStreamDataReady();
+
   std::shared_ptr<Device> device_;
   Stream stream_;
+  Stream stream_match_;
+  bool stream_match_enabled_;
+
+  float stream_interval_us_;
+  float stream_interval_us_half_;
+
   API::motion_callback_t motion_callback_;
   std::vector<device::MotionData> motion_datas_;
-  std::mutex mtx_motion_datas_;
+  std::recursive_mutex mtx_motion_datas_;
+
+  std::vector<api::StreamData> stream_datas_;
+  std::vector<api::StreamData> stream_datas_match_;
+  std::recursive_mutex mtx_stream_datas_;
+  std::condition_variable_any cond_stream_datas_;
 };
 
 MYNTEYE_END_NAMESPACE
