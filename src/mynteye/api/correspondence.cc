@@ -200,8 +200,11 @@ std::vector<api::StreamData> Correspondence::GetReadyStreamData(bool matched) {
   {
     std::lock_guard<std::recursive_mutex> _(mtx_motion_datas_);
     if (motion_datas_.empty()) {
-      LOG(WARNING) << "motion data is unexpected empty!";
-      return {};
+      LOG(WARNING) << "motion data is unexpected empty!"
+          "\n\n  Please ensure Start(Source::MOTION_TRACKING) "
+          "or Start(Source::ALL)\n";
+      std::lock_guard<std::recursive_mutex> _(mtx_stream_datas_);
+      return std::move(matched ? stream_datas_match_ : stream_datas_);
     }
     imu_stamp = motion_datas_.back().imu->timestamp;
   }
