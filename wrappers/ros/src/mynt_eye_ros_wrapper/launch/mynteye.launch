@@ -347,6 +347,10 @@
         - 'image_transport/compressedDepth'
       </rosparam>
     </group>
-
+    <group ns="$(arg depth_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
   </group> <!-- mynteye -->
 </launch>

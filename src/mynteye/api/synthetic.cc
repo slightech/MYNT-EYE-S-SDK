@@ -238,27 +238,6 @@ bool Synthetic::checkControlDateWithStream(const Stream& stream) const {
   return false;
 }
 
-void Synthetic::EnableStreamData(const Stream &stream) {
-  // Activate processors of synthetic stream
-  auto processor = getProcessorWithStream(stream);
-  iterate_processor_CtoP_before(processor,
-      [](std::shared_ptr<Processor> proce){
-        auto streams = proce->getTargetStreams();
-        int act_tag = 0;
-        for (unsigned int i = 0; i < proce->getStreamsSum() ; i++) {
-          if (proce->target_streams_[i].enabled_mode_ == MODE_LAST) {
-            act_tag++;
-            proce->target_streams_[i].enabled_mode_ = MODE_SYNTHETIC;
-          }
-        }
-        if (act_tag > 0 && !proce->IsActivated()) {
-          // std::cout << proce->Name() << " Active now" << std::endl;
-          proce->Activate();
-        }
-      });
-}
-
-
 bool Synthetic::Supports(const Stream &stream) const {
   return checkControlDateWithStream(stream);
 }
@@ -271,16 +250,45 @@ Synthetic::mode_t Synthetic::SupportsMode(const Stream &stream) const {
   return MODE_LAST;
 }
 
-void Synthetic::DisableStreamData(const Stream &stream) {
+void Synthetic::EnableStreamData(
+    const Stream &stream, stream_switch_callback_t callback,
+    bool try_tag) {
+  // Activate processors of synthetic stream
+  auto processor = getProcessorWithStream(stream);
+  iterate_processor_CtoP_before(processor,
+      [callback, try_tag](std::shared_ptr<Processor> proce){
+        auto streams = proce->getTargetStreams();
+        int act_tag = 0;
+        for (unsigned int i = 0; i < proce->getStreamsSum() ; i++) {
+          if (proce->target_streams_[i].enabled_mode_ == MODE_LAST) {
+            callback(proce->target_streams_[i].stream);
+            if (!try_tag) {
+              act_tag++;
+              proce->target_streams_[i].enabled_mode_ = MODE_SYNTHETIC;
+            }
+          }
+        }
+        if (act_tag > 0 && !proce->IsActivated()) {
+          // std::cout << proce->Name() << " Active now" << std::endl;
+          proce->Activate();
+        }
+      });
+}
+void Synthetic::DisableStreamData(
+    const Stream &stream, stream_switch_callback_t callback,
+    bool try_tag) {
   auto processor = getProcessorWithStream(stream);
   iterate_processor_PtoC_before(processor,
-      [](std::shared_ptr<Processor> proce){
+      [callback, try_tag](std::shared_ptr<Processor> proce){
         auto streams = proce->getTargetStreams();
         int act_tag = 0;
         for (unsigned int i = 0; i < proce->getStreamsSum() ; i++) {
           if (proce->target_streams_[i].enabled_mode_ == MODE_SYNTHETIC) {
-            act_tag++;
-            proce->target_streams_[i].enabled_mode_ = MODE_LAST;
+            callback(proce->target_streams_[i].stream);
+            if (!try_tag) {
+              act_tag++;
+              proce->target_streams_[i].enabled_mode_ = MODE_LAST;
+            }
           }
         }
         if (act_tag > 0 && proce->IsActivated()) {
@@ -288,6 +296,20 @@ void Synthetic::DisableStreamData(const Stream &stream) {
           proce->Deactivate();
         }
       });
+}
+
+void Synthetic::EnableStreamData(const Stream &stream) {
+  EnableStreamData(stream, [](const Stream &stream){
+        // std::cout << stream << "enabled in callback" << std::endl;
+        MYNTEYE_UNUSED(stream);
+      }, false);
+}
+
+void Synthetic::DisableStreamData(const Stream &stream) {
+  DisableStreamData(stream, [](const Stream &stream){
+        // std::cout << stream << "disabled in callback" << std::endl;
+        MYNTEYE_UNUSED(stream);
+      }, false);
 }
 
 bool Synthetic::IsStreamDataEnabled(const Stream &stream) const {

@@ -37,6 +37,7 @@ class Synthetic {
   using stream_callback_t = API::stream_callback_t;
   using stream_data_listener_t =
       std::function<void(const Stream &stream, const api::StreamData &data)>;
+  using stream_switch_callback_t = API::stream_switch_callback_t;
 
   typedef enum Mode {
     MODE_NATIVE,     // Native stream
@@ -63,6 +64,11 @@ class Synthetic {
 
   void EnableStreamData(const Stream &stream);
   void DisableStreamData(const Stream &stream);
+
+  void EnableStreamData(
+      const Stream &stream, stream_switch_callback_t callback, bool try_tag);
+  void DisableStreamData(
+      const Stream &stream, stream_switch_callback_t callback, bool try_tag);
   bool IsStreamDataEnabled(const Stream &stream) const;
 
   void SetStreamCallback(const Stream &stream, stream_callback_t callback);
