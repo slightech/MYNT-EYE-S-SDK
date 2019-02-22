@@ -623,11 +623,11 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     std::vector<Stream> all_streams{
         Stream::RIGHT,
         Stream::LEFT,
-        Stream::LEFT_RECTIFIED, 
+        Stream::LEFT_RECTIFIED,
         Stream::RIGHT_RECTIFIED,
-        Stream::DISPARITY,      
+        Stream::DISPARITY,
         Stream::DISPARITY_NORMALIZED,
-        Stream::POINTS,         
+        Stream::POINTS,
         Stream::DEPTH
         };
 
@@ -1290,7 +1290,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       }
       for (int i = 0; i < p.rows; i++) {
         for (int j = 0; j < p.cols; j++) {
-          camera_info->P.at(i * p.cols + j) = p.at<double>(i, j);
+          int scale = (i == 2 && j == 2)?1:1000;
+          camera_info->P.at(i * p.cols + j) = p.at<double>(i, j) / scale;
         }
       }
 
