@@ -446,6 +446,17 @@ void API::DisableStreamData(const Stream &stream) {
   synthetic_->DisableStreamData(stream);
 }
 
+void API::EnableStreamData(
+    const Stream &stream, stream_switch_callback_t callback,
+    bool try_tag) {
+  synthetic_->EnableStreamData(stream, callback, try_tag);
+}
+void API::DisableStreamData(
+    const Stream &stream, stream_switch_callback_t callback,
+    bool try_tag) {
+  synthetic_->DisableStreamData(stream, callback, try_tag);
+}
+
 api::StreamData API::GetStreamData(const Stream &stream) {
   return synthetic_->GetStreamData(stream);
 }

@@ -91,6 +91,8 @@ class MYNTEYE_API API {
   using stream_callback_t = std::function<void(const api::StreamData &data)>;
   /** The api::MotionData callback. */
   using motion_callback_t = std::function<void(const api::MotionData &data)>;
+  /** The enable/disable switch callback. */
+  using stream_switch_callback_t = std::function<void(const Stream &stream)>;
 
   explicit API(std::shared_ptr<Device> device, CalibrationModel calib_model);
   virtual ~API();
@@ -280,10 +282,30 @@ class MYNTEYE_API API {
    * still support this stream.
    */
   void EnableStreamData(const Stream &stream);
+
+  /**
+   * Enable the data of stream.
+   * callback function will call before the father processor enable.
+   * when try_tag is true, the function will do nothing except callback. 
+   */
+  void EnableStreamData(
+      const Stream &stream,
+      stream_switch_callback_t callback,
+      bool try_tag = false);
   /**
    * Disable the data of stream.
    */
   void DisableStreamData(const Stream &stream);
+
+  /**
+   * Disable the data of stream.
+   * callback function will call before the children processor disable.
+   * when try_tag is true, the function will do nothing except callback. 
+   */
+  void DisableStreamData(
+      const Stream &stream,
+      stream_switch_callback_t callback,
+      bool try_tag = false);
 
   /**
    * Get the latest data of stream.
