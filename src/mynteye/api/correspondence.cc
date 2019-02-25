@@ -171,9 +171,13 @@ void Correspondence::NotifyStreamDataReady() {
 
 bool Correspondence::IsStreamDataReady() {
   if (stream_datas_.empty()) return false;
+  if (stream_match_enabled_) {
+    if (stream_datas_match_.empty()) return false;
+  }
   if (motion_datas_.empty()) return false;
 
   std::uint64_t img_stamp = 0;
+  std::uint64_t img_macth_stamp = 0;
   {
     std::lock_guard<std::recursive_mutex> _(mtx_stream_datas_);
     auto data = stream_datas_.front();
@@ -181,6 +185,10 @@ bool Correspondence::IsStreamDataReady() {
       LOG(FATAL) << "stream data image info is empty!";
     }
     img_stamp = data.img->timestamp;
+
+    if (stream_match_enabled_) {
+      img_macth_stamp = stream_datas_match_.front().img->timestamp;
+    }
   }
   std::uint64_t imu_stamp = 0;
   {
@@ -192,7 +200,12 @@ bool Correspondence::IsStreamDataReady() {
     imu_stamp = data.imu->timestamp;
   }
 
-  return img_stamp + stream_interval_us_half_ < imu_stamp;
+  if (stream_match_enabled_) {
+    return img_stamp + stream_interval_us_half_ < imu_stamp
+        && img_macth_stamp + stream_interval_us_half_ < imu_stamp;
+  } else {
+    return img_stamp + stream_interval_us_half_ < imu_stamp;
+  }
 }
 
 std::vector<api::StreamData> Correspondence::GetReadyStreamData(bool matched) {
