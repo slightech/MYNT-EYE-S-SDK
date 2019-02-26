@@ -315,7 +315,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       for (auto &&it = mono_topics.begin(); it != mono_topics.end(); ++it) {
         auto &&topic = mono_topics[it->first];
         if (it->first == Stream::LEFT || it->first == Stream::RIGHT) {
-          mono_publishers_[it->first] = it_mynteye.advertiseCamera(topic, 1);
+          mono_publishers_[it->first] = it_mynteye.advertise(topic, 1);
         }
         NODELET_INFO_STREAM("Advertized on topic " << topic);
       }
@@ -828,9 +828,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     cv::cvtColor(data.frame, mono, CV_RGB2GRAY);
     auto &&msg = cv_bridge::CvImage(header, enc::MONO8, mono).toImageMsg();
     pthread_mutex_unlock(&mutex_data_);
-    auto &&info = getCameraInfo(stream);
-    info->header.stamp = msg->header.stamp;
-    mono_publishers_[stream].publish(msg, info);
+    mono_publishers_[stream].publish(msg);
   }
 
   void publishPoints(
@@ -1517,7 +1515,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   std::map<Stream, std::string> image_encodings_;
 
   // mono: LEFT, RIGHT
-  std::map<Stream, image_transport::CameraPublisher> mono_publishers_;
+  std::map<Stream, image_transport::Publisher> mono_publishers_;
 
   // pointcloud: POINTS
   ros::Publisher points_publisher_;
