@@ -339,9 +339,7 @@ std::string API::GetInfo(const Info &info) const {
       LOG(WARNING) << "build.info not found: " << info_path;
       return "null";
     }
-    std::string vs_main = fs["MYNTEYE_VERSION"];
-    int vs_tweak =  fs["MYNTEYE_VERSION_TWEAK"];
-    return vs_main + std::string(".") + std::to_string(vs_tweak);
+    return fs["MYNTEYE_VERSION"];
   }
 
   return device_->GetInfo(info);
