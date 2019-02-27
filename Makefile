@@ -130,7 +130,7 @@ endif
 
 # install
 
-install: build
+install: uninstall build
 	@$(call echo,Make $@)
 ifeq ($(HOST_OS),Win)
 ifneq ($(HOST_NAME),MinGW)
@@ -176,8 +176,8 @@ ifeq ($(HOST_OS),Mac)
 else
 	@$(call cmake_build,./tools/_build)
 endif
-	
-	
+
+
 
 .PHONY: tools
 

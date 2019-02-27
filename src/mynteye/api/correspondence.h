@@ -15,6 +15,7 @@
 #define MYNTEYE_API_CONFIG_H_
 #pragma once
 
+#include <atomic>
 #include <condition_variable>
 #include <memory>
 #include <mutex>
@@ -57,7 +58,7 @@ class Correspondence {
   std::shared_ptr<Device> device_;
   Stream stream_;
   Stream stream_match_;
-  bool stream_match_enabled_;
+  std::atomic_bool stream_match_enabled_;
 
   float stream_interval_us_;
   float stream_interval_us_half_;
