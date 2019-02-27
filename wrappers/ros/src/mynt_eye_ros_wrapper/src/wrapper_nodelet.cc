@@ -644,7 +644,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           is_published_[stream] = false;
         }
         api_->Start(Source::VIDEO_STREAMING);
-      } else if (sum_c > sum) {
+      } else {
         if ((camera_publishers_[Stream::LEFT].getNumSubscribers() > 0 ||
             mono_publishers_[Stream::LEFT].getNumSubscribers() > 0) &&
             !is_published_[Stream::LEFT]) {

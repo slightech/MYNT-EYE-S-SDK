@@ -122,6 +122,8 @@ enum class Info : std::uint8_t {
   IMU_TYPE,
   /** Nominal baseline */
   NOMINAL_BASELINE,
+  /** SDK version*/
+  SDK_VERSION,
   /** Last guard */
   LAST
 };
