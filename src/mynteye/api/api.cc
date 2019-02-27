@@ -224,9 +224,10 @@ std::shared_ptr<API> API::Create(int argc, char *argv[]) {
   auto &&device = device::select();
   if (!device) return nullptr;
   auto api = Create(argc, argv, device);
-  if (api && checkFirmwareVersion(api))
-    return api;
-  return nullptr;
+  return api;
+  // if (api && checkFirmwareVersion(api))
+  //   return api;
+  // return nullptr;
 }
 
 std::shared_ptr<API> API::Create(

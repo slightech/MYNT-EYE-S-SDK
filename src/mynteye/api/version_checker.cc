@@ -39,8 +39,7 @@ const char* PASS_DESCRIPTION = "pass";
 /**----device type-----sdk version---firmware version-----pass tag-----*/
 static const firmware_version_match_table_unit FSVM_TABLE[] ={
 /** S1030 */
-  {"MYNT-EYE-S1030",    ">2.3.0",         "2.3.0",    PASS_DESCRIPTION},
-  {"MYNT-EYE-S1030",    ">2.3.0",         "2.2.2",    PASS_DESCRIPTION},
+  {"MYNT-EYE-S1030",    ">2.3.0",         ">2.2.0",   PASS_DESCRIPTION},
   {"MYNT-EYE-S1030",    ">2.3.0",         "2.2.0",    WARN_DESCRIPTION_F},
   {"MYNT-EYE-S1030",    ">2.3.0",         "<2.2.0",   ERRO_DESCRIPTION_F},
   {"MYNT-EYE-S1030",    "<2.3.1",         "<2.2.0",   WARN_DESCRIPTION_S},
