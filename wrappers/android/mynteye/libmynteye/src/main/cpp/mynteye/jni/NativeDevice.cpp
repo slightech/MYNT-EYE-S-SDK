@@ -3,8 +3,17 @@
 
 #include "NativeDevice.hpp"  // my header
 #include "Marshal.hpp"
+#include "NativeAddon.hpp"
+#include "NativeCapability.hpp"
 #include "NativeDeviceUsbInfo.hpp"
+#include "NativeExtrinsics.hpp"
+#include "NativeInfo.hpp"
+#include "NativeIntrinsics.hpp"
+#include "NativeModel.hpp"
 #include "NativeMotionData.hpp"
+#include "NativeMotionIntrinsics.hpp"
+#include "NativeOption.hpp"
+#include "NativeOptionInfo.hpp"
 #include "NativeSource.hpp"
 #include "NativeStream.hpp"
 #include "NativeStreamData.hpp"
@@ -34,6 +43,56 @@ CJNIEXPORT jobject JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_creat
     } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
 }
 
+CJNIEXPORT ::djinni_generated::NativeModel::JniType JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1getModel(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::mynteye_jni::Device>(nativeRef);
+        auto r = ref->GetModel();
+        return ::djinni::release(::djinni_generated::NativeModel::fromCpp(jniEnv, r));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
+}
+
+CJNIEXPORT jboolean JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1supportsStream(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, ::djinni_generated::NativeStream::JniType j_stream)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::mynteye_jni::Device>(nativeRef);
+        auto r = ref->SupportsStream(::djinni_generated::NativeStream::toCpp(jniEnv, j_stream));
+        return ::djinni::release(::djinni::Bool::fromCpp(jniEnv, r));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
+}
+
+CJNIEXPORT jboolean JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1supportsCapability(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, ::djinni_generated::NativeCapability::JniType j_capabilities)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::mynteye_jni::Device>(nativeRef);
+        auto r = ref->SupportsCapability(::djinni_generated::NativeCapability::toCpp(jniEnv, j_capabilities));
+        return ::djinni::release(::djinni::Bool::fromCpp(jniEnv, r));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
+}
+
+CJNIEXPORT jboolean JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1supportsOption(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, ::djinni_generated::NativeOption::JniType j_option)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::mynteye_jni::Device>(nativeRef);
+        auto r = ref->SupportsOption(::djinni_generated::NativeOption::toCpp(jniEnv, j_option));
+        return ::djinni::release(::djinni::Bool::fromCpp(jniEnv, r));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
+}
+
+CJNIEXPORT jboolean JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1supportsAddon(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, ::djinni_generated::NativeAddon::JniType j_addon)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::mynteye_jni::Device>(nativeRef);
+        auto r = ref->SupportsAddon(::djinni_generated::NativeAddon::toCpp(jniEnv, j_addon));
+        return ::djinni::release(::djinni::Bool::fromCpp(jniEnv, r));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
+}
+
 CJNIEXPORT jobject JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1getStreamRequests(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef)
 {
     try {
@@ -51,6 +110,97 @@ CJNIEXPORT void JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1
         const auto& ref = ::djinni::objectFromHandleAddress<::mynteye_jni::Device>(nativeRef);
         ref->ConfigStreamRequest(::djinni_generated::NativeStreamRequest::toCpp(jniEnv, j_request));
     } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
+}
+
+CJNIEXPORT jstring JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1getInfo(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, ::djinni_generated::NativeInfo::JniType j_info)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::mynteye_jni::Device>(nativeRef);
+        auto r = ref->GetInfo(::djinni_generated::NativeInfo::toCpp(jniEnv, j_info));
+        return ::djinni::release(::djinni::String::fromCpp(jniEnv, r));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
+}
+
+CJNIEXPORT ::djinni_generated::NativeIntrinsics::JniType JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1getIntrinsics(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, ::djinni_generated::NativeStream::JniType j_stream)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::mynteye_jni::Device>(nativeRef);
+        auto r = ref->GetIntrinsics(::djinni_generated::NativeStream::toCpp(jniEnv, j_stream));
+        return ::djinni::release(::djinni_generated::NativeIntrinsics::fromCpp(jniEnv, r));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
+}
+
+CJNIEXPORT ::djinni_generated::NativeExtrinsics::JniType JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1getExtrinsics(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, ::djinni_generated::NativeStream::JniType j_from, ::djinni_generated::NativeStream::JniType j_to)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::mynteye_jni::Device>(nativeRef);
+        auto r = ref->GetExtrinsics(::djinni_generated::NativeStream::toCpp(jniEnv, j_from),
+                                    ::djinni_generated::NativeStream::toCpp(jniEnv, j_to));
+        return ::djinni::release(::djinni_generated::NativeExtrinsics::fromCpp(jniEnv, r));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
+}
+
+CJNIEXPORT ::djinni_generated::NativeMotionIntrinsics::JniType JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1getMotionIntrinsics(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::mynteye_jni::Device>(nativeRef);
+        auto r = ref->GetMotionIntrinsics();
+        return ::djinni::release(::djinni_generated::NativeMotionIntrinsics::fromCpp(jniEnv, r));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
+}
+
+CJNIEXPORT ::djinni_generated::NativeExtrinsics::JniType JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1getMotionExtrinsics(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, ::djinni_generated::NativeStream::JniType j_from)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::mynteye_jni::Device>(nativeRef);
+        auto r = ref->GetMotionExtrinsics(::djinni_generated::NativeStream::toCpp(jniEnv, j_from));
+        return ::djinni::release(::djinni_generated::NativeExtrinsics::fromCpp(jniEnv, r));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
+}
+
+CJNIEXPORT ::djinni_generated::NativeOptionInfo::JniType JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1getOptionInfo(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, ::djinni_generated::NativeOption::JniType j_option)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::mynteye_jni::Device>(nativeRef);
+        auto r = ref->GetOptionInfo(::djinni_generated::NativeOption::toCpp(jniEnv, j_option));
+        return ::djinni::release(::djinni_generated::NativeOptionInfo::fromCpp(jniEnv, r));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
+}
+
+CJNIEXPORT jint JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1getOptionValue(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, ::djinni_generated::NativeOption::JniType j_option)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::mynteye_jni::Device>(nativeRef);
+        auto r = ref->GetOptionValue(::djinni_generated::NativeOption::toCpp(jniEnv, j_option));
+        return ::djinni::release(::djinni::I32::fromCpp(jniEnv, r));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
+}
+
+CJNIEXPORT void JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1setOptionValue(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, ::djinni_generated::NativeOption::JniType j_option, jint j_value)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::mynteye_jni::Device>(nativeRef);
+        ref->SetOptionValue(::djinni_generated::NativeOption::toCpp(jniEnv, j_option),
+                            ::djinni::I32::toCpp(jniEnv, j_value));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
+}
+
+CJNIEXPORT jboolean JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1runOptionAction(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, ::djinni_generated::NativeOption::JniType j_option)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::mynteye_jni::Device>(nativeRef);
+        auto r = ref->RunOptionAction(::djinni_generated::NativeOption::toCpp(jniEnv, j_option));
+        return ::djinni::release(::djinni::Bool::fromCpp(jniEnv, r));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
 }
 
 CJNIEXPORT void JNICALL Java_com_slightech_mynteye_Device_00024CppProxy_native_1start(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, ::djinni_generated::NativeSource::JniType j_source)

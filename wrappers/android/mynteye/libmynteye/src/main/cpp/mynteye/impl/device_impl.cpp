@@ -70,6 +70,26 @@ DeviceImpl::~DeviceImpl() {
   VLOG(2) << __func__;
 }
 
+::mynteye_jni::Model DeviceImpl::GetModel() {
+  return to_jni(device_->GetModel());
+}
+
+bool DeviceImpl::SupportsStream(::mynteye_jni::Stream stream) {
+  return device_->Supports(from_jni(stream));
+}
+
+bool DeviceImpl::SupportsCapability(::mynteye_jni::Capability capabilities) {
+  return device_->Supports(from_jni(capabilities));
+}
+
+bool DeviceImpl::SupportsOption(::mynteye_jni::Option option) {
+  return device_->Supports(from_jni(option));
+}
+
+bool DeviceImpl::SupportsAddon(::mynteye_jni::Addon addon) {
+  return device_->Supports(from_jni(addon));
+}
+
 std::vector<::mynteye_jni::StreamRequest> DeviceImpl::GetStreamRequests() {
   VLOG(2) << __func__;
   std::vector<::mynteye_jni::StreamRequest> requests;
@@ -95,6 +115,68 @@ void DeviceImpl::ConfigStreamRequest(
     }
     ++i;
   }
+}
+
+std::string DeviceImpl::GetInfo(::mynteye_jni::Info info)  {
+  return device_->GetInfo(from_jni(info));
+}
+
+::mynteye_jni::Intrinsics DeviceImpl::GetIntrinsics(
+    ::mynteye_jni::Stream stream) {
+  auto in = device_->GetIntrinsics(from_jni(stream));
+  if (in->calib_model() == MYNTEYE_NAMESPACE::CalibrationModel::PINHOLE) {
+    auto in_p = std::dynamic_pointer_cast<IntrinsicsPinhole>(in);
+    return {CalibrationModel::PINHOLE, in_p->width, in_p->height,
+        in_p->fx, in_p->fy, in_p->cx, in_p->cy,
+        to_vector<5>(in_p->coeffs)};
+  } else if (in->calib_model() == MYNTEYE_NAMESPACE::CalibrationModel::KANNALA_BRANDT) {
+    auto in_k = std::dynamic_pointer_cast<IntrinsicsEquidistant>(in);
+    return {CalibrationModel::KANNALA_BRANDT, in_k->width, in_k->height,
+        0, 0, 0, 0, to_vector<8>(in_k->coeffs)};
+  } else {
+    LOG(WARNING) << "Unknown calibration model";
+    return {CalibrationModel::UNKNOW, 0, 0, 0, 0, 0, 0, {}};
+  }
+}
+
+::mynteye_jni::Extrinsics DeviceImpl::GetExtrinsics(
+    ::mynteye_jni::Stream from, ::mynteye_jni::Stream to) {
+  auto ex = device_->GetExtrinsics(from_jni(from), from_jni(to));
+  return {to_vector<3, 3>(ex.rotation), to_vector<3>(ex.translation)};
+}
+
+::mynteye_jni::MotionIntrinsics DeviceImpl::GetMotionIntrinsics() {
+  auto in = device_->GetMotionIntrinsics();
+  auto in_to_jni = [](MYNTEYE_NAMESPACE::ImuIntrinsics& in) {
+    return ImuIntrinsics{
+      to_vector<3, 3>(in.scale), to_vector<3>(in.drift),
+      to_vector<3>(in.noise), to_vector<3>(in.bias)
+    };
+  };
+  return {in_to_jni(in.accel), in_to_jni(in.gyro)};
+}
+
+::mynteye_jni::Extrinsics DeviceImpl::GetMotionExtrinsics(
+    ::mynteye_jni::Stream from) {
+  auto ex = device_->GetMotionExtrinsics(from_jni(from));
+  return {to_vector<3, 3>(ex.rotation), to_vector<3>(ex.translation)};
+}
+
+::mynteye_jni::OptionInfo DeviceImpl::GetOptionInfo(::mynteye_jni::Option option) {
+  auto info = device_->GetOptionInfo(from_jni(option));
+  return {info.min, info.max, info.def};
+}
+
+int32_t DeviceImpl::GetOptionValue(::mynteye_jni::Option option) {
+  return device_->GetOptionValue(from_jni(option));
+}
+
+void DeviceImpl::SetOptionValue(::mynteye_jni::Option option, int32_t value) {
+  return device_->SetOptionValue(from_jni(option), value);
+}
+
+bool DeviceImpl::RunOptionAction(::mynteye_jni::Option option) {
+  return device_->RunOptionAction(from_jni(option));
 }
 
 void DeviceImpl::Start(::mynteye_jni::Source source) {

@@ -1,8 +1,9 @@
 package com.slightech.mynteye.demo;
 
 import android.app.Application;
-//import com.stericson.RootShell.RootShell;
 import timber.log.Timber;
+
+//import com.stericson.RootShell.RootShell;
 
 public class MyApplication extends Application {
 

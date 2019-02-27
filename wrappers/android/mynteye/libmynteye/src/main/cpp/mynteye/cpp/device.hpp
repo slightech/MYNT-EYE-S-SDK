@@ -3,14 +3,24 @@
 
 #pragma once
 
+#include "addon.hpp"
+#include "capability.hpp"
 #include "device_usb_info.hpp"
+#include "extrinsics.hpp"
+#include "info.hpp"
+#include "intrinsics.hpp"
+#include "model.hpp"
 #include "motion_data.hpp"
+#include "motion_intrinsics.hpp"
+#include "option.hpp"
+#include "option_info.hpp"
 #include "source.hpp"
 #include "stream.hpp"
 #include "stream_data.hpp"
 #include "stream_request.hpp"
 #include <cstdint>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace mynteye_jni {
@@ -23,11 +33,53 @@ public:
     /** Create the device instance */
     static std::shared_ptr<Device> Create(const ::mynteye_jni::DeviceUsbInfo & info);
 
+    /** Get the model */
+    virtual ::mynteye_jni::Model GetModel() = 0;
+
+    /** Supports the stream or not */
+    virtual bool SupportsStream(::mynteye_jni::Stream stream) = 0;
+
+    /** Supports the capability or not */
+    virtual bool SupportsCapability(::mynteye_jni::Capability capabilities) = 0;
+
+    /** Supports the option or not */
+    virtual bool SupportsOption(::mynteye_jni::Option option) = 0;
+
+    /** Supports the addon or not */
+    virtual bool SupportsAddon(::mynteye_jni::Addon addon) = 0;
+
     /** Get all stream requests */
     virtual std::vector<::mynteye_jni::StreamRequest> GetStreamRequests() = 0;
 
     /** Config the stream request */
     virtual void ConfigStreamRequest(const ::mynteye_jni::StreamRequest & request) = 0;
+
+    /** Get the device info */
+    virtual std::string GetInfo(::mynteye_jni::Info info) = 0;
+
+    /** Get the intrinsics of stream */
+    virtual ::mynteye_jni::Intrinsics GetIntrinsics(::mynteye_jni::Stream stream) = 0;
+
+    /** Get the extrinsics of stream */
+    virtual ::mynteye_jni::Extrinsics GetExtrinsics(::mynteye_jni::Stream from, ::mynteye_jni::Stream to) = 0;
+
+    /** Get the intrinsics of motion */
+    virtual ::mynteye_jni::MotionIntrinsics GetMotionIntrinsics() = 0;
+
+    /** Get the extrinsics from one stream to motion */
+    virtual ::mynteye_jni::Extrinsics GetMotionExtrinsics(::mynteye_jni::Stream from) = 0;
+
+    /** Get the option info */
+    virtual ::mynteye_jni::OptionInfo GetOptionInfo(::mynteye_jni::Option option) = 0;
+
+    /** Get the option value */
+    virtual int32_t GetOptionValue(::mynteye_jni::Option option) = 0;
+
+    /** Set the option value */
+    virtual void SetOptionValue(::mynteye_jni::Option option, int32_t value) = 0;
+
+    /** Run the option value */
+    virtual bool RunOptionAction(::mynteye_jni::Option option) = 0;
 
     /** Start capturing the source */
     virtual void Start(::mynteye_jni::Source source) = 0;

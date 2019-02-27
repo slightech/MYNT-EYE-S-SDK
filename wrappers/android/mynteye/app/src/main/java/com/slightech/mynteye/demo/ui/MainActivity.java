@@ -1,12 +1,10 @@
 package com.slightech.mynteye.demo.ui;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.hardware.usb.UsbDevice;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -15,10 +13,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.FragmentActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.slightech.mynteye.Device;
 import com.slightech.mynteye.DeviceUsbInfo;
 import com.slightech.mynteye.Frame;
 import com.slightech.mynteye.MotionData;
@@ -27,13 +23,11 @@ import com.slightech.mynteye.StreamData;
 import com.slightech.mynteye.StreamRequest;
 import com.slightech.mynteye.demo.R;
 import com.slightech.mynteye.demo.camera.Mynteye;
-import com.slightech.mynteye.demo.util.RootUtils;
 import com.slightech.mynteye.usb.CameraDialog;
 import com.slightech.mynteye.usb.USBMonitor;
 import com.slightech.mynteye.usb.USBMonitor.OnDeviceConnectListener;
 import com.slightech.mynteye.usb.USBMonitor.UsbControlBlock;
 import com.slightech.mynteye.util.BitmapUtils;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Locale;
 import timber.log.Timber;
@@ -50,12 +44,13 @@ public class MainActivity extends BaseActivity implements CameraDialog.CameraDia
   private Mynteye mMynteye;
   private Bitmap mLeftBitmap, mRightBitmap;
 
+  private boolean mImuEnabled;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
-
     mUSBMonitor = new USBMonitor(this, mOnDeviceConnectListener);
   }
 
@@ -63,6 +58,9 @@ public class MainActivity extends BaseActivity implements CameraDialog.CameraDia
   protected void onStart() {
     super.onStart();
     mUSBMonitor.register();
+    if (mMynteye == null) {
+      //actionOpen();
+    }
   }
 
   @Override
@@ -144,29 +142,72 @@ public class MainActivity extends BaseActivity implements CameraDialog.CameraDia
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.menu_main, menu);
-    MenuItem item = menu.findItem(R.id.action_open);
-    if (item != null) {
-      item.setEnabled(false);
-      actionOpen(() -> item.setEnabled(true));
-    }
     return true;
+  }
+
+  @Override
+  public boolean onPrepareOptionsMenu(Menu menu) {
+    if (mMynteye == null) {
+      menu.findItem(R.id.action_open).setVisible(true);
+      menu.findItem(R.id.action_close).setVisible(false);
+    } else {
+      menu.findItem(R.id.action_open).setVisible(!mMynteye.isOpened());
+      menu.findItem(R.id.action_close).setVisible(mMynteye.isOpened());
+    }
+    menu.findItem(R.id.check_imu_data).setChecked(mImuEnabled);
+    boolean featuresUsable = mMynteye != null && mMynteye.isOpened();
+    menu.findItem(R.id.show_device_infos).setVisible(featuresUsable);
+    menu.findItem(R.id.show_image_params).setVisible(featuresUsable);
+    menu.findItem(R.id.show_imu_params).setVisible(featuresUsable);
+    menu.findItem(R.id.show_option_infos).setVisible(featuresUsable);
+    return super.onPrepareOptionsMenu(menu);
   }
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.action_open:
-        item.setEnabled(false);
-        actionOpen(() -> item.setEnabled(true));
+        actionOpen();
+        return true;
+      case R.id.action_close:
+        actionClose();
+        return true;
+      case R.id.check_imu_data:
+        mImuEnabled = !item.isChecked();
+        item.setChecked(mImuEnabled);
+        return true;
+      case R.id.show_device_infos:
+        alert(R.string.device_infos, mMynteye.getDeviceInfos());
+        return true;
+      case R.id.show_image_params:
+        alert(R.string.image_params, mMynteye.getImageParams());
+        return true;
+      case R.id.show_imu_params:
+        alert(R.string.imu_params, mMynteye.getImuParams());
+        return true;
+      case R.id.show_option_infos:
+        alert(R.string.option_infos, mMynteye.getOptionInfos());
         return true;
       default:
         return super.onOptionsItemSelected(item);
     }
   }
 
-  private void actionOpen(final Runnable completeEvent) {
-    if (completeEvent != null) completeEvent.run();
-    CameraDialog.showDialog(this);
+  private void actionOpen() {
+    if (mMynteye == null) {
+      CameraDialog.showDialog(this);
+    } else {
+      mMynteye.setImuEnabled(mImuEnabled);
+      mMynteye.open();
+    }
+  }
+
+  private void actionClose() {
+    if (mMynteye != null) {
+      mMynteye.close();
+      mMynteye = null;
+    }
+    invalidateOptionsMenu();
   }
 
   private void openDevice(DeviceUsbInfo info) {
@@ -174,6 +215,7 @@ public class MainActivity extends BaseActivity implements CameraDialog.CameraDia
     ArrayList<StreamRequest> requests = mMynteye.getStreamRequests();
     if (requests.isEmpty()) {
       alert("Warning", "There are no streams to request :(");
+      mMynteye = null;
     } else {
       ArrayList<String> items = new ArrayList<>();
       for (StreamRequest req : requests) {
@@ -189,7 +231,12 @@ public class MainActivity extends BaseActivity implements CameraDialog.CameraDia
         dialog.dismiss();
         mMynteye.setOnStreamDataReceiveListener(this);
         mMynteye.setOnMotionDataReceiveListener(this);
+        mMynteye.setImuEnabled(mImuEnabled);
         mMynteye.open(requests.get(position));
+        invalidateOptionsMenu();
+      });
+      dialog.setOnCancelListener(dlg -> {
+        mMynteye = null;
       });
       dialog.setView(listView);
       dialog.show();
@@ -237,8 +284,16 @@ public class MainActivity extends BaseActivity implements CameraDialog.CameraDia
     mTextView.post(() -> mTextView.setText(datas.get(0).imu().toString()));
   }
 
+  private void toast(int textId) {
+    toast(getString(textId));
+  }
+
   private void toast(CharSequence text) {
     Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+  }
+
+  private void alert(int titleId, CharSequence message) {
+    alert(getString(titleId), message);
   }
 
   private void alert(CharSequence title, CharSequence message) {

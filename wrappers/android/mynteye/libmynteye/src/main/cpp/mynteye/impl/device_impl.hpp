@@ -16,11 +16,53 @@ class DeviceImpl : public Device {
   explicit DeviceImpl(const device_t & device);
   ~DeviceImpl();
 
+  /** Get the model */
+  ::mynteye_jni::Model GetModel() override;
+
+  /** Supports the stream or not */
+  bool SupportsStream(::mynteye_jni::Stream stream) override;
+
+  /** Supports the capability or not */
+  bool SupportsCapability(::mynteye_jni::Capability capabilities) override;
+
+  /** Supports the option or not */
+  bool SupportsOption(::mynteye_jni::Option option) override;
+
+  /** Supports the addon or not */
+  bool SupportsAddon(::mynteye_jni::Addon addon) override;
+
   /** Get all stream requests */
   std::vector<::mynteye_jni::StreamRequest> GetStreamRequests() override;
 
   /** Config the stream request */
   void ConfigStreamRequest(const ::mynteye_jni::StreamRequest & request) override;
+
+  /** Get the device info */
+  std::string GetInfo(::mynteye_jni::Info info) override;
+
+  /** Get the intrinsics of stream */
+  ::mynteye_jni::Intrinsics GetIntrinsics(::mynteye_jni::Stream stream) override;
+
+  /** Get the extrinsics of stream */
+  ::mynteye_jni::Extrinsics GetExtrinsics(::mynteye_jni::Stream from, ::mynteye_jni::Stream to) override;
+
+  /** Get the intrinsics of motion */
+  ::mynteye_jni::MotionIntrinsics GetMotionIntrinsics() override;
+
+  /** Get the extrinsics from one stream to motion */
+  ::mynteye_jni::Extrinsics GetMotionExtrinsics(::mynteye_jni::Stream from) override;
+
+  /** Get the option info */
+  ::mynteye_jni::OptionInfo GetOptionInfo(::mynteye_jni::Option option) override;
+
+  /** Get the option value */
+  int32_t GetOptionValue(::mynteye_jni::Option option) override;
+
+  /** Set the option value */
+  void SetOptionValue(::mynteye_jni::Option option, int32_t value) override;
+
+  /** Run the option value */
+  bool RunOptionAction(::mynteye_jni::Option option) override;
 
   /** Start capturing the source */
   void Start(::mynteye_jni::Source source) override;
@@ -37,7 +79,7 @@ class DeviceImpl : public Device {
   /** Get the datas of stream */
   std::vector<std::shared_ptr<::mynteye_jni::StreamData>> GetStreamDatas(::mynteye_jni::Stream stream) override;
 
-    /** Enable cache motion datas until get them, otherwise using callback instead */
+  /** Enable cache motion datas until get them, otherwise using callback instead */
   void EnableMotionDatas(int32_t max_size) override;
 
   /** Get the motion datas */
