@@ -54,6 +54,8 @@ def main():
       'LENS_TYPE': GetInfoRequest.LENS_TYPE,
       'IMU_TYPE': GetInfoRequest.IMU_TYPE,
       'NOMINAL_BASELINE': GetInfoRequest.NOMINAL_BASELINE,
+      'AUXILIARY_CHIP_VERSION': GetInfoRequest.AUXILIARY_CHIP_VERSION,
+      'ISP_VERSION': GetInfoRequest.ISP_VERSION,
   }
   for k, v in get_device_info(**keys).items():
     print('{}: {}'.format(k, v))

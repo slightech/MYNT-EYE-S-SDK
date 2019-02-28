@@ -19,6 +19,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <mutex>
 
 #include "mynteye/api/api.h"
 #include "mynteye/api/config.h"
@@ -34,6 +35,9 @@ struct Object;
 class Synthetic {
  public:
   using stream_callback_t = API::stream_callback_t;
+  using stream_data_listener_t =
+      std::function<void(const Stream &stream, const api::StreamData &data)>;
+  using stream_switch_callback_t = API::stream_switch_callback_t;
 
   typedef enum Mode {
     MODE_NATIVE,     // Native stream
@@ -51,6 +55,8 @@ class Synthetic {
   explicit Synthetic(API *api, CalibrationModel calib_model);
   ~Synthetic();
 
+  void SetStreamDataListener(stream_data_listener_t listener);
+
   void NotifyImageParamsChanged();
 
   bool Supports(const Stream &stream) const;
@@ -58,6 +64,11 @@ class Synthetic {
 
   void EnableStreamData(const Stream &stream);
   void DisableStreamData(const Stream &stream);
+
+  void EnableStreamData(
+      const Stream &stream, stream_switch_callback_t callback, bool try_tag);
+  void DisableStreamData(
+      const Stream &stream, stream_switch_callback_t callback, bool try_tag);
   bool IsStreamDataEnabled(const Stream &stream) const;
 
   void SetStreamCallback(const Stream &stream, stream_callback_t callback);
@@ -125,6 +136,8 @@ class Synthetic {
   void OnPointsPostProcess(Object *const out);
   void OnDepthPostProcess(Object *const out);
 
+  void NotifyStreamData(const Stream &stream, const api::StreamData &data);
+
   API *api_;
 
   std::shared_ptr<Processor> processor_;
@@ -132,6 +145,7 @@ class Synthetic {
   std::shared_ptr<Plugin> plugin_;
 
   CalibrationModel calib_model_;
+  std::mutex mtx_left_right_ready_;
 
   std::shared_ptr<IntrinsicsBase> intr_left_;
   std::shared_ptr<IntrinsicsBase> intr_right_;
@@ -139,6 +153,8 @@ class Synthetic {
   bool calib_default_tag_;
 
   std::vector<std::shared_ptr<Processor>> processors_;
+
+  stream_data_listener_t stream_data_listener_;
 };
 
 class SyntheticProcessorPart {

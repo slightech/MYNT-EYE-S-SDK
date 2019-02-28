@@ -92,6 +92,8 @@ const char *to_string(const Info &value) {
     CASE(LENS_TYPE)
     CASE(IMU_TYPE)
     CASE(NOMINAL_BASELINE)
+    CASE(AUXILIARY_CHIP_VERSION)
+    CASE(ISP_VERSION)
     default:
       CHECK(is_valid(value));
       return "Info::UNKNOWN";

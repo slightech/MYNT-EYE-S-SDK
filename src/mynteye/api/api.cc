@@ -22,9 +22,11 @@
 #include <thread>
 
 #include "mynteye/logger.h"
+#include "mynteye/api/correspondence.h"
 #include "mynteye/api/dl.h"
 #include "mynteye/api/plugin.h"
 #include "mynteye/api/synthetic.h"
+#include "mynteye/api/version_checker.h"
 #include "mynteye/device/device.h"
 #include "mynteye/device/utils.h"
 
@@ -208,7 +210,7 @@ std::vector<std::string> get_plugin_paths() {
 }  // namespace
 
 API::API(std::shared_ptr<Device> device, CalibrationModel calib_model)
-    : device_(device) {
+    : device_(device), correspondence_(nullptr) {
   VLOG(2) << __func__;
   // std::dynamic_pointer_cast<StandardDevice>(device_);
   synthetic_.reset(new Synthetic(this, calib_model));
@@ -221,7 +223,10 @@ API::~API() {
 std::shared_ptr<API> API::Create(int argc, char *argv[]) {
   auto &&device = device::select();
   if (!device) return nullptr;
-  return Create(argc, argv, device);
+  auto api = Create(argc, argv, device);
+  if (api && checkFirmwareVersion(api))
+    return api;
+  return nullptr;
 }
 
 std::shared_ptr<API> API::Create(
@@ -260,7 +265,7 @@ std::shared_ptr<API> API::Create(const std::shared_ptr<Device> &device) {
     }
   } else {
     LOG(ERROR) <<"no device!";
-    api = std::make_shared<API>(device, CalibrationModel::UNKNOW);
+    return nullptr;
   }
   return api;
 }
@@ -323,6 +328,20 @@ std::shared_ptr<DeviceInfo> API::GetInfo() const {
 }
 
 std::string API::GetInfo(const Info &info) const {
+  if (info == Info::SDK_VERSION) {
+    std::string info_path =
+        utils::get_sdk_install_dir();
+    info_path.append(MYNTEYE_OS_SEP "share" \
+        MYNTEYE_OS_SEP "mynteye" MYNTEYE_OS_SEP "build.info");
+
+    cv::FileStorage fs(info_path, cv::FileStorage::READ);
+    if (!fs.isOpened()) {
+      LOG(WARNING) << "build.info not found: " << info_path;
+      return "null";
+    }
+    return fs["MYNTEYE_VERSION"];
+  }
+
   return device_->GetInfo(info);
 }
 
@@ -377,10 +396,15 @@ void API::SetStreamCallback(const Stream &stream, stream_callback_t callback) {
 }
 
 void API::SetMotionCallback(motion_callback_t callback) {
-  static auto callback_ = callback;
+  if (correspondence_) {
+    correspondence_->SetMotionCallback(callback);
+    return;
+  }
+  callback_ = callback;
   if (callback_) {
-    device_->SetMotionCallback(
-        [](const device::MotionData &data) { callback_({data.imu}); }, true);
+    device_->SetMotionCallback([this](const device::MotionData &data) {
+      callback_({data.imu});
+    }, true);
   } else {
     device_->SetMotionCallback(nullptr);
   }
@@ -435,7 +459,11 @@ void API::Stop(const Source &source) {
 }
 
 void API::WaitForStreams() {
-  synthetic_->WaitForStreams();
+  if (correspondence_) {
+    correspondence_->WaitForStreams();
+  } else {
+    synthetic_->WaitForStreams();
+  }
 }
 
 void API::EnableStreamData(const Stream &stream) {
@@ -446,24 +474,69 @@ void API::DisableStreamData(const Stream &stream) {
   synthetic_->DisableStreamData(stream);
 }
 
+void API::EnableStreamData(
+    const Stream &stream, stream_switch_callback_t callback,
+    bool try_tag) {
+  synthetic_->EnableStreamData(stream, callback, try_tag);
+}
+void API::DisableStreamData(
+    const Stream &stream, stream_switch_callback_t callback,
+    bool try_tag) {
+  synthetic_->DisableStreamData(stream, callback, try_tag);
+}
+
 api::StreamData API::GetStreamData(const Stream &stream) {
-  return synthetic_->GetStreamData(stream);
+  if (correspondence_ && correspondence_->Watch(stream)) {
+    return correspondence_->GetStreamData(stream);
+  } else {
+    return synthetic_->GetStreamData(stream);
+  }
 }
 
 std::vector<api::StreamData> API::GetStreamDatas(const Stream &stream) {
-  return synthetic_->GetStreamDatas(stream);
+  if (correspondence_ && correspondence_->Watch(stream)) {
+    return correspondence_->GetStreamDatas(stream);
+  } else {
+    return synthetic_->GetStreamDatas(stream);
+  }
 }
 
 void API::EnableMotionDatas(std::size_t max_size) {
+  if (correspondence_) return;  // not cache them
   device_->EnableMotionDatas(max_size);
 }
 
 std::vector<api::MotionData> API::GetMotionDatas() {
-  std::vector<api::MotionData> datas;
-  for (auto &&data : device_->GetMotionDatas()) {
-    datas.push_back({data.imu});
+  if (correspondence_) {
+    return correspondence_->GetMotionDatas();
+  } else {
+    std::vector<api::MotionData> datas;
+    for (auto &&data : device_->GetMotionDatas()) {
+      datas.push_back({data.imu});
+    }
+    return datas;
   }
-  return datas;
+}
+
+void API::EnableTimestampCorrespondence(const Stream &stream) {
+  if (correspondence_ == nullptr) {
+    correspondence_.reset(new Correspondence(device_, stream));
+    {
+      device_->DisableMotionDatas();
+      if (callback_) {
+        correspondence_->SetMotionCallback(callback_);
+        callback_ = nullptr;
+      }
+    }
+    using namespace std::placeholders;  // NOLINT
+    device_->SetMotionCallback(
+        std::bind(&Correspondence::OnMotionDataCallback,
+            correspondence_.get(), _1),
+        true);
+    synthetic_->SetStreamDataListener(
+        std::bind(&Correspondence::OnStreamDataCallback,
+            correspondence_.get(), _1, _2));
+  }
 }
 
 void API::EnablePlugin(const std::string &path) {

@@ -42,6 +42,7 @@ class Motions {
   void StartMotionTracking();
   void StopMotionTracking();
 
+  void DisableMotionDatas();
   void EnableMotionDatas(std::size_t max_size);
   motion_datas_t GetMotionDatas();
 
@@ -52,7 +53,7 @@ class Motions {
 
   motion_datas_t motion_datas_;
   bool motion_datas_enabled_;
-  std::size_t motion_datas_max_size;
+  std::size_t motion_datas_max_size_;
 
   bool is_imu_tracking;
 

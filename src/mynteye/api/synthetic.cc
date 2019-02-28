@@ -74,6 +74,44 @@ void process_childs(
   }
 }
 
+// ObjMat/ObjMat2 > api::StreamData
+
+api::StreamData obj_data_first(const ObjMat2 *obj) {
+  return {obj->first_data, obj->first, nullptr, obj->first_id};
+}
+
+api::StreamData obj_data_second(const ObjMat2 *obj) {
+  return {obj->second_data, obj->second, nullptr, obj->second_id};
+}
+
+api::StreamData obj_data(const ObjMat *obj) {
+  return {obj->data, obj->value, nullptr, obj->id};
+}
+
+api::StreamData obj_data_first(const std::shared_ptr<ObjMat2> &obj) {
+  return {obj->first_data, obj->first, nullptr, obj->first_id};
+}
+
+api::StreamData obj_data_second(const std::shared_ptr<ObjMat2> &obj) {
+  return {obj->second_data, obj->second, nullptr, obj->second_id};
+}
+
+api::StreamData obj_data(const std::shared_ptr<ObjMat> &obj) {
+  return {obj->data, obj->value, nullptr, obj->id};
+}
+
+// api::StreamData > ObjMat/ObjMat2
+
+ObjMat data_obj(const api::StreamData &data) {
+  return ObjMat{data.frame, data.frame_id, data.img};
+}
+
+ObjMat2 data_obj(const api::StreamData &first, const api::StreamData &second) {
+  return ObjMat2{
+      first.frame, first.frame_id, first.img,
+      second.frame, second.frame_id, second.img};
+}
+
 }  // namespace
 
 void Synthetic::InitCalibInfo() {
@@ -105,7 +143,8 @@ Synthetic::Synthetic(API *api, CalibrationModel calib_model)
     : api_(api),
       plugin_(nullptr),
       calib_model_(calib_model),
-      calib_default_tag_(false) {
+      calib_default_tag_(false),
+      stream_data_listener_(nullptr) {
   VLOG(2) << __func__;
   CHECK_NOTNULL(api_);
   InitCalibInfo();
@@ -119,6 +158,10 @@ Synthetic::~Synthetic() {
     processor_->Deactivate(true);
     processor_ = nullptr;
   }
+}
+
+void Synthetic::SetStreamDataListener(stream_data_listener_t listener) {
+  stream_data_listener_ = listener;
 }
 
 void Synthetic::NotifyImageParamsChanged() {
@@ -195,27 +238,6 @@ bool Synthetic::checkControlDateWithStream(const Stream& stream) const {
   return false;
 }
 
-void Synthetic::EnableStreamData(const Stream &stream) {
-  // Activate processors of synthetic stream
-  auto processor = getProcessorWithStream(stream);
-  iterate_processor_CtoP_before(processor,
-      [](std::shared_ptr<Processor> proce){
-        auto streams = proce->getTargetStreams();
-        int act_tag = 0;
-        for (unsigned int i = 0; i < proce->getStreamsSum() ; i++) {
-          if (proce->target_streams_[i].enabled_mode_ == MODE_LAST) {
-            act_tag++;
-            proce->target_streams_[i].enabled_mode_ = MODE_SYNTHETIC;
-          }
-        }
-        if (act_tag > 0 && !proce->IsActivated()) {
-          // std::cout << proce->Name() << " Active now" << std::endl;
-          proce->Activate();
-        }
-      });
-}
-
-
 bool Synthetic::Supports(const Stream &stream) const {
   return checkControlDateWithStream(stream);
 }
@@ -228,16 +250,45 @@ Synthetic::mode_t Synthetic::SupportsMode(const Stream &stream) const {
   return MODE_LAST;
 }
 
-void Synthetic::DisableStreamData(const Stream &stream) {
+void Synthetic::EnableStreamData(
+    const Stream &stream, stream_switch_callback_t callback,
+    bool try_tag) {
+  // Activate processors of synthetic stream
+  auto processor = getProcessorWithStream(stream);
+  iterate_processor_CtoP_before(processor,
+      [callback, try_tag](std::shared_ptr<Processor> proce){
+        auto streams = proce->getTargetStreams();
+        int act_tag = 0;
+        for (unsigned int i = 0; i < proce->getStreamsSum() ; i++) {
+          if (proce->target_streams_[i].enabled_mode_ == MODE_LAST) {
+            callback(proce->target_streams_[i].stream);
+            if (!try_tag) {
+              act_tag++;
+              proce->target_streams_[i].enabled_mode_ = MODE_SYNTHETIC;
+            }
+          }
+        }
+        if (act_tag > 0 && !proce->IsActivated()) {
+          // std::cout << proce->Name() << " Active now" << std::endl;
+          proce->Activate();
+        }
+      });
+}
+void Synthetic::DisableStreamData(
+    const Stream &stream, stream_switch_callback_t callback,
+    bool try_tag) {
   auto processor = getProcessorWithStream(stream);
   iterate_processor_PtoC_before(processor,
-      [](std::shared_ptr<Processor> proce){
+      [callback, try_tag](std::shared_ptr<Processor> proce){
         auto streams = proce->getTargetStreams();
         int act_tag = 0;
         for (unsigned int i = 0; i < proce->getStreamsSum() ; i++) {
           if (proce->target_streams_[i].enabled_mode_ == MODE_SYNTHETIC) {
-            act_tag++;
-            proce->target_streams_[i].enabled_mode_ = MODE_LAST;
+            callback(proce->target_streams_[i].stream);
+            if (!try_tag) {
+              act_tag++;
+              proce->target_streams_[i].enabled_mode_ = MODE_LAST;
+            }
           }
         }
         if (act_tag > 0 && proce->IsActivated()) {
@@ -245,6 +296,20 @@ void Synthetic::DisableStreamData(const Stream &stream) {
           proce->Deactivate();
         }
       });
+}
+
+void Synthetic::EnableStreamData(const Stream &stream) {
+  EnableStreamData(stream, [](const Stream &stream){
+        // std::cout << stream << "enabled in callback" << std::endl;
+        MYNTEYE_UNUSED(stream);
+      }, false);
+}
+
+void Synthetic::DisableStreamData(const Stream &stream) {
+  DisableStreamData(stream, [](const Stream &stream){
+        // std::cout << stream << "disabled in callback" << std::endl;
+        MYNTEYE_UNUSED(stream);
+      }, false);
 }
 
 bool Synthetic::IsStreamDataEnabled(const Stream &stream) const {
@@ -335,7 +400,7 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
       if (out != nullptr) {
         auto &&output = Object::Cast<ObjMat>(out);
         if (output != nullptr) {
-          return {output->data, output->value, nullptr, output->id};
+          return obj_data(output);
         }
         VLOG(2) << "Rectify not ready now";
       }
@@ -349,15 +414,9 @@ api::StreamData Synthetic::GetStreamData(const Stream &stream) {
         for (auto it : streams) {
           if (it.stream == stream) {
             if (num == 1) {
-              return {output->first_data,
-                  output->first,
-                  nullptr,
-                  output->first_id};
+              return obj_data_first(output);
             } else {
-              return {output->second_data,
-                  output->second,
-                  nullptr,
-                  output->second_id};
+              return obj_data_second(output);
             }
           }
           num++;
@@ -452,66 +511,60 @@ bool Synthetic::IsStreamEnabledSynthetic(const Stream &stream) const {
 
 void Synthetic::InitProcessors() {
   std::shared_ptr<Processor> rectify_processor = nullptr;
-#ifdef WITH_CAM_MODELS
-  std::shared_ptr<RectifyProcessor> rectify_processor_imp = nullptr;
-#endif
-  cv::Mat Q;
-  if (calib_model_ ==  CalibrationModel::PINHOLE) {
-    auto &&rectify_processor_ocv =
-        std::make_shared<RectifyProcessorOCV>(intr_left_, intr_right_, extr_,
-                                              RECTIFY_PROC_PERIOD);
-    Q = rectify_processor_ocv->Q;
-    rectify_processor = rectify_processor_ocv;
-#ifdef WITH_CAM_MODELS
-  } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-    rectify_processor_imp =
-        std::make_shared<RectifyProcessor>(intr_left_, intr_right_, extr_,
-                                           RECTIFY_PROC_PERIOD);
-    rectify_processor = rectify_processor_imp;
-#endif
-  } else {
-    LOG(ERROR) << "Unknow calib model type in device: "
-              << calib_model_ << ", use default pinhole model";
-    auto &&rectify_processor_ocv =
-        std::make_shared<RectifyProcessorOCV>(intr_left_, intr_right_, extr_,
-                                              RECTIFY_PROC_PERIOD);
-    rectify_processor = rectify_processor_ocv;
-  }
+  std::shared_ptr<Processor> points_processor = nullptr;
+  std::shared_ptr<Processor> depth_processor = nullptr;
+
   auto &&disparity_processor =
       std::make_shared<DisparityProcessor>(DisparityComputingMethod::SGBM,
                                            DISPARITY_PROC_PERIOD);
   auto &&disparitynormalized_processor =
       std::make_shared<DisparityNormalizedProcessor>(
           DISPARITY_NORM_PROC_PERIOD);
-  std::shared_ptr<Processor> points_processor = nullptr;
-  if (calib_model_ ==  CalibrationModel::PINHOLE) {
+
+  auto root_processor =
+        std::make_shared<RootProcessor>(ROOT_PROC_PERIOD);
+
+  if (calib_model_ == CalibrationModel::PINHOLE) {
+    // PINHOLE
+    auto &&rectify_processor_ocv =
+        std::make_shared<RectifyProcessorOCV>(intr_left_, intr_right_, extr_,
+                                              RECTIFY_PROC_PERIOD);
+    rectify_processor = rectify_processor_ocv;
     points_processor = std::make_shared<PointsProcessorOCV>(
-        Q, POINTS_PROC_PERIOD);
+        rectify_processor_ocv->Q, POINTS_PROC_PERIOD);
+    depth_processor = std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
+
+    root_processor->AddChild(rectify_processor);
+    rectify_processor->AddChild(disparity_processor);
+    disparity_processor->AddChild(disparitynormalized_processor);
+    disparity_processor->AddChild(points_processor);
+    points_processor->AddChild(depth_processor);
 #ifdef WITH_CAM_MODELS
   } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+    // KANNALA_BRANDT
+    auto rectify_processor_imp =
+        std::make_shared<RectifyProcessor>(intr_left_, intr_right_, extr_,
+                                           RECTIFY_PROC_PERIOD);
+    rectify_processor = rectify_processor_imp;
     points_processor = std::make_shared<PointsProcessor>(
         rectify_processor_imp -> getCalibInfoPair(),
         POINTS_PROC_PERIOD);
-#endif
-  } else {
-    points_processor = std::make_shared<PointsProcessorOCV>(
-        Q, POINTS_PROC_PERIOD);
-  }
-  std::shared_ptr<Processor> depth_processor = nullptr;
-  if (calib_model_ ==  CalibrationModel::PINHOLE) {
-    depth_processor = std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
-#ifdef WITH_CAM_MODELS
-  } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
     depth_processor = std::make_shared<DepthProcessor>(
         rectify_processor_imp -> getCalibInfoPair(),
         DEPTH_PROC_PERIOD);
+
+    root_processor->AddChild(rectify_processor);
+    rectify_processor->AddChild(disparity_processor);
+    disparity_processor->AddChild(disparitynormalized_processor);
+    disparity_processor->AddChild(depth_processor);
+    depth_processor->AddChild(points_processor);
 #endif
   } else {
-    depth_processor = std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
+    // UNKNOW
+    LOG(ERROR) << "Unknow calib model type in device: "
+               << calib_model_;
+    return;
   }
-  auto root_processor =
-        std::make_shared<RootProcessor>(ROOT_PROC_PERIOD);
-  root_processor->AddChild(rectify_processor);
 
   rectify_processor->addTargetStreams(
       {Stream::LEFT_RECTIFIED, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
@@ -559,30 +612,14 @@ void Synthetic::InitProcessors() {
   depth_processor->SetPostProcessCallback(
       std::bind(&Synthetic::OnDepthPostProcess, this, _1));
 
-  if (calib_model_ == CalibrationModel::PINHOLE) {
-    // PINHOLE
-    rectify_processor->AddChild(disparity_processor);
-    disparity_processor->AddChild(disparitynormalized_processor);
-    disparity_processor->AddChild(points_processor);
-    points_processor->AddChild(depth_processor);
-  } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-    // KANNALA_BRANDT
-    rectify_processor->AddChild(disparity_processor);
-    disparity_processor->AddChild(disparitynormalized_processor);
-    disparity_processor->AddChild(depth_processor);
-    depth_processor->AddChild(points_processor);
-  } else {
-    // UNKNOW
-    LOG(ERROR) << "Unknow calib model type in device: "
-               << calib_model_;
-  }
-
-  processor_ = rectify_processor;
+  processor_ = root_processor;
 }
 
 void Synthetic::ProcessNativeStream(
     const Stream &stream, const api::StreamData &data) {
+  NotifyStreamData(stream, data);
   if (stream == Stream::LEFT || stream == Stream::RIGHT) {
+    std::unique_lock<std::mutex> lk(mtx_left_right_ready_);
     static api::StreamData left_data, right_data;
     if (stream == Stream::LEFT) {
       left_data = data;
@@ -603,9 +640,7 @@ void Synthetic::ProcessNativeStream(
                   << calib_model_ << ", use default pinhole model";
         processor = find_processor<RectifyProcessorOCV>(processor_);
       }
-      processor->Process(ObjMat2{
-          left_data.frame, left_data.frame_id, left_data.img,
-          right_data.frame, right_data.frame_id, right_data.img});
+      processor->Process(data_obj(left_data, right_data));
     }
     return;
   }
@@ -627,34 +662,28 @@ void Synthetic::ProcessNativeStream(
         name = RectifyProcessor::NAME;
 #endif
       }
-      process_childs(
-          processor_, name, ObjMat2{
-              left_rect_data.frame, left_rect_data.frame_id, left_rect_data.img,
-              right_rect_data.frame, right_rect_data.frame_id,
-              right_rect_data.img});
+      process_childs(processor_, name,
+          data_obj(left_rect_data, right_rect_data));
     }
     return;
   }
 
   switch (stream) {
     case Stream::DISPARITY: {
-      process_childs(processor_, DisparityProcessor::NAME,
-          ObjMat{data.frame, data.frame_id, data.img});
+      process_childs(processor_, DisparityProcessor::NAME, data_obj(data));
     } break;
     case Stream::DISPARITY_NORMALIZED: {
       process_childs(processor_, DisparityNormalizedProcessor::NAME,
-          ObjMat{data.frame, data.frame_id, data.img});
+          data_obj(data));
     } break;
     case Stream::POINTS: {
       if (calib_model_ == CalibrationModel::PINHOLE) {
         // PINHOLE
-        process_childs(processor_, PointsProcessorOCV::NAME,
-            ObjMat{data.frame, data.frame_id, data.img});
+        process_childs(processor_, PointsProcessorOCV::NAME, data_obj(data));
 #ifdef WITH_CAM_MODELS
       } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
         // KANNALA_BRANDT
-        process_childs(processor_, PointsProcessor::NAME,
-            ObjMat{data.frame, data.frame_id, data.img});
+        process_childs(processor_, PointsProcessor::NAME, data_obj(data));
 #endif
       } else {
         // UNKNOW
@@ -665,13 +694,11 @@ void Synthetic::ProcessNativeStream(
     case Stream::DEPTH: {
       if (calib_model_ == CalibrationModel::PINHOLE) {
         // PINHOLE
-        process_childs(processor_, DepthProcessorOCV::NAME,
-            ObjMat{data.frame, data.frame_id, data.img});
+        process_childs(processor_, DepthProcessorOCV::NAME, data_obj(data));
 #ifdef WITH_CAM_MODELS
       } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
         // KANNALA_BRANDT
-        process_childs(processor_, DepthProcessor::NAME,
-            ObjMat{data.frame, data.frame_id, data.img});
+        process_childs(processor_, DepthProcessor::NAME, data_obj(data));
 #endif
       } else {
         // UNKNOW
@@ -737,51 +764,51 @@ bool Synthetic::OnDepthProcess(
 
 void Synthetic::OnRectifyPostProcess(Object *const out) {
   const ObjMat2 *output = Object::Cast<ObjMat2>(out);
+  NotifyStreamData(Stream::LEFT_RECTIFIED, obj_data_first(output));
+  NotifyStreamData(Stream::RIGHT_RECTIFIED, obj_data_second(output));
   if (HasStreamCallback(Stream::LEFT_RECTIFIED)) {
     auto data = getControlDateWithStream(Stream::LEFT_RECTIFIED);
-    data.stream_callback(
-        {output->first_data, output->first, nullptr, output->first_id});
+    data.stream_callback(obj_data_first(output));
   }
   if (HasStreamCallback(Stream::RIGHT_RECTIFIED)) {
     auto data = getControlDateWithStream(Stream::RIGHT_RECTIFIED);
-    data.stream_callback(
-        {output->second_data, output->second, nullptr, output->second_id});
+    data.stream_callback(obj_data_second(output));
   }
 }
 
 void Synthetic::OnDisparityPostProcess(Object *const out) {
   const ObjMat *output = Object::Cast<ObjMat>(out);
+  NotifyStreamData(Stream::DISPARITY, obj_data(output));
   if (HasStreamCallback(Stream::DISPARITY)) {
     auto data = getControlDateWithStream(Stream::DISPARITY);
-    data.stream_callback(
-        {output->data, output->value, nullptr, output->id});
+    data.stream_callback(obj_data(output));
   }
 }
 
 void Synthetic::OnDisparityNormalizedPostProcess(Object *const out) {
   const ObjMat *output = Object::Cast<ObjMat>(out);
+  NotifyStreamData(Stream::DISPARITY_NORMALIZED, obj_data(output));
   if (HasStreamCallback(Stream::DISPARITY_NORMALIZED)) {
     auto data = getControlDateWithStream(Stream::DISPARITY_NORMALIZED);
-    data.stream_callback(
-        {output->data, output->value, nullptr, output->id});
+    data.stream_callback(obj_data(output));
   }
 }
 
 void Synthetic::OnPointsPostProcess(Object *const out) {
   const ObjMat *output = Object::Cast<ObjMat>(out);
+  NotifyStreamData(Stream::POINTS, obj_data(output));
   if (HasStreamCallback(Stream::POINTS)) {
     auto data = getControlDateWithStream(Stream::POINTS);
-    data.stream_callback(
-        {output->data, output->value, nullptr, output->id});
+    data.stream_callback(obj_data(output));
   }
 }
 
 void Synthetic::OnDepthPostProcess(Object *const out) {
   const ObjMat *output = Object::Cast<ObjMat>(out);
+  NotifyStreamData(Stream::DEPTH, obj_data(output));
   if (HasStreamCallback(Stream::DEPTH)) {
     auto data = getControlDateWithStream(Stream::DEPTH);
-    data.stream_callback(
-        {output->data, output->value, nullptr, output->id});
+    data.stream_callback(obj_data(output));
   }
 }
 
@@ -794,6 +821,13 @@ void Synthetic::SetDisparityComputingMethodType(
     return;
   }
   LOG(ERROR) << "ERROR: no suited processor for disparity computing.";
+}
+
+void Synthetic::NotifyStreamData(
+    const Stream &stream, const api::StreamData &data) {
+  if (stream_data_listener_) {
+    stream_data_listener_(stream, data);
+  }
 }
 
 MYNTEYE_END_NAMESPACE

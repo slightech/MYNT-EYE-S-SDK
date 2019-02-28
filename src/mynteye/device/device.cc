@@ -234,6 +234,10 @@ std::string Device::GetInfo(const Info &info) const {
       return device_info_->imu_type.to_string();
     case Info::NOMINAL_BASELINE:
       return std::to_string(device_info_->nominal_baseline);
+    case Info::AUXILIARY_CHIP_VERSION:
+      return device_info_->auxiliary_chip_version.to_string();
+    case Info::ISP_VERSION:
+      return device_info_->isp_version.to_string();
     default:
       LOG(WARNING) << "Unknown device info";
       return "";
@@ -349,6 +353,9 @@ OptionInfo Device::GetOptionInfo(const Option &option) const {
 
 std::int32_t Device::GetOptionValue(const Option &option) const {
   if (!Supports(option)) {
+    if (option == Option::FRAME_RATE) {
+      return GetStreamRequest().fps;
+    }
     LOG(WARNING) << "Unsupported option: " << option;
     return -1;
   }
@@ -464,6 +471,11 @@ std::vector<device::StreamData> Device::GetStreamDatas(const Stream &stream) {
   CheckSupports(this, stream);
   std::lock_guard<std::mutex> _(mtx_streams_);
   return streams_->GetStreamDatas(stream);
+}
+
+void Device::DisableMotionDatas() {
+  CHECK_NOTNULL(motions_);
+  motions_->DisableMotionDatas();
 }
 
 void Device::EnableMotionDatas() {

@@ -66,7 +66,10 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
 
         std::lock_guard<std::mutex> _(mtx_datas_);
         motion_data_t data = {imu};
-        if (motion_datas_enabled_) {
+        if (motion_datas_enabled_ && motion_datas_max_size_ > 0) {
+          if (motion_datas_.size() >= motion_datas_max_size_) {
+            motion_datas_.erase(motion_datas_.begin());
+          }
           motion_datas_.push_back(data);
         }
 
@@ -98,13 +101,21 @@ void Motions::StopMotionTracking() {
   }
 }
 
+void Motions::DisableMotionDatas() {
+  std::lock_guard<std::mutex> _(mtx_datas_);
+  motion_datas_enabled_ = false;
+  motion_datas_max_size_ = 0;
+  motion_datas_.clear();
+}
+
 void Motions::EnableMotionDatas(std::size_t max_size) {
   if (max_size <= 0) {
     LOG(WARNING) << "Could not enable motion datas with max_size <= 0";
     return;
   }
+  std::lock_guard<std::mutex> _(mtx_datas_);
   motion_datas_enabled_ = true;
-  motion_datas_max_size = max_size;
+  motion_datas_max_size_ = max_size;
 }
 
 Motions::motion_datas_t Motions::GetMotionDatas() {
