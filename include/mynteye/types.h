@@ -126,6 +126,8 @@ enum class Info : std::uint8_t {
   AUXILIARY_CHIP_VERSION,
   /** Isp version */
   ISP_VERSION,
+  /** SDK version*/
+  SDK_VERSION,
   /** Last guard */
   LAST
 };
