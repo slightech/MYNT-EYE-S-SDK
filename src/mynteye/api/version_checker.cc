@@ -44,9 +44,11 @@ static const firmware_version_match_table_unit FSVM_TABLE[] ={
   {"MYNT-EYE-S1030",    ">2.3.0",         "<2.2.0",   ERRO_DESCRIPTION_F},
   {"MYNT-EYE-S1030",    "<2.3.1",         "<2.2.0",   WARN_DESCRIPTION_S},
 /** S2100 */
-  {"MYNT-EYE-S2100",    ">0.0.0",         "1.0",      PASS_DESCRIPTION},
+  {"MYNT-EYE-S2100",    ">2.3.0",         "1.0",      PASS_DESCRIPTION},
+  {"MYNT-EYE-S2100",    "<2.3.1",         "1.0",      ERRO_DESCRIPTION_S},
 /** S210A */
-  {"MYNT-EYE-S210A",    ">0.0.0",         "1.0",      PASS_DESCRIPTION},
+  {"MYNT-EYE-S210A",    ">2.3.0",         "1.0",      PASS_DESCRIPTION},
+  {"MYNT-EYE-S210A",    "<2.3.1",         "1.0",      ERRO_DESCRIPTION_S},
 };
 
 void getVersion(const std::string &str, char *version) {
@@ -99,12 +101,8 @@ STATUS_UNIT checkUnit(const std::string& sdkv,
     if (condition.device_type == devn &&
         conditionMatch(condition.sdk_version, sdkv) &&
         conditionMatch(condition.firmware_version, firmv)) {
-      if (condition.status == ERRO_DESCRIPTION_F) {
-        return ST_ERRO_F;
-      }
-      if (condition.status == ERRO_DESCRIPTION_S) {
-        return ST_ERRO_S;
-      }
+      if (condition.status == ERRO_DESCRIPTION_F) return ST_ERRO_F;
+      if (condition.status == ERRO_DESCRIPTION_S) return ST_ERRO_S;
       if (condition.status == WARN_DESCRIPTION_F ||
           condition.status == WARN_DESCRIPTION_S) {
         LOG(WARNING) << condition.status;
