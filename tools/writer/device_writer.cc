@@ -52,7 +52,11 @@ bool DeviceWriter::WriteDeviceInfo(const dev_info_t &info) {
               << ", spec_version: " << dev_info->spec_version.to_string()
               << ", lens_type: " << dev_info->lens_type.to_string()
               << ", imu_type: " << dev_info->imu_type.to_string()
-              << ", nominal_baseline: " << dev_info->nominal_baseline << "}";
+              << ", nominal_baseline: " << dev_info->nominal_baseline
+              << ", auxiliary_chip_version: "
+              << dev_info->auxiliary_chip_version.to_string()
+              << ", isp_version: "
+              << dev_info->isp_version.to_string()<< "}";
     return true;
   } else {
     LOG(ERROR) << "Write device info failed";
@@ -215,6 +219,8 @@ bool DeviceWriter::SaveDeviceInfo(
   fs << "lens_type" << info.lens_type.to_string();
   fs << "imu_type" << info.imu_type.to_string();
   fs << "nominal_baseline" << info.nominal_baseline;
+  fs << "auxiliary_chip_version" << info.auxiliary_chip_version.to_string();
+  fs << "isp_version" << info.isp_version.to_string();
   // save other infos according to spec_version
   fs.release();
   return true;

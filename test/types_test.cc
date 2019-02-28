@@ -53,6 +53,8 @@ TEST(Info, VerifyToString) {
   EXPECT_STREQ("Info::LENS_TYPE", to_string(Info::LENS_TYPE));
   EXPECT_STREQ("Info::IMU_TYPE", to_string(Info::IMU_TYPE));
   EXPECT_STREQ("Info::NOMINAL_BASELINE", to_string(Info::NOMINAL_BASELINE));
+  EXPECT_STREQ("Info::AUXILIARY_CHIP_VERSION", to_string(Info::AUXILIARY_CHIP_VERSION));
+  EXPECT_STREQ("Info::ISP_VERSION", to_string(Info::ISP_VERSION));
 }
 
 TEST(Option, VerifyToString) {
