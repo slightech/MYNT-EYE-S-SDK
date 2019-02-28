@@ -511,66 +511,60 @@ bool Synthetic::IsStreamEnabledSynthetic(const Stream &stream) const {
 
 void Synthetic::InitProcessors() {
   std::shared_ptr<Processor> rectify_processor = nullptr;
-#ifdef WITH_CAM_MODELS
-  std::shared_ptr<RectifyProcessor> rectify_processor_imp = nullptr;
-#endif
-  cv::Mat Q;
-  if (calib_model_ ==  CalibrationModel::PINHOLE) {
-    auto &&rectify_processor_ocv =
-        std::make_shared<RectifyProcessorOCV>(intr_left_, intr_right_, extr_,
-                                              RECTIFY_PROC_PERIOD);
-    Q = rectify_processor_ocv->Q;
-    rectify_processor = rectify_processor_ocv;
-#ifdef WITH_CAM_MODELS
-  } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-    rectify_processor_imp =
-        std::make_shared<RectifyProcessor>(intr_left_, intr_right_, extr_,
-                                           RECTIFY_PROC_PERIOD);
-    rectify_processor = rectify_processor_imp;
-#endif
-  } else {
-    LOG(ERROR) << "Unknow calib model type in device: "
-              << calib_model_ << ", use default pinhole model";
-    auto &&rectify_processor_ocv =
-        std::make_shared<RectifyProcessorOCV>(intr_left_, intr_right_, extr_,
-                                              RECTIFY_PROC_PERIOD);
-    rectify_processor = rectify_processor_ocv;
-  }
+  std::shared_ptr<Processor> points_processor = nullptr;
+  std::shared_ptr<Processor> depth_processor = nullptr;
+
   auto &&disparity_processor =
       std::make_shared<DisparityProcessor>(DisparityComputingMethod::SGBM,
                                            DISPARITY_PROC_PERIOD);
   auto &&disparitynormalized_processor =
       std::make_shared<DisparityNormalizedProcessor>(
           DISPARITY_NORM_PROC_PERIOD);
-  std::shared_ptr<Processor> points_processor = nullptr;
-  if (calib_model_ ==  CalibrationModel::PINHOLE) {
+
+  auto root_processor =
+        std::make_shared<RootProcessor>(ROOT_PROC_PERIOD);
+
+  if (calib_model_ == CalibrationModel::PINHOLE) {
+    // PINHOLE
+    auto &&rectify_processor_ocv =
+        std::make_shared<RectifyProcessorOCV>(intr_left_, intr_right_, extr_,
+                                              RECTIFY_PROC_PERIOD);
+    rectify_processor = rectify_processor_ocv;
     points_processor = std::make_shared<PointsProcessorOCV>(
-        Q, POINTS_PROC_PERIOD);
+        rectify_processor_ocv->Q, POINTS_PROC_PERIOD);
+    depth_processor = std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
+
+    root_processor->AddChild(rectify_processor);
+    rectify_processor->AddChild(disparity_processor);
+    disparity_processor->AddChild(disparitynormalized_processor);
+    disparity_processor->AddChild(points_processor);
+    points_processor->AddChild(depth_processor);
 #ifdef WITH_CAM_MODELS
   } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+    // KANNALA_BRANDT
+    auto rectify_processor_imp =
+        std::make_shared<RectifyProcessor>(intr_left_, intr_right_, extr_,
+                                           RECTIFY_PROC_PERIOD);
+    rectify_processor = rectify_processor_imp;
     points_processor = std::make_shared<PointsProcessor>(
         rectify_processor_imp -> getCalibInfoPair(),
         POINTS_PROC_PERIOD);
-#endif
-  } else {
-    points_processor = std::make_shared<PointsProcessorOCV>(
-        Q, POINTS_PROC_PERIOD);
-  }
-  std::shared_ptr<Processor> depth_processor = nullptr;
-  if (calib_model_ ==  CalibrationModel::PINHOLE) {
-    depth_processor = std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
-#ifdef WITH_CAM_MODELS
-  } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
     depth_processor = std::make_shared<DepthProcessor>(
         rectify_processor_imp -> getCalibInfoPair(),
         DEPTH_PROC_PERIOD);
+
+    root_processor->AddChild(rectify_processor);
+    rectify_processor->AddChild(disparity_processor);
+    disparity_processor->AddChild(disparitynormalized_processor);
+    disparity_processor->AddChild(depth_processor);
+    depth_processor->AddChild(points_processor);
 #endif
   } else {
-    depth_processor = std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
+    // UNKNOW
+    LOG(ERROR) << "Unknow calib model type in device: "
+               << calib_model_;
+    return;
   }
-  auto root_processor =
-        std::make_shared<RootProcessor>(ROOT_PROC_PERIOD);
-  root_processor->AddChild(rectify_processor);
 
   rectify_processor->addTargetStreams(
       {Stream::LEFT_RECTIFIED, Mode::MODE_LAST, Mode::MODE_LAST, nullptr});
@@ -618,25 +612,7 @@ void Synthetic::InitProcessors() {
   depth_processor->SetPostProcessCallback(
       std::bind(&Synthetic::OnDepthPostProcess, this, _1));
 
-  if (calib_model_ == CalibrationModel::PINHOLE) {
-    // PINHOLE
-    rectify_processor->AddChild(disparity_processor);
-    disparity_processor->AddChild(disparitynormalized_processor);
-    disparity_processor->AddChild(points_processor);
-    points_processor->AddChild(depth_processor);
-  } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
-    // KANNALA_BRANDT
-    rectify_processor->AddChild(disparity_processor);
-    disparity_processor->AddChild(disparitynormalized_processor);
-    disparity_processor->AddChild(depth_processor);
-    depth_processor->AddChild(points_processor);
-  } else {
-    // UNKNOW
-    LOG(ERROR) << "Unknow calib model type in device: "
-               << calib_model_;
-  }
-
-  processor_ = rectify_processor;
+  processor_ = root_processor;
 }
 
 void Synthetic::ProcessNativeStream(

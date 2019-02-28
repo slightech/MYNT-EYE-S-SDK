@@ -99,12 +99,8 @@ STATUS_UNIT checkUnit(const std::string& sdkv,
     if (condition.device_type == devn &&
         conditionMatch(condition.sdk_version, sdkv) &&
         conditionMatch(condition.firmware_version, firmv)) {
-      if (condition.status == ERRO_DESCRIPTION_F) {
-        return ST_ERRO_F;
-      }
-      if (condition.status == ERRO_DESCRIPTION_S) {
-        return ST_ERRO_S;
-      }
+      if (condition.status == ERRO_DESCRIPTION_F) return ST_ERRO_F;
+      if (condition.status == ERRO_DESCRIPTION_S) return ST_ERRO_S;
       if (condition.status == WARN_DESCRIPTION_F ||
           condition.status == WARN_DESCRIPTION_S) {
         LOG(WARNING) << condition.status;
