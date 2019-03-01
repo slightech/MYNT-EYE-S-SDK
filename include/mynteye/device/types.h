@@ -162,6 +162,8 @@ struct MYNTEYE_API DeviceInfo {
   Type lens_type;
   Type imu_type;
   std::uint16_t nominal_baseline;
+  Version auxiliary_chip_version;
+  Version isp_version;
 };
 
 #undef MYNTEYE_PROPERTY

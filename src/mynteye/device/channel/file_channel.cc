@@ -32,6 +32,7 @@ std::size_t FileChannel::GetDeviceInfoFromData(
     const std::uint8_t *data, const std::uint16_t &data_size,
     device_info_t *info) {
   auto n = dev_info_parser_->GetFromData(data, data_size, info);
+  LOG(INFO) << "GetDeviceInfoFromData:data_size : " << data_size;
   auto spec_version = info->spec_version;
   img_params_parser_->SetSpecVersion(spec_version);
   imu_params_parser_->SetSpecVersion(spec_version);
@@ -113,6 +114,22 @@ std::size_t DeviceInfoParser::GetFromData(
   info->nominal_baseline = bytes::_from_data<std::uint16_t>(data + i);
   i += 2;
 
+  if (info->spec_version >= Version(1, 2)) {
+    // auxiliary_chip_version, 2
+    info->auxiliary_chip_version.set_major(data[i]);
+    info->auxiliary_chip_version.set_minor(data[i + 1]);
+    i += 2;
+    // isp_version, 2
+    info->isp_version.set_major(data[i]);
+    info->isp_version.set_minor(data[i + 1]);
+    i += 2;
+  } else {
+    info->auxiliary_chip_version.set_major(0);
+    info->auxiliary_chip_version.set_minor(0);
+    info->isp_version.set_major(0);
+    info->isp_version.set_minor(0);
+  }
+
   // get other infos according to spec_version
 
   MYNTEYE_UNUSED(data_size)
@@ -155,6 +172,17 @@ std::size_t DeviceInfoParser::SetToData(
   bytes::_to_data(info->nominal_baseline, data + i);
   i += 2;
 
+  if (info->spec_version >= Version(1, 2)) {
+    // auxiliary_chip_version, 2
+    data[i] = info->auxiliary_chip_version.major();
+    data[i + 1] = info->auxiliary_chip_version.minor();
+    i += 2;
+    // isp_version, 2
+    data[i] = info->isp_version.major();
+    data[i + 1] = info->isp_version.minor();
+    i += 2;
+  }
+
   // set other infos according to spec_version
 
   // others
@@ -181,7 +209,7 @@ std::size_t ImgParamsParser::GetFromData(
     return GetFromData_v1_0(data, data_size, img_params);
   }
   // s210a old params
-  if (spec_version_ == Version(1, 1) && data_size == 404) {
+  if (spec_version_ >= Version(1, 1) && data_size == 404) {
     return GetFromData_v1_1(data, data_size, img_params);
   }
   // get img params with new version format
@@ -406,7 +434,7 @@ std::size_t ImuParamsParser::GetFromData(
     return GetFromData_old(data, data_size, imu_params);
   }
   // s210a old params
-  if (spec_version_ == Version(1, 1) && data_size == 384) {
+  if (spec_version_ >= Version(1, 1) && data_size == 384) {
     return GetFromData_old(data, data_size, imu_params);
   }
   // get imu params with new version format

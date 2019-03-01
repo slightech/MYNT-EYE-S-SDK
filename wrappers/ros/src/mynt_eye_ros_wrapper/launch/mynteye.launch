@@ -153,7 +153,7 @@
   <!-- <arg name="standard2/ir_control" default="0" /> -->
 
   <!-- standard2/accel_range range: [6,48] -->
-  <arg name="standard2/accel_range" default="-1" />
+  <arg name="standard2/accel_range" default="24" />
   <!-- <arg name="standard2/accel_range" default="6" /> -->
 
   <!-- standard2/gyro_range range: [250,4000] -->

@@ -407,6 +407,12 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       case Request::NOMINAL_BASELINE:
         res.value = api_->GetInfo(Info::NOMINAL_BASELINE);
         break;
+      case Request::AUXILIARY_CHIP_VERSION:
+        res.value = api_->GetInfo(Info::AUXILIARY_CHIP_VERSION);
+        break;
+      case Request::ISP_VERSION:
+        res.value = api_->GetInfo(Info::ISP_VERSION);
+        break;
       case Request::IMG_INTRINSICS:
       {
         auto intri_left = api_->GetIntrinsicsBase(Stream::LEFT);

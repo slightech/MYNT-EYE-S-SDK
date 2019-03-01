@@ -460,6 +460,7 @@ bool Channels::GetFiles(
     while (i < end) {
       std::uint8_t file_id = *(data + i);
       std::uint16_t file_size = bytes::_from_data<std::uint16_t>(data + i + 1);
+      LOG(INFO) << "GetFiles:data_size : " << file_size;
       VLOG(2) << "GetFiles id: " << static_cast<int>(file_id)
               << ", size: " << file_size;
       i += 3;
