@@ -28,16 +28,42 @@ class RootProcessor : public Processor {
  public:
   static const char NAME[];
 
-  explicit RootProcessor(std::int32_t proc_period = 0);
+  explicit RootProcessor(std::shared_ptr<Device> device,
+      std::int32_t proc_period = 0);
   virtual ~RootProcessor();
 
-  std::string Name() override;
+  virtual std::string Name();
 
+  virtual void StartVideoStreaming() = 0;
+  virtual void StopVideoStreaming() = 0;
+  virtual api::StreamData GetStreamData(const Stream &stream) = 0;
+  virtual std::vector<api::StreamData> GetStreamDatas(const Stream &stream) = 0; // NOLINT
+ protected:
+  virtual Object *OnCreateOutput() = 0;
+  virtual bool OnProcess(
+      Object *const in, Object *const out,
+      std::shared_ptr<Processor> const parent) = 0;
+  std::shared_ptr<Device> device_;
+};
+
+class s1s2Processor : public RootProcessor {
+ public:
+  explicit s1s2Processor(std::shared_ptr<Device> device,
+      std::int32_t proc_period = 0);
+  virtual ~s1s2Processor();
+  void StartVideoStreaming();
+  void StopVideoStreaming();
+  api::StreamData GetStreamData(const Stream &stream) override;
+  std::vector<api::StreamData> GetStreamDatas(const Stream &stream) override; // NOLINT
  protected:
   Object *OnCreateOutput() override;
   bool OnProcess(
       Object *const in, Object *const out,
       std::shared_ptr<Processor> const parent) override;
+ private:
+  void ProcessNativeStream(
+    const Stream &stream, const api::StreamData &data);
+  std::mutex mtx_left_right_ready_;
 };
 
 MYNTEYE_END_NAMESPACE

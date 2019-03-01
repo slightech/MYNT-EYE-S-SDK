@@ -66,6 +66,10 @@ class Processor :
   /** Returns dropped or not. */
   bool Process(const Object &in);
 
+  virtual api::StreamData GetStreamData(const Stream &stream);
+
+  virtual std::vector<api::StreamData> GetStreamDatas(const Stream &stream);
+
   /**
    * Returns the last output.
    * @note Returns null if not output now.

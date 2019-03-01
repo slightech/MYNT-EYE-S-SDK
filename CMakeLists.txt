@@ -221,6 +221,7 @@ if(WITH_API)
     src/mynteye/api/config.cc
     src/mynteye/api/correspondence.cc
     src/mynteye/api/version_checker.cc
+    src/mynteye/api/data_tools.cc
   )
   if(WITH_CAM_MODELS)
     list(APPEND MYNTEYE_SRCS

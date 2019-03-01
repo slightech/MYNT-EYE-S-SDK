@@ -47,7 +47,6 @@ class Synthetic {
 
   struct stream_control_t {
     Stream stream;
-    mode_t support_mode_;
     mode_t enabled_mode_;
     stream_callback_t stream_callback;
   };
@@ -60,7 +59,6 @@ class Synthetic {
   void NotifyImageParamsChanged();
 
   bool Supports(const Stream &stream) const;
-  mode_t SupportsMode(const Stream &stream) const;
 
   void EnableStreamData(const Stream &stream);
   void DisableStreamData(const Stream &stream);
@@ -96,11 +94,8 @@ class Synthetic {
 
  private:
   void InitCalibInfo();
-  void InitStreamSupports();
 
   mode_t GetStreamEnabledMode(const Stream &stream) const;
-  bool IsStreamEnabledNative(const Stream &stream) const;
-  bool IsStreamEnabledSynthetic(const Stream &stream) const;
 
   void EnableStreamData(const Stream &stream, std::uint32_t depth);
   void DisableStreamData(const Stream &stream, std::uint32_t depth);
@@ -112,8 +107,9 @@ class Synthetic {
   template <class T>
   bool DeactivateProcessor(bool tree = false);
 
-  void ProcessNativeStream(const Stream &stream, const api::StreamData &data);
-
+  bool OnDeviceProcess(
+      Object *const in, Object *const out,
+      std::shared_ptr<Processor> const parent);
   bool OnRectifyProcess(
       Object *const in, Object *const out,
       std::shared_ptr<Processor> const parent);
@@ -130,6 +126,7 @@ class Synthetic {
       Object *const in, Object *const out,
       std::shared_ptr<Processor> const parent);
 
+  void OnDevicePostProcess(Object *const out);
   void OnRectifyPostProcess(Object *const out);
   void OnDisparityPostProcess(Object *const out);
   void OnDisparityNormalizedPostProcess(Object *const out);
@@ -158,7 +155,7 @@ class Synthetic {
 };
 
 class SyntheticProcessorPart {
- private:
+ protected:
   inline std::vector<Synthetic::stream_control_t> getTargetStreams() {
     return target_streams_;
   }
