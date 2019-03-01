@@ -1,5 +1,7 @@
 <resources>
-  <string name="app_name">mynteye</string>
+  <string name="app_name">MYNTEYE-S SDK Sample</string>
+
+  <string name="tip_open">Please \"Open\" the camera!</string>
 
   <string name="open">Open</string>
   <string name="close">Close</string>

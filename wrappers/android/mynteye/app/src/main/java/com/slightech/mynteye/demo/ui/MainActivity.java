@@ -17,6 +17,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.slightech.mynteye.DeviceUsbInfo;
 import com.slightech.mynteye.Frame;
+import com.slightech.mynteye.ImuData;
 import com.slightech.mynteye.MotionData;
 import com.slightech.mynteye.Stream;
 import com.slightech.mynteye.StreamData;
@@ -156,10 +157,10 @@ public class MainActivity extends BaseActivity implements CameraDialog.CameraDia
     }
     menu.findItem(R.id.check_imu_data).setChecked(mImuEnabled);
     boolean featuresUsable = mMynteye != null && mMynteye.isOpened();
-    menu.findItem(R.id.show_device_infos).setVisible(featuresUsable);
-    menu.findItem(R.id.show_image_params).setVisible(featuresUsable);
-    menu.findItem(R.id.show_imu_params).setVisible(featuresUsable);
-    menu.findItem(R.id.show_option_infos).setVisible(featuresUsable);
+    menu.findItem(R.id.show_device_infos).setEnabled(featuresUsable);
+    menu.findItem(R.id.show_image_params).setEnabled(featuresUsable);
+    menu.findItem(R.id.show_imu_params).setEnabled(featuresUsable);
+    menu.findItem(R.id.show_option_infos).setEnabled(featuresUsable);
     return super.onPrepareOptionsMenu(menu);
   }
 
@@ -173,7 +174,7 @@ public class MainActivity extends BaseActivity implements CameraDialog.CameraDia
         actionClose();
         return true;
       case R.id.check_imu_data:
-        mImuEnabled = !item.isChecked();
+        mImuEnabled = !mImuEnabled;
         item.setChecked(mImuEnabled);
         return true;
       case R.id.show_device_infos:
@@ -194,6 +195,7 @@ public class MainActivity extends BaseActivity implements CameraDialog.CameraDia
   }
 
   private void actionOpen() {
+    mTextView.setText("");
     if (mMynteye == null) {
       CameraDialog.showDialog(this);
     } else {
@@ -281,7 +283,13 @@ public class MainActivity extends BaseActivity implements CameraDialog.CameraDia
   @Override
   public void onMotionDataReceive(ArrayList<MotionData> datas, Handler handler) {
     if (datas.isEmpty()) return;
-    mTextView.post(() -> mTextView.setText(datas.get(0).imu().toString()));
+    ImuData data = datas.get(0).imu();
+    mTextView.post(() -> {
+      StringBuffer sb = new StringBuffer();
+      sb.append("Accel: ").append(data.getAccel());
+      sb.append("\nGyro: ").append(data.getGyro());
+      mTextView.setText(sb.toString());
+    });
   }
 
   private void toast(int textId) {

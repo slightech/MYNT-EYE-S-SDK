@@ -10,9 +10,6 @@
       android:title="@string/close"
       app:showAsAction="ifRoom|withText" />
 
-  <item android:title="Features"
-      android:enabled="false" />
-
   <item
       android:id="@+id/check_imu_data"
       android:title="@string/imu_data"
