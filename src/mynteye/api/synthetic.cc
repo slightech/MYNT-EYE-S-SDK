@@ -385,8 +385,6 @@ void Synthetic::InitProcessors() {
   processors_.push_back(points_processor);
   processors_.push_back(depth_processor);
   using namespace std::placeholders;  // NOLINT
-  root_processor->SetProcessCallback(
-      std::bind(&Synthetic::OnDeviceProcess, this, _1, _2, _3));
   rectify_processor->SetProcessCallback(
       std::bind(&Synthetic::OnRectifyProcess, this, _1, _2, _3));
   disparity_processor->SetProcessCallback(
@@ -398,8 +396,6 @@ void Synthetic::InitProcessors() {
   depth_processor->SetProcessCallback(
       std::bind(&Synthetic::OnDepthProcess, this, _1, _2, _3));
 
-  root_processor->SetPostProcessCallback(
-      std::bind(&Synthetic::OnDevicePostProcess, this, _1));
   rectify_processor->SetPostProcessCallback(
       std::bind(&Synthetic::OnRectifyPostProcess, this, _1));
   disparity_processor->SetPostProcessCallback(

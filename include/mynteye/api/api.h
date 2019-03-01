@@ -187,7 +187,10 @@ class MYNTEYE_API API {
    * Get the device info.
    */
   std::string GetInfo(const Info &info) const;
-
+  /**
+   * Get the sdk version.
+   */
+  std::string GetSDKVersion() const;
   /**
    * @deprecated Get the intrinsics (pinhole) of stream.
    */
