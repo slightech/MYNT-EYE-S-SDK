@@ -104,7 +104,7 @@ struct MYNTEYE_API MotionData {
   ImuData imu;
 
   bool operator==(const MotionData &other) const {
-    return imu.timestamp == other.imu.timestamp;           
+    return imu.timestamp == other.imu.timestamp;
   }
 };
 
@@ -247,6 +247,8 @@ BOOST_PYTHON_MODULE(mynteye_py) {
       .value("LENS_TYPE", Info::LENS_TYPE)
       .value("IMU_TYPE", Info::IMU_TYPE)
       .value("NOMINAL_BASELINE", Info::NOMINAL_BASELINE)
+      .value("AUXILIARY_CHIP_VERSION", Info::AUXILIARY_CHIP_VERSION)
+      .value("ISP_VERSION", Info::ISP_VERSION)
 #ifdef ENUM_EXPORT_VALUES
       .export_values()
 #endif

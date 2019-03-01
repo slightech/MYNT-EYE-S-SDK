@@ -279,6 +279,10 @@ class MYNTEYE_API Device {
   std::vector<device::StreamData> GetStreamDatas(const Stream &stream);
 
   /**
+   * Disable cache motion datas.
+   */
+  void DisableMotionDatas();
+  /**
    * Enable cache motion datas.
    */
   void EnableMotionDatas();

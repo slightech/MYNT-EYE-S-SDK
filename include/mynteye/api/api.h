@@ -30,6 +30,7 @@ MYNTEYE_BEGIN_NAMESPACE
 
 struct DeviceInfo;
 
+class Correspondence;
 class Device;
 class Synthetic;
 
@@ -91,6 +92,8 @@ class MYNTEYE_API API {
   using stream_callback_t = std::function<void(const api::StreamData &data)>;
   /** The api::MotionData callback. */
   using motion_callback_t = std::function<void(const api::MotionData &data)>;
+  /** The enable/disable switch callback. */
+  using stream_switch_callback_t = std::function<void(const Stream &stream)>;
 
   explicit API(std::shared_ptr<Device> device, CalibrationModel calib_model);
   virtual ~API();
@@ -184,7 +187,10 @@ class MYNTEYE_API API {
    * Get the device info.
    */
   std::string GetInfo(const Info &info) const;
-
+  /**
+   * Get the sdk version.
+   */
+  std::string GetSDKVersion() const;
   /**
    * @deprecated Get the intrinsics (pinhole) of stream.
    */
@@ -280,10 +286,30 @@ class MYNTEYE_API API {
    * still support this stream.
    */
   void EnableStreamData(const Stream &stream);
+
+  /**
+   * Enable the data of stream.
+   * callback function will call before the father processor enable.
+   * when try_tag is true, the function will do nothing except callback. 
+   */
+  void EnableStreamData(
+      const Stream &stream,
+      stream_switch_callback_t callback,
+      bool try_tag = false);
   /**
    * Disable the data of stream.
    */
   void DisableStreamData(const Stream &stream);
+
+  /**
+   * Disable the data of stream.
+   * callback function will call before the children processor disable.
+   * when try_tag is true, the function will do nothing except callback. 
+   */
+  void DisableStreamData(
+      const Stream &stream,
+      stream_switch_callback_t callback,
+      bool try_tag = false);
 
   /**
    * Get the latest data of stream.
@@ -306,6 +332,11 @@ class MYNTEYE_API API {
   std::vector<api::MotionData> GetMotionDatas();
 
   /**
+   * Enable motion datas with timestamp correspondence of some stream.
+   */
+  void EnableTimestampCorrespondence(const Stream &stream);
+
+  /**
    * Enable the plugin.
    */
   void EnablePlugin(const std::string &path);
@@ -316,6 +347,10 @@ class MYNTEYE_API API {
   std::shared_ptr<Device> device_;
 
   std::unique_ptr<Synthetic> synthetic_;
+
+  std::unique_ptr<Correspondence> correspondence_;
+
+  motion_callback_t callback_;
 
   void CheckImageParams();
 };

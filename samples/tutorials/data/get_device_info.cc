@@ -28,6 +28,9 @@ int main(int argc, char *argv[]) {
   LOG(INFO) << "Lens type: " << api->GetInfo(Info::LENS_TYPE);
   LOG(INFO) << "IMU type: " << api->GetInfo(Info::IMU_TYPE);
   LOG(INFO) << "Nominal baseline: " << api->GetInfo(Info::NOMINAL_BASELINE);
+  LOG(INFO) << "Auxiliary chip version: "
+            << api->GetInfo(Info::AUXILIARY_CHIP_VERSION);
+  LOG(INFO) << "Nominal baseline: " << api->GetInfo(Info::ISP_VERSION);
 
   return 0;
 }

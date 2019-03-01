@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.0)
 
-project(mynteye VERSION 2.3.0 LANGUAGES C CXX)
+project(mynteye VERSION 2.3.2 LANGUAGES C CXX)
 
 include(cmake/Common.cmake)
 
@@ -219,6 +219,9 @@ if(WITH_API)
     src/mynteye/api/processor/depth_processor_ocv.cc
     src/mynteye/api/processor/rectify_processor_ocv.cc
     src/mynteye/api/config.cc
+    src/mynteye/api/correspondence.cc
+    src/mynteye/api/version_checker.cc
+    src/mynteye/api/data_tools.cc
   )
   if(WITH_CAM_MODELS)
     list(APPEND MYNTEYE_SRCS

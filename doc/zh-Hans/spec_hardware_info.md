@@ -12,6 +12,8 @@
 | 镜头类型 | lens_type | - | × | √ Get/Set | 4 | vendor(2),product(2) ，未 Set 默认 0 |
 | IMU 类型 | imu_type | - | × | √ Get/Set | 4 | vendor(2),product(2) ，未 Set 默认 0 |
 | 基线长度 | nominal_baseline | - | × | √ Get/Set | 2 | 单位 mm ，未 set 默认 0 |
+| 辅助芯片版本 | auxiliary_chip_version | - | × | √ Get | 2 | major,minor |
+| ISP版本 | isp_version | - | × | √ Get | 2 | major,minor |
 
 * 描述符获取：指通用 USB 设备信息，可用工具查看。
 * 拓展通道获取：指通过拓展通道（UVC Extension Unit）问硬件获取到的信息，需要读取。

@@ -19,6 +19,7 @@
 #include "mynteye/logger.h"
 #include "mynteye/util/strings.h"
 #include "mynteye/util/times.h"
+#include "mynteye/api/data_tools.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -243,6 +244,74 @@ void Processor::Run() {
     sleep(time_beg);
   }
   VLOG(2) << Name() << " thread end";
+}
+
+api::StreamData Processor::GetStreamData(const Stream &stream) {
+  auto sum = getStreamsSum();
+  auto &&out = GetOutput();
+  Synthetic::Mode enable_mode = Synthetic::MODE_OFF;
+  auto streams = getTargetStreams();
+  for (auto it_s : streams) {
+    if (it_s.stream == stream) {
+      enable_mode = it_s.enabled_mode_;
+      break;
+    }
+  }
+  if (enable_mode == Synthetic::MODE_ON) {
+    if (sum == 1) {
+      if (out != nullptr) {
+        auto &&output = Object::Cast<ObjMat>(out);
+        if (output != nullptr) {
+          return obj_data(output);
+        }
+        VLOG(2) << "Rectify not ready now";
+      }
+    } else if (sum == 2) {
+      static std::shared_ptr<ObjMat2> output = nullptr;
+      if (out != nullptr) {
+        output = Object::Cast<ObjMat2>(out);
+      }
+      auto streams = getTargetStreams();
+      if (output != nullptr) {
+        int num = 0;
+        for (auto it : streams) {
+          if (it.stream == stream) {
+            if (num == 1) {
+              return obj_data_first(output);
+            } else {
+              return obj_data_second(output);
+            }
+          }
+          num++;
+        }
+      }
+      VLOG(2) << "Rectify not ready now";
+    } else {
+      LOG(ERROR) << "error: invalid sum!";
+    }
+    return {};  // frame.empty() == true
+  }
+  LOG(ERROR) << "Failed to get stream data of " << stream
+               << ", unsupported or disabled";
+  return {};  // frame.empty() == true
+}
+
+std::vector<api::StreamData> Processor::GetStreamDatas(const Stream &stream) {
+  Synthetic::Mode enable_mode = Synthetic::MODE_OFF;
+  auto streams = getTargetStreams();
+  for (auto it_s : streams) {
+    if (it_s.stream == stream) {
+      enable_mode = it_s.enabled_mode_;
+      break;
+    }
+  }
+  if (enable_mode == Synthetic::MODE_ON) {
+    return {GetStreamData(stream)};
+  } else {
+    LOG(ERROR) << "Failed to get stream data of " << stream
+               << ", unsupported or disabled";
+  }
+  return {};
 }
 
 void Processor::SetIdle(bool idle) {

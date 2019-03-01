@@ -12,3 +12,5 @@
 | Lens type | lens_type | - | × | √ Get/Set | 4 | vendor(2),product(2); default: 0 |
 | IMU type | imu_type | - | × | √ Get/Set | 4 | vendor(2),product(2); default: 0 |
 | Nominal baseline | nominal_baseline | - | × | √ Get/Set | 2 | unit: mm; default: 0 |
+| Auxiliary chip version | auxiliary_chip_version | - | × | √ Get | 2 | major,minor |
+| isp version | isp_version | - | × | √ Get | 2 | major,minor |

@@ -80,10 +80,6 @@ const T randomNormal(const T &sigma) {
   return x1 * w * sigma;
 }
 
-unsigned long long timeInMicroseconds(void);  // NOLINT
-
-double timeInSeconds(void);
-
 void colorDepthImage(
     cv::Mat &imgDepth, cv::Mat &imgColoredDepth, float minRange,  // NOLINT
     float maxRange);
@@ -107,8 +103,6 @@ void LLtoUTM(
 void UTMtoLL(
     double utmNorthing, double utmEasting, const std::string &utmZone,  // NOLINT
     double &latitude, double &longitude);  // NOLINT
-
-long int timestampDiff(uint64_t t1, uint64_t t2);  // NOLINT
 }
 
 #endif  // SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_GPL_GPL_H_
