@@ -90,8 +90,8 @@ void unpack_imu_res_packet(const std::uint8_t *data, ImuResPacket *res) {
 
 }  // namespace
 
-Standard2ChannelsAdapter::Standard2ChannelsAdapter()
-  : ChannelsAdapter(Model::STANDARD2) {
+Standard2ChannelsAdapter::Standard2ChannelsAdapter(const Model &model)
+  : ChannelsAdapter(model) {
 }
 
 Standard2ChannelsAdapter::~Standard2ChannelsAdapter() {
