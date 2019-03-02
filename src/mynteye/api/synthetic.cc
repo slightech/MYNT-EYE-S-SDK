@@ -266,13 +266,11 @@ bool Synthetic::HasStreamCallback(const Stream &stream) const {
 }
 
 void Synthetic::StartVideoStreaming() {
-  auto processor_root = static_cast<RootProcessor*>(&(*processor_));
-  processor_root->StartVideoStreaming();
+  processor_->StartVideoStreaming();
 }
 
 void Synthetic::StopVideoStreaming() {
-  auto processor_root = static_cast<RootProcessor*>(&(*processor_));
-  processor_root->StopVideoStreaming();
+  processor_->StopVideoStreaming();
 }
 
 void Synthetic::WaitForStreams() {

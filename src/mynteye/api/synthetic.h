@@ -29,6 +29,7 @@ MYNTEYE_BEGIN_NAMESPACE
 class API;
 class Plugin;
 class Processor;
+class RootProcessor;
 
 struct Object;
 
@@ -136,7 +137,7 @@ class Synthetic {
 
   API *api_;
 
-  std::shared_ptr<Processor> processor_;
+  std::shared_ptr<RootProcessor> processor_;
 
   std::shared_ptr<Plugin> plugin_;
 
