@@ -30,6 +30,8 @@ int main(int argc, char *argv[]) {
   api->ConfigStreamRequest(request);
 
   // Enable motion datas with timestamp correspondence of some stream
+  api->EnableStreamData(Stream::LEFT);
+  api->EnableStreamData(Stream::RIGHT);
   api->EnableTimestampCorrespondence(Stream::LEFT);
 
   api->Start(Source::ALL);
