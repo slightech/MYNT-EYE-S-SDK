@@ -238,8 +238,7 @@ void Synthetic::DisableStreamData(const Stream &stream) {
 bool Synthetic::IsStreamDataEnabled(const Stream &stream) const {
   if (checkControlDateWithStream(stream)) {
     auto data = getControlDateWithStream(stream);
-    return data.enabled_mode_ == MODE_SYNTHETIC ||
-        data.enabled_mode_ == MODE_NATIVE;
+    return data.enabled_mode_ == MODE_SYNTHETIC;
   }
   return false;
 }
