@@ -86,6 +86,7 @@ Synthetic::Synthetic(API *api, CalibrationModel calib_model)
 
 Synthetic::~Synthetic() {
   VLOG(2) << __func__;
+  processors_.clear();
   if (processor_) {
     processor_->Deactivate(true);
     processor_ = nullptr;
