@@ -13,6 +13,7 @@
 #include "stream_data_impl.hpp"
 
 #include "mynteye/uvc/uvc.h"
+#include "mynteye/util/strings.h"
 #include "internal/uvc_device.h"
 
 MYNTEYE_USE_NAMESPACE
@@ -58,6 +59,14 @@ std::shared_ptr<Device> Device::Create(const ::mynteye_jni::DeviceUsbInfo & info
   auto pid = uvc::get_product_id(*device);
   VLOG(2) << "UVC device detected, name: " << name << ", vid: 0x" << std::hex
           << vid << ", pid: 0x" << std::hex << pid;
+  if (strings::starts_with(name, "MYNT-EYE-")) {
+    std::string model_s = name.substr(9, 5);
+    if (strings::starts_with(model_s, "S1")) {
+      uvc::set_bytes_per_packet(device, 0x4000);
+    } else if (strings::starts_with(model_s, "S2")) {
+      uvc::set_bytes_per_packet(device, 0x5400);
+    }
+  }
   return std::make_shared<DeviceImpl>(
       MYNTEYE_NAMESPACE::Device::Create(name, device));
 }
