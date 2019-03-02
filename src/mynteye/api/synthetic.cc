@@ -180,6 +180,9 @@ void Synthetic::EnableStreamData(
   auto processor = getProcessorWithStream(stream);
   iterate_processor_CtoP_before(processor,
       [callback, try_tag](std::shared_ptr<Processor> proce){
+        if (proce->Name() == "RootProcessor") {
+          return;
+        }
         auto streams = proce->getTargetStreams();
         int act_tag = 0;
         for (unsigned int i = 0; i < proce->getStreamsSum() ; i++) {
@@ -203,6 +206,9 @@ void Synthetic::DisableStreamData(
   auto processor = getProcessorWithStream(stream);
   iterate_processor_PtoC_before(processor,
       [callback, try_tag](std::shared_ptr<Processor> proce){
+        if (proce->Name() == "RootProcessor") {
+          return;
+        }
         auto streams = proce->getTargetStreams();
         int act_tag = 0;
         for (unsigned int i = 0; i < proce->getStreamsSum() ; i++) {

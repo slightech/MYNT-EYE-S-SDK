@@ -138,7 +138,7 @@ class Synthetic {
   API *api_;
 
   std::shared_ptr<RootProcessor> processor_;
-
+  std::vector<std::shared_ptr<Processor>> processors_;
   std::shared_ptr<Plugin> plugin_;
 
   CalibrationModel calib_model_;
@@ -147,8 +147,6 @@ class Synthetic {
   std::shared_ptr<IntrinsicsBase> intr_right_;
   std::shared_ptr<Extrinsics> extr_;
   bool calib_default_tag_;
-
-  std::vector<std::shared_ptr<Processor>> processors_;
 
   stream_data_listener_t stream_data_listener_;
 };

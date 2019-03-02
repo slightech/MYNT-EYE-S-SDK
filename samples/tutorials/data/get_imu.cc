@@ -28,8 +28,6 @@ int main(int argc, char *argv[]) {
   auto &&request = api->SelectStreamRequest(&ok);
   if (!ok) return 1;
   api->ConfigStreamRequest(request);
-  api->EnableStreamData(Stream::LEFT);
-  api->EnableStreamData(Stream::RIGHT);
 
   // Enable this will cache the motion datas until you get them.
   api->EnableMotionDatas();

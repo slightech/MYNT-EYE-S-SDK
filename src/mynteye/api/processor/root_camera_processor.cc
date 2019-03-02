@@ -79,10 +79,12 @@ void s1s2Processor::ProcessNativeStream(
 }
 
 void s1s2Processor::StartVideoStreaming() {
+  Activate();
   auto streams = getTargetStreams();
   for (unsigned int j =0; j< streams.size(); j++) {
     auto stream = streams[j].stream;
     auto callback = streams[j].stream_callback;
+    target_streams_[j].enabled_mode_ = Synthetic::MODE_ON;
     device_->SetStreamCallback(
       stream,
       [this, stream, callback](const device::StreamData &data) {
@@ -99,14 +101,15 @@ void s1s2Processor::StartVideoStreaming() {
 }
 
 void s1s2Processor::StopVideoStreaming() {
+  Deactivate();
   auto streams = getTargetStreams();
   for (unsigned int j =0; j< streams.size(); j++) {
     auto stream = streams[j].stream;
+    target_streams_[j].enabled_mode_ = Synthetic::MODE_OFF;
     device_->SetStreamCallback(stream, nullptr);
   }
   device_->Stop(Source::VIDEO_STREAMING);
 }
-
 api::StreamData s1s2Processor::GetStreamData(const Stream &stream) {
   Synthetic::Mode enable_mode = Synthetic::MODE_OFF;
   auto streams = getTargetStreams();

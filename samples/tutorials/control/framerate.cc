@@ -28,8 +28,6 @@ int main(int argc, char *argv[]) {
   bool ok;
   auto &&request = api->SelectStreamRequest(&ok);
   if (!ok) return 1;
-  api->EnableStreamData(Stream::LEFT);
-  api->EnableStreamData(Stream::RIGHT);
   api->ConfigStreamRequest(request);
 
   Model model = api->GetModel();
