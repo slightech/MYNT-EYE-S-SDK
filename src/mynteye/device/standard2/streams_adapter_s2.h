@@ -25,7 +25,7 @@ MYNTEYE_BEGIN_NAMESPACE
 
 class Standard2StreamsAdapter : public StreamsAdapter {
  public:
-  Standard2StreamsAdapter();
+  explicit Standard2StreamsAdapter(const Model &model);
   virtual ~Standard2StreamsAdapter();
 
   std::vector<Stream> GetKeyStreams() override;
@@ -35,6 +35,9 @@ class Standard2StreamsAdapter : public StreamsAdapter {
   GetUnpackImgDataMap() override;
   std::map<Stream, Streams::unpack_img_pixels_t>
   GetUnpackImgPixelsMap() override;
+
+ private:
+  Model model_;
 };
 
 MYNTEYE_END_NAMESPACE
