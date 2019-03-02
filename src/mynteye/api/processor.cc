@@ -19,6 +19,7 @@
 #include "mynteye/logger.h"
 #include "mynteye/util/strings.h"
 #include "mynteye/util/times.h"
+#include "mynteye/api/data_tools.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -41,9 +42,9 @@ Processor::Processor(std::int32_t proc_period)
 Processor::~Processor() {
   VLOG(2) << __func__;
   Deactivate();
-  input_.reset(nullptr);
-  output_.reset(nullptr);
-  output_result_.reset(nullptr);
+  input_ = nullptr;
+  output_ = nullptr;
+  output_result_ = nullptr;
   childs_.clear();
 }
 
@@ -121,7 +122,7 @@ bool Processor::IsIdle() {
   return idle_;
 }
 
-bool Processor::Process(const Object &in) {
+bool Processor::Process(std::shared_ptr<Object> in) {
   if (!activated_)
     return false;
   if (!idle_) {
@@ -131,13 +132,17 @@ bool Processor::Process(const Object &in) {
       return false;
     }
   }
-  if (!in.DecValidity()) {
+  if (in && !in->DecValidity()) {
     LOG(WARNING) << Name() << " process with invalid input";
     return false;
   }
   {
     std::lock_guard<std::mutex> lk(mtx_input_ready_);
-    input_.reset(in.Clone());
+    if (ProcessInputConnection() == WITH_CLONE) {
+      input_.reset(in->Clone());
+    } else {
+      input_ = in;
+    }
     input_ready_ = true;
   }
   cond_input_ready_.notify_all();
@@ -228,12 +233,16 @@ void Processor::Run() {
     }
     {
       std::unique_lock<std::mutex> lk(mtx_result_);
-      output_result_.reset(output_->Clone());
+      if (ProcessOutputConnection() == WITH_CLONE) {
+        output_result_.reset(output_->Clone());
+      } else {
+        output_result_ = output_;
+      }
     }
 
     if (!childs_.empty()) {
       for (auto child : childs_) {
-        child->Process(*output_);
+        child->Process(output_);
       }
     }
 
@@ -243,6 +252,82 @@ void Processor::Run() {
     sleep(time_beg);
   }
   VLOG(2) << Name() << " thread end";
+}
+
+Processor::process_type Processor::ProcessOutputConnection() {
+  return WITH_CLONE;
+}
+
+Processor::process_type Processor::ProcessInputConnection() {
+  return WITH_CLONE;
+}
+
+api::StreamData Processor::GetStreamData(const Stream &stream) {
+  auto sum = getStreamsSum();
+  auto &&out = GetOutput();
+  Synthetic::Mode enable_mode = Synthetic::MODE_OFF;
+  auto streams = getTargetStreams();
+  for (auto it_s : streams) {
+    if (it_s.stream == stream) {
+      enable_mode = it_s.enabled_mode_;
+      break;
+    }
+  }
+  if (enable_mode == Synthetic::MODE_ON) {
+    if (sum == 1) {
+      if (out != nullptr) {
+        auto &&output = Object::Cast<ObjMat>(out);
+        if (output != nullptr) {
+          return obj_data(output);
+        }
+        VLOG(2) << "Rectify not ready now";
+      }
+    } else if (sum == 2) {
+      static std::shared_ptr<ObjMat2> output = nullptr;
+      if (out != nullptr) {
+        output = Object::Cast<ObjMat2>(out);
+      }
+      auto streams = getTargetStreams();
+      if (output != nullptr) {
+        int num = 0;
+        for (auto it : streams) {
+          if (it.stream == stream) {
+            if (num == 1) {
+              return obj_data_first(output);
+            } else {
+              return obj_data_second(output);
+            }
+          }
+          num++;
+        }
+      }
+      VLOG(2) << "Rectify not ready now";
+    } else {
+      LOG(ERROR) << "error: invalid sum!";
+    }
+    return {};  // frame.empty() == true
+  }
+  LOG(ERROR) << "Failed to get stream data of " << stream
+               << ", unsupported or disabled";
+  return {};  // frame.empty() == true
+}
+
+std::vector<api::StreamData> Processor::GetStreamDatas(const Stream &stream) {
+  Synthetic::Mode enable_mode = Synthetic::MODE_OFF;
+  auto streams = getTargetStreams();
+  for (auto it_s : streams) {
+    if (it_s.stream == stream) {
+      enable_mode = it_s.enabled_mode_;
+      break;
+    }
+  }
+  if (enable_mode == Synthetic::MODE_ON) {
+    return {GetStreamData(stream)};
+  } else {
+    LOG(ERROR) << "Failed to get stream data of " << stream
+               << ", unsupported or disabled";
+  }
+  return {};
 }
 
 void Processor::SetIdle(bool idle) {

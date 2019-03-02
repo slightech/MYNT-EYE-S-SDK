@@ -113,7 +113,7 @@ STATUS_UNIT checkUnit(const std::string& sdkv,
 }
 
 bool checkFirmwareVersion(const std::shared_ptr<API> api) {
-  auto sdkv = api->GetInfo(Info::SDK_VERSION);
+  auto sdkv = api->GetSDKVersion();
   auto devn = api->GetInfo(Info::DEVICE_NAME);
   auto firmv = api->GetInfo(Info::FIRMWARE_VERSION);
 

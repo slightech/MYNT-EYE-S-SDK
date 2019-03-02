@@ -199,9 +199,6 @@ set(MYNTEYE_SRCS
   src/mynteye/device/standard2/channels_adapter_s2.cc
   src/mynteye/device/standard2/device_s2.cc
   src/mynteye/device/standard2/streams_adapter_s2.cc
-  src/mynteye/device/standard2/channels_adapter_s210a.cc
-  src/mynteye/device/standard2/device_s210a.cc
-  src/mynteye/device/standard2/streams_adapter_s210a.cc
   src/mynteye/device/streams.cc
   src/mynteye/device/types.cc
   src/mynteye/device/utils.cc
@@ -221,6 +218,7 @@ if(WITH_API)
     src/mynteye/api/config.cc
     src/mynteye/api/correspondence.cc
     src/mynteye/api/version_checker.cc
+    src/mynteye/api/data_tools.cc
   )
   if(WITH_CAM_MODELS)
     list(APPEND MYNTEYE_SRCS

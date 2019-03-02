@@ -25,7 +25,7 @@ MYNTEYE_BEGIN_NAMESPACE
 
 class Standard2ChannelsAdapter : public ChannelsAdapter {
  public:
-  Standard2ChannelsAdapter();
+  explicit Standard2ChannelsAdapter(const Model &model);
   virtual ~Standard2ChannelsAdapter();
 
   std::int32_t GetAccelRangeDefault() override;

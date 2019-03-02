@@ -328,21 +328,21 @@ std::shared_ptr<DeviceInfo> API::GetInfo() const {
 }
 
 std::string API::GetInfo(const Info &info) const {
-  if (info == Info::SDK_VERSION) {
-    std::string info_path =
-        utils::get_sdk_install_dir();
-    info_path.append(MYNTEYE_OS_SEP "share" \
-        MYNTEYE_OS_SEP "mynteye" MYNTEYE_OS_SEP "build.info");
-
-    cv::FileStorage fs(info_path, cv::FileStorage::READ);
-    if (!fs.isOpened()) {
-      LOG(WARNING) << "build.info not found: " << info_path;
-      return "null";
-    }
-    return fs["MYNTEYE_VERSION"];
-  }
-
   return device_->GetInfo(info);
+}
+
+std::string API::GetSDKVersion() const {
+  std::string info_path =
+      utils::get_sdk_install_dir();
+  info_path.append(MYNTEYE_OS_SEP "share" \
+      MYNTEYE_OS_SEP "mynteye" MYNTEYE_OS_SEP "build.info");
+
+  cv::FileStorage fs(info_path, cv::FileStorage::READ);
+  if (!fs.isOpened()) {
+    LOG(WARNING) << "build.info not found: " << info_path;
+    return "null";
+  }
+  return fs["MYNTEYE_VERSION"];
 }
 
 IntrinsicsPinhole API::GetIntrinsics(const Stream &stream) const {
