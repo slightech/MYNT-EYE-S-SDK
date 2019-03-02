@@ -56,6 +56,12 @@ class s1s2Processor : public RootProcessor {
   api::StreamData GetStreamData(const Stream &stream) override;
   std::vector<api::StreamData> GetStreamDatas(const Stream &stream) override; // NOLINT
  protected:
+  inline Processor::process_type ProcessOutputConnection() override {
+    return Processor::WITHOUT_CLONE;
+  }
+  inline Processor::process_type ProcessInputConnection() override {
+    return Processor::WITHOUT_CLONE;
+  }
   Object *OnCreateOutput() override;
   bool OnProcess(
       Object *const in, Object *const out,

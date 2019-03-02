@@ -73,7 +73,7 @@ void s1s2Processor::ProcessNativeStream(
   }
   if (left_data.img && right_data.img &&
       left_data.img->frame_id == right_data.img->frame_id) {
-    Process(data_obj(left_data, right_data));
+    Process(std::make_shared<ObjMat2>(data_obj(left_data, right_data)));
   }
   return;
 }

@@ -64,7 +64,7 @@ class Processor :
   bool IsIdle();
 
   /** Returns dropped or not. */
-  bool Process(const Object &in);
+  bool Process(std::shared_ptr<Object> in);
 
   virtual api::StreamData GetStreamData(const Stream &stream);
 
@@ -83,6 +83,13 @@ class Processor :
   virtual bool OnProcess(
       Object *const in, Object *const out,
       std::shared_ptr<Processor> const parent) = 0;
+  enum process_type{
+    WITH_CLONE,
+    WITHOUT_CLONE
+  };
+
+  virtual process_type ProcessOutputConnection();
+  virtual process_type ProcessInputConnection();
 
  private:
   /** Run in standalone thread. */
@@ -102,10 +109,10 @@ class Processor :
   std::uint64_t dropped_count_;
   std::mutex mtx_state_;
 
-  std::unique_ptr<Object> input_;
-  std::unique_ptr<Object> output_;
+  std::shared_ptr<Object> input_;
+  std::shared_ptr<Object> output_;
 
-  std::unique_ptr<Object> output_result_;
+  std::shared_ptr<Object> output_result_;
   std::mutex mtx_result_;
 
   PreProcessCallback pre_callback_;
