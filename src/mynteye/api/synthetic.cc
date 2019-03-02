@@ -183,11 +183,11 @@ void Synthetic::EnableStreamData(
         auto streams = proce->getTargetStreams();
         int act_tag = 0;
         for (unsigned int i = 0; i < proce->getStreamsSum() ; i++) {
-          if (proce->target_streams_[i].enabled_mode_ == MODE_LAST) {
+          if (proce->target_streams_[i].enabled_mode_ == MODE_OFF) {
             callback(proce->target_streams_[i].stream);
             if (!try_tag) {
               act_tag++;
-              proce->target_streams_[i].enabled_mode_ = MODE_SYNTHETIC;
+              proce->target_streams_[i].enabled_mode_ = MODE_ON;
             }
           }
         }
@@ -206,11 +206,11 @@ void Synthetic::DisableStreamData(
         auto streams = proce->getTargetStreams();
         int act_tag = 0;
         for (unsigned int i = 0; i < proce->getStreamsSum() ; i++) {
-          if (proce->target_streams_[i].enabled_mode_ == MODE_SYNTHETIC) {
+          if (proce->target_streams_[i].enabled_mode_ == MODE_ON) {
             callback(proce->target_streams_[i].stream);
             if (!try_tag) {
               act_tag++;
-              proce->target_streams_[i].enabled_mode_ = MODE_LAST;
+              proce->target_streams_[i].enabled_mode_ = MODE_OFF;
             }
           }
         }
@@ -238,7 +238,7 @@ void Synthetic::DisableStreamData(const Stream &stream) {
 bool Synthetic::IsStreamDataEnabled(const Stream &stream) const {
   if (checkControlDateWithStream(stream)) {
     auto data = getControlDateWithStream(stream);
-    return data.enabled_mode_ == MODE_SYNTHETIC;
+    return data.enabled_mode_ == MODE_ON;
   }
   return false;
 }
@@ -300,7 +300,7 @@ Synthetic::mode_t Synthetic::GetStreamEnabledMode(const Stream &stream) const {
     auto data = getControlDateWithStream(stream);
     return data.enabled_mode_;
   }
-  return MODE_LAST;
+  return MODE_OFF;
 }
 
 void Synthetic::InitProcessors() {
@@ -361,21 +361,21 @@ void Synthetic::InitProcessors() {
   }
 
   rectify_processor->addTargetStreams(
-      {Stream::LEFT_RECTIFIED, Mode::MODE_LAST, nullptr});
+      {Stream::LEFT_RECTIFIED, Mode::MODE_OFF, nullptr});
   rectify_processor->addTargetStreams(
-      {Stream::RIGHT_RECTIFIED, Mode::MODE_LAST, nullptr});
+      {Stream::RIGHT_RECTIFIED, Mode::MODE_OFF, nullptr});
   disparity_processor->addTargetStreams(
-      {Stream::DISPARITY, Mode::MODE_LAST, nullptr});
+      {Stream::DISPARITY, Mode::MODE_OFF, nullptr});
   disparitynormalized_processor->addTargetStreams(
-      {Stream::DISPARITY_NORMALIZED, Mode::MODE_LAST, nullptr});
+      {Stream::DISPARITY_NORMALIZED, Mode::MODE_OFF, nullptr});
   points_processor->addTargetStreams(
-      {Stream::POINTS, Mode::MODE_LAST, nullptr});
+      {Stream::POINTS, Mode::MODE_OFF, nullptr});
   depth_processor->addTargetStreams(
-      {Stream::DEPTH, Mode::MODE_LAST, nullptr});
+      {Stream::DEPTH, Mode::MODE_OFF, nullptr});
   root_processor->addTargetStreams(
-      {Stream::LEFT, Mode::MODE_LAST, nullptr});
+      {Stream::LEFT, Mode::MODE_OFF, nullptr});
   root_processor->addTargetStreams(
-      {Stream::RIGHT, Mode::MODE_LAST, nullptr});
+      {Stream::RIGHT, Mode::MODE_OFF, nullptr});
 
   processors_.push_back(root_processor);
   processors_.push_back(rectify_processor);
@@ -417,7 +417,7 @@ bool Synthetic::OnDeviceProcess(
     Object *const in, Object *const out,
     std::shared_ptr<Processor> const parent) {
   MYNTEYE_UNUSED(parent)
-  return GetStreamEnabledMode(Stream::LEFT) != MODE_SYNTHETIC;
+  return GetStreamEnabledMode(Stream::LEFT) != MODE_ON;
 }
 
 bool Synthetic::OnRectifyProcess(
@@ -427,8 +427,8 @@ bool Synthetic::OnRectifyProcess(
   if (plugin_ && plugin_->OnRectifyProcess(in, out)) {
     return true;
   }
-  return GetStreamEnabledMode(Stream::LEFT_RECTIFIED) != MODE_SYNTHETIC;
-  // && GetStreamEnabledMode(Stream::RIGHT_RECTIFIED) != MODE_SYNTHETIC
+  return GetStreamEnabledMode(Stream::LEFT_RECTIFIED) != MODE_ON;
+  // && GetStreamEnabledMode(Stream::RIGHT_RECTIFIED) != MODE_ON
 }
 
 bool Synthetic::OnDisparityProcess(
@@ -438,7 +438,7 @@ bool Synthetic::OnDisparityProcess(
   if (plugin_ && plugin_->OnDisparityProcess(in, out)) {
     return true;
   }
-  return GetStreamEnabledMode(Stream::DISPARITY) != MODE_SYNTHETIC;
+  return GetStreamEnabledMode(Stream::DISPARITY) != MODE_ON;
 }
 
 bool Synthetic::OnDisparityNormalizedProcess(
@@ -448,7 +448,7 @@ bool Synthetic::OnDisparityNormalizedProcess(
   if (plugin_ && plugin_->OnDisparityNormalizedProcess(in, out)) {
     return true;
   }
-  return GetStreamEnabledMode(Stream::DISPARITY_NORMALIZED) != MODE_SYNTHETIC;
+  return GetStreamEnabledMode(Stream::DISPARITY_NORMALIZED) != MODE_ON;
 }
 
 bool Synthetic::OnPointsProcess(
@@ -458,7 +458,7 @@ bool Synthetic::OnPointsProcess(
   if (plugin_ && plugin_->OnPointsProcess(in, out)) {
     return true;
   }
-  return GetStreamEnabledMode(Stream::POINTS) != MODE_SYNTHETIC;
+  return GetStreamEnabledMode(Stream::POINTS) != MODE_ON;
 }
 
 bool Synthetic::OnDepthProcess(
@@ -468,7 +468,7 @@ bool Synthetic::OnDepthProcess(
   if (plugin_ && plugin_->OnDepthProcess(in, out)) {
     return true;
   }
-  return GetStreamEnabledMode(Stream::DEPTH) != MODE_SYNTHETIC;
+  return GetStreamEnabledMode(Stream::DEPTH) != MODE_ON;
 }
 
 void Synthetic::OnDevicePostProcess(Object *const out) {
@@ -481,7 +481,8 @@ void Synthetic::OnDevicePostProcess(Object *const out) {
   }
   if (HasStreamCallback(Stream::RIGHT)) {
     auto data = getControlDateWithStream(Stream::RIGHT);
-    data.stream_callback(obj_data_second(output));
+    if (data.stream_callback)
+      data.stream_callback(obj_data_second(output));
   }
 }
 

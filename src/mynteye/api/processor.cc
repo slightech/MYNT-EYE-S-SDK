@@ -249,7 +249,7 @@ void Processor::Run() {
 api::StreamData Processor::GetStreamData(const Stream &stream) {
   auto sum = getStreamsSum();
   auto &&out = GetOutput();
-  Synthetic::Mode enable_mode = Synthetic::MODE_LAST;
+  Synthetic::Mode enable_mode = Synthetic::MODE_OFF;
   auto streams = getTargetStreams();
   for (auto it_s : streams) {
     if (it_s.stream == stream) {
@@ -257,7 +257,7 @@ api::StreamData Processor::GetStreamData(const Stream &stream) {
       break;
     }
   }
-  if (enable_mode == Synthetic::MODE_SYNTHETIC) {
+  if (enable_mode == Synthetic::MODE_ON) {
     if (sum == 1) {
       if (out != nullptr) {
         auto &&output = Object::Cast<ObjMat>(out);
@@ -297,7 +297,7 @@ api::StreamData Processor::GetStreamData(const Stream &stream) {
 }
 
 std::vector<api::StreamData> Processor::GetStreamDatas(const Stream &stream) {
-  Synthetic::Mode enable_mode = Synthetic::MODE_LAST;
+  Synthetic::Mode enable_mode = Synthetic::MODE_OFF;
   auto streams = getTargetStreams();
   for (auto it_s : streams) {
     if (it_s.stream == stream) {
@@ -305,7 +305,7 @@ std::vector<api::StreamData> Processor::GetStreamDatas(const Stream &stream) {
       break;
     }
   }
-  if (enable_mode == Synthetic::MODE_SYNTHETIC) {
+  if (enable_mode == Synthetic::MODE_ON) {
     return {GetStreamData(stream)};
   } else {
     LOG(ERROR) << "Failed to get stream data of " << stream

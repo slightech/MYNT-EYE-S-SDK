@@ -40,9 +40,8 @@ class Synthetic {
   using stream_switch_callback_t = API::stream_switch_callback_t;
 
   typedef enum Mode {
-    MODE_NATIVE,     // Native stream
-    MODE_SYNTHETIC,  // Synthetic stream
-    MODE_LAST        // Unsupported
+    MODE_ON,  // On
+    MODE_OFF  // Off
   } mode_t;
 
   struct stream_control_t {
@@ -142,7 +141,6 @@ class Synthetic {
   std::shared_ptr<Plugin> plugin_;
 
   CalibrationModel calib_model_;
-  std::mutex mtx_left_right_ready_;
 
   std::shared_ptr<IntrinsicsBase> intr_left_;
   std::shared_ptr<IntrinsicsBase> intr_right_;

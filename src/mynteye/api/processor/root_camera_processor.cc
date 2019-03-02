@@ -108,7 +108,7 @@ void s1s2Processor::StopVideoStreaming() {
 }
 
 api::StreamData s1s2Processor::GetStreamData(const Stream &stream) {
-  Synthetic::Mode enable_mode = Synthetic::MODE_LAST;
+  Synthetic::Mode enable_mode = Synthetic::MODE_OFF;
   auto streams = getTargetStreams();
   for (auto it_s : streams) {
     if (it_s.stream == stream) {
@@ -116,17 +116,18 @@ api::StreamData s1s2Processor::GetStreamData(const Stream &stream) {
       break;
     }
   }
-  if (enable_mode == Synthetic::MODE_SYNTHETIC) {
+  if (enable_mode == Synthetic::MODE_ON) {
     return data2api(device_->GetStreamData(stream));
   }
   LOG(ERROR) << "Failed to get device stream data of " << stream
                << ", unsupported or disabled";
+  LOG(ERROR) << "Make sure you have enable " << stream;
   return {};
 }
 
 std::vector<api::StreamData> s1s2Processor::GetStreamDatas(
     const Stream &stream) {
-  Synthetic::Mode enable_mode = Synthetic::MODE_LAST;
+  Synthetic::Mode enable_mode = Synthetic::MODE_OFF;
   auto streams = getTargetStreams();
   for (auto it_s : streams) {
     if (it_s.stream == stream) {
@@ -134,7 +135,7 @@ std::vector<api::StreamData> s1s2Processor::GetStreamDatas(
       break;
     }
   }
-  if (enable_mode == Synthetic::MODE_SYNTHETIC) {
+  if (enable_mode == Synthetic::MODE_ON) {
     std::vector<api::StreamData> datas;
     for (auto &&data : device_->GetStreamDatas(stream)) {
       datas.push_back(data2api(data));
