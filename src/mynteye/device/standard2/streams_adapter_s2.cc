@@ -120,12 +120,12 @@ bool unpack_stereo_img_data(
             << static_cast<int>(img_packet.header) << " now";
     return false;
   }
-
+/*
   std::uint8_t checksum = 0;
   for (std::size_t i = 2, n = packet_n - 2; i <= n; i++) {  // content: [2,9]
     checksum = (checksum ^ packet[i]);
   }
-/*
+
   if (img_packet.checksum != checksum) {
     VLOG(2) << "Image packet checksum should be 0x" << std::hex
             << std::uppercase << std::setw(2) << std::setfill('0')
