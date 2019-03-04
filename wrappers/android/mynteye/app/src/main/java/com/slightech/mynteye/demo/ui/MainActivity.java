@@ -286,8 +286,17 @@ public class MainActivity extends BaseActivity implements CameraDialog.CameraDia
     ImuData data = datas.get(0).imu();
     mTextView.post(() -> {
       StringBuffer sb = new StringBuffer();
-      sb.append("Accel: ").append(data.getAccel());
-      sb.append("\nGyro: ").append(data.getGyro());
+      final int flag = data.getFlag();
+      if (flag == 0) {  // accel & gyro
+        sb.append("Accel: ").append(data.getAccel());
+        sb.append("\nGyro: ").append(data.getGyro());
+      } else if (flag == 1) {  // accel
+        sb.append("Accel: ").append(data.getAccel());
+        sb.append("\nGyro: -");
+      } else if (flag == 2) {  // gyro
+        sb.append("Accel: -");
+        sb.append("\nGyro: ").append(data.getGyro());
+      }
       mTextView.setText(sb.toString());
     });
   }
