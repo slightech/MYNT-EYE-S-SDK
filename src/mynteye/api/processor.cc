@@ -209,6 +209,7 @@ void Processor::Run() {
     }
     bool ok = false;
     try {
+      std::unique_lock<std::mutex> lk(mtx_data_process_unique_);
       if (callback_) {
         if (callback_(input_.get(), output_.get(), parent_)) {
           ok = true;

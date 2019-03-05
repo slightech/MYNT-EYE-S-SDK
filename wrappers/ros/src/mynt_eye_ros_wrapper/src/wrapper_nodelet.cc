@@ -589,6 +589,17 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           stream, [this, stream](const api::StreamData &data) {
             ros::Time stamp = checkUpTimeStamp(
                 data.img->timestamp, stream);
+            if (stream == Stream::DEPTH) {
+              static long long last_img = 0;
+              static ros::Time last = ros::Time(0);
+              static int cont = 0;
+              cont++;
+              if (stamp <= last) {
+                std::cout << "di " << cont <<"ci:  " << data.img->timestamp <<"&" << last_img << "|" << last << "&" <<stamp << std::endl;
+              }
+              last = stamp;
+              last_img = data.img->timestamp;
+            }
             static std::size_t count = 0;
             ++count;
             publishData(stream, data, count, stamp);
