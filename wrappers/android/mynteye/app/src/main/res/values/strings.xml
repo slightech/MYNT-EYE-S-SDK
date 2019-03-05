@@ -1,0 +1,15 @@
+<resources>
+  <string name="app_name">MYNTEYE-S SDK Sample</string>
+
+  <string name="tip_open">Please \"Open\" the camera!</string>
+
+  <string name="open">Open</string>
+  <string name="close">Close</string>
+
+  <string name="imu_data">Imu Data</string>
+
+  <string name="device_infos">Device Infos</string>
+  <string name="image_params">Image Params</string>
+  <string name="imu_params">Imu Params</string>
+  <string name="option_infos">Option Infos</string>
+</resources>

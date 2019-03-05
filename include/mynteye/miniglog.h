@@ -157,9 +157,6 @@ class MYNTEYE_API LogSink {
 // Global set of log sinks. The actual object is defined in logging.cc.
 MYNTEYE_API extern std::set<LogSink *> log_sinks_global;
 
-// Added by chachi - a runtime global maximum log level. Defined in logging.cc
-MYNTEYE_API extern int log_severity_global;
-
 inline void InitGoogleLogging(char */*argv*/) {
   // Do nothing; this is ignored.
 }
@@ -315,9 +312,8 @@ class MYNTEYE_API LoggerVoidify {
 
 // Log only if condition is met.  Otherwise evaluates to void.
 #define LOG_IF(severity, condition) \
-  (static_cast<int>(severity) > google::log_severity_global || !(condition)) ? \
-  (void) 0 : LoggerVoidify() &                                          \
-  MessageLogger((char *)__FILE__, __LINE__, "native", severity).stream()
+  !(condition) ? (void) 0 : LoggerVoidify() & \
+    MessageLogger((char *)__FILE__, __LINE__, "native", severity).stream()
 
 // Log only if condition is NOT met.  Otherwise evaluates to void.
 #define LOG_IF_FALSE(severity, condition) LOG_IF(severity, !(condition))

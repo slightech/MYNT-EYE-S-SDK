@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+  <item
+      android:id="@+id/action_open"
+      android:title="@string/open"
+      app:showAsAction="ifRoom|withText" />
+  <item
+      android:id="@+id/action_close"
+      android:title="@string/close"
+      app:showAsAction="ifRoom|withText" />
+
+  <item
+      android:id="@+id/check_imu_data"
+      android:title="@string/imu_data"
+      android:checkable="true"
+      android:checked="false"
+      app:showAsAction="never" />
+
+  <item
+      android:id="@+id/show_device_infos"
+      android:title="@string/device_infos"
+      app:showAsAction="never" />
+  <item
+      android:id="@+id/show_image_params"
+      android:title="@string/image_params"
+      app:showAsAction="never" />
+  <item
+      android:id="@+id/show_imu_params"
+      android:title="@string/imu_params"
+      app:showAsAction="never" />
+  <item
+      android:id="@+id/show_option_infos"
+      android:title="@string/option_infos"
+      app:showAsAction="never" />
+</menu>

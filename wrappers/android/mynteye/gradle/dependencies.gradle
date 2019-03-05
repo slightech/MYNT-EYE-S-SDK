@@ -1,0 +1,10 @@
+ext {
+  xversions = [
+    'compileSdk': 28,
+    'minSdk': 24,
+    'targetSdk': 28,
+  ]
+
+  xabis = ['arm64-v8a', 'armeabi-v7a'] as String[]
+  //xabis = ['arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'] as String[]
+}

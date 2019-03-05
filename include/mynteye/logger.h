@@ -77,6 +77,7 @@ struct glog_init {
 #include "mynteye/mynteye.h"
 
 #define MYNTEYE_MAX_LOG_LEVEL google::INFO
+// #define MYNTEYE_MAX_LOG_LEVEL 2
 
 #include "mynteye/miniglog.h"
 

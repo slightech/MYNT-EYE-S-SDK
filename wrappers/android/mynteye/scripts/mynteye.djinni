@@ -1,0 +1,66 @@
+@extern "mynteye_types.yaml"
+
+# Device class to communicate with MYNT® EYE device
+device = interface +c {
+  # Create the device instance
+  static create(info: device_usb_info): device;
+
+  # Get the model
+  get_model(): model;
+
+  # Supports the stream or not
+  supports_stream(stream: stream): bool;
+  # Supports the capability or not
+  supports_capability(capabilities: capability): bool;
+  # Supports the option or not
+  supports_option(option: option): bool;
+  # Supports the addon or not
+  supports_addon(addon: addon): bool;
+
+  # Get all stream requests
+  get_stream_requests(): list<stream_request>;
+  # Config the stream request
+  config_stream_request(request: stream_request);
+
+  # Get the device info
+  get_info(info: info): string;
+
+  # Get the intrinsics of stream
+  get_intrinsics(stream: stream): intrinsics;
+  # Get the extrinsics of stream
+  get_extrinsics(from: stream, to: stream): extrinsics;
+
+  # Get the intrinsics of motion
+  get_motion_intrinsics(): motion_intrinsics;
+  # Get the extrinsics from one stream to motion
+  get_motion_extrinsics(from: stream): extrinsics;
+
+  # Get the option info
+  get_option_info(option: option): option_info;
+
+  # Get the option value
+  get_option_value(option: option): i32;
+  # Set the option value
+  set_option_value(option: option, value: i32);
+
+  # Run the option value
+  run_option_action(option: option): bool;
+
+  # Start capturing the source
+  start(source: source);
+  # Stop capturing the source
+  stop(source: source);
+
+  # Wait the streams are ready
+  wait_for_streams();
+
+  # Get the latest data of stream
+  get_stream_data(stream: stream): stream_data;
+  # Get the datas of stream
+  get_stream_datas(stream: stream): list<stream_data>;
+
+  # Enable cache motion datas until get them, otherwise using callback instead
+  enable_motion_datas(max_size: i32);
+  # Get the motion datas
+  get_motion_datas(): list<motion_data>;
+}
