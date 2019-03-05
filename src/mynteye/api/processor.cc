@@ -152,6 +152,8 @@ bool Processor::Process(std::shared_ptr<Object> in) {
 std::shared_ptr<Object> Processor::GetOutput() {
   std::lock_guard<std::mutex> lk(mtx_result_);
   return std::shared_ptr<Object>(std::move(output_result_));
+  // to make sure that one frame can just be get once!
+  output_result_ = nullptr;
 }
 
 std::uint64_t Processor::GetDroppedCount() {
@@ -209,7 +211,6 @@ void Processor::Run() {
     }
     bool ok = false;
     try {
-      std::unique_lock<std::mutex> lk(mtx_data_process_unique_);
       if (callback_) {
         if (callback_(input_.get(), output_.get(), parent_)) {
           ok = true;
