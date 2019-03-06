@@ -518,9 +518,11 @@ std::vector<api::MotionData> API::GetMotionDatas() {
   }
 }
 
-void API::EnableTimestampCorrespondence(const Stream &stream) {
+void API::EnableTimestampCorrespondence(const Stream &stream,
+    bool keep_accel_then_gyro) {
   if (correspondence_ == nullptr) {
     correspondence_.reset(new Correspondence(device_, stream));
+    correspondence_->KeepAccelThenGyro(keep_accel_then_gyro);
     {
       device_->DisableMotionDatas();
       if (callback_) {

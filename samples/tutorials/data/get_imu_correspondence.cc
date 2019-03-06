@@ -18,6 +18,10 @@
 
 #include "util/cv_painter.h"
 
+// #define CHECK_ACCEL_THEN_GYRO
+#define SEQ_FIRST  1  // accel
+#define SEQ_SECOND 2  // gyro
+
 MYNTEYE_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
@@ -40,6 +44,11 @@ int main(int argc, char *argv[]) {
 
   std::uint64_t prev_img_stamp = 0;
   std::uint64_t prev_imu_stamp = 0;
+#ifdef CHECK_ACCEL_THEN_GYRO
+  std::uint8_t prev_imu_flag = 0;
+  std::uint64_t imu_count = 0;
+  std::uint64_t imu_disorder_count = 0;
+#endif
   while (true) {
     api->WaitForStreams();
 
@@ -56,14 +65,49 @@ int main(int argc, char *argv[]) {
 
     auto &&motion_datas = api->GetMotionDatas();
     LOG(INFO) << "Imu count: " << motion_datas.size();
-    for (auto &&data : motion_datas) {
+    for (size_t i = 0, n = motion_datas.size() - 1; i <= n; ++i) {
+      auto data = motion_datas[i];
+      auto imu_flag = data.imu->flag;
       auto imu_stamp = data.imu->timestamp;
-      LOG(INFO) << "Imu timestamp: " << imu_stamp
+
+      std::stringstream ss;
+      if (imu_flag == 0) {  // accel + gyro
+        ss << "Imu";
+      } else if (imu_flag == 1) {  // accel
+        ss << "Accel";
+      } else if (imu_flag == 2) {  // gyro
+        ss << "Gyro";
+      }
+      ss << " timestamp: " << imu_stamp
           << ", diff_prev=" << (imu_stamp - prev_imu_stamp)
-          << ", diff_img=" << (1.f + imu_stamp - img_stamp);
+          << ", diff_img=" << (1.0f + imu_stamp - img_stamp);
+#ifdef CHECK_ACCEL_THEN_GYRO
+      if (imu_flag > 0) {
+        bool ok = false;
+        if (i == 0) {  // first
+          ok = (imu_flag == SEQ_FIRST);
+        } else if (i == n) {  // last
+          ok = (imu_flag == SEQ_SECOND);
+        } else {
+          if (imu_flag == SEQ_FIRST) {
+            ok = (prev_imu_flag == SEQ_SECOND);
+          } else if (imu_flag == SEQ_SECOND) {
+            ok = (prev_imu_flag == SEQ_FIRST);
+          }
+        }
+        ss << (ok ? " ✓" : " x");
+        if (!ok) ++imu_disorder_count;
+        prev_imu_flag = imu_flag;
+      }
+#endif
+      LOG(INFO) << ss.str();
+
       prev_imu_stamp = imu_stamp;
     }
     LOG(INFO);
+#ifdef CHECK_ACCEL_THEN_GYRO
+    imu_count += motion_datas.size();
+#endif
 
     /*
     painter.DrawImgData(img, *left_data.img);
@@ -81,5 +125,12 @@ int main(int argc, char *argv[]) {
   }
 
   api->Stop(Source::ALL);
+
+#ifdef CHECK_ACCEL_THEN_GYRO
+  if (imu_disorder_count > 0) {
+    LOG(INFO) << "accel_then_gyro, disorder_count: " << imu_disorder_count
+        << "/" << imu_count;
+  }
+#endif
   return 0;
 }

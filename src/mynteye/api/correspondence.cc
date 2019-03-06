@@ -16,11 +16,15 @@
 #include "mynteye/device/device.h"
 #include "mynteye/logger.h"
 
+#define MYNTEYE_IMU_SEQ_FIRST  1  // accel
+#define MYNTEYE_IMU_SEQ_SECOND 2  // gyro
+
 MYNTEYE_BEGIN_NAMESPACE
 
 Correspondence::Correspondence(const std::shared_ptr<Device> &device,
     const Stream &stream)
-  : device_(device), stream_(stream), ready_image_timestamp_(0) {
+  : device_(device), stream_(stream), ready_image_timestamp_(0),
+    keep_accel_then_gyro_(false) {
   VLOG(2) << __func__;
   // set matched stream to be watched too,
   // aim to make stream and matched stream correspondence
@@ -52,6 +56,10 @@ bool Correspondence::Watch(const Stream &stream) const {
   if (stream == stream_) return true;
   if (stream_match_enabled_ && stream == stream_match_) return true;
   return false;
+}
+
+void Correspondence::KeepAccelThenGyro(bool enabled) {
+  keep_accel_then_gyro_ = enabled;
 }
 
 void Correspondence::OnStreamDataCallback(
@@ -143,7 +151,11 @@ std::vector<api::StreamData> Correspondence::GetStreamDatas(
 }
 
 std::vector<api::MotionData> Correspondence::GetMotionDatas() {
-  return GetReadyMotionDatas();
+  auto &&datas = GetReadyMotionDatas();
+  if (keep_accel_then_gyro_ && device_->GetModel() != Model::STANDARD) {
+    KeepAccelThenGyro(datas);  // only s2 need do this
+  }
+  return datas;
 }
 
 void Correspondence::EnableStreamMatch() {
@@ -272,6 +284,48 @@ std::vector<api::MotionData> Correspondence::GetReadyMotionDatas() {
   }
 
   return result;
+}
+
+void Correspondence::KeepAccelThenGyro(std::vector<api::MotionData> &datas) {
+  auto n = datas.size();
+  if (n == 0) return;
+
+  static std::shared_ptr<ImuData> last_imu = nullptr;
+
+  std::uint8_t prev_flag = 0;
+  for (auto it = datas.begin(); it != datas.end(); ) {
+    auto flag = it->imu->flag;
+    if (flag == 0) {
+      ++it;  // unexpected
+      continue;
+    }
+
+    bool is_first = (it == datas.begin());
+    bool is_last = (it == datas.end() - 1);
+    bool ok = false;
+    if (is_first) {
+      ok = (flag == MYNTEYE_IMU_SEQ_FIRST);
+    } else {
+      if (flag == MYNTEYE_IMU_SEQ_FIRST) {
+        ok = (prev_flag == MYNTEYE_IMU_SEQ_SECOND);
+      } else if (flag == MYNTEYE_IMU_SEQ_SECOND) {
+        ok = (prev_flag == MYNTEYE_IMU_SEQ_FIRST);
+      }
+    }
+    if (ok && is_last) {
+      ok = (flag == MYNTEYE_IMU_SEQ_SECOND);
+    }
+
+    if (ok) {
+      prev_flag = flag;
+      if (is_last) {
+        last_imu = nullptr;
+      }
+      ++it;
+    } else {
+      it = datas.erase(it);
+    }
+  }
 }
 
 MYNTEYE_END_NAMESPACE
