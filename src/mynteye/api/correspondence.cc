@@ -152,6 +152,22 @@ std::vector<api::StreamData> Correspondence::GetStreamDatas(
 
 std::vector<api::MotionData> Correspondence::GetMotionDatas() {
   auto &&datas = GetReadyMotionDatas();
+  /*
+  for (auto data : datas) {
+    auto imu_flag = data.imu->flag;
+    auto imu_stamp = data.imu->timestamp;
+    std::stringstream ss;
+    if (imu_flag == 0) {  // accel + gyro
+      ss << "Imu";
+    } else if (imu_flag == 1) {  // accel
+      ss << "Accel";
+    } else if (imu_flag == 2) {  // gyro
+      ss << "Gyro";
+    }
+    ss << " timestamp: " << imu_stamp;
+    LOG(INFO) << ss.str();
+  }
+  */
   if (keep_accel_then_gyro_ && device_->GetModel() != Model::STANDARD) {
     KeepAccelThenGyro(datas);  // only s2 need do this
   }
@@ -287,16 +303,30 @@ std::vector<api::MotionData> Correspondence::GetReadyMotionDatas() {
 }
 
 void Correspondence::KeepAccelThenGyro(std::vector<api::MotionData> &datas) {
-  auto n = datas.size();
-  if (n == 0) return;
+  if (datas.size() == 0) return;
 
   static std::shared_ptr<ImuData> last_imu = nullptr;
+
+  // process last imu
+  if (datas[0].imu->flag == MYNTEYE_IMU_SEQ_SECOND) {
+    if (last_imu && last_imu->flag == MYNTEYE_IMU_SEQ_FIRST) {
+      datas.insert(datas.begin(), {last_imu});
+    }
+  }
+  last_imu = nullptr;
+
+  // if only one
+  if (datas.size() == 1) {
+    last_imu = datas[0].imu;
+    datas.clear();
+    return;
+  }
 
   std::uint8_t prev_flag = 0;
   for (auto it = datas.begin(); it != datas.end(); ) {
     auto flag = it->imu->flag;
     if (flag == 0) {
-      ++it;  // unexpected
+      ++it;  // unexpected, keep it
       continue;
     }
 
@@ -312,18 +342,24 @@ void Correspondence::KeepAccelThenGyro(std::vector<api::MotionData> &datas) {
         ok = (prev_flag == MYNTEYE_IMU_SEQ_FIRST);
       }
     }
-    if (ok && is_last) {
-      ok = (flag == MYNTEYE_IMU_SEQ_SECOND);
-    }
 
     if (ok) {
       prev_flag = flag;
-      if (is_last) {
-        last_imu = nullptr;
-      }
       ++it;
     } else {
+      if (is_last) {
+        // if tail not ok, retain last imu
+        last_imu = it->imu;
+      }
       it = datas.erase(it);
+    }
+  }
+
+  // if tail is not second
+  if (datas.size() > 0) {
+    auto it = datas.end() - 1;
+    if (it->imu->flag != MYNTEYE_IMU_SEQ_SECOND) {
+      datas.erase(it);
     }
   }
 }
