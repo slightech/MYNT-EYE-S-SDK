@@ -103,7 +103,6 @@ class Processor :
 
   bool input_ready_;
   std::mutex mtx_input_ready_;
-  std::mutex mtx_data_process_unique_;
   std::condition_variable cond_input_ready_;
 
   bool idle_;
