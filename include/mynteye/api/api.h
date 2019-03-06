@@ -290,7 +290,7 @@ class MYNTEYE_API API {
   /**
    * Enable the data of stream.
    * callback function will call before the father processor enable.
-   * when try_tag is true, the function will do nothing except callback. 
+   * when try_tag is true, the function will do nothing except callback.
    */
   void EnableStreamData(
       const Stream &stream,
@@ -304,7 +304,7 @@ class MYNTEYE_API API {
   /**
    * Disable the data of stream.
    * callback function will call before the children processor disable.
-   * when try_tag is true, the function will do nothing except callback. 
+   * when try_tag is true, the function will do nothing except callback.
    */
   void DisableStreamData(
       const Stream &stream,
@@ -334,7 +334,8 @@ class MYNTEYE_API API {
   /**
    * Enable motion datas with timestamp correspondence of some stream.
    */
-  void EnableTimestampCorrespondence(const Stream &stream);
+  void EnableTimestampCorrespondence(const Stream &stream,
+        bool keep_accel_then_gyro = true);
 
   /**
    * Enable the plugin.
