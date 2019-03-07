@@ -48,6 +48,7 @@ int main(int argc, char *argv[]) {
   std::uint8_t prev_imu_flag = 0;
   std::uint64_t imu_count = 0;
   std::uint64_t imu_disorder_count = 0;
+  bool exit = false;
 #endif
   while (true) {
     api->WaitForStreams();
@@ -98,6 +99,9 @@ int main(int argc, char *argv[]) {
         ss << (ok ? " ✓" : " x");
         if (!ok) ++imu_disorder_count;
         prev_imu_flag = imu_flag;
+        if (!exit) {
+          if (!ok) exit = true;
+        }
       }
 #endif
       LOG(INFO) << ss.str();
@@ -107,6 +111,7 @@ int main(int argc, char *argv[]) {
     LOG(INFO);
 #ifdef CHECK_ACCEL_THEN_GYRO
     imu_count += motion_datas.size();
+    if (exit) break;
 #endif
 
     /*
@@ -130,6 +135,8 @@ int main(int argc, char *argv[]) {
   if (imu_disorder_count > 0) {
     LOG(INFO) << "accel_then_gyro, disorder_count: " << imu_disorder_count
         << "/" << imu_count;
+  } else {
+    LOG(INFO) << "accel_then_gyro, ok";
   }
 #endif
   return 0;
