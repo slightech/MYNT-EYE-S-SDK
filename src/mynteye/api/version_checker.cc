@@ -34,6 +34,7 @@ const char* WARN_DESCRIPTION_F =
 const char* WARN_DESCRIPTION_S =
     "We suggest that you should update the SDK";
 const char* PASS_DESCRIPTION = "pass";
+const char* PASS_OUTOF_TABLE_WARNING = "You're using a custom mynteye device";
 
 /** firmware/sdk version matched table */
 /**----device type-----sdk version---firmware version-----pass tag-----*/
@@ -112,10 +113,26 @@ STATUS_UNIT checkUnit(const std::string& sdkv,
   return ST_NOT_PASS;
 }
 
+bool checkIfDeviceInTable(const std::string& devn) {
+  for (size_t i =0;
+      i < sizeof(FSVM_TABLE)/sizeof(firmware_version_match_table_unit);
+      i++) {
+    if (FSVM_TABLE[i].device_type == devn) {
+      return true;
+    }
+  }
+  return false;
+}
+
 bool checkFirmwareVersion(const std::shared_ptr<API> api) {
   auto sdkv = api->GetSDKVersion();
   auto devn = api->GetInfo(Info::DEVICE_NAME);
   auto firmv = api->GetInfo(Info::FIRMWARE_VERSION);
+
+  if (!checkIfDeviceInTable(devn)) {
+    LOG(WARNING) << PASS_OUTOF_TABLE_WARNING;
+    return true;
+  }
 
   for (size_t i =0;
       i < sizeof(FSVM_TABLE)/sizeof(firmware_version_match_table_unit);
