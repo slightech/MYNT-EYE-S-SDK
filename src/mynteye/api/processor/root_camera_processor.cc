@@ -91,9 +91,9 @@ void s1s2Processor::StartVideoStreaming() {
         auto &&stream_data = data2api(data);
         ProcessNativeStream(stream, stream_data);
         // Need mutex if set callback after start
-        if (callback) {
-          callback(stream_data);
-        }
+        // if (callback) {
+        //   callback(stream_data);
+        // }
       },
       true);
   }
