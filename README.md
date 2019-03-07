@@ -1,6 +1,6 @@
 # MYNT® EYE S SDK
 
-[![](https://img.shields.io/badge/MYNT%20EYE%20S%20SDK-2.3.2-brightgreen.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK)
+[![](https://img.shields.io/badge/MYNT%20EYE%20S%20SDK-2.3.3-brightgreen.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK)
 
 ## Overview
 
@@ -17,11 +17,11 @@ Please follow the guide doc to install the SDK on different platforms.
 ## Documentations
 
 * [API Doc](https://github.com/slightech/MYNT-EYE-S-SDK/releases): API reference, some guides and data spec.
-  * en: [![](https://img.shields.io/badge/Download-PDF-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK/files/2913110/mynt-eye-s-sdk-apidoc-2.3.2-en.pdf) [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK/files/2913111/mynt-eye-s-sdk-apidoc-2.3.2-en.zip) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](https://slightech.github.io/MYNT-EYE-S-SDK/)
-  * zh-Hans: [![](https://img.shields.io/badge/Download-PDF-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK/files/2913112/mynt-eye-s-sdk-apidoc-2.3.2-zh-Hans.pdf) [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK/files/2913113/mynt-eye-s-sdk-apidoc-2.3.2-zh-Hans.zip) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](http://doc.myntai.com/resource/api/mynt-eye-s-sdk-apidoc-2.3.2-zh-Hans/mynt-eye-s-sdk-apidoc-2.3.2-zh-Hans/index.html)
+  * en: [![](https://img.shields.io/badge/Download-PDF-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK/files/2939071/mynt-eye-s-sdk-apidoc-2.3.3-en.pdf) [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK/files/2939073/mynt-eye-s-sdk-apidoc-2.3.3-en.zip) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](https://slightech.github.io/MYNT-EYE-S-SDK/)
+  * zh-Hans: [![](https://img.shields.io/badge/Download-PDF-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK/files/2939074/mynt-eye-s-sdk-apidoc-2.3.3-zh-Hans.pdf) [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK/files/2939076/mynt-eye-s-sdk-apidoc-2.3.3-zh-Hans.zip) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](http://doc.myntai.com/resource/api/mynt-eye-s-sdk-apidoc-2.3.3-zh-Hans/mynt-eye-s-sdk-apidoc-2.3.3-zh-Hans/index.html)
 * [Guide Doc](https://github.com/slightech/MYNT-EYE-S-SDK-Guide/releases): How to install and start using the SDK.
-  * en: [![](https://img.shields.io/badge/Download-PDF-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK-Guide/files/2913052/mynt-eye-s-sdk-guide-2.3.2-en.pdf) [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK-Guide/files/2913053/mynt-eye-s-sdk-guide-2.3.2-en.zip) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](https://slightech.github.io/MYNT-EYE-S-SDK-Guide/)
-  * zh-Hans: [![](https://img.shields.io/badge/Download-PDF-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK-Guide/files/2913054/mynt-eye-s-sdk-guide-2.3.2-zh-Hans.pdf) [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK-Guide/files/2913056/mynt-eye-s-sdk-guide-2.3.2-zh-Hans.zip) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](http://doc.myntai.com/resource/sdk/mynt-eye-s-sdk-guide-2.3.2-zh-Hans/mynt-eye-s-sdk-guide-2.3.2-zh-Hans/index.html)
+  * en: [![](https://img.shields.io/badge/Download-PDF-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK-Guide/files/2938988/mynt-eye-s-sdk-guide-2.3.3-en.pdf) [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK-Guide/files/2938990/mynt-eye-s-sdk-guide-2.3.3-en.zip) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](https://slightech.github.io/MYNT-EYE-S-SDK-Guide/)
+  * zh-Hans: [![](https://img.shields.io/badge/Download-PDF-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK-Guide/files/2938991/mynt-eye-s-sdk-guide-2.3.3-zh-Hans.pdf) [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK-Guide/files/2938992/mynt-eye-s-sdk-guide-2.3.3-zh-Hans.zip) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](http://doc.myntai.com/resource/sdk/mynt-eye-s-sdk-guide-2.3.3-zh-Hans/mynt-eye-s-sdk-guide-2.3.3-zh-Hans/index.html)
 
 > Supported languages: `en`, `zh-Hans`.
 
