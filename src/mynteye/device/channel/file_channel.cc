@@ -32,7 +32,6 @@ std::size_t FileChannel::GetDeviceInfoFromData(
     const std::uint8_t *data, const std::uint16_t &data_size,
     device_info_t *info) {
   auto n = dev_info_parser_->GetFromData(data, data_size, info);
-  LOG(INFO) << "GetDeviceInfoFromData:data_size : " << data_size;
   auto spec_version = info->spec_version;
   img_params_parser_->SetSpecVersion(spec_version);
   imu_params_parser_->SetSpecVersion(spec_version);
