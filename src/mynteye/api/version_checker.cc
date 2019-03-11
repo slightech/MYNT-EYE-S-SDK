@@ -45,11 +45,11 @@ static const firmware_version_match_table_unit FSVM_TABLE[] ={
   {"MYNT-EYE-S1030",    ">2.3.0",         "<2.2.0",   ERRO_DESCRIPTION_F},
   {"MYNT-EYE-S1030",    "<2.3.1",         "<2.2.0",   WARN_DESCRIPTION_S},
 /** S2100 */
-  {"MYNT-EYE-S2100",    ">2.3.0",         "1.0",      PASS_DESCRIPTION},
-  {"MYNT-EYE-S2100",    "<2.3.1",         "1.0",      ERRO_DESCRIPTION_S},
+  {"MYNT-EYE-S2100",    ">2.3.0",         ">0.0",      PASS_DESCRIPTION},
+  {"MYNT-EYE-S2100",    "<2.3.1",         ">0.0",      ERRO_DESCRIPTION_S},
 /** S210A */
-  {"MYNT-EYE-S210A",    ">2.3.0",         "1.0",      PASS_DESCRIPTION},
-  {"MYNT-EYE-S210A",    "<2.3.1",         "1.0",      ERRO_DESCRIPTION_S},
+  {"MYNT-EYE-S210A",    ">2.3.0",         ">0.0",      PASS_DESCRIPTION},
+  {"MYNT-EYE-S210A",    "<2.3.1",         ">0.0",      ERRO_DESCRIPTION_S},
 };
 
 void getVersion(const std::string &str, char *version) {
