@@ -11,7 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include <string>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include "mynteye/api/api.h"
 
@@ -26,13 +28,15 @@ int main(int argc, char *argv[]) {
   if (!ok) return 1;
   api->ConfigStreamRequest(request);
 
+  api->SetDisparityComputingMethodType(DisparityComputingMethod::BM);
   api->EnableStreamData(Stream::DEPTH);
 
   api->Start(Source::VIDEO_STREAMING);
 
   cv::namedWindow("frame");
   cv::namedWindow("depth");
-
+  double t = 0;
+  double fps;
   while (true) {
     api->WaitForStreams();
 

@@ -24,7 +24,9 @@
 MYNTEYE_BEGIN_NAMESPACE
 
 Processor::Processor(std::int32_t proc_period)
-    : proc_period_(std::move(proc_period)),
+    : last_frame_id_cd(0),
+      last_frame_id_cd_vice(0),
+      proc_period_(std::move(proc_period)),
       activated_(false),
       input_ready_(false),
       idle_(true),
@@ -278,11 +280,16 @@ api::StreamData Processor::GetStreamData(const Stream &stream) {
   if (enable_mode == Synthetic::MODE_ON) {
     if (sum == 1) {
       if (out != nullptr) {
-        auto &&output = Object::Cast<ObjMat>(out);
+        auto output = Object::Cast<ObjMat>(out);
         if (output != nullptr) {
+          if (last_frame_id_cd == output->data->frame_id) {
+            // cut the duplicate frame.
+            return {};
+          }
+          last_frame_id_cd = output->data->frame_id;
           return obj_data(output);
         }
-        VLOG(2) << "Rectify not ready now";
+        VLOG(2) << "Frame not ready now";
       }
     } else if (sum == 2) {
       static std::shared_ptr<ObjMat2> output = nullptr;
@@ -295,15 +302,26 @@ api::StreamData Processor::GetStreamData(const Stream &stream) {
         for (auto it : streams) {
           if (it.stream == stream) {
             if (num == 1) {
+              if (last_frame_id_cd == output->first_data->frame_id) {
+                // cut the duplicate frame.
+                return {};
+              }
+              last_frame_id_cd = output->first_data->frame_id;
               return obj_data_first(output);
             } else {
+              // last_frame_id_cd = output->second_data->frame_id;
+              if (last_frame_id_cd_vice == output->second_data->frame_id) {
+                // cut the duplicate frame.
+                return {};
+              }
+              last_frame_id_cd_vice = output->second_data->frame_id;
               return obj_data_second(output);
             }
           }
           num++;
         }
       }
-      VLOG(2) << "Rectify not ready now";
+      VLOG(2) << "Frame not ready now";
     } else {
       LOG(ERROR) << "error: invalid sum!";
     }

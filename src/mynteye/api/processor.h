@@ -90,7 +90,8 @@ class Processor :
 
   virtual process_type ProcessOutputConnection();
   virtual process_type ProcessInputConnection();
-
+  std::uint16_t last_frame_id_cd;
+  std::uint16_t last_frame_id_cd_vice;
  private:
   /** Run in standalone thread. */
   void Run();
