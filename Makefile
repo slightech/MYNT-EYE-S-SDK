@@ -62,22 +62,17 @@ all: init samples tools ros
 
 # doc
 
-apidoc:
+apidoc: cleandoc
 	@$(call echo,Make $@)
-	@# @[ -e ./_install/include ] || $(MAKE) install
-	@[ -e /usr/local/include/mynteye ] || $(MAKE) install
-	@$(SH) ./doc/build.sh
+	@cd docs; make html
 
 opendoc: apidoc
 	@$(call echo,Make $@)
-	@$(shell $(SH) ./doc/langs.sh 1); \
-	for lang in "$${LANGS[@]}"; do \
-		html=./doc/_output/$$lang/html/index.html; \
-		[ -f "$$html" ] && $(SH) ./scripts/open.sh $$html; \
-	done
+	@$(SH) ./scripts/open.sh docs/_build/html/index.html
 
 cleandoc:
-	@$(call rm,./doc/_output/)
+	@$(call rm,./docs/_build/)
+	@$(call rm,./docs/_doxygen/)
 
 .PHONY: apidoc opendoc cleandoc
 
