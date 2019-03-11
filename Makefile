@@ -62,6 +62,8 @@ all: init samples tools ros
 
 # doc
 
+doc: apidoc
+
 apidoc: cleandoc
 	@$(call echo,Make $@)
 	@cd docs; make html
@@ -74,7 +76,7 @@ cleandoc:
 	@$(call rm,./docs/_build/)
 	@$(call rm,./docs/_doxygen/)
 
-.PHONY: apidoc opendoc cleandoc
+.PHONY: doc apidoc opendoc cleandoc
 
 # deps
 
