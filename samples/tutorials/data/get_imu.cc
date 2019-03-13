@@ -44,30 +44,32 @@ int main(int argc, char *argv[]) {
     auto &&left_data = api->GetStreamData(Stream::LEFT);
     auto &&right_data = api->GetStreamData(Stream::RIGHT);
 
-    cv::Mat img;
-    cv::hconcat(left_data.frame, right_data.frame, img);
+    if (!left_data.frame.empty() && !right_data.frame.empty()) {
+      cv::Mat img;
+      cv::hconcat(left_data.frame, right_data.frame, img);
 
-    auto &&motion_datas = api->GetMotionDatas();
-    /*
-    for (auto &&data : motion_datas) {
-      LOG(INFO) << "Imu frame_id: " << data.imu->frame_id
-                << ", timestamp: " << data.imu->timestamp
-                << ", accel_x: " << data.imu->accel[0]
-                << ", accel_y: " << data.imu->accel[1]
-                << ", accel_z: " << data.imu->accel[2]
-                << ", gyro_x: " << data.imu->gyro[0]
-                << ", gyro_y: " << data.imu->gyro[1]
-                << ", gyro_z: " << data.imu->gyro[2]
-                << ", temperature: " << data.imu->temperature;
+      auto &&motion_datas = api->GetMotionDatas();
+      /*
+      for (auto &&data : motion_datas) {
+        LOG(INFO) << "Imu frame_id: " << data.imu->frame_id
+                  << ", timestamp: " << data.imu->timestamp
+                  << ", accel_x: " << data.imu->accel[0]
+                  << ", accel_y: " << data.imu->accel[1]
+                  << ", accel_z: " << data.imu->accel[2]
+                  << ", gyro_x: " << data.imu->gyro[0]
+                  << ", gyro_y: " << data.imu->gyro[1]
+                  << ", gyro_z: " << data.imu->gyro[2]
+                  << ", temperature: " << data.imu->temperature;
+      }
+      */
+
+      painter.DrawImgData(img, *left_data.img);
+      if (!motion_datas.empty()) {
+        painter.DrawImuData(img, *motion_datas[0].imu);
+      }
+
+      cv::imshow("frame", img);
     }
-    */
-
-    painter.DrawImgData(img, *left_data.img);
-    if (!motion_datas.empty()) {
-      painter.DrawImuData(img, *motion_datas[0].imu);
-    }
-
-    cv::imshow("frame", img);
 
     char key = static_cast<char>(cv::waitKey(1));
     if (key == 27 || key == 'q' || key == 'Q') {  // ESC/Q

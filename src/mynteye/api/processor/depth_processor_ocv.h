@@ -29,9 +29,6 @@ class DepthProcessorOCV : public Processor {
   virtual ~DepthProcessorOCV();
 
   std::string Name() override;
-  inline Processor::process_type ProcessOutputConnection() override {
-    return Processor::WITHOUT_CLONE;
-  }
 
  protected:
   Object *OnCreateOutput() override;

@@ -37,8 +37,10 @@ int main(int argc, char *argv[]) {
     auto &&right_data = api->GetStreamData(Stream::RIGHT);
 
     cv::Mat img;
-    cv::hconcat(left_data.frame, right_data.frame, img);
-    cv::imshow("frame", img);
+    if (!left_data.frame.empty() && !right_data.frame.empty()) {
+      cv::hconcat(left_data.frame, right_data.frame, img);
+      cv::imshow("frame", img);
+    }
 
     char key = static_cast<char>(cv::waitKey(1));
     if (key == 27 || key == 'q' || key == 'Q') {  // ESC/Q

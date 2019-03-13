@@ -44,9 +44,6 @@ class DisparityProcessor : public Processor {
   inline Processor::process_type ProcessOutputConnection() override {
     return Processor::WITHOUT_CLONE;
   }
-  inline Processor::process_type ProcessInputConnection() override {
-    return Processor::WITHOUT_CLONE;
-  }
   Object *OnCreateOutput() override;
   bool OnProcess(
       Object *const in, Object *const out,

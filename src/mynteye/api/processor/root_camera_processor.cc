@@ -116,7 +116,15 @@ api::StreamData s1s2Processor::GetStreamData(const Stream &stream) {
     }
   }
   if (enable_mode == Synthetic::MODE_ON) {
-    return data2api(device_->GetStreamData(stream));
+    auto res = data2api(device_->GetStreamData(stream));
+    if (res.img == nullptr ||
+        res.img->timestamp == last_frame_id_cd ||
+        res.frame.empty()) {
+      return {};
+    }
+    last_frame_id_cd = res.img->timestamp;
+    return res;
+    // return data2api(device_->GetStreamData(stream));
   }
   LOG(ERROR) << "Failed to get device stream data of " << stream
                << ", unsupported or disabled";

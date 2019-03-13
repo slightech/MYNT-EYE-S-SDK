@@ -61,6 +61,10 @@ int main(int argc, char *argv[]) {
         << ", diff_prev=" << (img_stamp - prev_img_stamp);
     prev_img_stamp = img_stamp;
 
+    // if (left_data.frame.empty() || right_data.frame.empty()) {
+    //   continue;
+    // }
+
     cv::Mat img;
     cv::hconcat(left_data.frame, right_data.frame, img);
 
