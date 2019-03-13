@@ -55,15 +55,14 @@ int main(int argc, char *argv[]) {
 
     auto &&left_data = api->GetStreamData(Stream::LEFT);
     auto &&right_data = api->GetStreamData(Stream::RIGHT);
+    if (left_data.frame.empty() || right_data.frame.empty()) {
+      continue;
+    }
 
     auto img_stamp = left_data.img->timestamp;
     LOG(INFO) << "Img timestamp: " << img_stamp
         << ", diff_prev=" << (img_stamp - prev_img_stamp);
     prev_img_stamp = img_stamp;
-
-    // if (left_data.frame.empty() || right_data.frame.empty()) {
-    //   continue;
-    // }
 
     cv::Mat img;
     cv::hconcat(left_data.frame, right_data.frame, img);
