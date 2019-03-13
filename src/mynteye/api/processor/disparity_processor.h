@@ -41,9 +41,9 @@ class DisparityProcessor : public Processor {
   void NotifyComputingTypeChanged(const DisparityComputingMethod &MethodType);
 
  protected:
-  inline Processor::process_type ProcessOutputConnection() override {
-    return Processor::WITHOUT_CLONE;
-  }
+  // inline Processor::process_type ProcessOutputConnection() override {
+  //   return Processor::WITHOUT_CLONE;
+  // }
   Object *OnCreateOutput() override;
   bool OnProcess(
       Object *const in, Object *const out,
