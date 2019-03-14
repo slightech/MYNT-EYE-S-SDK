@@ -7,14 +7,19 @@ MYNT® EYE S SDK
 ===============
 
 .. toctree::
-   :caption: API REFERENCE
+
    :maxdepth: 2
 
-   api/api
-   api/device
-   api/enums
-   api/types
-   api/utils
+   src/mynteye/contents
+   src/sdk/contents
+   src/firmware/contents
+   src/data/contents
+   src/control/contents
+   src/log/contents
+   src/wrapper/contents
+   src/analytics/contents
+   src/slam/contents
+   api/contents
 
 ..
   Indices and tables
