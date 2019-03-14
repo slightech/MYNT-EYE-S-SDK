@@ -284,6 +284,7 @@ api::StreamData Processor::GetStreamData(const Stream &stream) {
         auto output = Object::Cast<ObjMat>(out);
         if (output != nullptr) {
           if (!is_enable_cd &&
+              output->data &&
               last_frame_id_cd == output->data->frame_id) {
             // cut the duplicate frame.
             return {};
@@ -305,6 +306,7 @@ api::StreamData Processor::GetStreamData(const Stream &stream) {
           if (it.stream == stream) {
             if (num == 1) {
               if (!is_enable_cd &&
+                  output->first_data &&
                   last_frame_id_cd == output->first_data->frame_id) {
                 // cut the duplicate frame.
                 return {};
@@ -314,6 +316,7 @@ api::StreamData Processor::GetStreamData(const Stream &stream) {
             } else {
               // last_frame_id_cd = output->second_data->frame_id;
               if (!is_enable_cd &&
+                  output->second_data &&
                   last_frame_id_cd_vice == output->second_data->frame_id) {
                 // cut the duplicate frame.
                 return {};
