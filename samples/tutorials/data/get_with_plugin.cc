@@ -26,6 +26,8 @@ int main(int argc, char *argv[]) {
   if (!ok) return 1;
   api->ConfigStreamRequest(request);
 
+  api->setDuplicate(true);
+
   api->EnablePlugin("plugins/linux-x86_64/libplugin_g_cuda9.1_opencv3.4.0.so");
 
   api->EnableStreamData(Stream::DISPARITY_NORMALIZED);

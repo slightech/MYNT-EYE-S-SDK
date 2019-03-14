@@ -26,6 +26,7 @@ MYNTEYE_BEGIN_NAMESPACE
 Processor::Processor(std::int32_t proc_period)
     : last_frame_id_cd(0),
       last_frame_id_cd_vice(0),
+      is_enable_cd(false),
       proc_period_(std::move(proc_period)),
       activated_(false),
       input_ready_(false),
@@ -282,7 +283,8 @@ api::StreamData Processor::GetStreamData(const Stream &stream) {
       if (out != nullptr) {
         auto output = Object::Cast<ObjMat>(out);
         if (output != nullptr) {
-          if (last_frame_id_cd == output->data->frame_id) {
+          if (!is_enable_cd &&
+              last_frame_id_cd == output->data->frame_id) {
             // cut the duplicate frame.
             return {};
           }
@@ -302,7 +304,8 @@ api::StreamData Processor::GetStreamData(const Stream &stream) {
         for (auto it : streams) {
           if (it.stream == stream) {
             if (num == 1) {
-              if (last_frame_id_cd == output->first_data->frame_id) {
+              if (!is_enable_cd &&
+                  last_frame_id_cd == output->first_data->frame_id) {
                 // cut the duplicate frame.
                 return {};
               }
@@ -310,7 +313,8 @@ api::StreamData Processor::GetStreamData(const Stream &stream) {
               return obj_data_first(output);
             } else {
               // last_frame_id_cd = output->second_data->frame_id;
-              if (last_frame_id_cd_vice == output->second_data->frame_id) {
+              if (!is_enable_cd &&
+                  last_frame_id_cd_vice == output->second_data->frame_id) {
                 // cut the duplicate frame.
                 return {};
               }

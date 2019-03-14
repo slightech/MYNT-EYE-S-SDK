@@ -560,6 +560,10 @@ void API::EnablePlugin(const std::string &path) {
   synthetic_->SetPlugin(plugin);
 }
 
+void API::setDuplicate(bool isEnable) {
+  synthetic_->setDuplicate(isEnable);
+}
+
 void API::SetDisparityComputingMethodType(
       const DisparityComputingMethod &MethodType) {
   synthetic_->SetDisparityComputingMethodType(MethodType);

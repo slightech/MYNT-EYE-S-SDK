@@ -174,6 +174,12 @@ bool Synthetic::Supports(const Stream &stream) const {
   return checkControlDateWithStream(stream);
 }
 
+void Synthetic::setDuplicate(bool isEnable) {
+  for (auto it : processors_) {
+    it->setDupEnable(isEnable);
+  }
+}
+
 void Synthetic::EnableStreamData(
     const Stream &stream, stream_switch_callback_t callback,
     bool try_tag) {

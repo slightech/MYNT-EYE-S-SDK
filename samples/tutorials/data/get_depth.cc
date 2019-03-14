@@ -35,8 +35,6 @@ int main(int argc, char *argv[]) {
 
   cv::namedWindow("frame");
   cv::namedWindow("depth");
-  double t = 0;
-  double fps;
   while (true) {
     api->WaitForStreams();
 

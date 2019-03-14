@@ -83,6 +83,8 @@ class Synthetic {
   void SetPlugin(std::shared_ptr<Plugin> plugin);
   bool HasPlugin() const;
 
+  void setDuplicate(bool isEnable);
+
   const struct stream_control_t getControlDateWithStream(
       const Stream& stream) const;
   void setControlDateCallbackWithStream(

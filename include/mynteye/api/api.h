@@ -238,6 +238,11 @@ class MYNTEYE_API API {
       const DisparityComputingMethod &MethodType);
 
   /**
+   * Set if the duplicate frames is enable.
+   */
+  void setDuplicate(bool isEnable);
+
+  /**
    * Set the option value.
    */
   void SetOptionValue(const Option &option, std::int32_t value);

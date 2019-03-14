@@ -77,6 +77,9 @@ class Processor :
   std::shared_ptr<Object> GetOutput();
 
   std::uint64_t GetDroppedCount();
+  inline void setDupEnable(bool isEnable) {
+    is_enable_cd = isEnable;
+  }
 
  protected:
   virtual Object *OnCreateOutput() = 0;
@@ -92,6 +95,7 @@ class Processor :
   virtual process_type ProcessInputConnection();
   std::uint16_t last_frame_id_cd;
   std::uint16_t last_frame_id_cd_vice;
+  bool is_enable_cd;
  private:
   /** Run in standalone thread. */
   void Run();
