@@ -283,13 +283,14 @@ api::StreamData Processor::GetStreamData(const Stream &stream) {
       if (out != nullptr) {
         auto output = Object::Cast<ObjMat>(out);
         if (output != nullptr) {
-          if (!is_enable_cd &&
-              output->data &&
-              last_frame_id_cd == output->data->frame_id) {
-            // cut the duplicate frame.
-            return {};
+          if (!is_enable_cd) {
+            if (output->data &&
+                last_frame_id_cd == output->data->frame_id) {
+              // cut the duplicate frame.
+              return {};
+            }
+            last_frame_id_cd = output->data->frame_id;
           }
-          last_frame_id_cd = output->data->frame_id;
           return obj_data(output);
         }
         VLOG(2) << "Frame not ready now";
@@ -305,23 +306,24 @@ api::StreamData Processor::GetStreamData(const Stream &stream) {
         for (auto it : streams) {
           if (it.stream == stream) {
             if (num == 1) {
-              if (!is_enable_cd &&
-                  output->first_data &&
+              if (!is_enable_cd) {
+                if (output->first_data &&
                   last_frame_id_cd == output->first_data->frame_id) {
-                // cut the duplicate frame.
-                return {};
+                  // cut the duplicate frame.
+                  return {};
+                }
+                last_frame_id_cd = output->first_data->frame_id;
               }
-              last_frame_id_cd = output->first_data->frame_id;
               return obj_data_first(output);
             } else {
               // last_frame_id_cd = output->second_data->frame_id;
-              if (!is_enable_cd &&
-                  output->second_data &&
-                  last_frame_id_cd_vice == output->second_data->frame_id) {
-                // cut the duplicate frame.
-                return {};
+              if (!is_enable_cd) {
+                if (output->second_data &&
+                    last_frame_id_cd_vice == output->second_data->frame_id) {
+                  return {};
+                }
+                last_frame_id_cd_vice = output->second_data->frame_id;
               }
-              last_frame_id_cd_vice = output->second_data->frame_id;
               return obj_data_second(output);
             }
           }
