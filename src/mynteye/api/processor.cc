@@ -268,8 +268,6 @@ Processor::process_type Processor::ProcessInputConnection() {
 api::StreamData Processor::GetStreamData(const Stream &stream) {
   auto sum = getStreamsSum();
   auto &&out = GetOutput();
-  // to make sure that one frame can just be get once!
-  output_result_ = nullptr;
   Synthetic::Mode enable_mode = Synthetic::MODE_OFF;
   auto streams = getTargetStreams();
   for (auto it_s : streams) {
