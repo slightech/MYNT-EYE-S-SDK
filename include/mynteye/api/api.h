@@ -349,6 +349,11 @@ class MYNTEYE_API API {
 
   std::shared_ptr<Device> device();
 
+  /** Enable process mode, e.g. imu assembly, temp_drift */
+  void EnableProcessMode(const ProcessMode& mode);
+  /** Enable process mode, e.g. imu assembly, temp_drift */
+  void EnableProcessMode(const std::int32_t& mode);
+
  private:
   std::shared_ptr<Device> device_;
 

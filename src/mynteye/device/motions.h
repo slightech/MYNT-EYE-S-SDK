@@ -46,7 +46,13 @@ class Motions {
   void EnableMotionDatas(std::size_t max_size);
   motion_datas_t GetMotionDatas();
 
+  void SetMotionIntrinsics(const std::shared_ptr<MotionIntrinsics>& in);
+  void EnableProcessMode(const std::int32_t& mode);
+
  private:
+  void ProcImuAssembly(std::shared_ptr<ImuData> data) const;
+  void ProcImuTempDrift(std::shared_ptr<ImuData> data) const;
+
   std::shared_ptr<Channels> channels_;
 
   motion_callback_t motion_callback_;
@@ -61,6 +67,9 @@ class Motions {
 
   int accel_range;
   int gyro_range;
+
+  std::int32_t proc_mode_;
+  std::shared_ptr<MotionIntrinsics> motion_intrinsics_;
 };
 
 MYNTEYE_END_NAMESPACE

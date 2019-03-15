@@ -295,6 +295,11 @@ class MYNTEYE_API Device {
    */
   std::vector<device::MotionData> GetMotionDatas();
 
+  /** Enable process mode, e.g. imu assembly, temp_drift */
+  void EnableProcessMode(const ProcessMode& mode);
+  /** Enable process mode, e.g. imu assembly, temp_drift */
+  void EnableProcessMode(const std::int32_t& mode);
+
  protected:
   std::shared_ptr<uvc::device> device() const {
     return device_;
