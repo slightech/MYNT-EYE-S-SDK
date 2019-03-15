@@ -483,7 +483,7 @@ bool Channels::GetFiles(
           if (imu_params->ok) {
             auto &&n = file_channel_.GetImuParamsFromData(
                 data + i, file_size, imu_params);
-            // CHECK_EQ(n, file_size);
+            CHECK_EQ(n, file_size);
           }
         } break;
         default:
