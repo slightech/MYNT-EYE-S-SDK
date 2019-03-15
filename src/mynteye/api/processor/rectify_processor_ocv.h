@@ -49,12 +49,12 @@ class RectifyProcessorOCV : public Processor {
   cv::Mat map11, map12, map21, map22;
 
  protected:
-  inline Processor::process_type ProcessOutputConnection() override {
-    return Processor::WITHOUT_CLONE;
-  }
-  inline Processor::process_type ProcessInputConnection() override {
-    return Processor::WITHOUT_CLONE;
-  }
+  // inline Processor::process_type ProcessOutputConnection() override {
+  //   return Processor::WITHOUT_CLONE;
+  // }
+  // inline Processor::process_type ProcessInputConnection() override {
+  //   return Processor::WITHOUT_CLONE;
+  // }
 
   Object *OnCreateOutput() override;
   bool OnProcess(
