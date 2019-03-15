@@ -458,6 +458,7 @@ struct MYNTEYE_API IntrinsicsPinhole : public IntrinsicsBase {
     fy *= resize_scale;
     cx *= resize_scale;
     cy *= resize_scale;
+    resize_scale = 1.0;
   }
   /** The focal length of the image plane, as a multiple of pixel width */
   double fx;
@@ -498,6 +499,7 @@ struct MYNTEYE_API IntrinsicsEquidistant : public IntrinsicsBase {
     coeffs[5] *= resize_scale;
     coeffs[6] *= resize_scale;
     coeffs[7] *= resize_scale;
+    resize_scale = 1.0;
   }
 };
 
