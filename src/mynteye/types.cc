@@ -246,6 +246,15 @@ std::ostream &operator<<(std::ostream &os, const ImuIntrinsics &in) {
     os << in.scale[2][i] << ", ";
   os << in.scale[2][2] << "]";
 
+  os << ", assembly: [";
+  for (int i = 0; i <= 2; i++)
+    os << in.assembly[0][i] << ", ";
+  for (int i = 0; i <= 2; i++)
+    os << in.assembly[1][i] << ", ";
+  for (int i = 0; i <= 2; i++)
+    os << in.assembly[2][i] << ", ";
+  os << in.assembly[2][2] << "]";
+
   os << ", drift: [";
   for (int i = 0; i <= 1; i++)
     os << in.drift[i] << ", ";
@@ -260,6 +269,21 @@ std::ostream &operator<<(std::ostream &os, const ImuIntrinsics &in) {
   for (int i = 0; i <= 1; i++)
     os << in.bias[i] << ", ";
   os << in.bias[2] << "]";
+
+  os << ", x: [";
+  for (int i = 0; i <= 0; i++)
+    os << in.x[i] << ", ";
+  os << in.x[1] << "]";
+
+  os << ", y: [";
+  for (int i = 0; i <= 0; i++)
+    os << in.y[i] << ", ";
+  os << in.y[1] << "]";
+
+  os << ", z: [";
+  for (int i = 0; i <= 0; i++)
+    os << in.z[i] << ", ";
+  os << in.z[1] << "]";
 
   return os;
 }

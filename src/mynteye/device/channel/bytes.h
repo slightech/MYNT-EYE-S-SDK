@@ -55,7 +55,8 @@ std::size_t from_data(IntrinsicsPinhole *in, const std::uint8_t *data,
 std::size_t from_data(IntrinsicsEquidistant *in, const std::uint8_t *data,
     bool get_size);
 
-std::size_t from_data(ImuIntrinsics *in, const std::uint8_t *data);
+std::size_t from_data(ImuIntrinsics *in, const std::uint8_t *data,
+    bool get_size);
 
 std::size_t from_data(Extrinsics *ex, const std::uint8_t *data);
 
@@ -88,7 +89,8 @@ std::size_t to_data(const IntrinsicsPinhole *in, std::uint8_t *data,
 std::size_t to_data(const IntrinsicsEquidistant *in, std::uint8_t *data,
     bool set_size);
 
-std::size_t to_data(const ImuIntrinsics *in, std::uint8_t *data);
+std::size_t to_data(const ImuIntrinsics *in, std::uint8_t *data, bool
+    set_size);
 
 std::size_t to_data(const Extrinsics *ex, std::uint8_t *data);
 
