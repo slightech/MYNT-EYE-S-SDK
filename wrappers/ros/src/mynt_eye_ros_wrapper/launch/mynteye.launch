@@ -54,7 +54,14 @@
   <!-- MYNTEYE-S2100/S2000/S210A, Reslution: 2560x800, Format: YUYV/BGR888, Fps: 30 -->
   <arg name="index_s2_6"   default="6" />
 
-  <arg name="request_index" default="$(arg index_s2_2)" />
+  <arg name="standard2/request_index" default="$(arg index_s2_2)" />
+
+  <!-- MYNTEYE-S1030, Reslution: 752x480, Format: YUYV -->
+  <arg name="index_s_0"   default="0" />
+  <!-- MYNTEYE-S1030, Reslution: 376x240, Format: YUYV -->
+  <arg name="index_s_1"   default="1" />
+
+  <arg name="standard/request_index" default="$(arg index_s_0)" />
 
   <!-- disparity computing method type -->
   <arg name="sgbm"   default="0" />
@@ -259,7 +266,8 @@
       <param name="enable_depth" value="$(arg enable_depth)" />
 
       <!-- stream request index -->
-      <param name="request_index" value="$(arg request_index)" />
+      <param name="standard/request_index" value="$(arg standard/request_index)" />
+      <param name="standard2/request_index" value="$(arg standard2/request_index)" />
 
       <!-- device options of standard-->
 

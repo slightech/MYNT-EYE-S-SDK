@@ -656,7 +656,18 @@ void Device::UpdateStreamIntrinsics(
             img_res.height == request.GetResolution().height &&
             img_res.width == request.GetResolution().width / 2;
     } else if (capability == Capabilities::STEREO) {
-      ok = img_params.ok && img_res == request.GetResolution();
+      if (img_res == request.GetResolution()) {
+        ok = img_params.ok;
+      } else if (request.GetResolution().height / img_res.height ==
+                request.GetResolution().width / img_res.width) {
+        double scale = static_cast<double> (
+          1.0 * request.GetResolution().height / img_res.height);
+        img_params.in_left->resize_scale = scale;
+        img_params.in_right->resize_scale = scale;
+        ok = img_params.ok;
+      } else {
+        ok = false;
+      }
     }
     if (ok) {
       SetIntrinsics(Stream::LEFT, img_params.in_left);

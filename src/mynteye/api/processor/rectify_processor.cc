@@ -335,6 +335,8 @@ void RectifyProcessor::InitParams(
     IntrinsicsEquidistant in_right,
     Extrinsics ex_right_to_left) {
   calib_model = CalibrationModel::KANNALA_BRANDT;
+  in_left.ResizeIntrinsics();
+  in_right.ResizeIntrinsics();
   camodocal::CameraPtr camera_odo_ptr_left =
       generateCameraFromIntrinsicsEquidistant(in_left);
   camodocal::CameraPtr camera_odo_ptr_right =

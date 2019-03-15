@@ -25,11 +25,22 @@ int main(int argc, char *argv[]) {
   auto &&request = api->SelectStreamRequest(&ok);
   if (!ok) return 1;
   api->ConfigStreamRequest(request);
-
-  LOG(INFO) << "Intrinsics left: {" << *api->GetIntrinsicsBase(Stream::LEFT)
-            << "}";
-  LOG(INFO) << "Intrinsics right: {" << *api->GetIntrinsicsBase(Stream::RIGHT)
-            << "}";
+  auto in_left = api->GetIntrinsicsBase(Stream::LEFT);
+  auto in_right = api->GetIntrinsicsBase(Stream::RIGHT);
+  if (in_left->calib_model() == CalibrationModel::PINHOLE) {
+    in_left = std::dynamic_pointer_cast<IntrinsicsPinhole>(in_left);
+    in_right = std::dynamic_pointer_cast<IntrinsicsPinhole>(in_right);
+  } else if (in_left->calib_model() == CalibrationModel::KANNALA_BRANDT) {
+    in_left = std::dynamic_pointer_cast<IntrinsicsEquidistant>(in_left);
+    in_right = std::dynamic_pointer_cast<IntrinsicsEquidistant>(in_right);
+  } else {
+    LOG(INFO) << "UNKNOW CALIB MODEL.";
+    return 0;
+  }
+  in_left -> ResizeIntrinsics();
+  in_right -> ResizeIntrinsics();
+  LOG(INFO) << "Intrinsics left: {" << *in_left << "}";
+  LOG(INFO) << "Intrinsics right: {" << *in_right << "}";
   LOG(INFO) << "Extrinsics right to left: {"
             << api->GetExtrinsics(Stream::RIGHT, Stream::LEFT) << "}";
 

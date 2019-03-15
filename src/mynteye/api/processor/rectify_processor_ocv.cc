@@ -80,6 +80,8 @@ void RectifyProcessorOCV::InitParams(
     IntrinsicsPinhole in_right,
     Extrinsics ex_right_to_left) {
   calib_model = CalibrationModel::PINHOLE;
+  in_left.ResizeIntrinsics();
+  in_right.ResizeIntrinsics();
   cv::Size size{in_left.width, in_left.height};
 
   cv::Mat M1 =
