@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
       */
 
       painter.DrawImgData(img, *left_data.img);
-      if (!motion_datas.empty()) {
+      if (!motion_datas.empty() && motion_datas.size() > 0) {
         painter.DrawImuData(img, *motion_datas[0].imu);
       }
 
