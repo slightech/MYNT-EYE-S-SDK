@@ -157,11 +157,20 @@ cv::FileStorage &operator<<(cv::FileStorage &fs, const ImuIntrinsics &in) {
       scales.push_back(in.scale[i][j]);
     }
   }
+  std::vector<double> assembly;
+  for (std::size_t i = 0; i < 3; i++) {
+    for (std::size_t j = 0; j < 3; j++) {
+      assembly.push_back(in.assembly[i][j]);
+    }
+  }
   fs << "{"
-     << "scale" << scales << "drift"
+     << "scale" << scales << "assembly" << assembly << "drift"
      << std::vector<double>(in.drift, in.drift + 3) << "noise"
      << std::vector<double>(in.noise, in.noise + 3) << "bias"
-     << std::vector<double>(in.bias, in.bias + 3) << "}";
+     << std::vector<double>(in.bias, in.bias + 3) << "x"
+     << std::vector<double>(in.x, in.x + 2) << "y"
+     << std::vector<double>(in.y, in.y + 2) << "z"
+     << std::vector<double>(in.z, in.z + 2) << "}";
   return fs;
 }
 
@@ -344,6 +353,11 @@ void operator>>(const cv::FileNode &n, ImuIntrinsics &in) {
     }
   }
   for (std::size_t i = 0; i < 3; i++) {
+    for (std::size_t j = 0; j < 3; j++) {
+      in.assembly[i][j] = n["assembly"][3 * i + j];
+    }
+  }
+  for (std::size_t i = 0; i < 3; i++) {
     in.drift[i] = n["drift"][i];
   }
   for (std::size_t i = 0; i < 3; i++) {
@@ -351,6 +365,15 @@ void operator>>(const cv::FileNode &n, ImuIntrinsics &in) {
   }
   for (std::size_t i = 0; i < 3; i++) {
     in.bias[i] = n["bias"][i];
+  }
+  for (std::size_t i = 0; i < 2; i++) {
+    in.x[i] = n["x"][i];
+  }
+  for (std::size_t i = 0; i < 2; i++) {
+    in.y[i] = n["y"][i];
+  }
+  for (std::size_t i = 0; i < 2; i++) {
+    in.z[i] = n["z"][i];
   }
 }
 

@@ -442,16 +442,19 @@ std::size_t ImuParamsParser::GetFromData(
 
 std::size_t ImuParamsParser::SetToData(
     const imu_params_t *imu_params, std::uint8_t *data) const {
-  // always set imu params with new version format
-  return SetToData_new(imu_params, data);
+  if (spec_version_ >= Version(1, 2)) {
+    return SetToData_new(imu_params, data);
+  } else {
+    return SetToData_old(imu_params, data);
+  }
 }
 
 std::size_t ImuParamsParser::GetFromData_old(
     const std::uint8_t *data, const std::uint16_t &data_size,
     imu_params_t *imu_params) const {
   std::size_t i = 0;
-  i += bytes::from_data(&imu_params->in_accel, data + i);
-  i += bytes::from_data(&imu_params->in_gyro, data + i);
+  i += bytes::from_data(&imu_params->in_accel, data + i, false);
+  i += bytes::from_data(&imu_params->in_gyro, data + i, false);
   i += bytes::from_data(&imu_params->ex_left_to_imu, data + i);
   imu_params->version = spec_version_.to_string();
   MYNTEYE_UNUSED(data_size)
@@ -461,8 +464,8 @@ std::size_t ImuParamsParser::GetFromData_old(
 std::size_t ImuParamsParser::SetToData_old(
     const imu_params_t *imu_params, std::uint8_t *data) const {
   std::size_t i = 3;  // skip id, size
-  i += bytes::to_data(&imu_params->in_accel, data + i);
-  i += bytes::to_data(&imu_params->in_gyro, data + i);
+  i += bytes::to_data(&imu_params->in_accel, data + i, false);
+  i += bytes::to_data(&imu_params->in_gyro, data + i, false);
   i += bytes::to_data(&imu_params->ex_left_to_imu, data + i);
   // others
   std::size_t size = i - 3;
@@ -482,8 +485,8 @@ std::size_t ImuParamsParser::GetFromData_new(
   i += 2;
   // get imu params according to version
   if (version == Version(1, 2)) {  // v1.2
-    i += bytes::from_data(&imu_params->in_accel, data + i);
-    i += bytes::from_data(&imu_params->in_gyro, data + i);
+    i += bytes::from_data(&imu_params->in_accel, data + i, true);
+    i += bytes::from_data(&imu_params->in_gyro, data + i, true);
     i += bytes::from_data(&imu_params->ex_left_to_imu, data + i);
   } else {
     LOG(FATAL) << "Could not get imu params of version "
@@ -506,8 +509,8 @@ std::size_t ImuParamsParser::SetToData_new(
   i += 2;
   // set imu params with new version format
   if (version_raw <= version_new) {
-    i += bytes::to_data(&imu_params->in_accel, data + i);
-    i += bytes::to_data(&imu_params->in_gyro, data + i);
+    i += bytes::to_data(&imu_params->in_accel, data + i, true);
+    i += bytes::to_data(&imu_params->in_gyro, data + i, true);
     i += bytes::to_data(&imu_params->ex_left_to_imu, data + i);
   } else {
     LOG(FATAL) << "Could not set imu params of version "

@@ -103,7 +103,8 @@ std::size_t from_data(IntrinsicsEquidistant *in, const std::uint8_t *data,
   return i;
 }
 
-std::size_t from_data(ImuIntrinsics *in, const std::uint8_t *data) {
+std::size_t from_data(ImuIntrinsics *in, const std::uint8_t *data,
+    bool get_size) {
   std::size_t i = 0;
 
   // scale
@@ -113,6 +114,15 @@ std::size_t from_data(ImuIntrinsics *in, const std::uint8_t *data) {
     }
   }
   i += 72;
+  if (get_size) {
+    // assembly
+    for (std::size_t j = 0; j < 3; j++) {
+      for (std::size_t k = 0; k < 3; k++) {
+        in->assembly[j][k] = _from_data<double>(data + i + (j * 3 + k) * 8);
+      }
+    }
+    i += 72;
+  }
   // drift
   for (std::size_t j = 0; j < 3; j++) {
     in->drift[j] = _from_data<double>(data + i + j * 8);
@@ -128,6 +138,24 @@ std::size_t from_data(ImuIntrinsics *in, const std::uint8_t *data) {
     in->bias[j] = _from_data<double>(data + i + j * 8);
   }
   i += 24;
+  if (get_size) {
+    // temperature drift
+    // x
+    for (std::size_t j = 0; j < 2; j++) {
+      in->x[j] = _from_data<double>(data + i + j * 8);
+    }
+    i += 16;
+    // y
+    for (std::size_t j = 0; j < 2; j++) {
+      in->y[j] = _from_data<double>(data + i + j * 8);
+    }
+    i += 16;
+    // z
+    for (std::size_t j = 0; j < 2; j++) {
+      in->z[j] = _from_data<double>(data + i + j * 8);
+    }
+    i += 16;
+  }
 
   return i;
 }
@@ -236,7 +264,8 @@ std::size_t to_data(const IntrinsicsEquidistant *in, std::uint8_t *data,
   return i;
 }
 
-std::size_t to_data(const ImuIntrinsics *in, std::uint8_t *data) {
+std::size_t to_data(const ImuIntrinsics *in, std::uint8_t *data,
+    bool set_size) {
   std::size_t i = 0;
 
   // scale
@@ -246,6 +275,15 @@ std::size_t to_data(const ImuIntrinsics *in, std::uint8_t *data) {
     }
   }
   i += 72;
+  if (set_size) {
+    // assembly
+    for (std::size_t j = 0; j < 3; j++) {
+      for (std::size_t k = 0; k < 3; k++) {
+        _to_data(in->assembly[j][k], data + i + (j * 3 + k) * 8);
+      }
+    }
+    i += 72;
+  }
   // drift
   for (std::size_t j = 0; j < 3; j++) {
     _to_data(in->drift[j], data + i + j * 8);
@@ -261,6 +299,24 @@ std::size_t to_data(const ImuIntrinsics *in, std::uint8_t *data) {
     _to_data(in->bias[j], data + i + j * 8);
   }
   i += 24;
+  if (set_size) {
+    // temperature drift
+    // x
+    for (std::size_t j = 0; j < 2; j++) {
+      _to_data<double>(in->x[j], data + i + j * 8);
+    }
+    i += 16;
+    // y
+    for (std::size_t j = 0; j < 2; j++) {
+      _to_data<double>(in->y[j], data + i + j * 8);
+    }
+    i += 16;
+    // z
+    for (std::size_t j = 0; j < 2; j++) {
+      _to_data<double>(in->z[j], data + i + j * 8);
+    }
+    i += 16;
+  }
 
   return i;
 }

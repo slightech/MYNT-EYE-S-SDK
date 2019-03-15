@@ -518,12 +518,24 @@ struct MYNTEYE_API ImuIntrinsics {
    * \endcode
    */
   double scale[3][3];
+  /** Assembly error [3][3] */
+  double assembly[3][3];
   /* Zero-drift: X, Y, Z */
   double drift[3];
   /** Noise density variances */
   double noise[3];
   /** Random walk variances */
   double bias[3];
+
+  /** Temperature drift
+   *  \code
+   *    0 - Constant value
+   *    1 - Slope
+   *  \endcode
+   */
+  double x[2];
+  double y[2];
+  double z[2];
 };
 
 MYNTEYE_API
