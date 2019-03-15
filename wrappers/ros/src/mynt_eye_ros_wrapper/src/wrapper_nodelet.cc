@@ -1062,7 +1062,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     model_ = api_->GetModel();
     if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
-      private_nh_.getParam("request_index", request_index);
+      private_nh_.getParam("standard2/request_index", request_index);
       switch (request_index) {
         case 0:
         case 4:
@@ -1082,7 +1082,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       }
     }
     if (model_ == Model::STANDARD) {
-      request_index = 0;
+      private_nh_.getParam("standard/request_index", request_index);
       frame_rate_ = api_->GetOptionValue(Option::FRAME_RATE);
     }
 
@@ -1217,11 +1217,12 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
 
     camera_info->header.frame_id = frame_ids_[stream];
-    camera_info->width = in_base->width;
-    camera_info->height = in_base->height;
 
     if (in_base->calib_model() == CalibrationModel::PINHOLE) {
       auto in = std::dynamic_pointer_cast<IntrinsicsPinhole>(in_base);
+      in -> ResizeIntrinsics();
+      camera_info->width = in_base->width;
+      camera_info->height = in_base->height;
       //     [fx  0 cx]
       // K = [ 0 fy cy]
       //     [ 0  0  1]
@@ -1253,7 +1254,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       }
     } else if (in_base->calib_model() == CalibrationModel::KANNALA_BRANDT) {
       auto in = std::dynamic_pointer_cast<IntrinsicsEquidistant>(in_base);
-
+      in -> ResizeIntrinsics();
+      camera_info->width = in_base->width;
+      camera_info->height = in_base->height;
       camera_info->distortion_model = "kannala_brandt";
 
       // coeffs: k2,k3,k4,k5,mu,mv,u0,v0

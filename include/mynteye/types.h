@@ -448,6 +448,7 @@ struct MYNTEYE_API IntrinsicsBase {
     calib_model_ = CalibrationModel::UNKNOW;
   }
   virtual ~IntrinsicsBase() {}
+  virtual void ResizeIntrinsics() {}
 
   /** The calibration model */
   CalibrationModel calib_model() const {
@@ -457,7 +458,8 @@ struct MYNTEYE_API IntrinsicsBase {
   std::uint16_t width;
   /** The height of the image in pixels */
   std::uint16_t height;
-
+  /** Resize scale */
+  double resize_scale = 1.0;
  protected:
   CalibrationModel calib_model_;
 };
@@ -472,6 +474,14 @@ std::ostream &operator<<(std::ostream &os, const IntrinsicsBase &in);
 struct MYNTEYE_API IntrinsicsPinhole : public IntrinsicsBase {
   IntrinsicsPinhole() {
     calib_model_ = CalibrationModel::PINHOLE;
+  }
+  void ResizeIntrinsics() {
+    width = static_cast<std::uint16_t>(width * resize_scale);
+    height = static_cast<std::uint16_t>(height * resize_scale);
+    fx *= resize_scale;
+    fy *= resize_scale;
+    cx *= resize_scale;
+    cy *= resize_scale;
   }
   /** The focal length of the image plane, as a multiple of pixel width */
   double fx;
@@ -505,6 +515,14 @@ struct MYNTEYE_API IntrinsicsEquidistant : public IntrinsicsBase {
   }
   /** The distortion coefficients: k2,k3,k4,k5,mu,mv,u0,v0 */
   double coeffs[8];
+  void ResizeIntrinsics() {
+    width = static_cast<std::uint16_t>(width * resize_scale);
+    height = static_cast<std::uint16_t>(height * resize_scale);
+    coeffs[4] *= resize_scale;
+    coeffs[5] *= resize_scale;
+    coeffs[6] *= resize_scale;
+    coeffs[7] *= resize_scale;
+  }
 };
 
 MYNTEYE_API
