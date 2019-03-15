@@ -80,7 +80,7 @@ DisparityProcessor::DisparityProcessor(DisparityComputingMethod type,
     bm_matcher->setBlockSize(15);
     bm_matcher->setMinDisparity(0);
     bm_matcher->setNumDisparities(64);
-    bm_matcher->setUniquenessRatio(15);
+    bm_matcher->setUniquenessRatio(60);
     bm_matcher->setTextureThreshold(10);
     bm_matcher->setSpeckleWindowSize(100);
     bm_matcher->setSpeckleRange(4);
