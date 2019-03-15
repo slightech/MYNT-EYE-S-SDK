@@ -86,6 +86,7 @@ Synthetic::Synthetic(API *api, CalibrationModel calib_model)
 
 Synthetic::~Synthetic() {
   VLOG(2) << __func__;
+  processors_.clear();
   if (processor_) {
     processor_->Deactivate(true);
     processor_ = nullptr;
@@ -171,6 +172,12 @@ bool Synthetic::checkControlDateWithStream(const Stream& stream) const {
 
 bool Synthetic::Supports(const Stream &stream) const {
   return checkControlDateWithStream(stream);
+}
+
+void Synthetic::setDuplicate(bool isEnable) {
+  for (auto it : processors_) {
+    it->setDupEnable(isEnable);
+  }
 }
 
 void Synthetic::EnableStreamData(
@@ -364,6 +371,10 @@ void Synthetic::InitProcessors() {
     return;
   }
 
+  root_processor->addTargetStreams(
+      {Stream::LEFT, Mode::MODE_OFF, nullptr});
+  root_processor->addTargetStreams(
+      {Stream::RIGHT, Mode::MODE_OFF, nullptr});
   rectify_processor->addTargetStreams(
       {Stream::LEFT_RECTIFIED, Mode::MODE_OFF, nullptr});
   rectify_processor->addTargetStreams(
@@ -376,10 +387,6 @@ void Synthetic::InitProcessors() {
       {Stream::POINTS, Mode::MODE_OFF, nullptr});
   depth_processor->addTargetStreams(
       {Stream::DEPTH, Mode::MODE_OFF, nullptr});
-  root_processor->addTargetStreams(
-      {Stream::LEFT, Mode::MODE_OFF, nullptr});
-  root_processor->addTargetStreams(
-      {Stream::RIGHT, Mode::MODE_OFF, nullptr});
 
   processors_.push_back(root_processor);
   processors_.push_back(rectify_processor);
@@ -421,7 +428,8 @@ bool Synthetic::OnDeviceProcess(
     Object *const in, Object *const out,
     std::shared_ptr<Processor> const parent) {
   MYNTEYE_UNUSED(parent)
-  return GetStreamEnabledMode(Stream::LEFT) != MODE_ON;
+  return GetStreamEnabledMode(Stream::LEFT) != MODE_ON
+      || GetStreamEnabledMode(Stream::RIGHT) != MODE_ON;
 }
 
 bool Synthetic::OnRectifyProcess(
@@ -431,8 +439,8 @@ bool Synthetic::OnRectifyProcess(
   if (plugin_ && plugin_->OnRectifyProcess(in, out)) {
     return true;
   }
-  return GetStreamEnabledMode(Stream::LEFT_RECTIFIED) != MODE_ON;
-  // && GetStreamEnabledMode(Stream::RIGHT_RECTIFIED) != MODE_ON
+  return GetStreamEnabledMode(Stream::LEFT_RECTIFIED) != MODE_ON
+      && GetStreamEnabledMode(Stream::RIGHT_RECTIFIED) != MODE_ON;
 }
 
 bool Synthetic::OnDisparityProcess(

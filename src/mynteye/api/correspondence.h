@@ -32,6 +32,7 @@ class Correspondence {
   ~Correspondence();
 
   bool Watch(const Stream &stream) const;
+  void KeepAccelThenGyro(bool enabled);
 
   void OnStreamDataCallback(const Stream &stream, const api::StreamData &data);
   void OnMotionDataCallback(const device::MotionData &data);
@@ -55,6 +56,8 @@ class Correspondence {
   std::vector<api::StreamData> GetReadyStreamData(bool matched);
   std::vector<api::MotionData> GetReadyMotionDatas();
 
+  void KeepAccelThenGyro(std::vector<api::MotionData> &datas);  // NOLINT
+
   std::shared_ptr<Device> device_;
   Stream stream_;
   Stream stream_match_;
@@ -73,6 +76,8 @@ class Correspondence {
   std::condition_variable_any cond_stream_datas_;
 
   std::uint64_t ready_image_timestamp_;
+
+  bool keep_accel_then_gyro_;
 };
 
 MYNTEYE_END_NAMESPACE

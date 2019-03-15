@@ -26,6 +26,8 @@ int main(int argc, char *argv[]) {
   if (!ok) return 1;
   api->ConfigStreamRequest(request);
 
+  api->setDuplicate(true);
+
   api->EnablePlugin("plugins/linux-x86_64/libplugin_g_cuda9.1_opencv3.4.0.so");
 
   api->EnableStreamData(Stream::DISPARITY_NORMALIZED);
@@ -41,13 +43,15 @@ int main(int argc, char *argv[]) {
     auto &&left_data = api->GetStreamData(Stream::LEFT);
     auto &&right_data = api->GetStreamData(Stream::RIGHT);
 
-    cv::Mat img;
-    cv::hconcat(left_data.frame, right_data.frame, img);
-    cv::imshow("frame", img);
+    if (!left_data.frame.empty() && !right_data.frame.empty()) {
+      cv::Mat img;
+      cv::hconcat(left_data.frame, right_data.frame, img);
+      cv::imshow("frame", img);
 
-    auto &&disp_data = api->GetStreamData(Stream::DISPARITY_NORMALIZED);
-    if (!disp_data.frame.empty()) {
-      cv::imshow("disparity", disp_data.frame);
+      auto &&disp_data = api->GetStreamData(Stream::DISPARITY_NORMALIZED);
+      if (!disp_data.frame.empty()) {
+        cv::imshow("disparity", disp_data.frame);
+      }
     }
 
     char key = static_cast<char>(cv::waitKey(1));

@@ -27,6 +27,7 @@ int main(int argc, char *argv[]) {
   auto &&request = api->SelectStreamRequest(&ok);
   if (!ok) return 1;
   api->ConfigStreamRequest(request);
+  api->SetDisparityComputingMethodType(DisparityComputingMethod::BM);
 
   api->EnableStreamData(Stream::POINTS);
 
@@ -40,10 +41,11 @@ int main(int argc, char *argv[]) {
 
     auto &&left_data = api->GetStreamData(Stream::LEFT);
     auto &&right_data = api->GetStreamData(Stream::RIGHT);
-
-    cv::Mat img;
-    cv::hconcat(left_data.frame, right_data.frame, img);
-    cv::imshow("frame", img);
+    if (!left_data.frame.empty() && !right_data.frame.empty()) {
+      cv::Mat img;
+      cv::hconcat(left_data.frame, right_data.frame, img);
+      cv::imshow("frame", img);
+    }
 
     auto &&points_data = api->GetStreamData(Stream::POINTS);
     if (!points_data.frame.empty()) {

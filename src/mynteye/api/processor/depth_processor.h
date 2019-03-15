@@ -34,6 +34,9 @@ class DepthProcessor : public Processor {
   std::string Name() override;
 
  protected:
+  // inline Processor::process_type ProcessInputConnection() override {
+  //   return Processor::WITHOUT_CLONE;
+  // }
   Object *OnCreateOutput() override;
   bool OnProcess(
       Object *const in, Object *const out,

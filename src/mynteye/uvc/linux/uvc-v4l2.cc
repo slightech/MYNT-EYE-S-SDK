@@ -330,6 +330,9 @@ struct device {
     for (int i = 0; i < 10; ++i) {
       if (xioctl(fd, VIDIOC_STREAMON, &type) < 0) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      } else {
+        is_capturing = true;
+        return;
       }
     }
     if (xioctl(fd, VIDIOC_STREAMON, &type) < 0)

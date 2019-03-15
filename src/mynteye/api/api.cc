@@ -518,9 +518,11 @@ std::vector<api::MotionData> API::GetMotionDatas() {
   }
 }
 
-void API::EnableTimestampCorrespondence(const Stream &stream) {
+void API::EnableTimestampCorrespondence(const Stream &stream,
+    bool keep_accel_then_gyro) {
   if (correspondence_ == nullptr) {
     correspondence_.reset(new Correspondence(device_, stream));
+    correspondence_->KeepAccelThenGyro(keep_accel_then_gyro);
     {
       device_->DisableMotionDatas();
       if (callback_) {
@@ -556,6 +558,10 @@ void API::EnablePlugin(const std::string &path) {
   plugin->OnCreate(this);
 
   synthetic_->SetPlugin(plugin);
+}
+
+void API::setDuplicate(bool isEnable) {
+  synthetic_->setDuplicate(isEnable);
 }
 
 void API::SetDisparityComputingMethodType(

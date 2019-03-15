@@ -24,7 +24,10 @@
 MYNTEYE_BEGIN_NAMESPACE
 
 Processor::Processor(std::int32_t proc_period)
-    : proc_period_(std::move(proc_period)),
+    : last_frame_id_cd(0),
+      last_frame_id_cd_vice(0),
+      is_enable_cd(false),
+      proc_period_(std::move(proc_period)),
       activated_(false),
       input_ready_(false),
       idle_(true),
@@ -42,9 +45,9 @@ Processor::Processor(std::int32_t proc_period)
 Processor::~Processor() {
   VLOG(2) << __func__;
   Deactivate();
-  input_.reset(nullptr);
-  output_.reset(nullptr);
-  output_result_.reset(nullptr);
+  input_ = nullptr;
+  output_ = nullptr;
+  output_result_ = nullptr;
   childs_.clear();
 }
 
@@ -122,7 +125,7 @@ bool Processor::IsIdle() {
   return idle_;
 }
 
-bool Processor::Process(const Object &in) {
+bool Processor::Process(std::shared_ptr<Object> in) {
   if (!activated_)
     return false;
   if (!idle_) {
@@ -132,13 +135,17 @@ bool Processor::Process(const Object &in) {
       return false;
     }
   }
-  if (!in.DecValidity()) {
+  if (in && !in->DecValidity()) {
     LOG(WARNING) << Name() << " process with invalid input";
     return false;
   }
   {
     std::lock_guard<std::mutex> lk(mtx_input_ready_);
-    input_.reset(in.Clone());
+    if (ProcessInputConnection() == WITH_CLONE) {
+      input_.reset(in->Clone());
+    } else {
+      input_ = in;
+    }
     input_ready_ = true;
   }
   cond_input_ready_.notify_all();
@@ -229,12 +236,16 @@ void Processor::Run() {
     }
     {
       std::unique_lock<std::mutex> lk(mtx_result_);
-      output_result_.reset(output_->Clone());
+      if (ProcessOutputConnection() == WITH_CLONE) {
+        output_result_.reset(output_->Clone());
+      } else {
+        output_result_ = output_;
+      }
     }
 
     if (!childs_.empty()) {
       for (auto child : childs_) {
-        child->Process(*output_);
+        child->Process(output_);
       }
     }
 
@@ -244,6 +255,14 @@ void Processor::Run() {
     sleep(time_beg);
   }
   VLOG(2) << Name() << " thread end";
+}
+
+Processor::process_type Processor::ProcessOutputConnection() {
+  return WITH_CLONE;
+}
+
+Processor::process_type Processor::ProcessInputConnection() {
+  return WITH_CLONE;
 }
 
 api::StreamData Processor::GetStreamData(const Stream &stream) {
@@ -260,11 +279,19 @@ api::StreamData Processor::GetStreamData(const Stream &stream) {
   if (enable_mode == Synthetic::MODE_ON) {
     if (sum == 1) {
       if (out != nullptr) {
-        auto &&output = Object::Cast<ObjMat>(out);
+        auto output = Object::Cast<ObjMat>(out);
         if (output != nullptr) {
+          if (!is_enable_cd) {
+            if (output->data &&
+                last_frame_id_cd == output->data->frame_id) {
+              // cut the duplicate frame.
+              return {};
+            }
+            last_frame_id_cd = output->data->frame_id;
+          }
           return obj_data(output);
         }
-        VLOG(2) << "Rectify not ready now";
+        VLOG(2) << "Frame not ready now";
       }
     } else if (sum == 2) {
       static std::shared_ptr<ObjMat2> output = nullptr;
@@ -277,15 +304,31 @@ api::StreamData Processor::GetStreamData(const Stream &stream) {
         for (auto it : streams) {
           if (it.stream == stream) {
             if (num == 1) {
+              if (!is_enable_cd) {
+                if (output->first_data &&
+                  last_frame_id_cd == output->first_data->frame_id) {
+                  // cut the duplicate frame.
+                  return {};
+                }
+                last_frame_id_cd = output->first_data->frame_id;
+              }
               return obj_data_first(output);
             } else {
+              // last_frame_id_cd = output->second_data->frame_id;
+              if (!is_enable_cd) {
+                if (output->second_data &&
+                    last_frame_id_cd_vice == output->second_data->frame_id) {
+                  return {};
+                }
+                last_frame_id_cd_vice = output->second_data->frame_id;
+              }
               return obj_data_second(output);
             }
           }
           num++;
         }
       }
-      VLOG(2) << "Rectify not ready now";
+      VLOG(2) << "Frame not ready now";
     } else {
       LOG(ERROR) << "error: invalid sum!";
     }

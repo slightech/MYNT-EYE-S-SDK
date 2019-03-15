@@ -73,7 +73,7 @@ void s1s2Processor::ProcessNativeStream(
   }
   if (left_data.img && right_data.img &&
       left_data.img->frame_id == right_data.img->frame_id) {
-    Process(data_obj(left_data, right_data));
+    Process(std::make_shared<ObjMat2>(data_obj(left_data, right_data)));
   }
   return;
 }
@@ -90,10 +90,6 @@ void s1s2Processor::StartVideoStreaming() {
       [this, stream, callback](const device::StreamData &data) {
         auto &&stream_data = data2api(data);
         ProcessNativeStream(stream, stream_data);
-        // Need mutex if set callback after start
-        if (callback) {
-          callback(stream_data);
-        }
       },
       true);
   }
@@ -120,7 +116,15 @@ api::StreamData s1s2Processor::GetStreamData(const Stream &stream) {
     }
   }
   if (enable_mode == Synthetic::MODE_ON) {
-    return data2api(device_->GetStreamData(stream));
+    auto res = data2api(device_->GetStreamData(stream));
+    if (res.img == nullptr ||
+        res.img->timestamp == last_frame_id_cd ||
+        res.frame.empty()) {
+      return {};
+    }
+    last_frame_id_cd = res.img->timestamp;
+    return res;
+    // return data2api(device_->GetStreamData(stream));
   }
   LOG(ERROR) << "Failed to get device stream data of " << stream
                << ", unsupported or disabled";

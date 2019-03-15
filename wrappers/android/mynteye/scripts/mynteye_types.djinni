@@ -1,0 +1,323 @@
+
+# Device USB information
+device_usb_info = record {
+  # Vendor id
+  vid: i32;
+  # Product id
+  pid: i32;
+  # File descriptor
+  fd: i32;
+  # Bus number
+  bus_num: i32;
+  # Dev number
+  dev_num: i32;
+  # Usb file system path
+  usb_fs: string;
+  # Product name
+  name: string;
+  # Serial number
+  serial: string;
+}
+
+# Device model
+model = enum {
+  # Standard
+  standard;
+  # Standard 2
+  standard2;
+  # Standard 210a
+  standard210a;
+}
+
+# Formats define how each stream can be encoded
+format = enum {
+  # Greyscale, 8 bits per pixel
+  grey;
+  # YUV 4:2:2, 16 bits per pixel
+  yuyv;
+  # BGR 8:8:8, 24 bits per pixel
+  bgr888;
+  # RGB 8:8:8, 24 bits per pixel
+  rgb888;
+}
+
+# Stream request
+stream_request = record {
+  # Stream index
+  index: i32;
+  # Stream width in pixels
+  width: i32;
+  # Stream height in pixels
+  height: i32;
+  # Stream pixel format
+  format: format;
+  # Stream frames per second
+  fps: i32;
+}
+
+# Source allows the user to choose which data to be captured
+source = enum {
+  # Video streaming of stereo, color, depth, etc.
+  video_streaming;
+  # Motion tracking of IMU (accelerometer, gyroscope)
+  motion_tracking;
+  # Enable everything together
+  all;
+}
+
+# Streams define different type of data
+stream = enum {
+  # Left stream
+  left;
+  # Right stream
+  right;
+}
+
+# Capabilities define the full set of functionality that the device
+# might provide
+capability = enum {
+  # Provides stereo stream
+  stereo;
+  # Provide stereo color stream
+  stereo_color;
+  # Provides color stream
+  color;
+  # Provides depth stream
+  depth;
+  # Provides point cloud stream
+  points;
+  # Provides fisheye stream
+  fisheye;
+  # Provides infrared stream
+  infrared;
+  # Provides second infrared stream
+  infrared2;
+  # Provides IMU (accelerometer, gyroscope) data
+  imu;
+}
+
+# Camera info fields are read-only strings that can be queried from the device
+info = enum {
+  # Device name
+  device_name;
+  # Serial number
+  serial_number;
+  # Firmware version
+  firmware_version;
+  # Hardware version
+  hardware_version;
+  # Spec version
+  spec_version;
+  # Lens type
+  lens_type;
+  # IMU type
+  imu_type;
+  # Nominal baseline
+  nominal_baseline;
+}
+
+# Camera control options define general configuration controls
+option = enum {
+  # Image gain, valid if manual-exposure
+  #  range: [0,48], default: 24
+  gain;
+  # Image brightness, valid if manual-exposure
+  #  range: [0,240], default: 120
+  brightness;
+  # Image contrast, valid if manual-exposure
+  #  range: [0,255], default: 127
+  contrast;
+
+  # Image frame rate, must set IMU_FREQUENCY together
+  #  values: {10,15,20,25,30,35,40,45,50,55,60}, default: 25
+  frame_rate;
+  # IMU frequency, must set FRAME_RATE together
+  #  values: {100,200,250,333,500}, default: 200
+  imu_frequency;
+
+  # Exposure mode
+  #  0: enable auto-exposure
+  #  1: disable auto-exposure (manual-exposure)
+  exposure_mode;
+  # Max gain, valid if auto-exposure
+  #  range of standard 1: [0,48], default: 48
+  #  range of standard 2: [0,255], default: 8
+  max_gain;
+  # Max exposure time, valid if auto-exposure
+  #  range of standard 1: [0,240], default: 240
+  #  range of standard 2: [0,1000], default: 333
+  max_exposure_time;
+  # min exposure time, valid if auto-exposure
+  #  range: [0,1000], default: 0
+  min_exposure_time;
+  # Desired brightness, valid if auto-exposure
+  #  range of standard 1: [0,255], default: 192
+  #  range of standard 2: [1,255], default: 122
+  desired_brightness;
+
+  # IR control
+  #  range: [0,160], default: 0
+  ir_control;
+  # HDR mode
+  #  0: 10-bit
+  #  1: 12-bit
+  hdr_mode;
+
+  # The range of accelerometer
+  #  value of standard 1: {4,8,16,32}, default: 8
+  #  value of standard 2: {6,12,24,48}, default: 12
+  accelerometer_range;
+  # The range of gyroscope
+  #  value of standard 1: {500,1000,2000,4000}, default: 1000
+  #  value of standard 2: {250,500,1000,2000,4000}, default: 1000
+  gyroscope_range;
+  # The parameter of accelerometer low pass filter
+  #  values: {0,1,2}, default: 2
+  accelerometer_low_pass_filter;
+  # The parameter of gyroscope low pass filter
+  #  values: {23,64}, default: 64
+  gyroscope_low_pass_filter;
+
+  # Zero drift calibration
+  zero_drift_calibration;
+  # Erase chip
+  erase_chip;
+}
+
+# Add-On are peripheral modules of our hardware
+addon = enum {
+  # Infrared
+  infrared;
+  # Second infrared
+  infrared2;
+}
+
+# Frame with raw data
+frame = interface +c {
+  # Get the width
+  width(): i32;
+  # Get the height
+  height(): i32;
+  # Get the pixel format
+  format(): format;
+  # Get the size
+  size(): i32;
+  # Get the data
+  data(): binary;
+}
+
+# Image data
+img_data = record {
+  # Image frame id
+  frame_id: i64;
+  # Image timestamp in 1us
+  timestamp: i64;
+  # Image exposure time, virtual value in [1, 480]
+  exposure_time: i64;
+}
+
+# IMU data
+imu_data = record {
+  # IMU frame id
+  frame_id: i64;
+  # IMU accel or gyro flag
+  #   0: accel and gyro are both valid
+  #   1: accel is valid
+  #   2: gyro is valid
+  flag: i32;
+  # IMU timestamp in 1us
+  timestamp: i64;
+  # IMU accelerometer data for 3-axis: X, Y, Z.
+  accel: list<f64>;
+  # IMU gyroscope data for 3-axis: X, Y, Z.
+  gyro: list<f64>;
+  # IMU temperature
+  temperature: f64;
+}
+
+# Device stream data
+stream_data = interface +c {
+  img(): img_data;
+  frame(): frame;
+  frame_id(): i64;
+}
+
+# Device motion data
+motion_data = interface +c {
+  imu(): imu_data;
+}
+
+# Camera calibration model
+calibration_model = enum {
+  # Pinhole
+  pinhole;
+  # Equidistant: KANNALA_BRANDT
+  kannala_brandt;
+  # Unknow
+  unknow;
+}
+
+# Stream intrinsics
+intrinsics = record {
+  # The calibration model
+  calib_model: calibration_model;
+  # The width of the image in pixels
+  width: i32;
+  # The height of the image in pixels
+  height: i32;
+
+  # The focal length of the image plane, as a multiple of pixel width (pinhole)
+  fx: f64;
+  # The focal length of the image plane, as a multiple of pixel height (pinhole)
+  fy: f64;
+  # The horizontal coordinate of the principal point of the image (pinhole)
+  cx: f64;
+  # The vertical coordinate of the principal point of the image (pinhole)
+  cy: f64;
+
+  # The distortion coefficients
+  #   pinhole: k1,k2,p1,p2,k3
+  #   kannala_brandt: k2,k3,k4,k5,mu,mv,u0,v0
+  coeffs: list<f64>;
+}
+
+# IMU intrinsics: scale, drift and variances
+imu_intrinsics = record {
+  # Scale matrix 3x3
+  #  Scale X     cross axis  cross axis
+  #  cross axis  Scale Y     cross axis
+  #  cross axis  cross axis  Scale Z
+  scale: list<f64>;
+  # Zero-drift: X, Y, Z 1x3
+  drift: list<f64>;
+  # Noise density variances 1x3
+  noise: list<f64>;
+  # Random walk variances 1x3
+  bias: list<f64>;
+}
+
+# Motion intrinsics, including accelerometer and gyroscope
+motion_intrinsics = record {
+  # Accelerometer intrinsics
+  accel: imu_intrinsics;
+  # Gyroscope intrinsics
+  gyro: imu_intrinsics;
+}
+
+# Extrinsics, represent how the different datas are connected
+extrinsics = record {
+  # Rotation matrix, 3x3
+  rotation: list<f64>;
+  # Translation vector, 1x3
+  translation: list<f64>;
+}
+
+# Option info
+option_info = record {
+  # Minimum value
+  min: i32;
+  # Maximum value
+  max: i32;
+  # Default value
+  def: i32;
+}

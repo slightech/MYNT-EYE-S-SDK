@@ -20,11 +20,13 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
-Standard2Device::Standard2Device(std::shared_ptr<uvc::device> device)
-  : Device(Model::STANDARD2, device,
-           std::make_shared<Standard2StreamsAdapter>(),
-           std::make_shared<Standard2ChannelsAdapter>()) {
+Standard2Device::Standard2Device(const Model &model,
+    std::shared_ptr<uvc::device> device)
+  : Device(model, device,
+           std::make_shared<Standard2StreamsAdapter>(model),
+           std::make_shared<Standard2ChannelsAdapter>(model)) {
   VLOG(2) << __func__;
+  CHECK(model == Model::STANDARD2 || model == Model::STANDARD210A);
 }
 
 Standard2Device::~Standard2Device() {

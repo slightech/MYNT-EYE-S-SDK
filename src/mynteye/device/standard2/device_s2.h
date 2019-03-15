@@ -24,7 +24,7 @@ MYNTEYE_BEGIN_NAMESPACE
 
 class Standard2Device : public Device {
  public:
-  explicit Standard2Device(std::shared_ptr<uvc::device> device);
+  Standard2Device(const Model &model, std::shared_ptr<uvc::device> device);
   virtual ~Standard2Device();
 
   Capabilities GetKeyStreamCapability() const override;
