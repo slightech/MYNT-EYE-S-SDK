@@ -329,6 +329,30 @@ enum class Format : std::uint32_t {
 
 #undef MYNTEYE_FOURCC
 
+/**
+ * @ingroup enumerations
+ * @brief Process modes.
+ */
+enum class ProcessMode : std::int32_t {
+  PROC_NONE           = 0,
+  PROC_IMU_ASSEMBLY   = 1,
+  PROC_IMU_TEMP_DRIFT = 2,
+  PROC_IMU_ALL        = PROC_IMU_ASSEMBLY | PROC_IMU_TEMP_DRIFT
+};
+
+inline
+std::int32_t operator&(const std::int32_t& lhs, const ProcessMode& rhs) {
+  return lhs & static_cast<std::int32_t>(rhs);
+}
+inline
+std::int32_t operator&(const ProcessMode& lhs, const std::int32_t& rhs) {
+  return static_cast<std::int32_t>(lhs) & rhs;
+}
+inline
+std::int32_t operator&(const ProcessMode& lhs, const ProcessMode& rhs) {
+  return static_cast<std::int32_t>(lhs) & static_cast<std::int32_t>(rhs);
+}
+
 MYNTEYE_API const char *to_string(const Format &value);
 
 inline std::ostream &operator<<(std::ostream &os, const Format &value) {

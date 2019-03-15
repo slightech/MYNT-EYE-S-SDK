@@ -18,11 +18,39 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
+namespace {
+
+void matrix_3x1(const double (*src1)[3], const double (*src2)[1],
+    double (*dst)[1]) {
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 1; j++) {
+      for (int k = 0; k < 3; k++) {
+        dst[i][j] += src1[i][k] * src2[k][j];
+      }
+    }
+  }
+}
+
+void matrix_3x3(const double (*src1)[3], const double (*src2)[3],
+    double (*dst)[3]) {
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+      for (int k = 0; k < 3; k++) {
+        dst[i][j] += src1[i][k] * src2[k][j];
+      }
+    }
+  }
+}
+
+} // namespace
+
 Motions::Motions(std::shared_ptr<Channels> channels)
     : channels_(channels),
       motion_callback_(nullptr),
       motion_datas_enabled_(false),
-      is_imu_tracking(false) {
+      is_imu_tracking(false),
+      proc_mode_(static_cast<const std::int32_t>(ProcessMode::PROC_NONE)),
+      motion_intrinsics_(nullptr) {
   CHECK_NOTNULL(channels_);
   VLOG(2) << __func__;
 }
@@ -63,6 +91,17 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
         imu->gyro[0] = seg.gyro[0] * 1.f * gyro_range / 0x10000;
         imu->gyro[1] = seg.gyro[1] * 1.f * gyro_range / 0x10000;
         imu->gyro[2] = seg.gyro[2] * 1.f * gyro_range / 0x10000;
+
+        bool proc_assembly = ((proc_mode_ & ProcessMode::PROC_IMU_ASSEMBLY) > 0);
+        bool proc_temp_drift = ((proc_mode_ & ProcessMode::PROC_IMU_TEMP_DRIFT) > 0);
+        if (proc_assembly && proc_temp_drift) {
+          ProcImuTempDrift(imu);
+          ProcImuAssembly(imu);
+        } else if (proc_assembly) {
+          ProcImuAssembly(imu);
+        } else if (proc_temp_drift) {
+          ProcImuTempDrift(imu);
+        }
 
         std::lock_guard<std::mutex> _(mtx_datas_);
         motion_data_t data = {imu};
@@ -127,6 +166,66 @@ Motions::motion_datas_t Motions::GetMotionDatas() {
   motion_datas_t datas = motion_datas_;
   motion_datas_.clear();
   return datas;
+}
+
+void Motions::ProcImuAssembly(std::shared_ptr<ImuData> data) const {
+  if (nullptr == motion_intrinsics_) return;
+
+  double dst[3][3] = {0};
+  if (data->flag == 1) {
+    matrix_3x3(motion_intrinsics_->accel.scale,
+        motion_intrinsics_->accel.assembly, dst);
+    double s[3][1] = {0};
+    double d[3][1] = {0};
+    for (int i = 0; i < 3; i++) {
+      s[i][0] = data->accel[i];
+    }
+    matrix_3x1(dst, s, d);
+    for (int i = 0; i < 3; i++) {
+      data->accel[i] = d[i][0];
+    }
+  } else if (data->flag == 2) {
+    matrix_3x3(motion_intrinsics_->gyro.scale,
+        motion_intrinsics_->gyro.assembly, dst);
+    double s[3][1] = {0};
+    double d[3][1] = {0};
+    for (int i = 0; i < 3; i++) {
+      s[i][0] = data->gyro[i];
+    }
+    matrix_3x1(dst, s, d);
+    for (int i = 0; i < 3; i++) {
+      data->gyro[i] = d[i][0];
+    }
+  }
+}
+
+void Motions::ProcImuTempDrift(std::shared_ptr<ImuData> data) const {
+  if (nullptr == motion_intrinsics_) return;
+
+  double temp = data->temperature;
+  if (data->flag == 1) {
+    data->accel[0] -= motion_intrinsics_->accel.x[1] * temp
+      + motion_intrinsics_->accel.x[0];
+    data->accel[1] -= motion_intrinsics_->accel.y[1] * temp
+      + motion_intrinsics_->accel.y[0];
+    data->accel[2] -= motion_intrinsics_->accel.z[1] * temp
+      + motion_intrinsics_->accel.z[0];
+  } else if (data->flag == 2) {
+    data->gyro[0] -= motion_intrinsics_->gyro.x[1] * temp
+      + motion_intrinsics_->gyro.x[0];
+    data->gyro[1] -= motion_intrinsics_->gyro.y[1] * temp
+      + motion_intrinsics_->gyro.y[0];
+    data->gyro[2] -= motion_intrinsics_->gyro.z[1] * temp
+      + motion_intrinsics_->gyro.z[0];
+  }
+}
+
+void Motions::SetMotionIntrinsics(const std::shared_ptr<MotionIntrinsics>& in) {
+  motion_intrinsics_ = in;
+}
+
+void Motions::EnableProcessMode(const std::int32_t& mode) {
+  proc_mode_ = mode;
 }
 
 MYNTEYE_END_NAMESPACE

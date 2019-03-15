@@ -330,6 +330,7 @@ void Device::SetMotionIntrinsics(const MotionIntrinsics &in) {
     motion_intrinsics_ = std::make_shared<MotionIntrinsics>();
   }
   *motion_intrinsics_ = in;
+  motions_->SetMotionIntrinsics(motion_intrinsics_);
 }
 
 void Device::SetMotionExtrinsics(const Stream &from, const Extrinsics &ex) {
@@ -713,6 +714,14 @@ bool Device::GetFiles(
 bool Device::SetFiles(
     DeviceInfo *info, img_params_map_t *img_params, imu_params_t *imu_params) {
   return channels_->SetFiles(info, img_params, imu_params);
+}
+
+void Device::EnableProcessMode(const ProcessMode& mode) {
+  EnableProcessMode(static_cast<std::int32_t>(mode));
+}
+
+void Device::EnableProcessMode(const std::int32_t& mode) {
+  motions_->EnableProcessMode(mode);
 }
 
 MYNTEYE_END_NAMESPACE

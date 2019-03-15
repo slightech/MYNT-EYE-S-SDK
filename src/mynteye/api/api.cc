@@ -592,4 +592,12 @@ void API::CheckImageParams() {
   }
 }
 
+void API::EnableProcessMode(const ProcessMode& mode) {
+  EnableProcessMode(static_cast<std::int32_t>(mode));
+}
+
+void API::EnableProcessMode(const std::int32_t& mode) {
+  device_->EnableProcessMode(mode);
+}
+
 MYNTEYE_END_NAMESPACE
