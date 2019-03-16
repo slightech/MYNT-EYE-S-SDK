@@ -7,6 +7,6 @@ hardware_version: "1.0"
 spec_version: "1.2"
 lens_type: "0001"
 imu_type: "0001"
-nominal_baseline: 0
+nominal_baseline: 80
 auxiliary_chip_version: "1.0"
 isp_version: "1.0"
