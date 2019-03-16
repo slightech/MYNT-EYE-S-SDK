@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
   LOG(INFO) << "Nominal baseline: " << api->GetInfo(Info::NOMINAL_BASELINE);
   LOG(INFO) << "Auxiliary chip version: "
             << api->GetInfo(Info::AUXILIARY_CHIP_VERSION);
-  LOG(INFO) << "Nominal baseline: " << api->GetInfo(Info::ISP_VERSION);
+  LOG(INFO) << "Isp version: " << api->GetInfo(Info::ISP_VERSION);
 
   return 0;
 }
