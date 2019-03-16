@@ -42,7 +42,8 @@ std::shared_ptr<Device> select() {
     auto &&device = devices[i];
     LOG(INFO) << "  index: " << i
               << ", name: " << device->GetInfo(Info::DEVICE_NAME)
-              << ", sn: " << device->GetInfo(Info::SERIAL_NUMBER);
+              << ", sn: " << device->GetInfo(Info::SERIAL_NUMBER)
+              << ", firmware: " << device->GetInfo(Info::FIRMWARE_VERSION);
   }
 
   std::shared_ptr<Device> device = nullptr;
@@ -70,13 +71,18 @@ MYNTEYE_NAMESPACE::StreamRequest select_request(
     const std::shared_ptr<Device> &device, bool *ok) {
   auto &&requests = device->GetStreamRequests();
   std::size_t n = requests.size();
+  // TODO(Kalman): Get request size by uvc enum
+  if (device->GetModel() == Model::STANDARD &&
+        device->GetInfo()->firmware_version < Version(2, 4)) {
+    n -= 1;
+  }
   if (n <= 0) {
     LOG(ERROR) << "No MYNT EYE devices :(";
     *ok = false;
     return {};
   }
 
-  LOG(INFO) << "MYNT EYE devices:";
+  LOG(INFO) << "MYNT EYE requests:";
   for (std::size_t i = 0; i < n; i++) {
     auto &&request = requests[i];
     LOG(INFO) << "  index: " << i
