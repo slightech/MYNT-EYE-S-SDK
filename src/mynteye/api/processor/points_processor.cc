@@ -105,6 +105,9 @@ bool PointsProcessor::OnProcess(
 
       // Missing points denoted by NaNs
       if (!DepthTraits<uint16_t>::valid(depth)) {
+        dptr[u][0] = 0;
+        dptr[u][1] = 0;
+        dptr[u][2] = 0;
         continue;
       }
       dptr[u][0] = (u - center_x) * depth * constant_x ;

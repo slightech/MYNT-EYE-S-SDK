@@ -475,7 +475,9 @@ bool Channels::GetFiles(
           if (file_size > 0) {
             auto &&n = file_channel_.GetImgParamsFromData(
                 data + i, file_size, img_params);
-            CHECK_EQ(n, file_size);
+            CHECK_EQ(n, file_size)
+              << "The firmware not support getting device info, you could "
+                 "upgrade to latest";
           }
         } break;
         case FID_IMU_PARAMS: {
@@ -483,7 +485,9 @@ bool Channels::GetFiles(
           if (imu_params->ok) {
             auto &&n = file_channel_.GetImuParamsFromData(
                 data + i, file_size, imu_params);
-            CHECK_EQ(n, file_size);
+            CHECK_EQ(n, file_size)
+              << "The firmware not support getting device info, you could "
+                 "upgrade to latest";
           }
         } break;
         default:

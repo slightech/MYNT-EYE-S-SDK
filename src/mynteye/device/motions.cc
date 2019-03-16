@@ -169,7 +169,9 @@ Motions::motion_datas_t Motions::GetMotionDatas() {
 }
 
 void Motions::ProcImuAssembly(std::shared_ptr<ImuData> data) const {
-  if (nullptr == motion_intrinsics_) return;
+  if (nullptr == motion_intrinsics_ ||
+      IsNullAssemblyOrTempDrift(ProcessMode::PROC_IMU_ASSEMBLY))
+    return;
 
   double dst[3][3] = {0};
   if (data->flag == 1) {
@@ -200,7 +202,9 @@ void Motions::ProcImuAssembly(std::shared_ptr<ImuData> data) const {
 }
 
 void Motions::ProcImuTempDrift(std::shared_ptr<ImuData> data) const {
-  if (nullptr == motion_intrinsics_) return;
+  if (nullptr == motion_intrinsics_ ||
+      IsNullAssemblyOrTempDrift(ProcessMode::PROC_IMU_TEMP_DRIFT))
+    return;
 
   double temp = data->temperature;
   if (data->flag == 1) {
@@ -226,6 +230,38 @@ void Motions::SetMotionIntrinsics(const std::shared_ptr<MotionIntrinsics>& in) {
 
 void Motions::EnableProcessMode(const std::int32_t& mode) {
   proc_mode_ = mode;
+}
+
+bool Motions::IsNullAssemblyOrTempDrift(const ProcessMode& mode) const {
+  if (mode == ProcessMode::PROC_IMU_ASSEMBLY) {
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        if (motion_intrinsics_->accel.assembly[i][j] != 0.0)
+          return false;
+      }
+    }
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        if (motion_intrinsics_->gyro.assembly[i][j] != 0.0)
+          return false;
+      }
+    }
+  } else if (mode == ProcessMode::PROC_IMU_TEMP_DRIFT) {
+    for (int i = 0; i < 2; i++) {
+      if (motion_intrinsics_->accel.x[i] != 0.0 ||
+          motion_intrinsics_->accel.y[i] != 0.0 ||
+          motion_intrinsics_->accel.z[i] != 0.0)
+        return false;
+    }
+    for (int i = 0; i < 2; i++) {
+      if (motion_intrinsics_->gyro.x[i] != 0 ||
+          motion_intrinsics_->gyro.y[i] != 0 ||
+          motion_intrinsics_->gyro.z[i] != 0)
+        return false;
+    }
+  }
+
+  return true;
 }
 
 MYNTEYE_END_NAMESPACE

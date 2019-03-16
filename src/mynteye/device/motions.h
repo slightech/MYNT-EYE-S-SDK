@@ -52,6 +52,7 @@ class Motions {
  private:
   void ProcImuAssembly(std::shared_ptr<ImuData> data) const;
   void ProcImuTempDrift(std::shared_ptr<ImuData> data) const;
+  bool IsNullAssemblyOrTempDrift(const ProcessMode& mode) const;
 
   std::shared_ptr<Channels> channels_;
 
