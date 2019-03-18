@@ -42,7 +42,10 @@ Reference running results on Linux:
   I0504 16:16:28.520869 25848 infrared.cc:15] Support infrared2: true
   I0504 16:16:28.520889 25848 infrared.cc:20] Option::IR_CONTROL: {min: 0, max: 160, def: 0}
 
-At this point, if the image is displayed, you can see IR speckle on the image.
+At this point, if the image is displayed, you can see IR speckle on the image, as below:
+
+.. image:: ../../images/ir.png
+
 
 .. attention::
 

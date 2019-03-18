@@ -6,7 +6,7 @@ Ubuntu SDK Source Installation
 .. only:: html
 
   =============== =============== ===============
-  Ubuntu 18.04    Ubuntu 16.04    Ubuntu 14.04
+  Ubuntu 14.04    Ubuntu 16.04    Ubuntu 18.04
   =============== =============== ===============
   |build_passing| |build_passing| |build_passing|
   =============== =============== ===============
@@ -16,7 +16,7 @@ Ubuntu SDK Source Installation
 .. only:: latex
 
   =============== =============== ===============
-  Ubuntu 18.04    Ubuntu 16.04    Ubuntu 14.04
+  Ubuntu 14.04    Ubuntu 16.04    Ubuntu 18.04
   =============== =============== ===============
   ✓               ✓               ✓
   =============== =============== ===============

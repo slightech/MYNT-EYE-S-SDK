@@ -3,7 +3,7 @@
 Get depth image
 ===============
 
-Depth images belongs to the upper layer of synthetic data. You need to start the ``EnableStreamData()`` beforehand, to get it through ``GetStreamData()``. In addition, it should be check not be empty before use.
+Depth images belongs to the upper layer of synthetic data. You need to start the ``EnableStreamData()`` beforehand, to get it through ``GetStreamData()``. The depth image type is CV_16UC1. In addition, it should be check not be empty before use.
 
 For detailed process description, please see :ref:`get_stereo` :ref:`get_stereo_rectified`.
 

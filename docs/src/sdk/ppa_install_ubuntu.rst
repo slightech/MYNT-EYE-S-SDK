@@ -21,12 +21,21 @@ Ubuntu SDK PPA Installation
   ✓               ✓               ✓
   =============== =============== ===============
 
-PPA installation
------------------
+x64 PPA installation
+--------------------
 
 .. code-block:: bash
 
   $ sudo add-apt-repository ppa:slightech/mynt-eye-s-sdk
+  $ sudo apt-get update
+  $ sudo apt-get install mynt-eye-s-sdk
+
+armv8 PPA installation
+-----------------------
+
+.. code-block:: bash
+
+  $ sudo add-apt-repository ppa:slightech/mynt-eye-s-sdk-arm
   $ sudo apt-get update
   $ sudo apt-get install mynt-eye-s-sdk
 

@@ -10,7 +10,7 @@ For detailed process description, please see :ref:`get_stereo` :ref:`get_stereo_
 It is recommended to use plugin to calculate depth: the depth map will be better with a higher frame rate. Please see :ref:`get_with_plugin` .
 
 .. tip::
-  The SetDisparityComputingMethodType method is used to change disparity computing method. Currently, BM and SGBM are available, and SGBM is used by default in sdk.
+  The SetDisparityComputingMethodType method is used to change disparity computing method. Currently, BM and SGBM are available.
 
 Reference code snippet:
 

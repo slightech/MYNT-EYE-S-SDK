@@ -26,6 +26,18 @@ Prepare Environment
 
 * `ROS <http://www.ros.org/>`_
 
+ROS Melodic (Ubuntu 18.04)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+  sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+  sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
+  sudo apt update
+  sudo apt install ros-melodic-desktop-full
+  sudo rosdep init
+  rosdep update
+
 ROS Kinetic (Ubuntu 16.04)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -56,7 +68,7 @@ Running node
 .. code-block:: bash
 
   source wrappers/ros/devel/setup.bash
-  roslaunch mynt_eye_ros_wrapper mynteye.launch
+  roslaunch mynt_eye_ros_wrapper mynteye.launch  # this node doesn't have preview
 
 Run the node, and preview by RViz:
 

@@ -9,10 +9,10 @@ Reference run command:
 
 .. code-block:: bash
 
-  ./tools/_output/bin/dataset/record
+  ./tools/_output/bin/dataset/record2
 
   # Windows
-  .\tools\_output\bin\dataset\record.bat
+  .\tools\_output\bin\dataset\record2.bat
 
 Reference run results on Linux:
 

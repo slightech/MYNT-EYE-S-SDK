@@ -18,10 +18,13 @@ First install dependencies based on the original OKVIS, and the follow:
 
 .. code-block:: bash
 
-  git clone -b mynteye-s https://github.com/slightech/MYNT-EYE-OKVIS-Sample.git
+  sudo apt-get install libgoogle-glog-dev
+
+  git clone -b mynteye https://github.com/slightech/MYNT-EYE-OKVIS-Sample.git
+  cd MYNT-EYE-OKVIS-Sample/
   mkdir build && cd build
-  cmake -DCMAKE_BUILD_TYPE=Release ..
-  make -j4
+  cmake ..
+  make
 
 Get camera calibration parameters
 ----------------------------------
@@ -33,7 +36,18 @@ Through the ``GetIntrinsics()`` and ``GetExtrinsics()`` function of the `MYNT-EY
   cd MYNT-EYE-S-SDK
   ./samples/_output/bin/tutorials/get_img_params
 
-After running the above type, pinhole's ``distortion_parameters`` and ``projection_parameters`` is obtained, then update to `here <https://github.com/slightech/MYNT-EYE-OKVIS-Sample/blob/mynteye-s/config/config_mynteye.yaml>`_ .
+After running the above type, pinhole's ``distortion_parameters`` and ``projection_parameters`` is obtained , and then update to `here <https://github.com/slightech/MYNT-EYE-OKVIS-Sample/blob/mynteye/config/config_mynteye_s.yaml>`_ .
+
+.. tip::
+
+  You can get the camera model of device when get camera calibration parameters, if model is equidistant you need calibrate pinhole model by yourself or reference :ref:`write_img_params` to write a default pinhole config file to your device.
+
+.. code-block:: bash
+
+  distortion_coefficients: [coeffs]   # only first four parameters of coeffs need to be filled
+  focal_length: [fx, fy]
+  principal_point: [cx, cy]
+  distortion_type: radialtangential
 
 Run MYNTEYE OKVIS
 ---------------------
@@ -43,4 +57,4 @@ Go to ``MYNT-EYE-OKVIS-Sample/build`` folder and Run the application ``okvis_app
 .. code-block:: bash
 
   cd MYNT-EYE-OKVIS-Sample/build
-  ./okvis_app_mynteye_s ../config/config_mynteye.yaml
+  ./okvis_app_mynteye_s ../config/config_mynteye_s.yaml

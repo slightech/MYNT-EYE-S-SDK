@@ -5,6 +5,7 @@ MYNT® EYE SDK
 
 .. toctree::
 
+   changelog
    platform
    ppa_install_ubuntu
    exe_install_windows

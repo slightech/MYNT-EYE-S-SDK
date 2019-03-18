@@ -97,7 +97,7 @@ After installing Visual Studio, confirm that the following command can run in th
   Initial Directory ``$(SolutionDir)``
   ================= =======================================================================================
 
-  In Visual Studio command Prompt, you can use the compile command ``cl`` ``link`` ``lib`` ``msbuild``, etc.
+  In Visual Studio command Prompt, you can use the compile command ``cl`` ``link`` ``lib`` ``msbuild``, etc.(need finish ``MSYS2``and ``Getting Source Code`` steps first)
 
   .. image:: ../../images/vs_cmd_test.png
 

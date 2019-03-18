@@ -1,7 +1,7 @@
 .. _mynteye:
 
-MYNT® EYE
-=========
+MYNT® EYE product introduction
+==============================
 
 .. toctree::
 

@@ -9,7 +9,7 @@ For mynteye s1030, to set the image frame rate and IMU frequency, set ``Option::
 
 .. Attention::
 
-  * The effective fps of the image: 10, 15, 20, 25, 30, 35, 40, 45, 50, 55.
+  * The effective fps of the image: 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60.
   * The effective frequency of IMU: 100, 200, 250, 333, 500.
 
 For mynteye s2100/s210a, the image frame rate should be selected when running the sample, and the frame rate and resolution are combined as follows:

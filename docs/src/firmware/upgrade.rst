@@ -86,7 +86,7 @@ Manually update drivers
 
 .. image:: ../../images/firmware_update_westbridge.png
 
-* For example,if it is the win10 64 bit system computer,and the application is installed under the default path,you should select ``C:\\Program Files (x86)\\slightech\\MYNT EYE Camera Tool\\wlh\\x64``.
+* For example,if it is the win10 64 bit system computer,and the application is installed under the default path,you should select ``C:\Program Files (x86)\slightech\MYNT EYE TOOL 2.0\WestBridge_driver\wlh\x64``.
 
 * After the installation driver is successful, you can find the ``Cypress USB BootLoader`` device in the device manager.
 

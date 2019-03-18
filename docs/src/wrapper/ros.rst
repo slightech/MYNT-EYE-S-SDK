@@ -5,6 +5,10 @@ How to use ROS
 
 Compile and run the node according to :ref:`sdk_install_ros` .
 
+.. tip::
+
+  Before doing below you need open a terminal to launch ros node first
+
 ``rostopic list`` lists all released nodes:
 
 .. code-block:: bash
@@ -61,6 +65,33 @@ The ROS file is structured like follows:
   └─README.md
 
 In ``mynteye.launch``, you can configure the topics and frame_ids, decide which data to enable, and set the control options. Please set ``gravity`` to the local gravity acceleration.
+
+.. code-block:: xml
+
+  # s2100/s210a modify frame/resolution
+  <arg name="request_index" default="$(arg index_s2_2)" />
+
+  # s1030 modify frame/imu hz
+  <!-- standard/frame_rate range: {10,15,20,25,30,35,40,45,50,55,60} -->
+  <arg name="standard/frame_rate" default="-1" />
+  <!-- <arg name="standard/frame_rate" default="25" /> -->
+
+  <!-- standard/imu_frequency range: {100,200,250,333,500} -->
+  <arg name="standard/imu_frequency" default="-1" />
+  <!-- <arg name="standard/imu_frequency" default="200" /> -->
+  ...
+
+  # s2100 modify brightness
+  <!-- standard2/brightness range: [0,240] -->
+  <arg name="standard2/brightness" default="-1" />
+  <!-- <arg name="standard2/brightness" default="120" /> -->
+  ...
+
+  # s210a modify brightness
+  <!-- standard210a/brightness range: [0,240] -->
+  <arg name="standard210a/brightness" default="-1" />
+  <!-- <arg name="standard210a/brightness" default="120" /> -->
+  ...
 
 .. code-block:: xml
 

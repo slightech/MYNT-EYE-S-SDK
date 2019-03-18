@@ -15,7 +15,7 @@ If you wanna run ORB_SLAM2 with MYNT EYE camera, please follow the steps:
 Binocular camera sample
 ------------------------
 
-* Calibrate a stereo camera with `ROS-StereoCalibration <http://wiki.ros.org/camera_calibration/Tutorials/StereoCalibration>`_ or OpenCV, and then update parameters to ``<ORB_SLAM2>/config/mynteye_stereo.yaml``.
+* Calibrate a stereo camera with `ROS-StereoCalibration <http://wiki.ros.org/camera_calibration/Tutorials/StereoCalibration>`_ or OpenCV, and then update parameters to ``<ORB_SLAM2>/config/mynteye_s_stereo.yaml``.
 
 * Execute ``build.sh``:
 
@@ -28,7 +28,7 @@ Binocular camera sample
 
 .. code-block:: bash
 
-  ./Examples/Stereo/stereo_mynt ./Vocabulary/ORBvoc.txt ./config/mynteye_stereo.yaml true /mynteye/left/image_raw /mynteye/right/image_raw
+  ./Examples/Stereo/stereo_mynt_s ./Vocabulary/ORBvoc.txt ./config/mynteye_s_stereo.yaml true /mynteye/left/image_raw /mynteye/right/image_raw
 
 
 Building the nodes for mono and stereo (ROS)
@@ -47,32 +47,25 @@ Building the nodes for mono and stereo (ROS)
   chmod +x build_ros.sh
   ./build_ros.sh
 
-Mono_ROS Example
-~~~~~~~~~~~~~~~~~
-
-  * Update ``distortion_parameters`` and ``projection_parameters`` in ``<ORBSLAM2>/config/mynteye_mono.yaml``
-
-.. code-block:: bash
-
-  cd MYNT-EYE-S-SDK
-
-  ./samples/_output/bin/tutorials/get_img_params
-
-After running the above type, pinhole's ``distortion_parameters`` and ``projection_parameters`` is obtained, and then update to ``<ORB_SLAM2>/config/mynteye_mono.yaml``.
-
-  * Launch ORB_SLAM2 ``Mono_ROS``
-
-.. code-block:: bash
-
-  rosrun ORB_SLAM2 mynteye_mono ./Vocabulary/ORBvoc.txt ./config/mynteye_mono.yaml /mynteye/left/image_raw
 
 Stereo_ROS Example
 ~~~~~~~~~~~~~~~~~~~
 
-  * Calibrate a stereo camera with `ROS-StereoCalibration <http://wiki.ros.org/camera_calibration/Tutorials/StereoCalibration>`_ or OpenCV, and then update parameters to ``<ORB_SLAM2>/config/mynteye_stereo.yaml``.
+  * Reference ``Get camera calibration parameters`` in :ref:`slam_okvis` to get ``distortion_parameters`` and ``projection_parameters`` , and update ``<ORB_SLAM2>/config/mynteye_s_stereo.yaml`` .
 
   * Launch ORB_SLAM2 ``Stereo_ROS``
 
+1. Launch mynteye node
+
 .. code-block:: bash
 
-  rosrun ORB_SLAM2 ros_mynteye_stereo ./Vocabulary/ORBvoc.txt ./config/mynteye_stereo.yaml true /mynteye/left/image_raw /mynteye/right/image_raw
+  cd [path of mynteye-s-sdk]
+  make ros
+  source ./wrappers/ros/devel/setup.bash
+  roslaunch mynt_eye_ros_wrapper mynteye.launch
+
+2. Open another terminal and run ORB_SLAM2
+
+.. code-block:: bash
+
+  rosrun ORB_SLAM2 mynteye_s_stereo ./Vocabulary/ORBvoc.txt ./config/mynteye_s_stereo.yaml true /mynteye/left/image_raw /mynteye/right/image_raw
