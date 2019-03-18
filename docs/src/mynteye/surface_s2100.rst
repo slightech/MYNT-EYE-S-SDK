@@ -7,7 +7,7 @@ MYNTEYE-S2100 Size and structure
 Shell(mm)     PCBA board(mm)
 ============= ==============
 125x47x40     100x15
-============= ===========
+============= ==============
 
 .. image:: ../../images/mynteye_avatar_surface_zh-Hans.jpg
 

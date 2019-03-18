@@ -1,7 +1,7 @@
 .. _slam_viorb:
 
 How to use in `VIORB <https://github.com/jingpang/LearnVIORB>`_
-=============================================================---
+================================================================
 
 
 If you wanna run VIORB with MYNT® EYE，please follow the steps:

@@ -7,8 +7,8 @@ MYNT® EYE S SDK
 ===============
 
 .. toctree::
-
    :maxdepth: 2
+   :titlesonly:
 
    src/mynteye/contents
    src/sdk/contents

@@ -7,7 +7,7 @@ MYNTEYE-S1030 Size and structure
 Shell(mm)     PCBA board(mm)
 ============= ==============
 165x31.5x29.6 149x24
-============= ===========
+============= ==============
 
 .. image:: ../../images/mynteye_surface_zh-Hans.jpg
 

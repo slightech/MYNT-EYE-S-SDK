@@ -5,7 +5,7 @@ How to use in `VINS-Fusion <https://github.com/HKUST-Aerial-Robotics/Vins-Fusion
 
 
 If you wanna run VINS-Fusion with MYNT EYE camera, please follow the steps:
--------------------------------------------------------------------------
+----------------------------------------------------------------------------
 
 1. Download `MYNT-EYE-S-SDK <https://github.com/slightech/MYNT-EYE-S-SDK.git>`_ and install mynt_eye_ros_wrapper.
 2. Follow the normal procedure to install VINS-Fusion.
