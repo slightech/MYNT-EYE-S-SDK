@@ -170,7 +170,7 @@ Motions::motion_datas_t Motions::GetMotionDatas() {
 
 void Motions::ProcImuAssembly(std::shared_ptr<ImuData> data) const {
   if (nullptr == motion_intrinsics_ ||
-      IsNullAssemblyOrTempDrift(ProcessMode::PROC_IMU_ASSEMBLY))
+      IsNullAssemblyOrTempDrift())
     return;
 
   double dst[3][3] = {0};
@@ -203,7 +203,7 @@ void Motions::ProcImuAssembly(std::shared_ptr<ImuData> data) const {
 
 void Motions::ProcImuTempDrift(std::shared_ptr<ImuData> data) const {
   if (nullptr == motion_intrinsics_ ||
-      IsNullAssemblyOrTempDrift(ProcessMode::PROC_IMU_TEMP_DRIFT))
+      IsNullAssemblyOrTempDrift())
     return;
 
   double temp = data->temperature;
@@ -232,36 +232,18 @@ void Motions::EnableProcessMode(const std::int32_t& mode) {
   proc_mode_ = mode;
 }
 
-bool Motions::IsNullAssemblyOrTempDrift(const ProcessMode& mode) const {
-  if (mode == ProcessMode::PROC_IMU_ASSEMBLY) {
-    for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
-        if (motion_intrinsics_->accel.assembly[i][j] != 0.0)
-          return false;
-      }
-    }
-    for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
-        if (motion_intrinsics_->gyro.assembly[i][j] != 0.0)
-          return false;
-      }
-    }
-  } else if (mode == ProcessMode::PROC_IMU_TEMP_DRIFT) {
-    for (int i = 0; i < 2; i++) {
-      if (motion_intrinsics_->accel.x[i] != 0.0 ||
-          motion_intrinsics_->accel.y[i] != 0.0 ||
-          motion_intrinsics_->accel.z[i] != 0.0)
-        return false;
-    }
-    for (int i = 0; i < 2; i++) {
-      if (motion_intrinsics_->gyro.x[i] != 0 ||
-          motion_intrinsics_->gyro.y[i] != 0 ||
-          motion_intrinsics_->gyro.z[i] != 0)
-        return false;
-    }
-  }
+bool Motions::IsNullAssemblyOrTempDrift() const {
+  if (!device_info_)
+    return true;
+
+  if (device_info_->spec_version >= Version(1, 2))
+    return false;
 
   return true;
+}
+
+void Motions::SetDeviceInfo(const std::shared_ptr<DeviceInfo>& in) {
+  device_info_ = in;
 }
 
 MYNTEYE_END_NAMESPACE

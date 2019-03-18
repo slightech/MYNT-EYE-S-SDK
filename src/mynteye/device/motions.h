@@ -21,6 +21,7 @@
 
 #include "mynteye/mynteye.h"
 #include "mynteye/device/callbacks.h"
+#include "mynteye/device/types.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -49,10 +50,12 @@ class Motions {
   void SetMotionIntrinsics(const std::shared_ptr<MotionIntrinsics>& in);
   void EnableProcessMode(const std::int32_t& mode);
 
+  void SetDeviceInfo(const std::shared_ptr<DeviceInfo>& in);
+
  private:
   void ProcImuAssembly(std::shared_ptr<ImuData> data) const;
   void ProcImuTempDrift(std::shared_ptr<ImuData> data) const;
-  bool IsNullAssemblyOrTempDrift(const ProcessMode& mode) const;
+  bool IsNullAssemblyOrTempDrift() const;
 
   std::shared_ptr<Channels> channels_;
 
@@ -71,6 +74,7 @@ class Motions {
 
   std::int32_t proc_mode_;
   std::shared_ptr<MotionIntrinsics> motion_intrinsics_;
+  std::shared_ptr<DeviceInfo> device_info_;
 };
 
 MYNTEYE_END_NAMESPACE
