@@ -1159,20 +1159,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
   void publishMesh() {
-    // also do the mesh
-    /*if (parameters_.publishing.trackedBodyFrame == FrameName::S) {
-      mesh_msg_.child_frame_id = "sensor";
-    } else if (parameters_.publishing.trackedBodyFrame == FrameName::B) {
-      mesh_msg_.child_frame_id = "body";
-    } else {
-      mesh_msg_.child_frame_id = "body";
-    }*/
     mesh_msg_.header.frame_id = base_frame_id_;
     mesh_msg_.header.stamp = ros::Time::now();
     mesh_msg_.type = visualization_msgs::Marker::MESH_RESOURCE;
-    // if ((ros::Time::now() - _t).toSec() > 10.0)
-    //   mesh_msg_.header.stamp = ros::Time::now();
-
     // fill orientation
     mesh_msg_.pose.orientation.x = 0;
     mesh_msg_.pose.orientation.y = 0;
@@ -1180,14 +1169,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     mesh_msg_.pose.orientation.w = 0;
 
     // fill position
-    mesh_msg_.pose.position.x = 0;
-    mesh_msg_.pose.position.y = 0;
-    mesh_msg_.pose.position.z = -0.3;
+    mesh_msg_.pose.position.x = -0.25;
+    mesh_msg_.pose.position.y = -0.05;
+    mesh_msg_.pose.position.z = -0.1;
 
     // scale -- needed
-    mesh_msg_.scale.x = 0.01;
-    mesh_msg_.scale.y = 0.01;
-    mesh_msg_.scale.z = 0.01;
+    mesh_msg_.scale.x = 0.003;
+    mesh_msg_.scale.y = 0.003;
+    mesh_msg_.scale.z = 0.003;
 
     mesh_msg_.action = visualization_msgs::Marker::ADD;
     mesh_msg_.color.a = 1.0;  // Don't forget to set the alpha!
