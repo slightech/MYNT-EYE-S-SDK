@@ -485,9 +485,13 @@ bool Channels::GetFiles(
           if (imu_params->ok) {
             auto &&n = file_channel_.GetImuParamsFromData(
                 data + i, file_size, imu_params);
-            CHECK_EQ(n, file_size)
-              << "The firmware not support getting device info, you could "
-                 "upgrade to latest";
+            // TODO(Kalman): Use CHECK_EQ
+            if (n != file_size) {
+              LOG(WARNING) << "Wrong sizes of imu params";
+            }
+            // CHECK_EQ(n, file_size)
+            //  << "The firmware not support getting device info, you could "
+            //     "upgrade to latest";
           }
         } break;
         default:
