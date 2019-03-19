@@ -610,6 +610,8 @@ void Device::ReadAllInfos() {
 
   device_info_->name = uvc::get_name(*device_);
 
+  motions_->SetDeviceInfo(device_info_);
+
   bool img_params_ok = false;
   for (auto &&params : all_img_params_) {
     auto &&img_params = params.second;
