@@ -21,6 +21,8 @@
 #include <sensor_msgs/Temperature.h>
 #include <sensor_msgs/image_encodings.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
+#include <sensor_msgs/distortion_models.h>
+#include <visualization_msgs/Marker.h>
 #include <tf/tf.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 
@@ -346,6 +348,16 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                         sensor_msgs::Temperature>(temperature_topic, 100);
     NODELET_INFO_STREAM("Advertized on topic " << temperature_topic);
 
+    pub_mesh_ = nh_.advertise<visualization_msgs::Marker>("camera_mesh", 0 );
+    // where to get the mesh from
+    std::string mesh_file;
+    if (private_nh_.getParam("mesh_file", mesh_file)) {
+      mesh_msg_.mesh_resource = "package://mynt_eye_ros_wrapper/mesh/"+mesh_file;
+    } else {
+      LOG(INFO) << "no mesh found for visualisation, set ros param mesh_file, if desired";
+      mesh_msg_.mesh_resource = "";
+    }
+
     // stream toggles
 
     for (auto &&it = stream_names.begin(); it != stream_names.end(); ++it) {
@@ -611,6 +623,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
   void publishTopics() {
+    publishMesh();
+
     if ((camera_publishers_[Stream::LEFT].getNumSubscribers() > 0 ||
         mono_publishers_[Stream::LEFT].getNumSubscribers() > 0) &&
         !is_published_[Stream::LEFT]) {
@@ -1144,6 +1158,49 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     return res;
   }
 
+  void publishMesh() {
+    // also do the mesh
+    /*if (parameters_.publishing.trackedBodyFrame == FrameName::S) {
+      mesh_msg_.child_frame_id = "sensor";
+    } else if (parameters_.publishing.trackedBodyFrame == FrameName::B) {
+      mesh_msg_.child_frame_id = "body";
+    } else {
+      mesh_msg_.child_frame_id = "body";
+    }*/
+    mesh_msg_.header.frame_id = base_frame_id_;
+    mesh_msg_.header.stamp = ros::Time::now();
+    mesh_msg_.type = visualization_msgs::Marker::MESH_RESOURCE;
+    // if ((ros::Time::now() - _t).toSec() > 10.0)
+    //   mesh_msg_.header.stamp = ros::Time::now();
+
+    // fill orientation
+    mesh_msg_.pose.orientation.x = 0;
+    mesh_msg_.pose.orientation.y = 0;
+    mesh_msg_.pose.orientation.z = 0;
+    mesh_msg_.pose.orientation.w = 0;
+
+    // fill position
+    mesh_msg_.pose.position.x = 0;
+    mesh_msg_.pose.position.y = 0;
+    mesh_msg_.pose.position.z = -0.3;
+
+    // scale -- needed
+    mesh_msg_.scale.x = 0.01;
+    mesh_msg_.scale.y = 0.01;
+    mesh_msg_.scale.z = 0.01;
+
+    mesh_msg_.action = visualization_msgs::Marker::ADD;
+    mesh_msg_.color.a = 1.0;  // Don't forget to set the alpha!
+    mesh_msg_.color.r = 1.0;
+    mesh_msg_.color.g = 1.0;
+    mesh_msg_.color.b = 1.0;
+
+    // embedded material / colour
+    // mesh_msg_.mesh_use_embedded_materials = true;
+    if (!mesh_msg_.mesh_resource.empty())
+      pub_mesh_.publish(mesh_msg_);  // publish stamped mesh
+  }
+
 
   void computeRectTransforms() {
     ROS_ASSERT(api_);
@@ -1246,7 +1303,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         }
       }
 
-      camera_info->distortion_model = "plumb_bob";
+      camera_info->distortion_model = sensor_msgs::distortion_models::PLUMB_BOB;  // plumb_bob
 
       // D of plumb_bob: (k1, k2, t1, t2, k3)
       for (int i = 0; i < 5; i++) {
@@ -1257,7 +1314,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       in -> ResizeIntrinsics();
       camera_info->width = in_base->width;
       camera_info->height = in_base->height;
-      camera_info->distortion_model = "kannala_brandt";
+      camera_info->distortion_model = sensor_msgs::distortion_models::EQUIDISTANT;  // kannala_brandt
 
       // coeffs: k2,k3,k4,k5,mu,mv,u0,v0
       camera_info->D.push_back(in->coeffs[0]);  // k2
@@ -1477,6 +1534,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
   ros::Publisher pub_imu_;
   ros::Publisher pub_temperature_;
+
+  ros::Publisher pub_mesh_;  // < The publisher for camera mesh.
+  visualization_msgs::Marker mesh_msg_;  // < Mesh message.
 
   tf2_ros::StaticTransformBroadcaster static_tf_broadcaster_;
 
