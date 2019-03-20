@@ -33,7 +33,7 @@
 
   <arg name="gravity" default="9.8" />
 
-  <arg name="mesh_file" default="S1030-0315.STL" />
+  <arg name="mesh_file" default="S1030-0315.obj" />
 
   <!-- stream toggles -->
 

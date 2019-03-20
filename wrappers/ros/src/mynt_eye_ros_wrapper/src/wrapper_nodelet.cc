@@ -348,15 +348,15 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                         sensor_msgs::Temperature>(temperature_topic, 100);
     NODELET_INFO_STREAM("Advertized on topic " << temperature_topic);
 
-    // pub_mesh_ = nh_.advertise<visualization_msgs::Marker>("camera_mesh", 0 );
-    // // where to get the mesh from
-    // std::string mesh_file;
-    // if (private_nh_.getParam("mesh_file", mesh_file)) {
-    //   mesh_msg_.mesh_resource = "package://mynt_eye_ros_wrapper/mesh/"+mesh_file;
-    // } else {
-    //   LOG(INFO) << "no mesh found for visualisation, set ros param mesh_file, if desired";
-    //   mesh_msg_.mesh_resource = "";
-    // }
+    pub_mesh_ = nh_.advertise<visualization_msgs::Marker>("camera_mesh", 0 );
+    // where to get the mesh from
+    std::string mesh_file;
+    if (private_nh_.getParam("mesh_file", mesh_file)) {
+      mesh_msg_.mesh_resource = "package://mynt_eye_ros_wrapper/mesh/"+mesh_file;
+    } else {
+      LOG(INFO) << "no mesh found for visualisation, set ros param mesh_file, if desired";
+      mesh_msg_.mesh_resource = "";
+    }
 
     // stream toggles
 
@@ -623,8 +623,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
   void publishTopics() {
-    // publishMesh();
-
+    publishMesh();
     if ((camera_publishers_[Stream::LEFT].getNumSubscribers() > 0 ||
         mono_publishers_[Stream::LEFT].getNumSubscribers() > 0) &&
         !is_published_[Stream::LEFT]) {
@@ -1169,9 +1168,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     mesh_msg_.pose.orientation.w = 0;
 
     // fill position
-    mesh_msg_.pose.position.x = -0.25;
-    mesh_msg_.pose.position.y = -0.05;
-    mesh_msg_.pose.position.z = -0.1;
+    mesh_msg_.pose.position.x = 0;
+    mesh_msg_.pose.position.y = 0;
+    mesh_msg_.pose.position.z = 0;
 
     // scale -- needed
     mesh_msg_.scale.x = 0.003;
