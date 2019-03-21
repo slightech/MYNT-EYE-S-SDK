@@ -11,7 +11,8 @@ You can download the firmware and MYNT EYE TOOL installation package in the ``Fi
 
   Firmwares/
   ├─Checksum.txt                 # file checksum
-  ├─MYNTEYE_S_2.3.0.img      # firmware
+  ├─MYNTEYE_S_2.4.0.img          # S1030 firmware
+  ├─MYNTEYE_S2100_1.1.img        # S2100 firmware
   ├─...
   └─setup.zip                    # MYNTEYE TOOL zip
 
@@ -21,7 +22,7 @@ Download preparation
 ---------------------
 
 * Download and unzip ``setup.zip``
-* Download firmware, such as ``MYNTEYE_S_2.3.0_rc0.img``
+* Find firmware, such as ``MYNTEYE_S_2.4.0.img``
 
   * Please refer to :ref:`firmware_applicable` to select the firmware suitable for the SDK version
   * Please refer to ``Checksum.txt`` to find the firmware check code as follows:

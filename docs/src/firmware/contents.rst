@@ -7,4 +7,5 @@ MYNT® EYE Firmware
 
    applicable
    upgrade
+   stm_update
    from_v1.rst
