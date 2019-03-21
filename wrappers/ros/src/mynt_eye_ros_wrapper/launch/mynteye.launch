@@ -274,7 +274,7 @@
 
       <!-- device options of standard-->
 
-      <param name="sstandard/gain" value="$(arg standard/gain)" />
+      <param name="standard/gain" value="$(arg standard/gain)" />
       <param name="standard/brightness" value="$(arg standard/brightness)" />
       <param name="standard/contrast" value="$(arg standard/contrast)" />
       <param name="standard/frame_rate" value="$(arg standard/frame_rate)" />
