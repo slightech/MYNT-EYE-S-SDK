@@ -1099,6 +1099,13 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       frame_rate_ = api_->GetOptionValue(Option::FRAME_RATE);
     }
 
+    std::int32_t process_mode = 0;
+    if (model_ == Model::STANDARD2 ||
+        model_ == Model::STANDARD210A) {
+      private_nh_.getParam("standard2/imu_process_mode", process_mode);
+      api_->EnableProcessMode(process_mode);
+    }
+
     NODELET_FATAL_COND(m <= 0, "No MYNT EYE devices :(");
     if (m <= 1) {
       NODELET_INFO_STREAM("Only one stream request, select index: 0");
