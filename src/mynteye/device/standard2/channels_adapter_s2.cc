@@ -55,7 +55,8 @@ struct ImuData {
 void unpack_imu_segment(const ImuData &imu, ImuSegment *seg) {
   seg->frame_id = imu.frame_id;
   seg->timestamp = imu.timestamp;
-  seg->flag = imu.flag;
+  seg->flag = imu.flag & 0b0011;
+  seg->is_ets = (imu.flag & 0b0100 == 0b0100);
   seg->temperature = imu.temperature;
   seg->accel[0] = (seg->flag == 1) ? imu.accel_or_gyro[0] : 0;
   seg->accel[1] = (seg->flag == 1) ? imu.accel_or_gyro[1] : 0;
