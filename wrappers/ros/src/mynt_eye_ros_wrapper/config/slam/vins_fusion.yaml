@@ -1,0 +1,19 @@
+
+# Attention:The format of MYNTEYE-S2100/S2000 is YUYV.S210A's format is BGR888
+
+# MYNTEYE-S2100/S2000/S210A, Reslution: 1280x400, Format: YUYV/BGR888, Fps: 10
+# index_s2_0: "0"
+# MYNTEYE-S2100/S2000/S210A, Reslution: 1280x400, Format: YUYV/BGR888, Fps: 20
+# index_s2_1: "1"
+# MYNTEYE-S2100/S2000/S210A, Reslution: 1280x400, Format: YUYV/BGR888, Fps: 30
+# index_s2_2: "2"
+# MYNTEYE-S2100/S2000/S210A, Reslution: 1280x400, Format: YUYV/BGR888, Fps: 60
+# index_s2_3: "3"
+# MYNTEYE-S2100/S2000/S210A, Reslution: 2560x800, Format: YUYV/BGR888, Fps: 10
+# index_s2_4: "4"
+# MYNTEYE-S2100/S2000/S210A, Reslution: 2560x800, Format: YUYV/BGR888, Fps: 20
+# index_s2_5: "5"
+# MYNTEYE-S2100/S2000/S210A, Reslution: 2560x800, Format: YUYV/BGR888, Fps: 30
+# index_s2_6: "6"
+
+standard2/request_index: 1

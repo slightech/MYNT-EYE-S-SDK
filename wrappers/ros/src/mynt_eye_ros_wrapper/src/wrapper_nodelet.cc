@@ -1076,6 +1076,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     model_ = api_->GetModel();
     if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
       private_nh_.getParam("standard2/request_index", request_index);
+      std::cout << request_index << std::endl;
       switch (request_index) {
         case 0:
         case 4:

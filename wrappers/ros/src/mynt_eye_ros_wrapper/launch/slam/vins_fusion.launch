@@ -74,6 +74,7 @@
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/device/standard.yaml" />
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/device/standard2.yaml" />
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/process/process_config.yaml" />
+      <rosparam file="$(find mynt_eye_ros_wrapper)/config/slam/vins_fusion.yaml" />
 
       <param name="gravity" value="$(arg gravity)" />
     </node>
