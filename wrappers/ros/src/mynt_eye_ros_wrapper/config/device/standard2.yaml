@@ -50,7 +50,7 @@ standard2/ir_control: 80
 # standard2/ir_control: 0
 
 # standard2/accel_range range: [6,48]
-standard2/accel_range: 24
+standard2/accel_range: -1
 # standard2/accel_range: 6
 
 # standard2/gyro_range range: [250,4000]
