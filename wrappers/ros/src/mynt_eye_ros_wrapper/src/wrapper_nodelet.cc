@@ -1034,39 +1034,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
  private:
   void initDevice() {
-    NODELET_INFO_STREAM("Detecting MYNT EYE devices");
-
-    Context context;
-    auto &&devices = context.devices();
-
-    size_t n = devices.size();
-    NODELET_FATAL_COND(n <= 0, "No MYNT EYE devices :(");
-
-    NODELET_INFO_STREAM("MYNT EYE devices:");
-    for (size_t i = 0; i < n; i++) {
-      auto &&device = devices[i];
-      auto &&name = device->GetInfo(Info::DEVICE_NAME);
-      NODELET_INFO_STREAM("  index: " << i << ", name: " << name);
-    }
-
     std::shared_ptr<Device> device = nullptr;
-    if (n <= 1) {
-      device = devices[0];
-      NODELET_INFO_STREAM("Only one MYNT EYE device, select index: 0");
-    } else {
-      while (true) {
-        size_t i;
-        NODELET_INFO_STREAM(
-            "There are " << n << " MYNT EYE devices, select index: ");
-        std::cin >> i;
-        if (i >= n) {
-          NODELET_WARN_STREAM("Index out of range :(");
-          continue;
-        }
-        device = devices[i];
-        break;
-      }
-    }
+
+    device = selectDevice();
 
     api_ = API::Create(device);
     auto &&requests = device->GetStreamRequests();
@@ -1113,6 +1083,82 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
 
     computeRectTransforms();
+  }
+
+  std::shared_ptr<Device> selectDevice() {
+    NODELET_INFO_STREAM("Detecting MYNT EYE devices");
+
+    Context context;
+    auto &&devices = context.devices();
+
+    bool is_multiple = false;
+    private_nh_.getParam("is_multiple", is_multiple);
+    if (is_multiple) {
+      std::string sn;
+      private_nh_.getParam("serial_number", sn);
+      NODELET_FATAL_COND(sn.empty(), "Must set serial_number "
+          "in mynteye_1.launch and mynteye_2.launch.");
+
+      size_t n = devices.size();
+      NODELET_FATAL_COND(n <= 0, "No MYNT EYE devices :(");
+
+      NODELET_INFO_STREAM("MYNT EYE devices:");
+      for (size_t i = 0; i < n; i++) {
+        auto &&device = devices[i];
+        auto &&name = device->GetInfo(Info::DEVICE_NAME);
+        auto &&serial_number = device->GetInfo(Info::SERIAL_NUMBER);
+        NODELET_INFO_STREAM("  index: " << i << ", name: " <<
+            name << ", serial number: " << serial_number);
+      }
+      for (size_t i = 0; i < n; i++) {
+        auto &&device = devices[i];
+        auto &&name = device->GetInfo(Info::DEVICE_NAME);
+        auto &&serial_number = device->GetInfo(Info::SERIAL_NUMBER);
+        NODELET_INFO_STREAM("  index: " << i << ", name: " <<
+            name << ", serial number: " << serial_number);
+        if (sn == serial_number)
+          return device;
+#if 0
+        if (i == (n - 1)) {
+          /*
+          NODELET_FATAL_COND(i == (n - 1), "No corresponding device was found,"
+              " check the serial_number configuration. ");
+              */
+          NODELET_FATAL_COND(i == (n - 1), "No corresponding device was found,"
+              " check the serial_number configuration. ");
+          return nullptr;
+        }
+#endif
+      }
+    }
+    size_t n = devices.size();
+    NODELET_FATAL_COND(n <= 0, "No MYNT EYE devices :(");
+
+    NODELET_INFO_STREAM("MYNT EYE devices:");
+    for (size_t i = 0; i < n; i++) {
+      auto &&device = devices[i];
+      auto &&name = device->GetInfo(Info::DEVICE_NAME);
+      NODELET_INFO_STREAM("  index: " << i << ", name: " << name);
+    }
+
+    if (n <= 1) {
+      NODELET_INFO_STREAM("Only one MYNT EYE device, select index: 0");
+      return devices[0];
+    } else {
+      while (true) {
+        size_t i;
+        NODELET_INFO_STREAM(
+            "There are " << n << " MYNT EYE devices, select index: ");
+        std::cin >> i;
+        if (i >= n) {
+          NODELET_WARN_STREAM("Index out of range :(");
+          continue;
+        }
+        return devices[i];
+      }
+    }
+
+    return nullptr;
   }
 
   std::shared_ptr<IntrinsicsBase> getDefaultIntrinsics() {

@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="mynteye" default="mynteye" />
+  <arg name="mynteye" default="mynteye_1" />
 
   <!-- mutiple device -->
-  <arg name="is_multiple" default="false" />
+  <arg name="is_multiple" default="true" />
 
   <!-- serial_number -->
   <!-- if is_mutiple is true, must set serial_number -->
-  <arg name="serial_number" default="" />
+  <arg name="serial_number" default="07C42B1B0009071F" />
 
   <!-- node params -->
 
@@ -230,7 +230,7 @@
   <group ns="$(arg mynteye)">
 
     <!-- mynteye_wrapper_node -->
-    <node name="mynteye_wrapper_node" pkg="mynt_eye_ros_wrapper" type="mynteye_wrapper_node" output="screen" respawn="true" respawn_delay="5">
+    <node name="mynteye_wrapper_node_1" pkg="mynt_eye_ros_wrapper" type="mynteye_wrapper_node" output="screen" respawn="true" respawn_delay="5">
 
       <!-- node params -->
 
