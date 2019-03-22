@@ -1076,7 +1076,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     model_ = api_->GetModel();
     if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
       private_nh_.getParam("standard2/request_index", request_index);
-      std::cout << request_index << std::endl;
       switch (request_index) {
         case 0:
         case 4:
@@ -1098,6 +1097,13 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     if (model_ == Model::STANDARD) {
       private_nh_.getParam("standard/request_index", request_index);
       frame_rate_ = api_->GetOptionValue(Option::FRAME_RATE);
+    }
+
+    std::int32_t process_mode = 0;
+    if (model_ == Model::STANDARD2 ||
+        model_ == Model::STANDARD210A) {
+      private_nh_.getParam("standard2/imu_process_mode", process_mode);
+      api_->EnableProcessMode(process_mode);
     }
 
     NODELET_FATAL_COND(m <= 0, "No MYNT EYE devices :(");

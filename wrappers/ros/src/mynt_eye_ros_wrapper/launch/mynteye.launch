@@ -34,7 +34,6 @@
   <arg name="gravity" default="9.8" />
 
   <arg name="mesh_file" default="S1030-0315.obj" />
-
   <!-- Push down all topics/nodelets into "mynteye" namespace -->
   <group ns="$(arg mynteye)">
 
