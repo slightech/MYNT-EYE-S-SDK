@@ -72,6 +72,8 @@ struct ImuSegment {
   std::uint32_t frame_id;
   std::uint64_t timestamp;
   std::uint8_t flag;
+  // Is external time source
+  bool is_ets;
   std::int16_t temperature;
   std::int16_t accel[3];
   std::int16_t gyro[3];

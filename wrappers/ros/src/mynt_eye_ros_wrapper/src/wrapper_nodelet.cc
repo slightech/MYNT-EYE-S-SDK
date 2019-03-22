@@ -348,15 +348,15 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                         sensor_msgs::Temperature>(temperature_topic, 100);
     NODELET_INFO_STREAM("Advertized on topic " << temperature_topic);
 
-    // pub_mesh_ = nh_.advertise<visualization_msgs::Marker>("camera_mesh", 0 );
-    // // where to get the mesh from
-    // std::string mesh_file;
-    // if (private_nh_.getParam("mesh_file", mesh_file)) {
-    //   mesh_msg_.mesh_resource = "package://mynt_eye_ros_wrapper/mesh/"+mesh_file;
-    // } else {
-    //   LOG(INFO) << "no mesh found for visualisation, set ros param mesh_file, if desired";
-    //   mesh_msg_.mesh_resource = "";
-    // }
+    pub_mesh_ = nh_.advertise<visualization_msgs::Marker>("camera_mesh", 0 );
+    // where to get the mesh from
+    std::string mesh_file;
+    if (private_nh_.getParam("mesh_file", mesh_file)) {
+      mesh_msg_.mesh_resource = "package://mynt_eye_ros_wrapper/mesh/"+mesh_file;
+    } else {
+      LOG(INFO) << "no mesh found for visualisation, set ros param mesh_file, if desired";
+      mesh_msg_.mesh_resource = "";
+    }
 
     // stream toggles
 
@@ -623,8 +623,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
   void publishTopics() {
-    // publishMesh();
-
+    publishMesh();
     if ((camera_publishers_[Stream::LEFT].getNumSubscribers() > 0 ||
         mono_publishers_[Stream::LEFT].getNumSubscribers() > 0) &&
         !is_published_[Stream::LEFT]) {
@@ -1035,39 +1034,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
  private:
   void initDevice() {
-    NODELET_INFO_STREAM("Detecting MYNT EYE devices");
-
-    Context context;
-    auto &&devices = context.devices();
-
-    size_t n = devices.size();
-    NODELET_FATAL_COND(n <= 0, "No MYNT EYE devices :(");
-
-    NODELET_INFO_STREAM("MYNT EYE devices:");
-    for (size_t i = 0; i < n; i++) {
-      auto &&device = devices[i];
-      auto &&name = device->GetInfo(Info::DEVICE_NAME);
-      NODELET_INFO_STREAM("  index: " << i << ", name: " << name);
-    }
-
     std::shared_ptr<Device> device = nullptr;
-    if (n <= 1) {
-      device = devices[0];
-      NODELET_INFO_STREAM("Only one MYNT EYE device, select index: 0");
-    } else {
-      while (true) {
-        size_t i;
-        NODELET_INFO_STREAM(
-            "There are " << n << " MYNT EYE devices, select index: ");
-        std::cin >> i;
-        if (i >= n) {
-          NODELET_WARN_STREAM("Index out of range :(");
-          continue;
-        }
-        device = devices[i];
-        break;
-      }
-    }
+
+    device = selectDevice();
 
     api_ = API::Create(device);
     auto &&requests = device->GetStreamRequests();
@@ -1100,6 +1069,13 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       frame_rate_ = api_->GetOptionValue(Option::FRAME_RATE);
     }
 
+    std::int32_t process_mode = 0;
+    if (model_ == Model::STANDARD2 ||
+        model_ == Model::STANDARD210A) {
+      private_nh_.getParam("standard2/imu_process_mode", process_mode);
+      api_->EnableProcessMode(process_mode);
+    }
+
     NODELET_FATAL_COND(m <= 0, "No MYNT EYE devices :(");
     if (m <= 1) {
       NODELET_INFO_STREAM("Only one stream request, select index: 0");
@@ -1114,6 +1090,82 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
 
     computeRectTransforms();
+  }
+
+  std::shared_ptr<Device> selectDevice() {
+    NODELET_INFO_STREAM("Detecting MYNT EYE devices");
+
+    Context context;
+    auto &&devices = context.devices();
+
+    bool is_multiple = false;
+    private_nh_.getParam("is_multiple", is_multiple);
+    if (is_multiple) {
+      std::string sn;
+      private_nh_.getParam("serial_number", sn);
+      NODELET_FATAL_COND(sn.empty(), "Must set serial_number "
+          "in mynteye_1.launch and mynteye_2.launch.");
+
+      size_t n = devices.size();
+      NODELET_FATAL_COND(n <= 0, "No MYNT EYE devices :(");
+
+      NODELET_INFO_STREAM("MYNT EYE devices:");
+      for (size_t i = 0; i < n; i++) {
+        auto &&device = devices[i];
+        auto &&name = device->GetInfo(Info::DEVICE_NAME);
+        auto &&serial_number = device->GetInfo(Info::SERIAL_NUMBER);
+        NODELET_INFO_STREAM("  index: " << i << ", name: " <<
+            name << ", serial number: " << serial_number);
+      }
+      for (size_t i = 0; i < n; i++) {
+        auto &&device = devices[i];
+        auto &&name = device->GetInfo(Info::DEVICE_NAME);
+        auto &&serial_number = device->GetInfo(Info::SERIAL_NUMBER);
+        NODELET_INFO_STREAM("  index: " << i << ", name: " <<
+            name << ", serial number: " << serial_number);
+        if (sn == serial_number)
+          return device;
+#if 0
+        if (i == (n - 1)) {
+          /*
+          NODELET_FATAL_COND(i == (n - 1), "No corresponding device was found,"
+              " check the serial_number configuration. ");
+              */
+          NODELET_FATAL_COND(i == (n - 1), "No corresponding device was found,"
+              " check the serial_number configuration. ");
+          return nullptr;
+        }
+#endif
+      }
+    }
+    size_t n = devices.size();
+    NODELET_FATAL_COND(n <= 0, "No MYNT EYE devices :(");
+
+    NODELET_INFO_STREAM("MYNT EYE devices:");
+    for (size_t i = 0; i < n; i++) {
+      auto &&device = devices[i];
+      auto &&name = device->GetInfo(Info::DEVICE_NAME);
+      NODELET_INFO_STREAM("  index: " << i << ", name: " << name);
+    }
+
+    if (n <= 1) {
+      NODELET_INFO_STREAM("Only one MYNT EYE device, select index: 0");
+      return devices[0];
+    } else {
+      while (true) {
+        size_t i;
+        NODELET_INFO_STREAM(
+            "There are " << n << " MYNT EYE devices, select index: ");
+        std::cin >> i;
+        if (i >= n) {
+          NODELET_WARN_STREAM("Index out of range :(");
+          continue;
+        }
+        return devices[i];
+      }
+    }
+
+    return nullptr;
   }
 
   std::shared_ptr<IntrinsicsBase> getDefaultIntrinsics() {
@@ -1169,9 +1221,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     mesh_msg_.pose.orientation.w = 0;
 
     // fill position
-    mesh_msg_.pose.position.x = -0.25;
-    mesh_msg_.pose.position.y = -0.05;
-    mesh_msg_.pose.position.z = -0.1;
+    mesh_msg_.pose.position.x = 0;
+    mesh_msg_.pose.position.y = 0;
+    mesh_msg_.pose.position.z = 0;
 
     // scale -- needed
     mesh_msg_.scale.x = 0.003;

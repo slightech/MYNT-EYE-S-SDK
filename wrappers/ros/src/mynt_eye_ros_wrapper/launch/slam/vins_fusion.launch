@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="mynteye" default="mynteye" />
+
+  <!-- node params -->
+
+  <arg name="left_topic" default="left/image_raw" />
+  <arg name="right_topic" default="right/image_raw" />
+  <arg name="left_rect_topic" default="left_rect/image_rect" />
+  <arg name="right_rect_topic" default="right_rect/image_rect" />
+  <arg name="disparity_topic" default="disparity/image_raw" />
+  <arg name="disparity_norm_topic" default="disparity/image_norm" />
+  <arg name="depth_topic" default="depth/image_raw" />
+  <arg name="points_topic" default="points/data_raw" />
+
+  <arg name="left_mono_topic" default="left/image_mono" />
+  <arg name="right_mono_topic" default="right/image_mono" />
+
+  <arg name="imu_topic" default="imu/data_raw" />
+  <arg name="temperature_topic" default="temperature/data_raw" />
+
+  <arg name="base_frame_id" default="$(arg mynteye)_link" />
+  <arg name="left_frame_id" default="$(arg mynteye)_left_frame" />
+  <arg name="right_frame_id" default="$(arg mynteye)_right_frame" />
+  <arg name="left_rect_frame_id" default="$(arg mynteye)_left_rect_frame" />
+  <arg name="right_rect_frame_id" default="$(arg mynteye)_right_rect_frame" />
+  <arg name="disparity_frame_id" default="$(arg mynteye)_disparity_frame" />
+  <arg name="disparity_norm_frame_id" default="$(arg mynteye)_disparity_norm_frame" />
+  <arg name="points_frame_id" default="$(arg mynteye)_points_frame" />
+  <arg name="depth_frame_id" default="$(arg mynteye)_depth_frame" />
+
+  <arg name="temperature_frame_id" default="$(arg mynteye)_temperature_frame" />
+
+  <arg name="gravity" default="9.8" />
+
+  <arg name="mesh_file" default="S1030-0315.obj" />
+
+  <!-- Push down all topics/nodelets into "mynteye" namespace -->
+  <group ns="$(arg mynteye)">
+
+    <!-- mynteye_wrapper_node -->
+    <node name="mynteye_wrapper_node" pkg="mynt_eye_ros_wrapper" type="mynteye_wrapper_node" output="screen" respawn="true" respawn_delay="5">
+
+      <!-- node params -->
+
+      <param name="left_topic" value="$(arg left_topic)" />
+      <param name="right_topic" value="$(arg right_topic)" />
+      <param name="left_rect_topic" value="$(arg left_rect_topic)" />
+      <param name="right_rect_topic" value="$(arg right_rect_topic)" />
+      <param name="disparity_topic" value="$(arg disparity_topic)" />
+      <param name="disparity_norm_topic" value="$(arg disparity_norm_topic)" />
+      <param name="points_topic" value="$(arg points_topic)" />
+      <param name="depth_topic" value="$(arg depth_topic)" />
+      <param name="mesh_file" value="$(arg mesh_file)" />
+
+      <param name="left_mono_topic" value="$(arg left_mono_topic)" />
+      <param name="right_mono_topic" value="$(arg right_mono_topic)" />
+
+      <param name="imu_topic" value="$(arg imu_topic)" />
+      <param name="temperature_topic" value="$(arg temperature_topic)" />
+
+      <param name="base_frame_id" value="$(arg base_frame_id)" />
+      <param name="left_frame_id" value="$(arg left_frame_id)" />
+      <param name="right_frame_id" value="$(arg right_frame_id)" />
+      <param name="left_rect_frame_id" value="$(arg left_rect_frame_id)" />
+      <param name="right_rect_frame_id" value="$(arg right_rect_frame_id)" />
+      <param name="disparity_frame_id" value="$(arg disparity_frame_id)" />
+      <param name="disparity_norm_frame_id" value="$(arg disparity_norm_frame_id)" />
+      <param name="points_frame_id" value="$(arg points_frame_id)" />
+      <param name="depth_frame_id" value="$(arg depth_frame_id)" />
+
+      <param name="temperature_frame_id" value="$(arg temperature_frame_id)" />
+
+      <rosparam file="$(find mynt_eye_ros_wrapper)/config/device/standard.yaml" />
+      <rosparam file="$(find mynt_eye_ros_wrapper)/config/device/standard2.yaml" />
+      <rosparam file="$(find mynt_eye_ros_wrapper)/config/process/process_config.yaml" />
+      <rosparam file="$(find mynt_eye_ros_wrapper)/config/slam/vins_fusion.yaml" />
+
+      <param name="gravity" value="$(arg gravity)" />
+    </node>
+
+    <!-- disable compressed depth plugin for image topics -->
+    <group ns="$(arg left_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg left_rect_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg left_mono_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg right_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg right_mono_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg right_rect_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg disparity_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg disparity_norm_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg depth_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+  </group> <!-- mynteye -->
+</launch>

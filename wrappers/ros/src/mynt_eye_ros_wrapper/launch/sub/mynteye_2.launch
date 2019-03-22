@@ -1,0 +1,377 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="mynteye" default="mynteye_2" />
+
+  <!-- mutiple device -->
+  <arg name="is_multiple" default="true" />
+
+  <!-- serial_number -->
+  <!-- if is_mutiple is true, must set serial_number -->
+  <arg name="serial_number" default="07C4061B0009071F" />
+
+  <!-- node params -->
+
+  <arg name="left_topic" default="left/image_raw" />
+  <arg name="right_topic" default="right/image_raw" />
+  <arg name="left_rect_topic" default="left_rect/image_rect" />
+  <arg name="right_rect_topic" default="right_rect/image_rect" />
+  <arg name="disparity_topic" default="disparity/image_raw" />
+  <arg name="disparity_norm_topic" default="disparity/image_norm" />
+  <arg name="depth_topic" default="depth/image_raw" />
+  <arg name="points_topic" default="points/data_raw" />
+
+  <arg name="left_mono_topic" default="left/image_mono" />
+  <arg name="right_mono_topic" default="right/image_mono" />
+
+  <arg name="imu_topic" default="imu/data_raw" />
+  <arg name="temperature_topic" default="temperature/data_raw" />
+
+  <arg name="base_frame_id" default="$(arg mynteye)_link" />
+  <arg name="left_frame_id" default="$(arg mynteye)_left_frame" />
+  <arg name="right_frame_id" default="$(arg mynteye)_right_frame" />
+  <arg name="left_rect_frame_id" default="$(arg mynteye)_left_rect_frame" />
+  <arg name="right_rect_frame_id" default="$(arg mynteye)_right_rect_frame" />
+  <arg name="disparity_frame_id" default="$(arg mynteye)_disparity_frame" />
+  <arg name="disparity_norm_frame_id" default="$(arg mynteye)_disparity_norm_frame" />
+  <arg name="points_frame_id" default="$(arg mynteye)_points_frame" />
+  <arg name="depth_frame_id" default="$(arg mynteye)_depth_frame" />
+
+  <arg name="temperature_frame_id" default="$(arg mynteye)_temperature_frame" />
+
+  <arg name="gravity" default="9.8" />
+
+  <arg name="mesh_file" default="S1030-0315.obj" />
+
+  <!-- stream toggles -->
+
+  <!-- Request index -->
+
+  <!-- Attention:The format of MYNTEYE-S2100/S2000 is YUYV.S210A's format is BGR888 -->
+
+  <!-- MYNTEYE-S2100/S2000/S210A, Reslution: 1280x400, Format: YUYV/BGR888, Fps: 10 -->
+  <arg name="index_s2_0"   default="0" />
+  <!-- MYNTEYE-S2100/S2000/S210A, Reslution: 1280x400, Format: YUYV/BGR888, Fps: 20 -->
+  <arg name="index_s2_1"   default="1" />
+  <!-- MYNTEYE-S2100/S2000/S210A, Reslution: 1280x400, Format: YUYV/BGR888, Fps: 30 -->
+  <arg name="index_s2_2"   default="2" />
+  <!-- MYNTEYE-S2100/S2000/S210A, Reslution: 1280x400, Format: YUYV/BGR888, Fps: 60 -->
+  <arg name="index_s2_3"   default="3" />
+  <!-- MYNTEYE-S2100/S2000/S210A, Reslution: 2560x800, Format: YUYV/BGR888, Fps: 10 -->
+  <arg name="index_s2_4"   default="4" />
+  <!-- MYNTEYE-S2100/S2000/S210A, Reslution: 2560x800, Format: YUYV/BGR888, Fps: 20 -->
+  <arg name="index_s2_5"   default="5" />
+  <!-- MYNTEYE-S2100/S2000/S210A, Reslution: 2560x800, Format: YUYV/BGR888, Fps: 30 -->
+  <arg name="index_s2_6"   default="6" />
+
+  <arg name="standard2/request_index" default="$(arg index_s2_2)" />
+
+  <!-- MYNTEYE-S1030, Reslution: 752x480, Format: YUYV -->
+  <arg name="index_s_0"   default="0" />
+  <!-- MYNTEYE-S1030, Reslution: 376x240, Format: YUYV -->
+  <arg name="index_s_1"   default="1" />
+
+  <arg name="standard/request_index" default="$(arg index_s_0)" />
+
+  <!-- disparity computing method type -->
+  <arg name="sgbm"   default="0" />
+  <arg name="bm"   default="1" />
+  <arg name="disparity_computing_method"   default="$(arg bm)" />
+
+  <arg name="enable_left_rect" default="false" />
+  <arg name="enable_right_rect" default="false" />
+  <arg name="enable_disparity" default="false" />
+  <arg name="enable_disparity_norm" default="false" />
+  <arg name="enable_points" default="false" />
+  <arg name="enable_depth" default="false" />
+
+  <!-- device options of standard, -1 will not set the value -->
+
+  <!-- standard/gain range: [0,48] -->
+  <arg name="standard/gain" default="-1" />
+  <!-- <arg name="standard/gain" default="24" /> -->
+
+  <!-- standard/brightness range: [0,240] -->
+  <arg name="standard/brightness" default="-1" />
+  <!-- <arg name="standard/brightness" default="120" /> -->
+
+  <!-- contrast range: [0,255] -->
+  <arg name="standard/contrast" default="-1" />
+  <!-- <arg name="standard/contrast" default="127" /> -->
+
+  <!-- standard/frame_rate range: {10,15,20,25,30,35,40,45,50,55,60} -->
+  <arg name="standard/frame_rate" default="-1" />
+  <!-- <arg name="standard/frame_rate" default="25" /> -->
+
+  <!-- standard/imu_frequency range: {100,200,250,333,500} -->
+  <arg name="standard/imu_frequency" default="-1" />
+  <!-- <arg name="standard/imu_frequency" default="200" /> -->
+
+  <!-- standard/exposure_mode, 0: auto-exposure, 1: manual-exposure -->
+  <arg name="standard/exposure_mode" default="-1" />
+  <!-- <arg name="standard/exposure_mode" default="0" /> -->
+
+  <!-- standard/max_gain range: [0,48] -->
+  <arg name="standard/max_gain" default="-1" />
+  <!-- <arg name="standard/max_gain" default="48" /> -->
+
+  <!-- standard/max_exposure_time range: [0,240] -->
+  <arg name="standard/max_exposure_time" default="-1" />
+  <!-- <arg name="standard/max_exposure_time" default="240" /> -->
+
+  <!-- standard/desired_brightness range: [0,255] -->
+  <arg name="standard/desired_brightness" default="-1" />
+  <!-- <arg name="standard/desired_brightness" default="192" /> -->
+
+  <!-- standard/ir_control range: [0,160] -->
+  <arg name="standard/ir_control" default="80" />
+  <!-- <arg name="standard/ir_control" default="0" /> -->
+
+  <!-- standard/hdr_mode, 0: 10-bit, 1: 12-bit -->
+  <arg name="standard/hdr_mode" default="-1" />
+  <!-- <arg name="standard/hdr_mode" default="0" /> -->
+
+  <!-- standard/accel_range range: {4,8,16,32} -->
+  <arg name="standard/accel_range" default="-1" />
+  <!-- <arg name="standard/accel_range" default="8" /> -->
+
+  <!-- standard/gyro_range range: {500,1000,2000,4000} -->
+  <arg name="standard/gyro_range" default="-1" />
+  <!-- <arg name="standard/gyro_range" default="1000" /> -->
+
+  <!-- device options of standard2, -1 will not set the value -->
+
+  <!-- standard2/brightness range: [0,240] -->
+  <arg name="standard2/brightness" default="-1" />
+  <!-- <arg name="standard2/brightness" default="120" /> -->
+
+  <!-- standard2/exposure_mode, 0: auto-exposure, 1: manual-exposure -->
+  <arg name="standard2/exposure_mode" default="-1" />
+  <!-- <arg name="standard2/exposure_mode" default="0" /> -->
+
+  <!-- standard2/max_gain range: [0,255] -->
+  <arg name="standard2/max_gain" default="-1" />
+  <!-- <arg name="standard2/max_gain" default="8" /> -->
+
+  <!-- standard2/max_exposure_time range: [0,1000] -->
+  <arg name="standard2/max_exposure_time" default="-1" />
+  <!-- <arg name="standard2/max_exposure_time" default="333" /> -->
+
+  <!-- standard2/desired_brightness range: [1,255] -->
+  <arg name="standard2/desired_brightness" default="-1" />
+  <!-- <arg name="standard2/desired_brightness" default="122" /> -->
+
+  <!-- standard2/min_exposure_time range: [0,1000] -->
+  <arg name="standard2/min_exposure_time" default="-1" />
+  <!-- <arg name="standard2/min_exposure_time" default="0" /> -->
+
+  <!-- standard2/ir_control range: [0,160] -->
+  <arg name="standard2/ir_control" default="80" />
+  <!-- <arg name="standard2/ir_control" default="0" /> -->
+
+  <!-- standard2/accel_range range: [6,48] -->
+  <arg name="standard2/accel_range" default="24" />
+  <!-- <arg name="standard2/accel_range" default="6" /> -->
+
+  <!-- standard2/gyro_range range: [250,4000] -->
+  <arg name="standard2/gyro_range" default="-1" />
+  <!-- <arg name="standard2/gyro_range" default="1000" /> -->
+
+  <!-- standard2/accel_low_filter range: [0,2] -->
+  <arg name="standard2/accel_low_filter" default="-1" />
+  <!-- <arg name="standard2/accel_low_filter" default="2" /> -->
+
+  <!-- standard2/gyro_low_filter range: [23,64] -->
+  <arg name="standard2/gyro_low_filter" default="-1" />
+  <!-- <arg name="standard2/gyro_low_filter" default="64" /> -->
+
+  <!-- device options of standard210a, -1 will not set the value -->
+
+  <!-- standard210a/brightness range: [0,240] -->
+  <arg name="standard210a/brightness" default="-1" />
+  <!-- <arg name="standard210a/brightness" default="120" /> -->
+
+  <!-- standard210a/exposure_mode, 0: auto-exposure, 1: manual-exposure -->
+  <arg name="standard210a/exposure_mode" default="-1" />
+  <!-- <arg name="standard210a/exposure_mode" default="0" /> -->
+
+  <!-- standard210a/max_gain range: [0,255] -->
+  <arg name="standard210a/max_gain" default="-1" />
+  <!-- <arg name="standard210a/max_gain" default="8" /> -->
+
+  <!-- standard210a/max_exposure_time range: [0,1000] -->
+  <arg name="standard210a/max_exposure_time" default="-1" />
+  <!-- <arg name="standard210a/max_exposure_time" default="333" /> -->
+
+  <!-- standard210a/desired_brightness range: [1,255] -->
+  <arg name="standard210a/desired_brightness" default="-1" />
+  <!-- <arg name="standard210a/desired_brightness" default="122" /> -->
+
+  <!-- standard210a/min_exposure_time range: [0,1000] -->
+  <arg name="standard210a/min_exposure_time" default="-1" />
+  <!-- <arg name="standard210a/min_exposure_time" default="0" /> -->
+
+  <!-- standard210a/accel_range range: [6,48] -->
+  <arg name="standard210a/accel_range" default="-1" />
+  <!-- <arg name="standard210a/accel_range" default="6" /> -->
+
+  <!-- standard210a/gyro_range range: [250,4000] -->
+  <arg name="standard210a/gyro_range" default="-1" />
+  <!-- <arg name="standard210a/gyro_range" default="1000" /> -->
+
+  <!-- standard210a/accel_low_filter range: [0,2] -->
+  <arg name="standard210a/accel_low_filter" default="-1" />
+  <!-- <arg name="standard210a/accel_low_filter" default="2" /> -->
+
+  <!-- standard210a/gyro_low_filter range: [23,64] -->
+  <arg name="standard210a/gyro_low_filter" default="-1" />
+  <!-- <arg name="standard210a/gyro_low_filter" default="64" /> -->
+
+  <!-- Push down all topics/nodelets into "mynteye" namespace -->
+  <group ns="$(arg mynteye)">
+
+    <!-- mynteye_wrapper_node -->
+    <node name="mynteye_wrapper_node_2" pkg="mynt_eye_ros_wrapper" type="mynteye_wrapper_node" output="screen" respawn="true" respawn_delay="5">
+
+      <!-- node params -->
+
+      <param name="is_multiple" value="$(arg is_multiple)" />
+      <param name="serial_number" value="$(arg serial_number)" />
+
+      <param name="left_topic" value="$(arg left_topic)" />
+      <param name="right_topic" value="$(arg right_topic)" />
+      <param name="left_rect_topic" value="$(arg left_rect_topic)" />
+      <param name="right_rect_topic" value="$(arg right_rect_topic)" />
+      <param name="disparity_topic" value="$(arg disparity_topic)" />
+      <param name="disparity_norm_topic" value="$(arg disparity_norm_topic)" />
+      <param name="points_topic" value="$(arg points_topic)" />
+      <param name="depth_topic" value="$(arg depth_topic)" />
+      <param name="mesh_file" value="$(arg mesh_file)" />
+
+      <param name="left_mono_topic" value="$(arg left_mono_topic)" />
+      <param name="right_mono_topic" value="$(arg right_mono_topic)" />
+
+      <param name="imu_topic" value="$(arg imu_topic)" />
+      <param name="temperature_topic" value="$(arg temperature_topic)" />
+
+      <param name="base_frame_id" value="$(arg base_frame_id)" />
+      <param name="left_frame_id" value="$(arg left_frame_id)" />
+      <param name="right_frame_id" value="$(arg right_frame_id)" />
+      <param name="left_rect_frame_id" value="$(arg left_rect_frame_id)" />
+      <param name="right_rect_frame_id" value="$(arg right_rect_frame_id)" />
+      <param name="disparity_frame_id" value="$(arg disparity_frame_id)" />
+      <param name="disparity_norm_frame_id" value="$(arg disparity_norm_frame_id)" />
+      <param name="points_frame_id" value="$(arg points_frame_id)" />
+      <param name="depth_frame_id" value="$(arg depth_frame_id)" />
+
+      <param name="temperature_frame_id" value="$(arg temperature_frame_id)" />
+
+      <param name="gravity" value="$(arg gravity)" />
+
+      <param name="disparity_computing_method" value="$(arg disparity_computing_method)" />
+
+      <!-- stream toggles -->
+
+      <param name="enable_left_rect" value="$(arg enable_left_rect)" />
+      <param name="enable_right_rect" value="$(arg enable_right_rect)" />
+      <param name="enable_disparity" value="$(arg enable_disparity)" />
+      <param name="enable_disparity_norm" value="$(arg enable_disparity_norm)" />
+      <param name="enable_points" value="$(arg enable_points)" />
+      <param name="enable_depth" value="$(arg enable_depth)" />
+
+      <!-- stream request index -->
+      <param name="standard/request_index" value="$(arg standard/request_index)" />
+      <param name="standard2/request_index" value="$(arg standard2/request_index)" />
+
+      <!-- device options of standard-->
+
+      <param name="standard/gain" value="$(arg standard/gain)" />
+      <param name="standard/brightness" value="$(arg standard/brightness)" />
+      <param name="standard/contrast" value="$(arg standard/contrast)" />
+      <param name="standard/frame_rate" value="$(arg standard/frame_rate)" />
+      <param name="standard/imu_frequency" value="$(arg standard/imu_frequency)" />
+      <param name="standard/exposure_mode" value="$(arg standard/exposure_mode)" />
+      <param name="standard/max_gain" value="$(arg standard/max_gain)" />
+      <param name="standard/max_exposure_time" value="$(arg standard/max_exposure_time)" />
+      <param name="standard/desired_brightness" value="$(arg standard/desired_brightness)" />
+      <param name="standard/ir_control" value="$(arg standard/ir_control)" />
+      <param name="standard/hdr_mode" value="$(arg standard/hdr_mode)" />
+      <param name="standard/accel_range" value="$(arg standard/accel_range)" />
+      <param name="standard/gyro_range" value="$(arg standard/gyro_range)" />
+
+      <!-- device options of standard2-->
+
+      <param name="standard2/brightness" value="$(arg standard2/brightness)" />
+      <param name="standard2/exposure_mode" value="$(arg standard2/exposure_mode)" />
+      <param name="standard2/max_gain" value="$(arg standard2/max_gain)" />
+      <param name="standard2/max_exposure_time" value="$(arg standard2/max_exposure_time)" />
+      <param name="standard2/desired_brightness" value="$(arg standard2/desired_brightness)" />
+      <param name="standard2/min_exposure_time" value="$(arg standard2/min_exposure_time)" />
+      <param name="standard2/ir_control" value="$(arg standard2/ir_control)" />
+      <param name="standard2/accel_range" value="$(arg standard2/accel_range)" />
+      <param name="standard2/gyro_range" value="$(arg standard2/gyro_range)" />
+      <param name="standard2/accel_low_filter" value="$(arg standard2/accel_low_filter)" />
+      <param name="standard2/gyro_low_filter" value="$(arg standard2/gyro_low_filter)" />
+
+      <!-- device options of standard210a-->
+
+      <param name="standard210a/brightness" value="$(arg standard210a/brightness)" />
+      <param name="standard210a/exposure_mode" value="$(arg standard210a/exposure_mode)" />
+      <param name="standard210a/max_gain" value="$(arg standard210a/max_gain)" />
+      <param name="standard210a/max_exposure_time" value="$(arg standard210a/max_exposure_time)" />
+      <param name="standard210a/desired_brightness" value="$(arg standard210a/desired_brightness)" />
+      <param name="standard210a/min_exposure_time" value="$(arg standard210a/min_exposure_time)" />
+      <param name="standard210a/accel_range" value="$(arg standard210a/accel_range)" />
+      <param name="standard210a/gyro_range" value="$(arg standard210a/gyro_range)" />
+      <param name="standard210a/accel_low_filter" value="$(arg standard210a/accel_low_filter)" />
+      <param name="standard210a/gyro_low_filter" value="$(arg standard210a/gyro_low_filter)" />
+
+    </node>
+
+    <!-- disable compressed depth plugin for image topics -->
+    <group ns="$(arg left_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg left_rect_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg left_mono_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg right_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg right_mono_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg right_rect_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg disparity_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg disparity_norm_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="$(arg depth_topic)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+  </group> <!-- mynteye -->
+</launch>

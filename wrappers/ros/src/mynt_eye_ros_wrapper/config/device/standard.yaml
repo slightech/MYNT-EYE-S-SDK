@@ -1,0 +1,58 @@
+# standard/gain range: [0,48]
+sstandard/gain: -1
+# standard/gain: 24
+
+# standard/brightness range: [0,240]
+standard/brightness: -1
+# standard/brightness: 120
+
+# contrast range: [0,255]
+standard/contrast: -1
+# standard/contrast: 127
+
+# standard/frame_rate range: {10,15,20,25,30,35,40,45,50,55,60}
+standard/frame_rate: -1
+# standard/frame_rate: 25
+
+# standard/imu_frequency range: {100,200,250,333,500}
+standard/imu_frequency: -1
+# standard/imu_frequency: 200
+
+# standard/exposure_mode, 0: auto-exposure, 1: manual-exposure
+standard/exposure_mode: -1
+# standard/exposure_mode: 0
+
+# standard/max_gain range: [0,48]
+standard/max_gain: -1
+# standard/max_gain: 48
+
+# standard/max_exposure_time range: [0,240]
+standard/max_exposure_time: -1
+# standard/max_exposure_time: 240
+
+# standard/desired_brightness range: [0,255]
+standard/desired_brightness: -1
+# standard/desired_brightness: 192
+
+# standard/ir_control range: [0,160]
+standard/ir_control: 80
+# standard/ir_control: 0
+
+# standard/hdr_mode, 0: 10-bit, 1: 12-bit
+standard/hdr_mode: -1
+# standard/hdr_mode: 0
+
+# standard/accel_range range: {4,8,16,32}
+standard/accel_range: -1
+# standard/accel_range: 8
+
+# standard/gyro_range range: {500,1000,2000,4000}
+standard/gyro_range: -1
+# standard/gyro_range: 1000
+
+# MYNTEYE-S1030, Reslution: 752x480, Format: YUYV
+# index_s_0: 0
+# MYNTEYE-S1030, Reslution: 376x240, Format: YUYV
+# index_s_1: 1
+
+standard/request_index: 0
