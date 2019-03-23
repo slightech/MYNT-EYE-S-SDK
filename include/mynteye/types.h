@@ -259,6 +259,14 @@ enum class Option : std::uint8_t {
    */
   GYROSCOPE_LOW_PASS_FILTER,
 
+  /**
+   * The setting of IIC address
+   * <p>
+   *   range: [0,65535], default: 0
+   * </p>
+   */
+  IIC_ADDRESS_SETTING,
+
   /** Zero drift calibration */
   ZERO_DRIFT_CALIBRATION,
   /** Erase chip */

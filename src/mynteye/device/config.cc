@@ -53,7 +53,7 @@ const std::map<Model, OptionSupports> option_supports_map = {
       Option::MIN_EXPOSURE_TIME, Option::DESIRED_BRIGHTNESS,
     Option::ACCELEROMETER_RANGE, Option::GYROSCOPE_RANGE,
     Option::ACCELEROMETER_LOW_PASS_FILTER, Option::GYROSCOPE_LOW_PASS_FILTER,
-    Option::ERASE_CHIP}
+    Option::IIC_ADDRESS_SETTING, Option::ERASE_CHIP}
   }
 };
 

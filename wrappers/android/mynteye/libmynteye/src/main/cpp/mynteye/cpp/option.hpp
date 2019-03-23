@@ -95,6 +95,11 @@ enum class Option : int {
      *  values: {23,64}, default: 64
      */
     GYROSCOPE_LOW_PASS_FILTER,
+    /**
+    * The setting of IIC address
+    *   range: [0,65535], default: 0
+    */
+    IIC_ADDRESS_SETTING,
     /** Zero drift calibration */
     ZERO_DRIFT_CALIBRATION,
     /** Erase chip */
