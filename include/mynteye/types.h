@@ -137,109 +137,125 @@ enum class Info : std::uint8_t {
 enum class Option : std::uint8_t {
   /**
    * Image gain, valid if manual-exposure
-   *
+   * <p>
    *   range: [0,48], default: 24
+   * </p>
    */
   GAIN,
   /**
    * Image brightness, valid if manual-exposure
-   *
+   * <p>
    *   range: [0,240], default: 120
+   * </p>
    */
   BRIGHTNESS,
   /**
    * Image contrast, valid if manual-exposure
-   *
+   * <p>
    *   range: [0,255], default: 127
+   * </p>
    */
   CONTRAST,
 
   /**
    * Image frame rate, must set IMU_FREQUENCY together
-   *
+   * <p>
    *   values: {10,15,20,25,30,35,40,45,50,55,60}, default: 25
+   * </p>
    */
   FRAME_RATE,
   /**
    * IMU frequency, must set FRAME_RATE together
-   *
+   * <p>
    *   values: {100,200,250,333,500}, default: 200
+   * </p>
    */
   IMU_FREQUENCY,
 
   /**
    * Exposure mode
-   *
-   *   0: enable auto-exposure
+   * <p>
+   *   0: enable auto-exposure<br>
    *   1: disable auto-exposure (manual-exposure)
+   * </p>
    */
   EXPOSURE_MODE,
   /**
    * Max gain, valid if auto-exposure
-   *
-   *   range of standard 1: [0,48], default: 48
+   * <p>
+   *   range of standard 1: [0,48], default: 48<br>
    *   range of standard 2: [0,255], default: 8
+   * </p>
    */
   MAX_GAIN,
   /**
    * Max exposure time, valid if auto-exposure
-   *
-   *   range of standard 1: [0,240], default: 240
+   * <p>
+   *   range of standard 1: [0,240], default: 240<br>
    *   range of standard 2: [0,1000], default: 333
+   * </p>
    */
   MAX_EXPOSURE_TIME,
   /**
    * min exposure time, valid if auto-exposure
-   *
-   *   range: [0,1000], default: 0
+   * <p>
+   *   range: [0,1000], default: 0<br>
+   * </p>
    */
   MIN_EXPOSURE_TIME,
   /**
    * Desired brightness, valid if auto-exposure
-   *
-   *   range of standard 1: [0,255], default: 192
+   * <p>
+   *   range of standard 1: [0,255], default: 192<br>
    *   range of standard 2: [1,255], default: 122
+   * </p>
    */
   DESIRED_BRIGHTNESS,
 
   /**
    * IR control
-   *
-   *   range: [0,160], default: 0
+   * <p>
+   *   range: [0,160], default: 0<br>
+   * </p>
    */
   IR_CONTROL,
   /**
    * HDR mode
-   *
-   *   0: 10-bit
+   * <p>
+   *   0: 10-bit<br>
    *   1: 12-bit
+   * </p>
    */
   HDR_MODE,
 
   /**
    * The range of accelerometer
-   *
-   *   value of standard 1: {4,8,16,32}, default: 8
+   * <p>
+   *   value of standard 1: {4,8,16,32}, default: 8<br>
    *   value of standard 2: {6,12,24,48}, default: 12
+   * </p>
    */
   ACCELEROMETER_RANGE,
   /**
    * The range of gyroscope
-   *
-   *   value of standard 1: {500,1000,2000,4000}, default: 1000
+   * <p>
+   *   value of standard 1: {500,1000,2000,4000}, default: 1000<br>
    *   value of standard 2: {250,500,1000,2000,4000}, default: 1000
+   * </p>
    */
   GYROSCOPE_RANGE,
   /**
    * The parameter of accelerometer low pass filter
-   *
+   * <p>
    *   values: {0,1,2}, default: 2
+   * </p>
    */
   ACCELEROMETER_LOW_PASS_FILTER,
   /**
    * The parameter of gyroscope low pass filter
-   *
+   * <p>
    *   values: {23,64}, default: 64
+   * </p>
    */
   GYROSCOPE_LOW_PASS_FILTER,
 
@@ -664,10 +680,11 @@ struct MYNTEYE_API ImuData {
   std::uint32_t frame_id;
   /**
    * IMU accel or gyro flag
-   *
-   *   0: accel and gyro are both valid
-   *   1: accel is valid
+   * <p>
+   *   0: accel and gyro are both valid<br>
+   *   1: accel is valid<br>
    *   2: gyro is valid
+   * </p>
    */
   std::uint8_t flag;
   /** IMU timestamp in 1us */

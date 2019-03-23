@@ -2,6 +2,13 @@
 <launch>
   <arg name="mynteye" default="mynteye" />
 
+  <!-- mutiple device -->
+  <arg name="is_multiple" default="false" />
+
+  <!-- serial_number -->
+  <!-- if is_mutiple is true, must set serial_number -->
+  <arg name="serial_number" default="" />
+
   <!-- node params -->
 
   <arg name="left_topic" default="left/image_raw" />
@@ -41,6 +48,9 @@
     <node name="mynteye_wrapper_node" pkg="mynt_eye_ros_wrapper" type="mynteye_wrapper_node" output="screen" respawn="true" respawn_delay="5">
 
       <!-- node params -->
+
+      <param name="is_multiple" value="$(arg is_multiple)" />
+      <param name="serial_number" value="$(arg serial_number)" />
 
       <param name="left_topic" value="$(arg left_topic)" />
       <param name="right_topic" value="$(arg right_topic)" />

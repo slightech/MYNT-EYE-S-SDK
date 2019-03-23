@@ -1,0 +1,22 @@
+.. _sdk_changelog:
+
+Changelog
+=========
+
+2019-03-18
+----------
+
+
+1. Add API to get subsidiary chip&ISP's version(Depend on S2100/S210A 1.1 firmware & 1.0 subsidiary chip firmware).
+
+2. Fix point fragment issue in BM algorithm.
+
+3. Add 376*240 resolution support to S1030(Depend on 2.4.0 firmware of S1030).
+
+4. Add API to handle imu temperature drift.(Depend on imu calibration)
+
+5. Add version check feature.
+
+6. Fix depth image crash issue when use CUDA plugin.
+
+7. Documents update.
