@@ -193,7 +193,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     std::map<Stream, std::string> stream_topics{};
     for (auto &&it = stream_names.begin(); it != stream_names.end(); ++it) {
       stream_topics[it->first] = it->second;
-      private_nh_.getParam(it->second + "_topic", stream_topics[it->first]);
+      private_nh_.getParamCached(it->second + "_topic", stream_topics[it->first]);
 
       // if published init
       is_published_[it->first] = false;
@@ -207,33 +207,33 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     std::map<Stream, std::string> mono_topics{};
     for (auto &&it = mono_names.begin(); it != mono_names.end(); ++it) {
       mono_topics[it->first] = it->second;
-      private_nh_.getParam(it->second + "_topic", mono_topics[it->first]);
+      private_nh_.getParamCached(it->second + "_topic", mono_topics[it->first]);
     }
 
     std::string imu_topic = "imu";
     std::string temperature_topic = "temperature";
-    private_nh_.getParam("imu_topic", imu_topic);
-    private_nh_.getParam("temperature_topic", temperature_topic);
+    private_nh_.getParamCached("imu_topic", imu_topic);
+    private_nh_.getParamCached("temperature_topic", temperature_topic);
 
     base_frame_id_ = "camera_link";
-    private_nh_.getParam("base_frame_id", base_frame_id_);
+    private_nh_.getParamCached("base_frame_id", base_frame_id_);
 
     for (auto &&it = stream_names.begin(); it != stream_names.end(); ++it) {
       frame_ids_[it->first] = "camera_" + it->second + "_frame";
-      private_nh_.getParam(it->second + "_frame_id", frame_ids_[it->first]);
+      private_nh_.getParamCached(it->second + "_frame_id", frame_ids_[it->first]);
     }
 
     imu_frame_id_ = "camera_imu_frame";
     temperature_frame_id_ = "camera_temperature_frame";
-    private_nh_.getParam("imu_frame_id", imu_frame_id_);
-    private_nh_.getParam("temperature_frame_id", temperature_frame_id_);
+    private_nh_.getParamCached("imu_frame_id", imu_frame_id_);
+    private_nh_.getParamCached("temperature_frame_id", temperature_frame_id_);
 
     gravity_ = 9.8;
-    private_nh_.getParam("gravity", gravity_);
+    private_nh_.getParamCached("gravity", gravity_);
 
     int tmp_disparity_type_ = 0;
     disparity_type_ = DisparityComputingMethod::BM;
-    private_nh_.getParam("disparity_computing_method", tmp_disparity_type_);
+    private_nh_.getParamCached("disparity_computing_method", tmp_disparity_type_);
     disparity_type_ = (DisparityComputingMethod)tmp_disparity_type_;
     api_->SetDisparityComputingMethodType(disparity_type_);
 
@@ -290,7 +290,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       if (!api_->Supports(it->first))
         continue;
       int value = -1;
-      private_nh_.getParam(it->second, value);
+      private_nh_.getParamCached(it->second, value);
       if (value != -1) {
         NODELET_INFO_STREAM("Set " << it->second << " to " << value);
         api_->SetOptionValue(it->first, value);
@@ -351,7 +351,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     pub_mesh_ = nh_.advertise<visualization_msgs::Marker>("camera_mesh", 0 );
     // where to get the mesh from
     std::string mesh_file;
-    if (private_nh_.getParam("mesh_file", mesh_file)) {
+    if (private_nh_.getParamCached("mesh_file", mesh_file)) {
       mesh_msg_.mesh_resource = "package://mynt_eye_ros_wrapper/mesh/"+mesh_file;
     } else {
       LOG(INFO) << "no mesh found for visualisation, set ros param mesh_file, if desired";
@@ -367,7 +367,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         if (!api_->Supports(it->first))
           continue;
         bool enabled = false;
-        private_nh_.getParam("enable_" + it->second, enabled);
+        private_nh_.getParamCached("enable_" + it->second, enabled);
         if (enabled) {
           api_->EnableStreamData(it->first);
           NODELET_INFO_STREAM("Enable stream data of " << it->first);
@@ -1075,7 +1075,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     model_ = api_->GetModel();
     if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
-      private_nh_.getParam("standard2/request_index", request_index);
+      private_nh_.getParamCached("standard2/request_index", request_index);
       switch (request_index) {
         case 0:
         case 4:
@@ -1095,14 +1095,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       }
     }
     if (model_ == Model::STANDARD) {
-      private_nh_.getParam("standard/request_index", request_index);
+      private_nh_.getParamCached("standard/request_index", request_index);
       frame_rate_ = api_->GetOptionValue(Option::FRAME_RATE);
     }
 
     std::int32_t process_mode = 0;
     if (model_ == Model::STANDARD2 ||
         model_ == Model::STANDARD210A) {
-      private_nh_.getParam("standard2/imu_process_mode", process_mode);
+      private_nh_.getParamCached("standard2/imu_process_mode", process_mode);
       api_->EnableProcessMode(process_mode);
     }
 
