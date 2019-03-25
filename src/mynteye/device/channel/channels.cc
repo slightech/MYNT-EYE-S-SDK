@@ -80,6 +80,9 @@ int XuCamCtrlId(Option option) {
     case Option::GYROSCOPE_LOW_PASS_FILTER:
       return 12;
       break;
+    case Option::IIC_ADDRESS_SETTING:
+      return 13;
+      break;
     default:
       LOG(FATAL) << "No cam ctrl id for " << option;
   }
@@ -148,7 +151,8 @@ void Channels::UpdateControlInfos() {
       Option::DESIRED_BRIGHTNESS, Option::IR_CONTROL,
       Option::HDR_MODE, Option::ACCELEROMETER_RANGE,
       Option::GYROSCOPE_RANGE, Option::ACCELEROMETER_LOW_PASS_FILTER,
-      Option::GYROSCOPE_LOW_PASS_FILTER}) {
+      Option::GYROSCOPE_LOW_PASS_FILTER,
+      Option::IIC_ADDRESS_SETTING}) {
     if (supports.find(option) != supports.end())
       control_infos_[option] = XuControlInfo(option);
   }
@@ -196,6 +200,7 @@ std::int32_t Channels::GetControlValue(const Option &option) const {
     case Option::GYROSCOPE_RANGE:
     case Option::ACCELEROMETER_LOW_PASS_FILTER:
     case Option::GYROSCOPE_LOW_PASS_FILTER:
+    case Option::IIC_ADDRESS_SETTING:
       return XuCamCtrlGet(option);
     case Option::ZERO_DRIFT_CALIBRATION:
     case Option::ERASE_CHIP:
@@ -277,7 +282,8 @@ void Channels::SetControlValue(const Option &option, std::int32_t value) {
     case Option::DESIRED_BRIGHTNESS:
     case Option::IR_CONTROL:
     case Option::HDR_MODE:
-    case Option::MIN_EXPOSURE_TIME: {
+    case Option::MIN_EXPOSURE_TIME:
+    case Option::IIC_ADDRESS_SETTING: {
       if (!in_range())
         break;
       XuCamCtrlSet(option, value);
@@ -313,6 +319,7 @@ bool Channels::RunControlAction(const Option &option) const {
     case Option::GYROSCOPE_RANGE:
     case Option::ACCELEROMETER_LOW_PASS_FILTER:
     case Option::GYROSCOPE_LOW_PASS_FILTER:
+    case Option::IIC_ADDRESS_SETTING:
       LOG(WARNING) << option << " run action useless";
       return false;
     default:

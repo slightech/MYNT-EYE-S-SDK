@@ -178,6 +178,10 @@ option = enum {
   #  values: {23,64}, default: 64
   gyroscope_low_pass_filter;
 
+  iic_address_setting;
+  # The setting of IIC address
+  #  range: [0,65535], default: 0
+
   # Zero drift calibration
   zero_drift_calibration;
   # Erase chip
