@@ -250,7 +250,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           {Option::GYROSCOPE_RANGE, "standard210a/gyro_range"},
           {Option::ACCELEROMETER_LOW_PASS_FILTER,
                   "standard210a/accel_low_filter"},
-          {Option::GYROSCOPE_LOW_PASS_FILTER, "standard210a/gyro_low_filter"}
+          {Option::GYROSCOPE_LOW_PASS_FILTER, "standard210a/gyro_low_filter"},
           {Option::IIC_ADDRESS_SETTING, "standard2/iic_address_setting"}};
     }
 
