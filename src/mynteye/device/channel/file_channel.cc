@@ -443,9 +443,9 @@ std::size_t ImuParamsParser::GetFromData(
 std::size_t ImuParamsParser::SetToData(
     const imu_params_t *imu_params, std::uint8_t *data) const {
   if (spec_version_ >= Version(1, 2)) {
-    return SetToData_new(imu_params, data);
+    return SetToData_bool_new(imu_params, data, true);
   } else {
-    return SetToData_old(imu_params, data);
+    return SetToData_bool_new(imu_params, data, false);
   }
 }
 
@@ -524,4 +524,37 @@ std::size_t ImuParamsParser::SetToData_new(
   return size + 3;
 }
 
+std::size_t ImuParamsParser::SetToData_bool_new(
+    const imu_params_t *imu_params, std::uint8_t *data, bool is_set) const {
+  std::size_t i = 3;  // skip id, size
+
+  Version version_new(1, 2);  // new version
+  Version version_raw(imu_params->version);
+
+  // version, 2
+  data[i] = version_new.major();
+  data[i + 1] = version_new.minor();
+  i += 2;
+  // set imu params with new version format
+  if (version_raw <= version_new) {
+    if (is_set) {
+      i += bytes::to_data(&imu_params->in_accel, data + i, true);
+      i += bytes::to_data(&imu_params->in_gyro, data + i, true);
+      i += bytes::to_data(&imu_params->ex_left_to_imu, data + i);
+    } else {
+      i += bytes::to_data(&imu_params->in_accel, data + i, false);
+      i += bytes::to_data(&imu_params->in_gyro, data + i, false);
+      i += bytes::to_data(&imu_params->ex_left_to_imu, data + i);
+    }
+  } else {
+    LOG(FATAL) << "Could not set imu params of version "
+        << version_raw.to_string() << ", please use latest SDK.";
+  }
+  // others
+  std::size_t size = i - 3;
+  data[0] = FID_IMU_PARAMS;
+  data[1] = static_cast<std::uint8_t>((size >> 8) & 0xFF);
+  data[2] = static_cast<std::uint8_t>(size & 0xFF);
+  return size + 3;
+}
 MYNTEYE_END_NAMESPACE
