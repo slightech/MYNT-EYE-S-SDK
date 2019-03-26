@@ -144,6 +144,9 @@ class ImuParamsParser {
   std::size_t SetToData_new(
       const imu_params_t *imu_params, std::uint8_t *data) const;
 
+  std::size_t SetToData_bool_new(
+      const imu_params_t *imu_params, std::uint8_t *data, bool is_set) const;
+
  private:
   Version spec_version_;
 };
