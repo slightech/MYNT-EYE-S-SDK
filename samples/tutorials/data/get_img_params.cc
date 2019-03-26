@@ -21,10 +21,7 @@ int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
   if (!api) return 1;
 
-  auto info = api->GetCameraROSMsgInfoPair();
 
-  if (!info->isEmpty())
-    std::cout << "ROSMsgInfoPair:"<< std::endl << *info << std::endl;
 
   bool ok;
   auto &&request = api->SelectStreamRequest(&ok);
@@ -48,6 +45,11 @@ int main(int argc, char *argv[]) {
   LOG(INFO) << "Intrinsics right: {" << *in_right << "}";
   LOG(INFO) << "Extrinsics right to left: {"
             << api->GetExtrinsics(Stream::RIGHT, Stream::LEFT) << "}";
+
+  auto info = api->GetCameraROSMsgInfoPair();
+
+  if (!info->isEmpty())
+    std::cout << "ROSMsgInfoPair:"<< std::endl << *info << std::endl;
 
   return 0;
 }
