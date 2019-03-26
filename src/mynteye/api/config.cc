@@ -61,6 +61,28 @@ std::shared_ptr<Extrinsics> getDefaultExtrinsics() {
   return res;
 }
 
+// sgbm_matcher = cv::StereoSGBM::create(0, 16, 3);
+// sgbm_matcher->setPreFilterCap(63);
+// sgbm_matcher->setBlockSize(sgbmWinSize);
+// sgbm_matcher->setP1(8 * sgbmWinSize * sgbmWinSize);
+// sgbm_matcher->setP2(32 * sgbmWinSize * sgbmWinSize);
+// sgbm_matcher->setMinDisparity(0);
+// sgbm_matcher->setNumDisparities(numberOfDisparities);
+// sgbm_matcher->setUniquenessRatio(10);
+// sgbm_matcher->setSpeckleWindowSize(100);
+// sgbm_matcher->setSpeckleRange(32);
+// sgbm_matcher->setDisp12MaxDiff(1);
+
+// bm_matcher = cv::StereoBM::create(0, 3);
+// bm_matcher->setPreFilterSize(9);
+// bm_matcher->setPreFilterCap(31);
+// bm_matcher->setBlockSize(15);
+// bm_matcher->setMinDisparity(0);
+// bm_matcher->setNumDisparities(64);
+// bm_matcher->setUniquenessRatio(60);
+// bm_matcher->setTextureThreshold(10);
+// bm_matcher->setSpeckleWindowSize(100);
+// bm_matcher->setSpeckleRange(4);
 
 
 MYNTEYE_END_NAMESPACE

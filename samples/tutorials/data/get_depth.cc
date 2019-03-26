@@ -30,11 +30,13 @@ int main(int argc, char *argv[]) {
 
   api->SetDisparityComputingMethodType(DisparityComputingMethod::BM);
   api->EnableStreamData(Stream::DEPTH);
+  api->EnableStreamData(Stream::DISPARITY_NORMALIZED);
 
   api->Start(Source::VIDEO_STREAMING);
 
   cv::namedWindow("frame");
-  cv::namedWindow("depth");
+  cv::namedWindow("depth_real");
+  cv::namedWindow("depth_normalized");
   while (true) {
     api->WaitForStreams();
 
@@ -47,9 +49,16 @@ int main(int argc, char *argv[]) {
       cv::imshow("frame", img);
     }
 
+    // this code is for real depth data
     auto &&depth_data = api->GetStreamData(Stream::DEPTH);
     if (!depth_data.frame.empty()) {
-      cv::imshow("depth", depth_data.frame);  // CV_16UC1
+      cv::imshow("depth_real", depth_data.frame);  // CV_16UC1
+    }
+
+    // this code is for normalized depth data
+    auto &&disp_norm_data = api->GetStreamData(Stream::DISPARITY_NORMALIZED);
+    if (!disp_norm_data.frame.empty()) {
+      cv::imshow("depth_normalized", disp_norm_data.frame);  // CV_8UC1
     }
 
     char key = static_cast<char>(cv::waitKey(1));

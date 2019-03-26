@@ -626,6 +626,10 @@ struct MYNTEYE_API Extrinsics {
 MYNTEYE_API
 std::ostream &operator<<(std::ostream &os, const Extrinsics &ex);
 
+
+/**
+ * @defgroup disparity params
+ */
 /**
  * @ingroup disparity
  * Camera disparity computing method type.
@@ -637,6 +641,33 @@ enum class DisparityComputingMethod : std::uint8_t {
   BM = 1,
   /** unknow */
   UNKNOW
+};
+
+struct MYNTEYE_API DisparityParamsBase {
+  DisparityParamsBase() {
+    disparity_model_ = DisparityComputingMethod::UNKNOW;
+  }
+  virtual ~DisparityParamsBase() {}
+  virtual void ResizeIntrinsics() {}
+
+  /** The calibration model */
+  DisparityComputingMethod disparity_model() const {
+    return disparity_model_;
+  }
+ protected:
+  DisparityComputingMethod disparity_model_;
+};
+
+struct MYNTEYE_API DisparityParamsSGBM : public DisparityParamsBase {
+  DisparityParamsSGBM() {
+    disparity_model_ = DisparityComputingMethod::SGBM;
+  }
+};
+
+struct MYNTEYE_API DisparityParamsBM : public DisparityParamsBase {
+  DisparityParamsBM() {
+    disparity_model_ = DisparityComputingMethod::BM;
+  }
 };
 
 

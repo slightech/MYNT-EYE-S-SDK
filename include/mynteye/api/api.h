@@ -205,6 +205,15 @@ class MYNTEYE_API API {
    */
   std::shared_ptr<IntrinsicsBase> GetIntrinsicsBase(const Stream &stream) const;
   /**
+   * Get the intrinsics of stream.
+   */
+  template <typename T>
+  T GetDisparityParams() const;
+  /**
+   * Get the intrinsics base of stream.
+   */
+  std::shared_ptr<DisparityParamsBase> GetDisparityParamsBase() const;
+  /**
    * Get the extrinsics from one stream to another.
    */
   Extrinsics GetExtrinsics(const Stream &from, const Stream &to) const;
