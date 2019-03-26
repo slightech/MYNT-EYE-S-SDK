@@ -333,6 +333,8 @@ std::ostream &operator<<(std::ostream &os, const CameraROSMsgInfo &info) {
   for (size_t i = 0; i < 12; i++)
     os << info.P[i] << ",";
   os << std::endl;
+
+  return os;
 }
 
 std::ostream &operator<<(std::ostream &os, const CameraROSMsgInfoPair &info) {
@@ -345,6 +347,8 @@ std::ostream &operator<<(std::ostream &os, const CameraROSMsgInfoPair &info) {
   for (size_t i = 0; i < 12; i++)
     os << info.P[i] << ",";
   os << std::endl;
+
+  return os;
 }
 
 MYNTEYE_END_NAMESPACE
