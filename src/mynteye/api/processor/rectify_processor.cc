@@ -281,16 +281,16 @@ std::shared_ptr<struct CameraROSMsgInfoPair> RectifyProcessor::stereoRectify(
   stereoRectify(leftOdo, rightOdo, &c_K1, &c_K2, &c_D1, &c_D2,
       image_size1, &c_R, &c_t, &c_R1, &c_R2, &c_P1, &c_P2, &T_mul_f);
 
-  // std::cout << "K1: " << K1 << std::endl;
-  // std::cout << "D1: " << D1 << std::endl;
-  // std::cout << "K2: " << K2 << std::endl;
-  // std::cout << "D2: " << D2 << std::endl;
-  // std::cout << "R: " << cv_R << std::endl;
-  // std::cout << "t: " << cv_t << std::endl;
-  // std::cout << "R1: " << R1 << std::endl;
-  // std::cout << "R2: " << R2 << std::endl;
-  // std::cout << "P1: " << P1 << std::endl;
-  // std::cout << "P2: " << P2 << std::endl;
+  VLOG(2) << "K1: " << K1 << std::endl;
+  VLOG(2) << "D1: " << D1 << std::endl;
+  VLOG(2) << "K2: " << K2 << std::endl;
+  VLOG(2) << "D2: " << D2 << std::endl;
+  VLOG(2) << "R: " << cv_R << std::endl;
+  VLOG(2) << "t: " << cv_t << std::endl;
+  VLOG(2) << "R1: " << R1 << std::endl;
+  VLOG(2) << "R2: " << R2 << std::endl;
+  VLOG(2) << "P1: " << P1 << std::endl;
+  VLOG(2) << "P2: " << P2 << std::endl;
 
   R1 = rectifyrad(R1);
   R2 = rectifyrad(R2);

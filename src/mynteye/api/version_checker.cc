@@ -26,13 +26,21 @@ typedef struct {
 }firmware_version_match_table_unit;
 
 const char* ERRO_DESCRIPTION_F =
-    "Please update the firmware at first";
+    "Please update the firmware at first;\n"
+    "Read the doc (https://mynt-eye-s-sdk.readthedocs.io/en/latest/src/firmware/applicable.html) "  // NOLINT
+    "to learn more.";
 const char* ERRO_DESCRIPTION_S =
-    "Please update the SDK at first";
+    "Please update the SDK at first;\n"
+    "Read the doc (https://mynt-eye-s-sdk.readthedocs.io/en/latest/src/firmware/applicable.html) "  // NOLINT
+    "to learn more.";
 const char* WARN_DESCRIPTION_F =
-    "We suggest that you should update the firmware";
+    "We suggest that you should update the firmware;\n"
+    "Read the doc (https://mynt-eye-s-sdk.readthedocs.io/en/latest/src/firmware/applicable.html) "  // NOLINT
+    "to learn more.";
 const char* WARN_DESCRIPTION_S =
-    "We suggest that you should update the SDK";
+    "We suggest that you should update the SDK;\n"
+    "Read the doc (https://mynt-eye-s-sdk.readthedocs.io/en/latest/src/firmware/applicable.html) "  // NOLINT
+    "to learn more.";
 const char* PASS_DESCRIPTION = "pass";
 const char* PASS_OUTOF_TABLE_WARNING = "You're using a custom mynteye device";
 
