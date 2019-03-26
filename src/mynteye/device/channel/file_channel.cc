@@ -429,23 +429,31 @@ std::size_t ImuParamsParser::GetFromData(
     const std::uint8_t *data, const std::uint16_t &data_size,
     imu_params_t *imu_params) const {
   // s1030 old params
-  if (spec_version_ == Version(1, 0) && data_size == 384) {
-    return GetFromData_old(data, data_size, imu_params);
+  if (spec_version_ == Version(1, 0)) {
+    if (data_size == 384) {
+      return GetFromData_old(data, data_size, imu_params);
+    } else if (data_size == 386) {
+      return GetFromData_new(data, data_size, imu_params, false);
+    }
   }
   // s210a old params
-  if (spec_version_ >= Version(1, 1) && data_size == 384) {
-    return GetFromData_old(data, data_size, imu_params);
+  if (spec_version_ >= Version(1, 1)) {
+    if (data_size == 384) {
+      return GetFromData_old(data, data_size, imu_params);
+    } else if (data_size == 386) {
+      return GetFromData_new(data, data_size, imu_params, false);
+    }
   }
   // get imu params with new version format
-  return GetFromData_new(data, data_size, imu_params);
+  return GetFromData_new(data, data_size, imu_params, true);
 }
 
 std::size_t ImuParamsParser::SetToData(
     const imu_params_t *imu_params, std::uint8_t *data) const {
   if (spec_version_ >= Version(1, 2)) {
-    return SetToData_bool_new(imu_params, data, true);
+    return SetToData_new(imu_params, data, true);
   } else {
-    return SetToData_bool_new(imu_params, data, false);
+    return SetToData_new(imu_params, data, false);
   }
 }
 
@@ -477,7 +485,7 @@ std::size_t ImuParamsParser::SetToData_old(
 
 std::size_t ImuParamsParser::GetFromData_new(
     const std::uint8_t *data, const std::uint16_t &data_size,
-    imu_params_t *imu_params) const {
+    imu_params_t *imu_params, const bool is_get) const {
   std::size_t i = 0;
   // version, 2
   Version version(data[i], data[i + 1]);
@@ -485,9 +493,15 @@ std::size_t ImuParamsParser::GetFromData_new(
   i += 2;
   // get imu params according to version
   if (version == Version(1, 2)) {  // v1.2
-    i += bytes::from_data(&imu_params->in_accel, data + i, true);
-    i += bytes::from_data(&imu_params->in_gyro, data + i, true);
-    i += bytes::from_data(&imu_params->ex_left_to_imu, data + i);
+    if (is_get) {
+      i += bytes::from_data(&imu_params->in_accel, data + i, true);
+      i += bytes::from_data(&imu_params->in_gyro, data + i, true);
+      i += bytes::from_data(&imu_params->ex_left_to_imu, data + i);
+    } else {
+      i += bytes::from_data(&imu_params->in_accel, data + i, false);
+      i += bytes::from_data(&imu_params->in_gyro, data + i, false);
+      i += bytes::from_data(&imu_params->ex_left_to_imu, data + i);
+    }
   } else {
     LOG(FATAL) << "Could not get imu params of version "
         << version.to_string() << ", please use latest SDK.";
@@ -497,35 +511,8 @@ std::size_t ImuParamsParser::GetFromData_new(
 }
 
 std::size_t ImuParamsParser::SetToData_new(
-    const imu_params_t *imu_params, std::uint8_t *data) const {
-  std::size_t i = 3;  // skip id, size
-
-  Version version_new(1, 2);  // new version
-  Version version_raw(imu_params->version);
-
-  // version, 2
-  data[i] = version_new.major();
-  data[i + 1] = version_new.minor();
-  i += 2;
-  // set imu params with new version format
-  if (version_raw <= version_new) {
-    i += bytes::to_data(&imu_params->in_accel, data + i, true);
-    i += bytes::to_data(&imu_params->in_gyro, data + i, true);
-    i += bytes::to_data(&imu_params->ex_left_to_imu, data + i);
-  } else {
-    LOG(FATAL) << "Could not set imu params of version "
-        << version_raw.to_string() << ", please use latest SDK.";
-  }
-  // others
-  std::size_t size = i - 3;
-  data[0] = FID_IMU_PARAMS;
-  data[1] = static_cast<std::uint8_t>((size >> 8) & 0xFF);
-  data[2] = static_cast<std::uint8_t>(size & 0xFF);
-  return size + 3;
-}
-
-std::size_t ImuParamsParser::SetToData_bool_new(
-    const imu_params_t *imu_params, std::uint8_t *data, bool is_set) const {
+    const imu_params_t *imu_params,
+    std::uint8_t *data, const bool is_set) const {
   std::size_t i = 3;  // skip id, size
 
   Version version_new(1, 2);  // new version
