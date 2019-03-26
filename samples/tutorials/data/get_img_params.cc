@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
 
   auto info = api->GetCameraROSMsgInfoPair();
 
-  if (!info->isEmpty())
+  if (info && !info->isEmpty())
     std::cout << "ROSMsgInfoPair:"<< std::endl << *info << std::endl;
 
   return 0;

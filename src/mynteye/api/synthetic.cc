@@ -579,7 +579,7 @@ std::shared_ptr<struct CameraROSMsgInfoPair>
     return proc->getCameraROSMsgInfoPair();
 #endif
   }
-  return {};
+  return nullptr;
 }
 
 MYNTEYE_END_NAMESPACE

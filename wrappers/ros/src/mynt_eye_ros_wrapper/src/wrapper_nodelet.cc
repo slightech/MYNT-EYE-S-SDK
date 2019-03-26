@@ -1280,101 +1280,61 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     if (camera_info_ptrs_.find(stream) != camera_info_ptrs_.end()) {
       return camera_info_ptrs_[stream];
     }
-
+    ROS_ASSERT(api_);
     // http://docs.ros.org/kinetic/api/sensor_msgs/html/msg/CameraInfo.html
     sensor_msgs::CameraInfo *camera_info = new sensor_msgs::CameraInfo();
     camera_info_ptrs_[stream] = sensor_msgs::CameraInfoPtr(camera_info);
-
-    std::shared_ptr<IntrinsicsBase> in_base;
+    auto info_pair = api_->GetCameraROSMsgInfoPair();
     if (is_intrinsics_enable_) {
-      if (stream == Stream::RIGHT || stream == Stream::RIGHT_RECTIFIED) {
-        in_base = api_->GetIntrinsicsBase(Stream::RIGHT);
+      if (stream == Stream::RIGHT ||
+          stream == Stream::RIGHT_RECTIFIED) {
+        if (info_pair->right.distortion_model == "KANNALA_BRANDT") {
+          camera_info->distortion_model =
+              sensor_msgs::distortion_models::EQUIDISTANT;
+          for (size_t i; i < 4; i++) {
+            camera_info->D.push_back(info_pair->right.D[i]);
+          }
+        } else if (info_pair->right.distortion_model == "PINHOLE") {
+          camera_info->distortion_model =
+              sensor_msgs::distortion_models::PLUMB_BOB;
+          for (size_t i; i < 5; i++) {
+            camera_info->D.push_back(info_pair->right.D[i]);
+          }
+        }
+        for (size_t i; i < 9; i++) {
+          camera_info->K.at(i) = info_pair->right.K[i];
+        }
+        for (size_t i; i < 9; i++) {
+          camera_info->R.at(i) = info_pair->right.R[i];
+        }
+        for (size_t i; i < 12; i++) {
+          camera_info->P.at(i) = info_pair->right.P[i];
+        }
       } else {
-        in_base = api_->GetIntrinsicsBase(Stream::LEFT);
-      }
-    } else {
-      in_base = getDefaultIntrinsics();
-    }
-
-    camera_info->header.frame_id = frame_ids_[stream];
-
-    if (in_base->calib_model() == CalibrationModel::PINHOLE) {
-      auto in = std::dynamic_pointer_cast<IntrinsicsPinhole>(in_base);
-      in -> ResizeIntrinsics();
-      camera_info->width = in_base->width;
-      camera_info->height = in_base->height;
-      //     [fx  0 cx]
-      // K = [ 0 fy cy]
-      //     [ 0  0  1]
-      camera_info->K.at(0) = in->fx;
-      camera_info->K.at(2) = in->cx;
-      camera_info->K.at(4) = in->fy;
-      camera_info->K.at(5) = in->cy;
-      camera_info->K.at(8) = 1;
-
-      //     [fx'  0  cx' Tx]
-      // P = [ 0  fy' cy' Ty]
-      //     [ 0   0   1   0]
-      cv::Mat p = left_p_;
-      if (stream == Stream::RIGHT || stream == Stream::RIGHT_RECTIFIED) {
-        p = right_p_;
-      }
-      for (int i = 0; i < p.rows; i++) {
-        for (int j = 0; j < p.cols; j++) {
-          int scale = (i == 2 && j == 2)?1:1000;
-          camera_info->P.at(i * p.cols + j) = p.at<double>(i, j) / scale;
+        if (info_pair->left.distortion_model == "KANNALA_BRANDT") {
+          camera_info->distortion_model =
+            sensor_msgs::distortion_models::EQUIDISTANT;
+          for (size_t i; i < 4; i++) {
+            camera_info->D.push_back(info_pair->left.D[i]);
+          }
+        } else if (info_pair->left.distortion_model == "PINHOLE") {
+          camera_info->distortion_model =
+            sensor_msgs::distortion_models::PLUMB_BOB;
+          for (size_t i; i < 5; i++) {
+            camera_info->D.push_back(info_pair->left.D[i]);
+          }
+        }
+        for (size_t i; i < 9; i++) {
+          camera_info->K.at(i) = info_pair->left.K[i];
+        }
+        for (size_t i; i < 9; i++) {
+          camera_info->R.at(i) = info_pair->left.R[i];
+        }
+        for (size_t i; i < 12; i++) {
+          camera_info->P.at(i) = info_pair->left.P[i];
         }
       }
-
-      camera_info->distortion_model = sensor_msgs::distortion_models::PLUMB_BOB;  // plumb_bob
-
-      // D of plumb_bob: (k1, k2, t1, t2, k3)
-      for (int i = 0; i < 5; i++) {
-        camera_info->D.push_back(in->coeffs[i]);
-      }
-    } else if (in_base->calib_model() == CalibrationModel::KANNALA_BRANDT) {
-      auto in = std::dynamic_pointer_cast<IntrinsicsEquidistant>(in_base);
-      in -> ResizeIntrinsics();
-      camera_info->width = in_base->width;
-      camera_info->height = in_base->height;
-      camera_info->distortion_model = sensor_msgs::distortion_models::EQUIDISTANT;  // kannala_brandt
-
-      // coeffs: k2,k3,k4,k5,mu,mv,u0,v0
-      camera_info->D.push_back(in->coeffs[0]);  // k2
-      camera_info->D.push_back(in->coeffs[1]);  // k3
-      camera_info->D.push_back(in->coeffs[2]);  // k4
-      camera_info->D.push_back(in->coeffs[3]);  // k5
-
-      camera_info->K[0] = in->coeffs[4];  // mu
-      camera_info->K[4] = in->coeffs[5];  // mv
-      camera_info->K[2] = in->coeffs[6];  // u0
-      camera_info->K[5] = in->coeffs[7];  // v0
-      camera_info->K[8] = 1;
-
-      // auto baseline = api_->GetInfo(Info::NOMINAL_BASELINE);
-      // Eigen::Matrix3d K = Eigen::Matrix3d::Identity();
-      // K(0, 0) = camera_info->K[0];
-      // K(0, 2) = camera_info->K[2];
-      // K(1, 1) = camera_info->K[4];
-      // K(1, 2) = camera_info->K[5];
-      // Eigen::Map<Eigen::Matrix<double, 3, 4, Eigen::RowMajor>>(
-      //      camera_info->P.data()) = (Eigen::Matrix<double, 3, 4>() <<
-      //         K, Eigen::Vector3d(baseline * K(0, 0), 0, 0)).finished();
-    } else {
-      NODELET_FATAL_STREAM("Unknown calib model, please use latest SDK.");
     }
-
-    // R to identity matrix
-    camera_info->R.at(0) = 1.0;
-    camera_info->R.at(1) = 0.0;
-    camera_info->R.at(2) = 0.0;
-    camera_info->R.at(3) = 0.0;
-    camera_info->R.at(4) = 1.0;
-    camera_info->R.at(5) = 0.0;
-    camera_info->R.at(6) = 0.0;
-    camera_info->R.at(7) = 0.0;
-    camera_info->R.at(8) = 1.0;
-
     return camera_info_ptrs_[stream];
   }
 
