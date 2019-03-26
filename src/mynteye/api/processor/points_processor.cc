@@ -53,7 +53,7 @@ struct DepthTraits<float> {
 const char PointsProcessor::NAME[] = "PointsProcessor";
 
 PointsProcessor::PointsProcessor(
-    std::shared_ptr<struct camera_calib_info_pair> calib_infos,
+    std::shared_ptr<struct CameraROSMsgInfoPair> calib_infos,
     std::int32_t proc_period)
     : Processor(std::move(proc_period)),
     calib_infos_(calib_infos) {

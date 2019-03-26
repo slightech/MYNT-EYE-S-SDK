@@ -600,4 +600,8 @@ void API::EnableProcessMode(const std::int32_t& mode) {
   device_->EnableProcessMode(mode);
 }
 
+std::shared_ptr<struct CameraROSMsgInfoPair> API::GetCameraROSMsgInfoPair() {
+  return synthetic_->GetCameraROSMsgInfoPair();
+}
+
 MYNTEYE_END_NAMESPACE

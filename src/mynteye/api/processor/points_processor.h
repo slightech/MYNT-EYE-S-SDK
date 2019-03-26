@@ -20,7 +20,7 @@
 #include <opencv2/core/core.hpp>
 
 #include "mynteye/api/processor.h"
-#include "mynteye/api/processor/rectify_processor.h"
+#include "mynteye/types.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -29,7 +29,7 @@ class PointsProcessor : public Processor {
   static const char NAME[];
 
   explicit PointsProcessor(
-      std::shared_ptr<struct camera_calib_info_pair> calib_infos,
+      std::shared_ptr<struct CameraROSMsgInfoPair> calib_infos,
       std::int32_t proc_period = 0);
   virtual ~PointsProcessor();
 
@@ -45,7 +45,7 @@ class PointsProcessor : public Processor {
       std::shared_ptr<Processor> const parent) override;
 
  private:
-  std::shared_ptr<struct camera_calib_info_pair> calib_infos_;
+  std::shared_ptr<struct CameraROSMsgInfoPair> calib_infos_;
 };
 
 MYNTEYE_END_NAMESPACE

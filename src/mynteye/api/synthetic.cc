@@ -352,10 +352,10 @@ void Synthetic::InitProcessors() {
                                            RECTIFY_PROC_PERIOD);
     rectify_processor = rectify_processor_imp;
     points_processor = std::make_shared<PointsProcessor>(
-        rectify_processor_imp -> getCalibInfoPair(),
+        rectify_processor_imp -> getCameraROSMsgInfoPair(),
         POINTS_PROC_PERIOD);
     depth_processor = std::make_shared<DepthProcessor>(
-        rectify_processor_imp -> getCalibInfoPair(),
+        rectify_processor_imp -> getCameraROSMsgInfoPair(),
         DEPTH_PROC_PERIOD);
 
     root_processor->AddChild(rectify_processor);
@@ -564,6 +564,22 @@ void Synthetic::NotifyStreamData(
   if (stream_data_listener_) {
     stream_data_listener_(stream, data);
   }
+}
+
+std::shared_ptr<struct CameraROSMsgInfoPair>
+    Synthetic::GetCameraROSMsgInfoPair() {
+  if (calib_model_ == CalibrationModel::PINHOLE) {
+    auto processor = getProcessorWithStream(Stream::LEFT_RECTIFIED);
+    auto proc = static_cast<RectifyProcessorOCV*>(&(*processor));
+    return proc->getCameraROSMsgInfoPair();
+#ifdef WITH_CAM_MODELS
+  } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
+    auto processor = getProcessorWithStream(Stream::LEFT_RECTIFIED);
+    auto proc = static_cast<RectifyProcessor*>(&(*processor));
+    return proc->getCameraROSMsgInfoPair();
+#endif
+  }
+  return {};
 }
 
 MYNTEYE_END_NAMESPACE

@@ -93,6 +93,7 @@ class Synthetic {
   std::shared_ptr<Processor> getProcessorWithStream(const Stream& stream);
   void SetDisparityComputingMethodType(
       const DisparityComputingMethod &MethoType);
+  std::shared_ptr<struct CameraROSMsgInfoPair> GetCameraROSMsgInfoPair();
 
  private:
   void InitCalibInfo();

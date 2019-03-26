@@ -16,6 +16,7 @@
 #pragma once
 
 #include <memory.h>
+#include <string>
 
 #include <cstdint>
 
@@ -670,7 +671,6 @@ struct MYNTEYE_API DisparityParamsBM : public DisparityParamsBase {
   }
 };
 
-
 /**
  * @defgroup datatypes Datatypes
  * @brief Public data types.
@@ -763,6 +763,38 @@ struct MYNTEYE_API OptionInfo {
 
 MYNTEYE_API
 std::ostream &operator<<(std::ostream &os, const OptionInfo &info);
+
+/**
+ * @ingroup datatypes
+ * ROS camera info.
+ */
+struct MYNTEYE_API CameraROSMsgInfo {
+  /** height */
+  unsigned int height = 0;
+  /** width */
+  unsigned int width = 0;
+  /** calib model */
+  std::string distortion_model = "null";
+  double  D[5] = {0};
+  double  K[9] = {0};
+  double  R[9] = {0};
+  double  P[12] = {0};
+};
+MYNTEYE_API
+std::ostream &operator<<(std::ostream &os, const CameraROSMsgInfo &info);
+
+struct CameraROSMsgInfoPair {
+  inline bool isEmpty() {
+    return left.height * left.width * right.height * right.width <= 0;
+  }
+  struct CameraROSMsgInfo left;
+  struct CameraROSMsgInfo right;
+  double T_mul_f = -1.f;
+  double  R[9] = {0};
+  double  P[12] = {0};
+};
+MYNTEYE_API
+std::ostream &operator<<(std::ostream &os, const CameraROSMsgInfoPair &info);
 
 MYNTEYE_END_NAMESPACE
 

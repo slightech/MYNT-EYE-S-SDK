@@ -31,22 +31,6 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
-struct camera_calib_info {
-  unsigned int height = 0;
-  unsigned int width = 0;
-  std::string distortion_model = "null";
-  double  D[4] = {0};
-  double  K[9] = {0};
-  double  R[9] = {0};
-  double  P[12] = {0};
-};
-
-struct camera_calib_info_pair {
-  struct camera_calib_info left;
-  struct camera_calib_info right;
-  double T_mul_f;
-};
-
 class Device;
 
 class RectifyProcessor : public Processor {
@@ -69,8 +53,8 @@ class RectifyProcessor : public Processor {
 
   cv::Mat R1, P1, R2, P2, Q;
   cv::Mat map11, map12, map21, map22;
-
-  inline std::shared_ptr<struct camera_calib_info_pair> getCalibInfoPair() {
+  inline std::shared_ptr<struct CameraROSMsgInfoPair>
+      getCameraROSMsgInfoPair() {
     return calib_infos;
   }
 
@@ -103,12 +87,12 @@ class RectifyProcessor : public Processor {
   Eigen::Matrix4d loadT(const mynteye::Extrinsics& in);
   void loadCameraMatrix(cv::Mat& K, cv::Mat& D,  // NOLINT
       cv::Size& image_size,  // NOLINT
-      struct camera_calib_info& calib_data); // NOLINT
+      struct CameraROSMsgInfo& calib_data); // NOLINT
 
-  struct camera_calib_info getCalibMatData(
+  struct CameraROSMsgInfo getCalibMatData(
       const mynteye::IntrinsicsEquidistant& in);
 
-  std::shared_ptr<struct camera_calib_info_pair> stereoRectify(
+  std::shared_ptr<struct CameraROSMsgInfoPair> stereoRectify(
       camodocal::CameraPtr leftOdo,
       camodocal::CameraPtr rightOdo,
       mynteye::IntrinsicsEquidistant in_left,
@@ -119,7 +103,7 @@ class RectifyProcessor : public Processor {
       const mynteye::IntrinsicsEquidistant & in);
 
   CalibrationModel calib_model;
-  std::shared_ptr<struct camera_calib_info_pair> calib_infos;
+  std::shared_ptr<struct CameraROSMsgInfoPair> calib_infos;
 };
 
 MYNTEYE_END_NAMESPACE

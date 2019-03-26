@@ -21,6 +21,11 @@ int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
   if (!api) return 1;
 
+  auto info = api->GetCameraROSMsgInfoPair();
+
+  if (!info->isEmpty())
+    std::cout << "ROSMsgInfoPair:"<< std::endl << *info << std::endl;
+
   bool ok;
   auto &&request = api->SelectStreamRequest(&ok);
   if (!ok) return 1;

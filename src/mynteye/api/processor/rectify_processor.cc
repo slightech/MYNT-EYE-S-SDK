@@ -222,16 +222,16 @@ Eigen::Matrix4d RectifyProcessor::loadT(const mynteye::Extrinsics& in) {
 
 void RectifyProcessor::loadCameraMatrix(cv::Mat& K, cv::Mat& D,  // NOLINT
     cv::Size& image_size,  // NOLINT
-    struct camera_calib_info& calib_data) {  // NOLINT
+    struct CameraROSMsgInfo& calib_data) {  // NOLINT
   K = cv::Mat(3, 3, CV_64F, calib_data.K);
   std::size_t d_length = 4;
   D = cv::Mat(1, d_length, CV_64F, calib_data.D);
   image_size = cv::Size(calib_data.width, calib_data.height);
 }
 
-struct camera_calib_info RectifyProcessor::getCalibMatData(
+struct CameraROSMsgInfo RectifyProcessor::getCalibMatData(
     const mynteye::IntrinsicsEquidistant& in) {
-  struct camera_calib_info calib_mat_data;
+  struct CameraROSMsgInfo calib_mat_data;
   calib_mat_data.distortion_model = "KANNALA_BRANDT";
   calib_mat_data.height = in.height;
   calib_mat_data.width = in.width;
@@ -248,7 +248,7 @@ struct camera_calib_info RectifyProcessor::getCalibMatData(
   return calib_mat_data;
 }
 
-std::shared_ptr<struct camera_calib_info_pair> RectifyProcessor::stereoRectify(
+std::shared_ptr<struct CameraROSMsgInfoPair> RectifyProcessor::stereoRectify(
     camodocal::CameraPtr leftOdo,
     camodocal::CameraPtr rightOdo,
     mynteye::IntrinsicsEquidistant in_left,
@@ -263,8 +263,8 @@ std::shared_ptr<struct camera_calib_info_pair> RectifyProcessor::stereoRectify(
   cv::Mat K1, D1, K2, D2;
   cv::Size image_size1, image_size2;
 
-  struct camera_calib_info calib_mat_data_left = getCalibMatData(in_left);
-  struct camera_calib_info calib_mat_data_right = getCalibMatData(in_right);
+  struct CameraROSMsgInfo calib_mat_data_left = getCalibMatData(in_left);
+  struct CameraROSMsgInfo calib_mat_data_right = getCalibMatData(in_right);
 
   loadCameraMatrix(K1, D1, image_size1, calib_mat_data_left);
   loadCameraMatrix(K2, D2, image_size2, calib_mat_data_right);
@@ -308,9 +308,26 @@ std::shared_ptr<struct camera_calib_info_pair> RectifyProcessor::stereoRectify(
       calib_mat_data_right.R[i*3 +j] = R2.at<double>(i, j);
     }
   }
-  struct camera_calib_info_pair res =
-      {calib_mat_data_left, calib_mat_data_right, T_mul_f};
-  return std::make_shared<struct camera_calib_info_pair>(res);
+
+  struct CameraROSMsgInfoPair info_pair;
+  info_pair.left = calib_mat_data_left;
+  info_pair.right = calib_mat_data_right;
+  info_pair.T_mul_f = T_mul_f;
+  for (std::size_t i = 0; i< 3 * 4; i++) {
+    info_pair.P[i] = calib_mat_data_left.P[i];
+  }
+
+  info_pair.R[0] = ex_right_to_left.rotation[0][0];
+  info_pair.R[1] = ex_right_to_left.rotation[0][1];
+  info_pair.R[2] = ex_right_to_left.rotation[0][2];
+  info_pair.R[3] = ex_right_to_left.rotation[1][0];
+  info_pair.R[4] = ex_right_to_left.rotation[1][1];
+  info_pair.R[5] = ex_right_to_left.rotation[1][2];
+  info_pair.R[6] = ex_right_to_left.rotation[2][0];
+  info_pair.R[7] = ex_right_to_left.rotation[2][1];
+  info_pair.R[8] = ex_right_to_left.rotation[2][2];
+
+  return std::make_shared<struct CameraROSMsgInfoPair>(info_pair);
 }
 
 camodocal::CameraPtr RectifyProcessor::generateCameraFromIntrinsicsEquidistant(
@@ -382,7 +399,7 @@ RectifyProcessor::RectifyProcessor(
       std::int32_t proc_period)
     : Processor(std::move(proc_period)),
       calib_model(CalibrationModel::UNKNOW) {
-  calib_infos = std::make_shared<struct camera_calib_info_pair>();
+  calib_infos = std::make_shared<struct CameraROSMsgInfoPair>();
   InitParams(
     *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_left),
     *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_right),

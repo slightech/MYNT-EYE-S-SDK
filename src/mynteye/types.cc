@@ -317,4 +317,34 @@ std::ostream &operator<<(std::ostream &os, const OptionInfo &info) {
             << ", def: " << info.def;
 }
 
+std::ostream &operator<<(std::ostream &os, const CameraROSMsgInfo &info) {
+  os << "width: " << info.width << ", height: " << info.height << std::endl
+      << "distortion_model: " << info.distortion_model;
+  os << std::endl << "D: ";
+  for (size_t i = 0; i < 5; i++)
+    os << info.D[i] << ",";
+  os << std::endl << "K: ";
+  for (size_t i = 0; i < 9; i++)
+    os << info.K[i] << ",";
+  os << std::endl << "R: ";
+  for (size_t i = 0; i < 9; i++)
+    os << info.R[i] << ",";
+  os << std::endl << "P: ";
+  for (size_t i = 0; i < 12; i++)
+    os << info.P[i] << ",";
+  os << std::endl;
+}
+
+std::ostream &operator<<(std::ostream &os, const CameraROSMsgInfoPair &info) {
+  os << "left:\n" << info.left << std::endl;
+  os << "right:\n" << info.right << std::endl;
+  os << "base R:";
+  for (size_t i = 0; i < 9; i++)
+    os << info.R[i] << ",";
+  os << std::endl << "base P:";
+  for (size_t i = 0; i < 12; i++)
+    os << info.P[i] << ",";
+  os << std::endl;
+}
+
 MYNTEYE_END_NAMESPACE

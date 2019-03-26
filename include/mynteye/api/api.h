@@ -363,6 +363,11 @@ class MYNTEYE_API API {
   /** Enable process mode, e.g. imu assembly, temp_drift */
   void EnableProcessMode(const std::int32_t& mode);
 
+  /** 
+   * Get ROS need camera info struct
+   */
+  std::shared_ptr<struct CameraROSMsgInfoPair> GetCameraROSMsgInfoPair();
+
  private:
   std::shared_ptr<Device> device_;
 

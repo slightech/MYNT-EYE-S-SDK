@@ -32,6 +32,7 @@ RectifyProcessorOCV::RectifyProcessorOCV(
     : Processor(std::move(proc_period)),
       calib_model(CalibrationModel::UNKNOW) {
   VLOG(2) << __func__ << ": proc_period=" << proc_period;
+  calib_infos = std::make_shared<struct CameraROSMsgInfoPair>();
   InitParams(
     *std::dynamic_pointer_cast<IntrinsicsPinhole>(intr_left),
     *std::dynamic_pointer_cast<IntrinsicsPinhole>(intr_right),
@@ -75,6 +76,25 @@ bool RectifyProcessorOCV::OnProcess(
   return true;
 }
 
+struct CameraROSMsgInfo RectifyProcessorOCV::getCalibMatData(
+    const mynteye::IntrinsicsPinhole& in) {
+  struct CameraROSMsgInfo calib_mat_data;
+  calib_mat_data.distortion_model = "PINHOLE";
+  calib_mat_data.height = in.height;
+  calib_mat_data.width = in.width;
+
+  for (std::size_t i = 0; i < 5; i++) {
+    calib_mat_data.D[i] = in.coeffs[i];
+  }
+
+  calib_mat_data.K[0] = in.fx;
+  calib_mat_data.K[4] = in.cx;
+  calib_mat_data.K[2] = in.fy;
+  calib_mat_data.K[5] = in.cy;
+  calib_mat_data.K[8] = 1;
+  return calib_mat_data;
+}
+
 void RectifyProcessorOCV::InitParams(
     IntrinsicsPinhole in_left,
     IntrinsicsPinhole in_right,
@@ -84,6 +104,9 @@ void RectifyProcessorOCV::InitParams(
   in_right.ResizeIntrinsics();
   cv::Size size{in_left.width, in_left.height};
 
+  struct CameraROSMsgInfoPair info_pair;
+  info_pair.left = getCalibMatData(in_left);
+  info_pair.right = getCalibMatData(in_right);
   cv::Mat M1 =
       (cv::Mat_<double>(3, 3) << in_left.fx, 0, in_left.cx, 0, in_left.fy,
        in_left.cy, 0, 0, 1);
@@ -100,6 +123,16 @@ void RectifyProcessorOCV::InitParams(
        ex_right_to_left.rotation[2][1], ex_right_to_left.rotation[2][2]);
   cv::Mat T(3, 1, CV_64F, ex_right_to_left.translation);
 
+  info_pair.R[0] = ex_right_to_left.rotation[0][0];
+  info_pair.R[1] = ex_right_to_left.rotation[0][1];
+  info_pair.R[2] = ex_right_to_left.rotation[0][2];
+  info_pair.R[3] = ex_right_to_left.rotation[1][0];
+  info_pair.R[4] = ex_right_to_left.rotation[1][1];
+  info_pair.R[5] = ex_right_to_left.rotation[1][2];
+  info_pair.R[6] = ex_right_to_left.rotation[2][0];
+  info_pair.R[7] = ex_right_to_left.rotation[2][1];
+  info_pair.R[8] = ex_right_to_left.rotation[2][2];
+
   VLOG(2) << "InitParams size: " << size;
   VLOG(2) << "M1: " << M1;
   VLOG(2) << "M2: " << M2;
@@ -112,6 +145,26 @@ void RectifyProcessorOCV::InitParams(
   cv::stereoRectify(
       M1, D1, M2, D2, size, R, T, R1, R2, P1, P2, Q, cv::CALIB_ZERO_DISPARITY,
       0, size, &left_roi, &right_roi);
+
+  for (std::size_t i = 0; i < 3; i++) {
+    for (std::size_t j = 0; j < 4; j++) {
+      info_pair.left.P[i*4 + j] = P1.at<double>(i, j);
+      info_pair.right.P[i*4 + j] = P2.at<double>(i, j);
+    }
+  }
+
+  for (std::size_t i = 0; i < 3; i++) {
+    for (std::size_t j = 0; j < 3; j++) {
+      info_pair.left.R[i*3 + j] = R1.at<double>(i, j);
+      info_pair.right.R[i*3 +j] = R2.at<double>(i, j);
+    }
+  }
+
+  for (std::size_t i = 0; i< 3 * 4; i++) {
+    info_pair.P[i] = info_pair.left.P[i];
+  }
+
+  *calib_infos = info_pair;
 
   cv::initUndistortRectifyMap(M1, D1, R1, P1, size, CV_16SC2, map11, map12);
   cv::initUndistortRectifyMap(M2, D2, R2, P2, size, CV_16SC2, map21, map22);
