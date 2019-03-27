@@ -39,6 +39,7 @@ class DisparityProcessor : public Processor {
   void SetDisparityComputingMethodType(
       const DisparityComputingMethod &MethodType);
   void NotifyComputingTypeChanged(const DisparityComputingMethod &MethodType);
+  bool ConfigFromFile(const std::string& config);
 
  protected:
   // inline Processor::process_type ProcessOutputConnection() override {

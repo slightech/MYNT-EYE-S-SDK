@@ -604,4 +604,8 @@ std::shared_ptr<struct CameraROSMsgInfoPair> API::GetCameraROSMsgInfoPair() {
   return synthetic_->GetCameraROSMsgInfoPair();
 }
 
+bool API::ConfigDisparityFromFile(const std::string& config_file) {
+  return synthetic_->ConfigDisparityFromFile(config_file);
+}
+
 MYNTEYE_END_NAMESPACE

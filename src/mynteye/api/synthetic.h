@@ -94,6 +94,7 @@ class Synthetic {
   void SetDisparityComputingMethodType(
       const DisparityComputingMethod &MethoType);
   std::shared_ptr<struct CameraROSMsgInfoPair> GetCameraROSMsgInfoPair();
+  bool ConfigDisparityFromFile(const std::string& config_file);
 
  private:
   void InitCalibInfo();

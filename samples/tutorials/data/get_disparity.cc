@@ -14,6 +14,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #include "mynteye/api/api.h"
+#include "mynteye/logger.h"
 
 MYNTEYE_USE_NAMESPACE
 
@@ -28,6 +29,21 @@ int main(int argc, char *argv[]) {
 
   // api->EnableStreamData(Stream::DISPARITY);
   api->EnableStreamData(Stream::DISPARITY_NORMALIZED);
+
+  if (argc == 2) {
+    std::string config_path(argv[1]);
+    if (api->ConfigDisparityFromFile(config_path)) {
+      LOG(INFO) << "load disparity file: "
+                << config_path
+                << " success."
+                << std::endl;
+    } else {
+      LOG(INFO) << "load disparity file: "
+                << config_path
+                << " failed."
+                << std::endl;
+    }
+  }
 
   api->SetDisparityComputingMethodType(DisparityComputingMethod::BM);
 

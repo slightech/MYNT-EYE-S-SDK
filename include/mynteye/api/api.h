@@ -205,15 +205,6 @@ class MYNTEYE_API API {
    */
   std::shared_ptr<IntrinsicsBase> GetIntrinsicsBase(const Stream &stream) const;
   /**
-   * Get the intrinsics of stream.
-   */
-  template <typename T>
-  T GetDisparityParams() const;
-  /**
-   * Get the intrinsics base of stream.
-   */
-  std::shared_ptr<DisparityParamsBase> GetDisparityParamsBase() const;
-  /**
    * Get the extrinsics from one stream to another.
    */
   Extrinsics GetExtrinsics(const Stream &from, const Stream &to) const;
@@ -367,6 +358,11 @@ class MYNTEYE_API API {
    * Get ROS need camera info struct
    */
   std::shared_ptr<struct CameraROSMsgInfoPair> GetCameraROSMsgInfoPair();
+
+  /**
+   * Load disparity config from file.
+   */
+  bool ConfigDisparityFromFile(const std::string& config_file);
 
  private:
   std::shared_ptr<Device> device_;
