@@ -17,6 +17,7 @@
 
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core/persistence.hpp>
 
 #include "mynteye/logger.h"
 
@@ -101,6 +102,24 @@ DisparityProcessor::~DisparityProcessor() {
 void DisparityProcessor::SetDisparityComputingMethodType(
     const DisparityComputingMethod &MethodType) {
   NotifyComputingTypeChanged(MethodType);
+}
+
+bool DisparityProcessor::ConfigFromFile(const std::string& config_file) {
+  cv::FileStorage fsSettings(config_file, cv::FileStorage::READ);
+  if (!fsSettings.isOpened()) {
+      std::cerr << "ERROR: Wrong path to settings" << std::endl;
+      return false;
+  }
+  cv::FileNode node_sgbm = fsSettings["SGBM"];
+  if (node_sgbm.type() == cv::FileNode::MAP) {
+    sgbm_matcher->read(node_sgbm);
+  }
+
+  cv::FileNode node_bm = fsSettings["BM"];
+  if (node_bm.type() == cv::FileNode::MAP) {
+    bm_matcher->read(node_bm);
+  }
+  return true;
 }
 
 std::string DisparityProcessor::Name() {

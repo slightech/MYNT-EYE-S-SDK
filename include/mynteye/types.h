@@ -644,33 +644,6 @@ enum class DisparityComputingMethod : std::uint8_t {
   UNKNOW
 };
 
-struct MYNTEYE_API DisparityParamsBase {
-  DisparityParamsBase() {
-    disparity_model_ = DisparityComputingMethod::UNKNOW;
-  }
-  virtual ~DisparityParamsBase() {}
-  virtual void ResizeIntrinsics() {}
-
-  /** The calibration model */
-  DisparityComputingMethod disparity_model() const {
-    return disparity_model_;
-  }
- protected:
-  DisparityComputingMethod disparity_model_;
-};
-
-struct MYNTEYE_API DisparityParamsSGBM : public DisparityParamsBase {
-  DisparityParamsSGBM() {
-    disparity_model_ = DisparityComputingMethod::SGBM;
-  }
-};
-
-struct MYNTEYE_API DisparityParamsBM : public DisparityParamsBase {
-  DisparityParamsBM() {
-    disparity_model_ = DisparityComputingMethod::BM;
-  }
-};
-
 /**
  * @defgroup datatypes Datatypes
  * @brief Public data types.

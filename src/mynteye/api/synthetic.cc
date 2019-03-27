@@ -119,6 +119,12 @@ void Synthetic::NotifyImageParamsChanged() {
   }
 }
 
+bool Synthetic::ConfigDisparityFromFile(const std::string& config_file) {
+  auto processor = getProcessorWithStream(Stream::DISPARITY);
+  auto proc = static_cast<DisparityProcessor*>(&(*processor));
+  return proc->ConfigFromFile(config_file);
+}
+
 const struct Synthetic::stream_control_t Synthetic::getControlDateWithStream(
     const Stream& stream) const {
   for (auto &&it : processors_) {
