@@ -19,6 +19,10 @@
 
 standard2/request_index: 2
 
+# MYNTEYE-S2100/S2000/S210A/imu_process_mode range: [0,3]
+# 0 - none process, 1 - temperature process, 2 - scale and assembly process, 3 - both
+standard2/imu_process_mode: 2
+
 # device options of standard2, -1 will not set the value
 
 # standard2/brightness range: [0,240]

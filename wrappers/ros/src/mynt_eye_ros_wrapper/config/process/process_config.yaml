@@ -3,10 +3,6 @@
 # bm: 1
 disparity_computing_method: 1
 
-# standard2/imu_process_mode range: [0,3]
-# 0 - none process, 1 - temperature process, 2 - scale and assembly process, 3 - both
-imu_process_mode: 0
-
 enable_left_rect: false
 enable_right_rect: false
 enable_disparity: false
