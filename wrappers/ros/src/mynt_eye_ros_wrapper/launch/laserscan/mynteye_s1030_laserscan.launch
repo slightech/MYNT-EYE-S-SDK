@@ -10,7 +10,7 @@
   <arg name="serial_number" default="" />
 
   <!-- depth_type  0: MONO16, 1: TYPE_16UC1 -->
-  <arg name="depth_type" default="0" />
+  <arg name="depth_type" default="1" />
 
   <!-- node params -->
 
@@ -89,6 +89,8 @@
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/device/standard2.yaml" command="load" />
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/process/process_config.yaml" command="load" />
 
+      <rosparam file="$(find mynt_eye_ros_wrapper)/config/laserscan/s1030_laserscan.yaml" command="load" />
+
       <param name="gravity" value="$(arg gravity)" />
     </node>
 
@@ -139,4 +141,17 @@
       </rosparam>
     </group>
   </group> <!-- mynteye -->
+
+  <node pkg="nodelet" type="nodelet" name="depthimage_to_laserscan_loader" args="standalone depthimage_to_laserscan/DepthImageToLaserScanNodelet" output="screen">
+    <param name="scan_height" value="1" />
+    <param name="output_frame_id" value="depth_to_laserscan" />
+    <param name="range_min" value="0.45" />
+    <param name="range_max" value="10" />
+    <remap from="image" to="/mynteye/depth/image_raw" />
+    <remap from="camera_info" to="/mynteye/depth/camera_info" />
+  </node>
+
+  <node pkg="tf" type="static_transform_publisher" name="transform_coordinate" args="1 0 0 0 0 0 1 base_link depth_to_laserscan 100">
+  </node>
+
 </launch>

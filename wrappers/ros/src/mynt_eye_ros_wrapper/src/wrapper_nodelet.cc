@@ -324,6 +324,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       }
     }
 
+    int depth_type = 0;
+    private_nh_.getParamCached("depth_type", depth_type);
     if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
       camera_encodings_ = {{Stream::LEFT, enc::BGR8},
                           {Stream::RIGHT, enc::BGR8},
@@ -334,13 +336,23 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                           {Stream::DEPTH, enc::MONO16}};
     }
     if (model_ == Model::STANDARD) {
-      camera_encodings_ = {{Stream::LEFT, enc::MONO8},
-                          {Stream::RIGHT, enc::MONO8},
-                          {Stream::LEFT_RECTIFIED, enc::MONO8},
-                          {Stream::RIGHT_RECTIFIED, enc::MONO8},
-                          {Stream::DISPARITY, enc::MONO8},  // float
-                          {Stream::DISPARITY_NORMALIZED, enc::MONO8},
-                          {Stream::DEPTH, enc::MONO16}};
+      if (depth_type == 0) {
+        camera_encodings_ = {{Stream::LEFT, enc::MONO8},
+          {Stream::RIGHT, enc::MONO8},
+          {Stream::LEFT_RECTIFIED, enc::MONO8},
+          {Stream::RIGHT_RECTIFIED, enc::MONO8},
+          {Stream::DISPARITY, enc::MONO8},  // float
+          {Stream::DISPARITY_NORMALIZED, enc::MONO8},
+          {Stream::DEPTH, enc::MONO16}};
+      } else if (depth_type == 1) {
+        camera_encodings_ = {{Stream::LEFT, enc::MONO8},
+          {Stream::RIGHT, enc::MONO8},
+          {Stream::LEFT_RECTIFIED, enc::MONO8},
+          {Stream::RIGHT_RECTIFIED, enc::MONO8},
+          {Stream::DISPARITY, enc::MONO8},  // float
+          {Stream::DISPARITY_NORMALIZED, enc::MONO8},
+          {Stream::DEPTH, enc::TYPE_16UC1}};
+      }
     }
     pub_imu_ = nh_.advertise<sensor_msgs::Imu>(imu_topic, 100);
     NODELET_INFO_STREAM("Advertized on topic " << imu_topic);
@@ -1312,10 +1324,21 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         }
       } else {
         if (info_pair->left.distortion_model == "KANNALA_BRANDT") {
-          camera_info->distortion_model =
-            sensor_msgs::distortion_models::EQUIDISTANT;
-          for (size_t i; i < 4; i++) {
-            camera_info->D.push_back(info_pair->left.D[i]);
+          // compatible laserscan
+          bool is_laserscan = false;
+          private_nh_.getParamCached("is_laserscan", is_laserscan);
+          if (!is_laserscan) {
+            camera_info->distortion_model =
+              sensor_msgs::distortion_models::EQUIDISTANT;
+            for (size_t i; i < 4; i++) {
+              camera_info->D.push_back(info_pair->left.D[i]);
+            }
+          } else {
+            camera_info->distortion_model =
+              sensor_msgs::distortion_models::PLUMB_BOB;
+            for (size_t i; i < 4; i++) {
+              camera_info->D.push_back(0.0);
+            }
           }
         } else if (info_pair->left.distortion_model == "PINHOLE") {
           camera_info->distortion_model =
