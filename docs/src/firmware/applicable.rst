@@ -28,6 +28,6 @@ MYNTEYE_S2100_1.1.img            2.3.4
 .. attention::
   Please CONFIRM your device model and use CORRECT firmware.
 
-``Firmwares`` indicates the firmware file name. It's in `MYNTEYE_BOX <http://doc.myntai.com/mynteye/s/download>`_ in the ``Firmwares`` directory.
+``Firmwares`` indicates the firmware file name. It's in `MYNTEYE_BOX(Download Link) <http://doc.myntai.com/mynteye/s/download>`_ in the ``Firmwares`` directory.
 
 ``SDK Version`` indicates the version of the SDK that the firmware is adapted to, and the range of available versions are indicated in parentheses.
