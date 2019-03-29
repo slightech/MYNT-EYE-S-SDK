@@ -704,6 +704,8 @@ struct MYNTEYE_API ImuData {
    * </p>
    */
   std::uint8_t flag;
+  /** Is external time source */
+  bool is_ets = false;
   /** IMU timestamp in 1us */
   std::uint64_t timestamp;
   /** IMU accelerometer data for 3-axis: X, Y, Z. */

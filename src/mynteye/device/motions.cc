@@ -84,6 +84,7 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
         imu->frame_id = seg.frame_id;
         imu->timestamp = seg.timestamp;
         imu->flag = seg.flag;
+        imu->is_ets = seg.is_ets;
         imu->temperature = seg.temperature / 326.8f + 25;
         imu->accel[0] = seg.accel[0] * 1.f * accel_range / 0x10000;
         imu->accel[1] = seg.accel[1] * 1.f * accel_range / 0x10000;
