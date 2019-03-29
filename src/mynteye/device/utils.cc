@@ -13,6 +13,7 @@
 // limitations under the License.
 #include "mynteye/device/utils.h"
 
+#include <algorithm>
 #include <cstdlib>
 
 #include "mynteye/logger.h"
@@ -20,9 +21,13 @@
 #include "mynteye/device/context.h"
 #include "mynteye/device/device.h"
 
-#include "mynteye/logger.h"
-
 MYNTEYE_BEGIN_NAMESPACE
+
+bool sort_sn(std::shared_ptr<Device> device1,
+    std::shared_ptr<Device> device2) {
+  return device1->GetInfo(Info::SERIAL_NUMBER) <
+    device2->GetInfo(Info::SERIAL_NUMBER);
+}
 
 namespace device {
 
@@ -36,6 +41,9 @@ std::shared_ptr<Device> select() {
     LOG(ERROR) << "No MYNT EYE devices :(";
     return nullptr;
   }
+
+  if (n > 1)
+    sort(devices.begin(), devices.end(), sort_sn);
 
   LOG(INFO) << "MYNT EYE devices:";
   for (std::size_t i = 0; i < n; i++) {
