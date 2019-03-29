@@ -122,6 +122,7 @@ make_executable2(ctrl_framerate SRCS control/framerate.cc WITH_OPENCV)
 make_executable2(ctrl_imu_low_pass_filter SRCS control/imu_low_pass_filter.cc WITH_OPENCV)
 make_executable2(ctrl_imu_range SRCS control/imu_range.cc WITH_OPENCV)
 make_executable2(ctrl_infrared SRCS control/infrared.cc WITH_OPENCV)
+make_executable2(ctrl_iic_adress SRCS control/iic_address.cc WITH_OPENCV)
 make_executable2(ctrl_auto_exposure
   SRCS control/auto_exposure.cc util/cv_painter.cc
   WITH_OPENCV

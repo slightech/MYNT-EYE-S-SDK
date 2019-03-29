@@ -97,7 +97,7 @@ public enum Option {
     GYROSCOPE_LOW_PASS_FILTER,
     /**
     * The setting of IIC address
-    *   range: [0,65535], default: 0
+    *   range: [0,127], default: 0
     */
     IIC_ADDRESS_SETTING,
     /** Zero drift calibration */
