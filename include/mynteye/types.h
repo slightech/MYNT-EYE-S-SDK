@@ -660,11 +660,14 @@ struct MYNTEYE_API ImgData {
   std::uint64_t timestamp;
   /** Image exposure time, virtual value in [1, 480] */
   std::uint16_t exposure_time;
+  /** Is external time source */
+  bool is_etc = false;
 
   void Reset() {
     frame_id = 0;
     timestamp = 0;
     exposure_time = 0;
+    is_etc = false;
   }
 
   ImgData() {
@@ -674,11 +677,13 @@ struct MYNTEYE_API ImgData {
     frame_id = other.frame_id;
     timestamp = other.timestamp;
     exposure_time = other.exposure_time;
+    is_etc = other.is_etc;
   }
   ImgData &operator=(const ImgData &other) {
     frame_id = other.frame_id;
     timestamp = other.timestamp;
     exposure_time = other.exposure_time;
+    is_etc = other.is_etc;
     return *this;
   }
 };
