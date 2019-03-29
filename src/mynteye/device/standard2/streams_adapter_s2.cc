@@ -42,8 +42,8 @@ struct ImagePacket {
   void from_data(std::uint8_t *data) {
     std::uint32_t timestamp_l;
     std::uint32_t timestamp_h;
-    header = *data & 0b0111;
-    is_ets = ((*data & 0b1000) == 0b1000);
+    header = *data & 0x7F;
+    is_ets = ((*data & 0x80) == 0x80);
     size = *(data + 1);
     frame_id = (*(data + 2) << 8) | *(data + 3);
     timestamp_h = (*(data + 4) << 24) | (*(data + 5) << 16) |
