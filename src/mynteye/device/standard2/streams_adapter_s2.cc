@@ -33,7 +33,7 @@ struct ImagePacket {
   std::uint16_t exposure_time;
   std::uint8_t checksum;
   // Is external time source
-  bool is_etc;
+  bool is_ets;
   ImagePacket() = default;
   explicit ImagePacket(std::uint8_t *data) {
     from_data(data);
@@ -43,7 +43,7 @@ struct ImagePacket {
     std::uint32_t timestamp_l;
     std::uint32_t timestamp_h;
     header = *data & 0b0111;
-    is_ets = (*data & 0b1000 == 0b1000);
+    is_ets = ((*data & 0b1000) == 0b1000);
     size = *(data + 1);
     frame_id = (*(data + 2) << 8) | *(data + 3);
     timestamp_h = (*(data + 4) << 24) | (*(data + 5) << 16) |
@@ -139,7 +139,7 @@ bool unpack_stereo_img_data(
   img->frame_id = img_packet.frame_id;
   img->timestamp = img_packet.timestamp;
   img->exposure_time = img_packet.exposure_time;
-  img->is_etc = img_packet.is_etc;
+  img->is_ets = img_packet.is_ets;
   return true;
 }
 
