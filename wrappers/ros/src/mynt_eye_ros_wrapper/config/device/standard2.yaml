@@ -111,6 +111,6 @@ standard210a/accel_low_filter: -1
 standard210a/gyro_low_filter: -1
 # standard210a/gyro_low_filter: 64
 
-# standard210a/iic_address_setting range: [0,65535]
+# standard210a/iic_address_setting range: [0,127]
 standard210a/iic_address_setting: -1
-# standard210a/iic_address_setting: 0
+# standard210a/iic_address_setting: 0x01

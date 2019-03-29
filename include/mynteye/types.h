@@ -263,7 +263,7 @@ enum class Option : std::uint8_t {
   /**
    * The setting of IIC address
    * <p>
-   *   range: [0,65535], default: 0
+   *   range: [0,127], default: 0
    * </p>
    */
   IIC_ADDRESS_SETTING,

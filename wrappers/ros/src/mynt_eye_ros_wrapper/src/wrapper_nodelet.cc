@@ -251,7 +251,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           {Option::ACCELEROMETER_LOW_PASS_FILTER,
                   "standard210a/accel_low_filter"},
           {Option::GYROSCOPE_LOW_PASS_FILTER, "standard210a/gyro_low_filter"},
-          {Option::IIC_ADDRESS_SETTING, "standard2/iic_address_setting"}};
+          {Option::IIC_ADDRESS_SETTING, "standard210a/iic_address_setting"}};
     }
 
     // device options of standard2
