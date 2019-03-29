@@ -41,12 +41,16 @@ fi
 
 ## cmake version
 
-_echo_s "Expect cmake version >= 3.0"
-cmake --version | head -1
-if [ "$HOST_NAME" = "Ubuntu" ]; then
-  # sudo apt remove cmake
-  _echo "How to upgrade cmake in Ubuntu"
-  _echo "  https://askubuntu.com/questions/829310/how-to-upgrade-cmake-in-ubuntu"
+_cmake_version=`cmake --version | head -1`
+_cmake_version=${_cmake_version#*version}
+_cmake_version_major=`echo ${_cmake_version} | cut -d'.' -f1`
+if [ "$_cmake_version_major" -lt "3" ]; then
+  _echo_s "Expect cmake version >= 3.0.0"
+  if [ "$HOST_NAME" = "Ubuntu" ]; then
+    # sudo apt remove cmake
+    _echo "How to upgrade cmake in Ubuntu"
+    _echo "  https://askubuntu.com/questions/829310/how-to-upgrade-cmake-in-ubuntu"
+  fi
 fi
 
 exit 0
