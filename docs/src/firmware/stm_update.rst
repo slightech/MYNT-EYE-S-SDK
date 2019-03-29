@@ -3,8 +3,8 @@
 How to upgrade the auxiliary chip
 ==================================
 
-Update auxiliary chip(Only Support S2100)
-------------------------------------------
+Update auxiliary chip(Only Support S2100/S210A)
+-----------------------------------------------
 
 * Plug in the MYNT® EYE camera into a USB3.0 port
 
