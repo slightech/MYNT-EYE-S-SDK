@@ -653,6 +653,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                   Stream::LEFT << ", count: " << left_count_
                       << ", frame_id: " << data.img->frame_id
                       << ", timestamp: " << data.img->timestamp
+                      << ", is_ets: " << std::boolalpha << data.img->is_ets
                       << ", exposure_time: " << data.img->exposure_time);
             }
           });
@@ -676,6 +677,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                   Stream::RIGHT << ", count: " << right_count_
                       << ", frame_id: " << data.img->frame_id
                       << ", timestamp: " << data.img->timestamp
+                      << ", is_ets: " << std::boolalpha << data.img->is_ets
                       << ", exposure_time: " << data.img->exposure_time);
             }
           });
@@ -728,6 +730,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         NODELET_DEBUG_STREAM(
             "Imu count: " << imu_count_
                           << ", timestamp: " << data.imu->timestamp
+                          << ", is_ets: " << std::boolalpha << data.imu->is_ets
                           << ", accel_x: " << data.imu->accel[0]
                           << ", accel_y: " << data.imu->accel[1]
                           << ", accel_z: " << data.imu->accel[2]
