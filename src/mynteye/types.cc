@@ -252,7 +252,7 @@ std::ostream &operator<<(std::ostream &os, const ImuIntrinsics &in) {
     os << in.assembly[0][i] << ", ";
   for (int i = 0; i <= 2; i++)
     os << in.assembly[1][i] << ", ";
-  for (int i = 0; i <= 2; i++)
+  for (int i = 0; i <= 1; i++)
     os << in.assembly[2][i] << ", ";
   os << in.assembly[2][2] << "]";
 
