@@ -9,6 +9,9 @@
   <!-- if is_mutiple is true, must set serial_number -->
   <arg name="serial_number" default="07C4061B0009071F" />
 
+  <!-- depth_type  0: MONO16, 1: TYPE_16UC1 -->
+  <arg name="depth_type" default="0" />
+
   <!-- node params -->
 
   <arg name="left_topic" default="left/image_raw" />
@@ -52,6 +55,8 @@
       <param name="is_multiple" value="$(arg is_multiple)" />
       <param name="serial_number" value="$(arg serial_number)" />
 
+      <param name="depth_type" value="$(arg depth_type)" />
+
       <param name="left_topic" value="$(arg left_topic)" />
       <param name="right_topic" value="$(arg right_topic)" />
       <param name="left_rect_topic" value="$(arg left_rect_topic)" />
@@ -80,9 +85,9 @@
 
       <param name="temperature_frame_id" value="$(arg temperature_frame_id)" />
 
-      <rosparam file="$(find mynt_eye_ros_wrapper)/config/device/standard.yaml" command="load" />
-      <rosparam file="$(find mynt_eye_ros_wrapper)/config/device/standard2.yaml" command="load" />
-      <rosparam file="$(find mynt_eye_ros_wrapper)/config/process/process_config.yaml" command="load" />
+      <rosparam file="$(find mynt_eye_ros_wrapper)/config/sub/device_2/standard.yaml" command="load" />
+      <rosparam file="$(find mynt_eye_ros_wrapper)/config/sub/device_2/standard2.yaml" command="load" />
+      <rosparam file="$(find mynt_eye_ros_wrapper)/config/sub/process_2/process_config.yaml" command="load" />
 
       <param name="gravity" value="$(arg gravity)" />
     </node>

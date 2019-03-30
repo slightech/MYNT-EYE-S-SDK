@@ -1,0 +1,11 @@
+# disparity computing method type
+# sgbm: 0
+# bm: 1
+disparity_computing_method: 1
+
+enable_left_rect: false
+enable_right_rect: false
+enable_disparity: false
+enable_disparity_norm: false
+enable_points: false
+enable_depth: false

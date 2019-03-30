@@ -1,0 +1,116 @@
+
+
+# Attention:The format of MYNTEYE-S2100/S2000 is YUYV.S210A's format is BGR888
+
+# MYNTEYE-S2100/S2000/S210A, Reslution: 1280x400, Format: YUYV/BGR888, Fps: 10
+# index_s2_0: 0
+# MYNTEYE-S2100/S2000/S210A, Reslution: 1280x400, Format: YUYV/BGR888, Fps: 20
+# index_s2_1: 1
+# MYNTEYE-S2100/S2000/S210A, Reslution: 1280x400, Format: YUYV/BGR888, Fps: 30
+# index_s2_2: 2
+# MYNTEYE-S2100/S2000/S210A, Reslution: 1280x400, Format: YUYV/BGR888, Fps: 60
+# index_s2_3: 3
+# MYNTEYE-S2100/S2000/S210A, Reslution: 2560x800, Format: YUYV/BGR888, Fps: 10
+# index_s2_4: 4
+# MYNTEYE-S2100/S2000/S210A, Reslution: 2560x800, Format: YUYV/BGR888, Fps: 20
+# index_s2_5: 5
+# MYNTEYE-S2100/S2000/S210A, Reslution: 2560x800, Format: YUYV/BGR888, Fps: 30
+# index_s2_6: 6
+
+standard2/request_index: 2
+
+# MYNTEYE-S2100/S2000/S210A/imu_process_mode range: [0,3]
+# 0 - none process, 1 - temperature process, 2 - scale and assembly process, 3 - both
+standard2/imu_process_mode: 2
+
+# device options of standard2, -1 will not set the value
+
+# standard2/brightness range: [0,240]
+standard2/brightness: -1
+# standard2/brightness: 120
+
+# standard2/exposure_mode, 0: auto-exposure, 1: manual-exposure
+standard2/exposure_mode: -1
+# standard2/exposure_mode: 0
+
+# standard2/max_gain range: [0,255]
+standard2/max_gain: -1
+# standard2/max_gain: 8
+
+# standard2/max_exposure_time range: [0,1000]
+standard2/max_exposure_time: -1
+# standard2/max_exposure_time: 333
+
+# standard2/desired_brightness range: [1,255]
+standard2/desired_brightness: -1
+# standard2/desired_brightness: 122
+
+# standard2/min_exposure_time range: [0,1000]
+standard2/min_exposure_time: -1
+# standard2/min_exposure_time: 0
+
+# standard2/ir_control range: [0,160]
+standard2/ir_control: 80
+# standard2/ir_control: 0
+
+# standard2/accel_range range: [6,48]
+standard2/accel_range: -1
+# standard2/accel_range: 6
+
+# standard2/gyro_range range: [250,4000]
+standard2/gyro_range: -1
+# standard2/gyro_range: 1000
+
+# standard2/accel_low_filter range: [0,2]
+standard2/accel_low_filter: -1
+# standard2/accel_low_filter: 2
+
+# standard2/gyro_low_filter range: [23,64]
+standard2/gyro_low_filter: -1
+# standard2/gyro_low_filter: 64
+
+# device options of standard210a, -1 will not set the value
+
+# standard210a/brightness range: [0,240]
+standard210a/brightness: -1
+# standard210a/brightness: 120
+
+# standard210a/exposure_mode, 0: auto-exposure, 1: manual-exposure
+standard210a/exposure_mode: -1
+# standard210a/exposure_mode: 0
+
+# standard210a/max_gain range: [0,255]
+standard210a/max_gain: -1
+# standard210a/max_gain: 8
+
+# standard210a/max_exposure_time range: [0,1000]
+standard210a/max_exposure_time: -1
+# standard210a/max_exposure_time: 333
+
+# standard210a/desired_brightness range: [1,255]
+standard210a/desired_brightness: -1
+# standard210a/desired_brightness: 122
+
+# standard210a/min_exposure_time range: [0,1000]
+standard210a/min_exposure_time: -1
+# standard210a/min_exposure_time: 0
+
+# standard210a/accel_range range: [6,48]
+standard210a/accel_range: -1
+# standard210a/accel_range: 6
+
+# standard210a/gyro_range range: [250,4000]
+standard210a/gyro_range: -1
+# standard210a/gyro_range: 1000
+
+# standard210a/accel_low_filter range: [0,2]
+standard210a/accel_low_filter: -1
+# standard210a/accel_low_filter: 2
+
+# standard210a/gyro_low_filter range: [23,64]
+standard210a/gyro_low_filter: -1
+# standard210a/gyro_low_filter: 64
+
+# standard210a/iic_address_setting range: [0,127]
+standard210a/iic_address_setting: -1
+# standard210a/iic_address_setting: 0x01
