@@ -1,6 +1,6 @@
 # MYNT® EYE S SDK
 
-[![](https://img.shields.io/badge/MYNT%20EYE%20S%20SDK-2.3.4-brightgreen.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK)
+[![](https://img.shields.io/badge/MYNT%20EYE%20S%20SDK-2.3.5-brightgreen.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK)
 
 ## Overview
 
@@ -17,8 +17,8 @@ Please follow the guide doc to install the SDK on different platforms.
 ## Documentations
 
 * [API Doc](https://github.com/slightech/MYNT-EYE-S-SDK/releases): API reference, some guides and data spec.
-  * en: [![](https://img.shields.io/badge/Download-PDF-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK/files/2981536/mynteye-s-sdk-docs-en-2.3.4.pdf) [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK/files/2981540/mynt-eye-s-sdk-docs-2.3.4-en.zip) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](https://slightech.github.io/MYNT-EYE-S-SDK/)
-  * zh-Hans: [![](https://img.shields.io/badge/Download-PDF-lightgray.svg?style=flat)]() [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://github.com/slightech/MYNT-EYE-S-SDK/files/2981541/mynt-eye-s-sdk-docs-2.3.4-zh-Hans.zip) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](http://doc.myntai.com/resource/api/mynt-eye-s-sdk-docs-2.3.4-zh-Hans/mynt-eye-s-sdk-docs-2.3.4-zh-Hans/index.html)
+  * en: [![](https://img.shields.io/badge/Download-PDF-blue.svg?style=flat)](https://readthedocs.org/projects/mynt-eye-s-sdk/downloads/pdf/latest/) [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://readthedocs.org/projects/mynt-eye-s-sdk/downloads/htmlzip/latest/) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](https://mynt-eye-s-sdk.readthedocs.io/en/latest/)
+  * zh-Hans: [![](https://img.shields.io/badge/Download-PDF-lightgray.svg?style=flat)]() [![](https://img.shields.io/badge/Download-HTML-blue.svg?style=flat)](https://readthedocs.org/projects/mynt-eye-s-sdk-docs-zh-cn/downloads/htmlzip/latest/) [![](https://img.shields.io/badge/Online-HTML-blue.svg?style=flat)](https://mynt-eye-s-sdk-docs-zh-cn.readthedocs.io/zh_CN/latest/)
 
 > Supported languages: `en`, `zh-Hans`.
 
