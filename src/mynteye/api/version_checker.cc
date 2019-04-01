@@ -61,7 +61,7 @@ static const firmware_version_match_table_unit FSVM_TABLE[] ={
   {"MYNT-EYE-S2100",    ">0.0.0",         ">0.9",      WARN_DESCRIPTION_S},
   {"MYNT-EYE-S2100",    ">0.0.0",         "<1.0",      WARN_DESCRIPTION_F},
 /** S210A */
-  {"MYNT-EYE-S2100",    "2.3.5",          "<1.2",      WARN_DESCRIPTION_F},
+  {"MYNT-EYE-S210A",    "2.3.5",          "<1.2",      WARN_DESCRIPTION_F},
   {"MYNT-EYE-S210A",    ">2.3.3",         ">1.0",      PASS_DESCRIPTION},
   {"MYNT-EYE-S210A",    ">2.3.3",         "<1.1",      WARN_DESCRIPTION_F},
   {"MYNT-EYE-S210A",    ">2.3.0",         ">0.9",      PASS_DESCRIPTION},
