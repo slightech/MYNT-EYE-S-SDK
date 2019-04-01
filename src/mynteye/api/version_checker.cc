@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include <memory>
 #include "mynteye/api/version_checker.h"
 #include "mynteye/device/utils.h"
 #include "mynteye/logger.h"
@@ -53,12 +54,14 @@ static const firmware_version_match_table_unit FSVM_TABLE[] ={
   {"MYNT-EYE-S1030",    ">0.0.0",         ">2.2.0",   PASS_DESCRIPTION},
   {"MYNT-EYE-S1030",    ">0.0.0",         "<2.3.0",   WARN_DESCRIPTION_F},
 /** S2100 */
+  {"MYNT-EYE-S2100",    "2.3.5",          "<1.2",      WARN_DESCRIPTION_F},
   {"MYNT-EYE-S2100",    ">2.3.3",         ">1.0",      PASS_DESCRIPTION},
   {"MYNT-EYE-S2100",    ">2.3.3",         "<1.1",      WARN_DESCRIPTION_F},
   {"MYNT-EYE-S2100",    ">2.3.0",         ">0.9",      PASS_DESCRIPTION},
   {"MYNT-EYE-S2100",    ">0.0.0",         ">0.9",      WARN_DESCRIPTION_S},
   {"MYNT-EYE-S2100",    ">0.0.0",         "<1.0",      WARN_DESCRIPTION_F},
 /** S210A */
+  {"MYNT-EYE-S2100",    "2.3.5",          "<1.2",      WARN_DESCRIPTION_F},
   {"MYNT-EYE-S210A",    ">2.3.3",         ">1.0",      PASS_DESCRIPTION},
   {"MYNT-EYE-S210A",    ">2.3.3",         "<1.1",      WARN_DESCRIPTION_F},
   {"MYNT-EYE-S210A",    ">2.3.0",         ">0.9",      PASS_DESCRIPTION},
