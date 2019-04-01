@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 
   // MYNTEYE-S1030/S2100 don't support this option
   if (model == Model::STANDARD2 || model == Model::STANDARD) {
-    LOG(INFO) << "Sorry,MYNTEYE-S1030 don't support iic address setting";
+    LOG(INFO) << "Sorry,MYNTEYE-S1030/S2100 don't support iic address setting";
     return 0;
   }
 
