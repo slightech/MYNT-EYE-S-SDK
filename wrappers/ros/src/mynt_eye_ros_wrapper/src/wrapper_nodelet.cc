@@ -849,9 +849,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       for (std::size_t x = 0; x < in->width; ++x) {
         auto &&point = data.frame.at<cv::Vec3f>(y, x);
 
-        *iter_x = point[0] * 0.001;
-        *iter_y = point[1] * 0.001;
-        *iter_z = point[2] * 0.001;
+        *iter_x = point[2] * 0.001;
+        *iter_y = 0.f - point[0] * 0.001;
+        *iter_z = 0.f - point[1] * 0.001;
 
         *iter_r = static_cast<uint8_t>(255);
         *iter_g = static_cast<uint8_t>(255);
@@ -1212,10 +1212,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     mesh_msg_.header.stamp = ros::Time::now();
     mesh_msg_.type = visualization_msgs::Marker::MESH_RESOURCE;
     // fill orientation
-    mesh_msg_.pose.orientation.x = 0;
-    mesh_msg_.pose.orientation.y = 0;
-    mesh_msg_.pose.orientation.z = 0;
-    mesh_msg_.pose.orientation.w = 0;
+    mesh_msg_.pose.orientation.x = 1;
+    mesh_msg_.pose.orientation.y = 1;
+    mesh_msg_.pose.orientation.z = 1;
+    mesh_msg_.pose.orientation.w = 1;
 
     // fill position
     mesh_msg_.pose.position.x = 0;
