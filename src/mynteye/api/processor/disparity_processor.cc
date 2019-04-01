@@ -106,6 +106,7 @@ void DisparityProcessor::SetDisparityComputingMethodType(
 }
 
 bool DisparityProcessor::ConfigFromFile(const std::string& config_file) {
+#ifndef WITH_OPENCV2
   cv::FileStorage fsSettings(config_file, cv::FileStorage::READ);
   if (!fsSettings.isOpened()) {
       std::cerr << "ERROR: Wrong path to settings" << std::endl;
@@ -121,6 +122,9 @@ bool DisparityProcessor::ConfigFromFile(const std::string& config_file) {
     bm_matcher->read(node_bm);
   }
   return true;
+#else
+  return false;
+#endif
 }
 
 std::string DisparityProcessor::Name() {
