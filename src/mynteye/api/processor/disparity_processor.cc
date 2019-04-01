@@ -17,8 +17,9 @@
 
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#ifndef WITH_OPENCV2
 #include <opencv2/core/persistence.hpp>
-
+#endif
 #include "mynteye/logger.h"
 
 MYNTEYE_BEGIN_NAMESPACE
