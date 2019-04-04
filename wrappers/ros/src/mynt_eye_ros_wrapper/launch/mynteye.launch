@@ -48,7 +48,7 @@
   <group ns="$(arg mynteye)">
 
     <!-- mynteye_wrapper_node -->
-    <node name="mynteye_wrapper_node" pkg="mynt_eye_ros_wrapper" type="mynteye_wrapper_node" output="screen" respawn="true" respawn_delay="5">
+    <node name="mynteye_wrapper_node" pkg="mynt_eye_ros_wrapper" type="mynteye_wrapper_node" output="screen" respawn="true" respawn_delay="10">
 
       <!-- node params -->
 
