@@ -25,7 +25,6 @@ int main(int argc, char *argv[]) {
   auto &&request = api->SelectStreamRequest(&ok);
   if (!ok) return 1;
   api->ConfigStreamRequest(request);
-  api->SetDisparityComputingMethodType(DisparityComputingMethod::BM);
   api->Start(Source::VIDEO_STREAMING);
 
   cv::namedWindow("frame");

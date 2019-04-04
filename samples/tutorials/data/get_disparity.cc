@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
   if (!ok) return 1;
   api->ConfigStreamRequest(request);
 
-  // api->EnableStreamData(Stream::DISPARITY);
+  api->SetDisparityComputingMethodType(DisparityComputingMethod::SGBM);
   api->EnableStreamData(Stream::DISPARITY_NORMALIZED);
 
   if (argc == 2) {
@@ -44,8 +44,6 @@ int main(int argc, char *argv[]) {
                 << std::endl;
     }
   }
-
-  api->SetDisparityComputingMethodType(DisparityComputingMethod::BM);
 
   api->Start(Source::VIDEO_STREAMING);
 

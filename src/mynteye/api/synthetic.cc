@@ -326,7 +326,7 @@ void Synthetic::InitProcessors() {
   std::shared_ptr<Processor> depth_processor = nullptr;
 
   auto &&disparity_processor =
-      std::make_shared<DisparityProcessor>(DisparityComputingMethod::SGBM,
+      std::make_shared<DisparityProcessor>(DisparityComputingMethod::BM,
                                            DISPARITY_PROC_PERIOD);
   auto &&disparitynormalized_processor =
       std::make_shared<DisparityNormalizedProcessor>(
