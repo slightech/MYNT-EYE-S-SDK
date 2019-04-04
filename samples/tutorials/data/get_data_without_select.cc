@@ -23,19 +23,28 @@ int main(int argc, char *argv[]) {
   auto &&api = API::Create(argc, argv);
   if (!api) return 1;
 
-  bool ok;
-  auto &&request = api->SelectStreamRequest(&ok);
-  if (!ok) return 1;
+  auto request = api->GetStreamRequest();
+
+//   struct StreamRequest {
+//   /** Stream width in pixels */
+//   std::uint16_t width;
+//   /** Stream height in pixels */
+//   std::uint16_t height;
+//   /** Stream pixel format */
+//   Format format;
+//   /** Stream frames per second */
+//   std::uint16_t fps;
+//   }
+
+  request.fps = 10;
   api->ConfigStreamRequest(request);
 
   api->EnableStreamData(Stream::DEPTH);
-  api->EnableStreamData(Stream::DISPARITY_NORMALIZED);
 
   api->Start(Source::VIDEO_STREAMING);
 
   cv::namedWindow("frame");
-  cv::namedWindow("depth_real");
-  cv::namedWindow("depth_normalized");
+  cv::namedWindow("depth");
   while (true) {
     api->WaitForStreams();
 
@@ -51,13 +60,7 @@ int main(int argc, char *argv[]) {
     // this code is for real depth data
     auto &&depth_data = api->GetStreamData(Stream::DEPTH);
     if (!depth_data.frame.empty()) {
-      cv::imshow("depth_real", depth_data.frame);  // CV_16UC1
-    }
-
-    // this code is for normalized depth data
-    auto &&disp_norm_data = api->GetStreamData(Stream::DISPARITY_NORMALIZED);
-    if (!disp_norm_data.frame.empty()) {
-      cv::imshow("depth_normalized", disp_norm_data.frame);  // CV_8UC1
+      cv::imshow("depth", depth_data.frame);  // CV_16UC1
     }
 
     char key = static_cast<char>(cv::waitKey(1));

@@ -99,6 +99,8 @@ make_executable2(get_stereo SRCS data/get_stereo.cc WITH_OPENCV)
 make_executable2(get_stereo_rectified SRCS data/get_stereo_rectified.cc WITH_OPENCV)
 make_executable2(get_disparity SRCS data/get_disparity.cc WITH_OPENCV)
 make_executable2(get_depth SRCS data/get_depth.cc WITH_OPENCV)
+
+make_executable2(get_data_without_select SRCS data/get_data_without_select.cc WITH_OPENCV)
 if(PCL_FOUND)
   make_executable2(get_points
     SRCS data/get_points.cc util/pc_viewer.cc
