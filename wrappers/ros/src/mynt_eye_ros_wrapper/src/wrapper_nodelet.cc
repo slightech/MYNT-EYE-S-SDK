@@ -712,10 +712,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           if (data.imu) {
             if (data.imu->flag == 1) {  // accelerometer
               imu_accel_ = data.imu;
-              publishImuBySync(stamp);
+              publishImuBySync();
             } else if (data.imu->flag == 2) {  // gyroscope
               imu_gyro_ = data.imu;
-              publishImuBySync(stamp);
+              publishImuBySync();
             } else {
               publishImu(data, imu_count_, stamp);
               publishTemperature(data.imu->temperature, imu_count_, stamp);
@@ -980,14 +980,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     }
   }
 
-  void publishImuBySync(ros::Time stamp) {
+  void publishImuBySync() {
     timestampAlign();
 
     if (imu_accel_ == nullptr || imu_gyro_ == nullptr) {
       return;
     }
     sensor_msgs::Imu msg;
-
+    ros::Time stamp = checkUpImuTimeStamp(imu_accel_->timestamp);
     msg.header.seq = imu_sync_count_;
     msg.header.stamp = stamp;
     msg.header.frame_id = imu_frame_id_;
