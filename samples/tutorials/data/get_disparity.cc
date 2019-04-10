@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
 
   double fps;
   double t = 0.01;
-  std::cout << "fps:" << std::endl;
+  std::cout << "disparity fps:" << std::endl;
 
   while (true) {
     api->WaitForStreams();
@@ -63,10 +63,6 @@ int main(int argc, char *argv[]) {
     auto &&right_data = api->GetStreamData(Stream::RIGHT);
 
     if (!left_data.frame.empty() && !right_data.frame.empty()) {
-      double t_c = cv::getTickCount() / cv::getTickFrequency();
-      fps = 1.0/(t_c - t);
-      printf("\b\b\b\b\b\b\b\b\b%.2f", fps);
-      t = t_c;
       cv::Mat img;
       cv::hconcat(left_data.frame, right_data.frame, img);
       cv::imshow("frame", img);
@@ -79,6 +75,10 @@ int main(int argc, char *argv[]) {
 
     auto &&disp_norm_data = api->GetStreamData(Stream::DISPARITY_NORMALIZED);
     if (!disp_norm_data.frame.empty()) {
+      double t_c = cv::getTickCount() / cv::getTickFrequency();
+      fps = 1.0/(t_c - t);
+      printf("\b\b\b\b\b\b\b\b\b%.2f", fps);
+      t = t_c;
       cv::imshow("disparity_normalized", disp_norm_data.frame);  // CV_8UC1
     }
 

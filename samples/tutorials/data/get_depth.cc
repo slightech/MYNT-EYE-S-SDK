@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 
   double fps;
   double t = 0.01;
-  std::cout << "fps:" << std::endl;
+  std::cout << "depth fps:" << std::endl;
 
   api->EnableStreamData(Stream::DEPTH);
   api->EnableStreamData(Stream::DISPARITY_NORMALIZED);
@@ -48,10 +48,6 @@ int main(int argc, char *argv[]) {
     auto &&right_data = api->GetStreamData(Stream::RIGHT);
 
     if (!left_data.frame.empty() && !right_data.frame.empty()) {
-      double t_c = cv::getTickCount() / cv::getTickFrequency();
-      fps = 1.0/(t_c - t);
-      printf("\b\b\b\b\b\b\b\b\b%.2f", fps);
-      t = t_c;
       cv::Mat img;
       cv::hconcat(left_data.frame, right_data.frame, img);
       cv::imshow("frame", img);
@@ -60,6 +56,10 @@ int main(int argc, char *argv[]) {
     // this code is for real depth data
     auto &&depth_data = api->GetStreamData(Stream::DEPTH);
     if (!depth_data.frame.empty()) {
+      double t_c = cv::getTickCount() / cv::getTickFrequency();
+      fps = 1.0/(t_c - t);
+      printf("\b\b\b\b\b\b\b\b\b%.2f", fps);
+      t = t_c;
       cv::imshow("depth_real", depth_data.frame);  // CV_16UC1
     }
 

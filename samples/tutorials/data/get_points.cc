@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
 
   double fps;
   double t = 0.01;
-  std::cout << "fps:" << std::endl;
+  std::cout << "points cloud fps:" << std::endl;
 
   cv::namedWindow("frame");
   PCViewer pcviewer;
@@ -46,11 +46,6 @@ int main(int argc, char *argv[]) {
     auto &&left_data = api->GetStreamData(Stream::LEFT);
     auto &&right_data = api->GetStreamData(Stream::RIGHT);
     if (!left_data.frame.empty() && !right_data.frame.empty()) {
-      double t_c = cv::getTickCount() / cv::getTickFrequency();
-      fps = 1.0/(t_c - t);
-      printf("\b\b\b\b\b\b\b\b\b%.2f", fps);
-      t = t_c;
-
       cv::Mat img;
       cv::hconcat(left_data.frame, right_data.frame, img);
       cv::imshow("frame", img);
@@ -58,6 +53,10 @@ int main(int argc, char *argv[]) {
 
     auto &&points_data = api->GetStreamData(Stream::POINTS);
     if (!points_data.frame.empty()) {
+      double t_c = cv::getTickCount() / cv::getTickFrequency();
+      fps = 1.0/(t_c - t);
+      printf("\b\b\b\b\b\b\b\b\b%.2f", fps);
+      t = t_c;
       pcviewer.Update(points_data.frame);
     }
 
