@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include <stdio.h>
 #include <opencv2/highgui/highgui.hpp>
 
 #include "mynteye/api/api.h"
@@ -31,6 +32,10 @@ int main(int argc, char *argv[]) {
 
   api->Start(Source::VIDEO_STREAMING);
 
+  double fps;
+  double t = 0.01;
+  std::cout << "fps:" << std::endl;
+
   cv::namedWindow("frame");
 
   while (true) {
@@ -40,6 +45,11 @@ int main(int argc, char *argv[]) {
     auto &&right_data = api->GetStreamData(Stream::RIGHT_RECTIFIED);
 
     if (!left_data.frame.empty() && !right_data.frame.empty()) {
+      double t_c = cv::getTickCount() / cv::getTickFrequency();
+      fps = 1.0/(t_c - t);
+      printf("\b\b\b\b\b\b\b\b\b%.2f", fps);
+      t = t_c;
+
       cv::Mat img;
       cv::hconcat(left_data.frame, right_data.frame, img);
       cv::imshow("frame", img);

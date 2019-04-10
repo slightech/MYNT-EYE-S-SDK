@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include <stdio.h>
 #include <string>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -28,6 +29,10 @@ int main(int argc, char *argv[]) {
   if (!ok) return 1;
   api->ConfigStreamRequest(request);
 
+  double fps;
+  double t = 0.01;
+  std::cout << "fps:" << std::endl;
+
   api->EnableStreamData(Stream::DEPTH);
   api->EnableStreamData(Stream::DISPARITY_NORMALIZED);
 
@@ -43,6 +48,10 @@ int main(int argc, char *argv[]) {
     auto &&right_data = api->GetStreamData(Stream::RIGHT);
 
     if (!left_data.frame.empty() && !right_data.frame.empty()) {
+      double t_c = cv::getTickCount() / cv::getTickFrequency();
+      fps = 1.0/(t_c - t);
+      printf("\b\b\b\b\b\b\b\b\b%.2f", fps);
+      t = t_c;
       cv::Mat img;
       cv::hconcat(left_data.frame, right_data.frame, img);
       cv::imshow("frame", img);

@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include <stdio.h>
 #include <opencv2/highgui/highgui.hpp>
 
 #include "mynteye/api/api.h"
@@ -28,7 +29,7 @@ int main(int argc, char *argv[]) {
 
   api->setDuplicate(true);
 
-  api->EnablePlugin("plugins/linux-x86_64/libplugin_g_cuda9.1_opencv3.4.0.so");
+  api->EnablePlugin("plugins/libplugin_g_cuda9.2_opencv3.3.1.so");
 
   api->EnableStreamData(Stream::DISPARITY_NORMALIZED);
 
@@ -36,7 +37,9 @@ int main(int argc, char *argv[]) {
 
   cv::namedWindow("frame");
   cv::namedWindow("disparity");
-
+  double fps;
+  double t = 0.01;
+  std::cout << "fps:" << std::endl;
   while (true) {
     api->WaitForStreams();
 
@@ -44,6 +47,10 @@ int main(int argc, char *argv[]) {
     auto &&right_data = api->GetStreamData(Stream::RIGHT);
 
     if (!left_data.frame.empty() && !right_data.frame.empty()) {
+      double t_c = cv::getTickCount() / cv::getTickFrequency();
+      fps = 1.0/(t_c - t);
+      printf("\b\b\b\b\b\b\b\b\b%.2f", fps);
+      t = t_c;
       cv::Mat img;
       cv::hconcat(left_data.frame, right_data.frame, img);
       cv::imshow("frame", img);
