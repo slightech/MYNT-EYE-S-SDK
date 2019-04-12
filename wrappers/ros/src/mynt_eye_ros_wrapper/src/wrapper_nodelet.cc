@@ -1326,7 +1326,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
               camera_info->D.push_back(info_pair->left.D[i]);
             }
           } else {
-            camera_info->distortion_model = "plumb_bob";
+            camera_info->distortion_model = "KANNALA_BRANDT";
             for (size_t i; i < 4; i++) {
               camera_info->D.push_back(0.0);
             }
