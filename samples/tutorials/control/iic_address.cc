@@ -28,15 +28,15 @@ int main(int argc, char *argv[]) {
   api->ConfigStreamRequest(request);
 
   Model model = api->GetModel();
-  if (model == Model::STANDARD210A) {
+  if (model == Model::STANDARD210A || model == Model::STANDARD2) {
     api->SetOptionValue(Option::IIC_ADDRESS_SETTING, 0x31);
     LOG(INFO) << "Set iic address to " << std::hex << "0x"
               << api->GetOptionValue(Option::IIC_ADDRESS_SETTING);
   }
 
-  // MYNTEYE-S1030/S2100 don't support this option
-  if (model == Model::STANDARD2 || model == Model::STANDARD) {
-    LOG(INFO) << "Sorry,MYNTEYE-S1030/S2100 don't support iic address setting";
+  // MYNTEYE-S1030 don't support this option
+  if (model == Model::STANDARD) {
+    LOG(INFO) << "Sorry,MYNTEYE-S1030 don't support iic address setting";
     return 0;
   }
 
