@@ -1296,14 +1296,12 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       if (stream == Stream::RIGHT ||
           stream == Stream::RIGHT_RECTIFIED) {
         if (info_pair->right.distortion_model == "KANNALA_BRANDT") {
-          camera_info->distortion_model =
-              sensor_msgs::distortion_models::EQUIDISTANT;
+          camera_info->distortion_model = "KANNALA_BRANDT";
           for (size_t i; i < 4; i++) {
             camera_info->D.push_back(info_pair->right.D[i]);
           }
         } else if (info_pair->right.distortion_model == "PINHOLE") {
-          camera_info->distortion_model =
-              sensor_msgs::distortion_models::PLUMB_BOB;
+          camera_info->distortion_model = "plumb_bob";
           for (size_t i; i < 5; i++) {
             camera_info->D.push_back(info_pair->right.D[i]);
           }
@@ -1323,21 +1321,18 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           bool is_laserscan = false;
           private_nh_.getParamCached("is_laserscan", is_laserscan);
           if (!is_laserscan) {
-            camera_info->distortion_model =
-              sensor_msgs::distortion_models::EQUIDISTANT;
+            camera_info->distortion_model = "KANNALA_BRANDT";
             for (size_t i; i < 4; i++) {
               camera_info->D.push_back(info_pair->left.D[i]);
             }
           } else {
-            camera_info->distortion_model =
-              sensor_msgs::distortion_models::PLUMB_BOB;
+            camera_info->distortion_model = "plumb_bob";
             for (size_t i; i < 4; i++) {
               camera_info->D.push_back(0.0);
             }
           }
         } else if (info_pair->left.distortion_model == "PINHOLE") {
-          camera_info->distortion_model =
-            sensor_msgs::distortion_models::PLUMB_BOB;
+          camera_info->distortion_model = "plumb_bob";
           for (size_t i; i < 5; i++) {
             camera_info->D.push_back(info_pair->left.D[i]);
           }
