@@ -619,7 +619,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
   void publishOthers(const Stream &stream) {
-    if (getStreamSubscribers(stream) > 0 && !is_published_[stream]) {
+    if ((getStreamSubscribers(stream) > 0 && !is_published_[stream]) ||
+        mono_publishers_[stream].getNumSubscribers() > 0) {
       api_->EnableStreamData(stream);
       api_->SetStreamCallback(
           stream, [this, stream](const api::StreamData &data) {
