@@ -202,7 +202,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     is_started_ = false;
 
     std::map<Stream, std::string> mono_names{{Stream::LEFT, "left_mono"},
-                                             {Stream::RIGHT, "right_mono"}};
+                                             {Stream::RIGHT, "right_mono"},
+                                             {Stream::LEFT_RECTIFIED, "left_rect_mono"},
+                                             {Stream::RIGHT_RECTIFIED, "right_rect_mono"}};
 
     std::map<Stream, std::string> mono_topics{};
     for (auto &&it = mono_names.begin(); it != mono_names.end(); ++it) {
@@ -317,7 +319,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
       for (auto &&it = mono_topics.begin(); it != mono_topics.end(); ++it) {
         auto &&topic = mono_topics[it->first];
-        if (it->first == Stream::LEFT || it->first == Stream::RIGHT) {
+        if (it->first == Stream::LEFT ||
+            it->first == Stream::RIGHT ||
+            it->first == Stream::RIGHT_RECTIFIED ||
+            it->first == Stream::LEFT_RECTIFIED) {
           mono_publishers_[it->first] = it_mynteye.advertise(topic, 1);
         }
         NODELET_INFO_STREAM("Advertized on topic " << topic);
@@ -592,6 +597,10 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       return;
     } else if (stream == Stream::POINTS) {
       publishPoints(data, seq, stamp);
+    } else if (stream == Stream::LEFT_RECTIFIED ||
+        stream == Stream::RIGHT_RECTIFIED) {
+      publishMono(stream, data, seq, stamp);
+      publishCamera(stream, data, seq, stamp);
     } else {
       publishCamera(stream, data, seq, stamp);
     }
