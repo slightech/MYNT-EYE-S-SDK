@@ -9,11 +9,11 @@ To set the IIC address, set ``Option::IIC_ADDRESS_SETTING``.
 
 
 .. Attention::
-  Only support S210A
+  Only support S210A/2100
 
 Reference Code:
 
-s210a：
+s210a/s2100：
 
 .. code-block:: c++
 
@@ -24,7 +24,7 @@ s210a：
   if (!ok) return 1;
   api->ConfigStreamRequest(request);
   Model model = api->GetModel();
-  if (model == Model::STANDARD210A) {
+  if (model == Model::STANDARD210A || model == Model::STANDARD2) {
     api->SetOptionValue(Option::IIC_ADDRESS_SETTING, 0x31);
     LOG(INFO) << "Set iic address to " << std::hex << "0x"
               << api->GetOptionValue(Option::IIC_ADDRESS_SETTING);
@@ -33,7 +33,7 @@ s210a：
 
 Reference running results on Linux:
 
-s210a：
+s210a/s2100：
 
 .. code-block:: bash
 

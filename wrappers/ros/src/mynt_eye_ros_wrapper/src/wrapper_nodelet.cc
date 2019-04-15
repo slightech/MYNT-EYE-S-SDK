@@ -46,6 +46,8 @@ using namespace configuru;  // NOLINT
 #define FULL_PRECISION \
   std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10)
 
+static const std::size_t MAXSIZE = 4;
+
 MYNTEYE_BEGIN_NAMESPACE
 
 namespace enc = sensor_msgs::image_encodings;
@@ -918,121 +920,111 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   }
 
   void timestampAlign() {
-    static bool get_first_acc = false;
-    static bool get_first_gyro = false;
-    static bool has_gyro = false;
-    static ImuData acc;
-    static ImuData gyro;
-
-    if (!get_first_acc && imu_accel_ != nullptr) {
-      acc = *imu_accel_;
-      imu_accel_ = nullptr;
-      get_first_acc = true;
-      return;
-    }
-
-    if (!get_first_gyro && imu_gyro_ != nullptr) {
-      gyro = *imu_gyro_;
-      imu_gyro_ = nullptr;
-      get_first_gyro = true;
-      return;
-    }
+    static std::vector<ImuData> acc_buf;
+    static std::vector<ImuData> gyro_buf;
 
     if (imu_accel_ != nullptr) {
-      if (!has_gyro) {
-        acc = *imu_accel_;
-        imu_accel_ = nullptr;
-        return;
-      }
-
-      if (acc.timestamp <= gyro.timestamp) {
-        ImuData acc_temp;
-        acc_temp = *imu_accel_;
-        acc_temp.timestamp = gyro.timestamp;
-
-        double k = static_cast<double>(imu_accel_->timestamp - acc.timestamp);
-        k = static_cast<double>(gyro.timestamp - acc.timestamp) / k;
-
-        acc_temp.accel[0] = acc.accel[0] +
-                            (imu_accel_->accel[0] - acc.accel[0]) * k;
-        acc_temp.accel[1] = acc.accel[1] +
-                            (imu_accel_->accel[1] - acc.accel[1]) * k;
-        acc_temp.accel[2] = acc.accel[2] +
-                            (imu_accel_->accel[2] - acc.accel[2]) * k;
-
-        acc = *imu_accel_;
-        *imu_accel_ = acc_temp;
-        imu_gyro_.reset(new ImuData(gyro));
-        has_gyro = false;
-        return;
-      } else {
-        acc = *imu_accel_;
-        imu_accel_ = nullptr;
-        return;
-      }
+      acc_buf.push_back(*imu_accel_);
     }
 
     if (imu_gyro_ != nullptr) {
-      has_gyro = true;
-      gyro = *imu_gyro_;
-      imu_gyro_ = nullptr;
+      gyro_buf.push_back(*imu_gyro_);
+    }
+
+    imu_accel_ = nullptr;
+    imu_gyro_ = nullptr;
+
+    imu_align_.clear();
+
+    if (acc_buf.empty() || gyro_buf.empty()) {
       return;
+    }
+
+    ImuData imu_temp;
+    auto itg = gyro_buf.end();
+    auto ita = acc_buf.end();
+    for (auto it_gyro = gyro_buf.begin();
+        it_gyro != gyro_buf.end(); it_gyro++) {
+      for (auto it_acc = acc_buf.begin();
+          it_acc+1 != acc_buf.end(); it_acc++) {
+        if (it_gyro->timestamp >= it_acc->timestamp
+            && it_gyro->timestamp <= (it_acc+1)->timestamp) {
+          double k = static_cast<double>((it_acc+1)->timestamp - it_acc->timestamp);
+          k = static_cast<double>(it_gyro->timestamp - it_acc->timestamp) / k;
+
+          imu_temp = *it_gyro;
+          imu_temp.accel[0] = it_acc->accel[0] + ((it_acc+1)->accel[0] - it_acc->accel[0]) * k;
+          imu_temp.accel[1] = it_acc->accel[1] + ((it_acc+1)->accel[1] - it_acc->accel[1]) * k;
+          imu_temp.accel[2] = it_acc->accel[2] + ((it_acc+1)->accel[2] - it_acc->accel[2]) * k;
+
+          imu_align_.push_back(imu_temp);
+
+          itg = it_gyro;
+          ita = it_acc;
+        }
+      }
+    }
+
+    if (itg != gyro_buf.end()) {
+      gyro_buf.erase(gyro_buf.begin(), itg + 1);
+    }
+
+    if (ita != acc_buf.end()) {
+      acc_buf.erase(acc_buf.begin(), ita);
     }
   }
 
   void publishImuBySync() {
     timestampAlign();
 
-    if (imu_accel_ == nullptr || imu_gyro_ == nullptr) {
-      return;
+    for (int i = 0; i < imu_align_.size(); i++) {
+      sensor_msgs::Imu msg;
+
+      msg.header.seq = imu_sync_count_;
+      ros::Time stamp = checkUpImuTimeStamp(imu_align_[i].timestamp);
+      msg.header.stamp = stamp;
+      msg.header.frame_id = imu_frame_id_;
+
+      // acceleration should be in m/s^2 (not in g's)
+      msg.linear_acceleration.x = imu_align_[i].accel[0] * gravity_;
+      msg.linear_acceleration.y = imu_align_[i].accel[1] * gravity_;
+      msg.linear_acceleration.z = imu_align_[i].accel[2] * gravity_;
+
+      msg.linear_acceleration_covariance[0] = 0;
+      msg.linear_acceleration_covariance[1] = 0;
+      msg.linear_acceleration_covariance[2] = 0;
+
+      msg.linear_acceleration_covariance[3] = 0;
+      msg.linear_acceleration_covariance[4] = 0;
+      msg.linear_acceleration_covariance[5] = 0;
+
+      msg.linear_acceleration_covariance[6] = 0;
+      msg.linear_acceleration_covariance[7] = 0;
+      msg.linear_acceleration_covariance[8] = 0;
+
+      // velocity should be in rad/sec
+      msg.angular_velocity.x = imu_align_[i].gyro[0] * M_PI / 180;
+      msg.angular_velocity.y = imu_align_[i].gyro[1] * M_PI / 180;
+      msg.angular_velocity.z = imu_align_[i].gyro[2] * M_PI / 180;
+
+      msg.angular_velocity_covariance[0] = 0;
+      msg.angular_velocity_covariance[1] = 0;
+      msg.angular_velocity_covariance[2] = 0;
+
+      msg.angular_velocity_covariance[3] = 0;
+      msg.angular_velocity_covariance[4] = 0;
+      msg.angular_velocity_covariance[5] = 0;
+
+      msg.angular_velocity_covariance[6] = 0;
+      msg.angular_velocity_covariance[7] = 0;
+      msg.angular_velocity_covariance[8] = 0;
+
+      pub_imu_.publish(msg);
+
+      publishTemperature(imu_align_[i].temperature, imu_sync_count_, stamp);
+
+      ++imu_sync_count_;
     }
-    sensor_msgs::Imu msg;
-    ros::Time stamp = checkUpImuTimeStamp(imu_accel_->timestamp);
-    msg.header.seq = imu_sync_count_;
-    msg.header.stamp = stamp;
-    msg.header.frame_id = imu_frame_id_;
-
-    // acceleration should be in m/s^2 (not in g's)
-    msg.linear_acceleration.x = imu_accel_->accel[0] * gravity_;
-    msg.linear_acceleration.y = imu_accel_->accel[1] * gravity_;
-    msg.linear_acceleration.z = imu_accel_->accel[2] * gravity_;
-
-    msg.linear_acceleration_covariance[0] = 0;
-    msg.linear_acceleration_covariance[1] = 0;
-    msg.linear_acceleration_covariance[2] = 0;
-
-    msg.linear_acceleration_covariance[3] = 0;
-    msg.linear_acceleration_covariance[4] = 0;
-    msg.linear_acceleration_covariance[5] = 0;
-
-    msg.linear_acceleration_covariance[6] = 0;
-    msg.linear_acceleration_covariance[7] = 0;
-    msg.linear_acceleration_covariance[8] = 0;
-
-    // velocity should be in rad/sec
-    msg.angular_velocity.x = imu_gyro_->gyro[0] * M_PI / 180;
-    msg.angular_velocity.y = imu_gyro_->gyro[1] * M_PI / 180;
-    msg.angular_velocity.z = imu_gyro_->gyro[2] * M_PI / 180;
-
-    msg.angular_velocity_covariance[0] = 0;
-    msg.angular_velocity_covariance[1] = 0;
-    msg.angular_velocity_covariance[2] = 0;
-
-    msg.angular_velocity_covariance[3] = 0;
-    msg.angular_velocity_covariance[4] = 0;
-    msg.angular_velocity_covariance[5] = 0;
-
-    msg.angular_velocity_covariance[6] = 0;
-    msg.angular_velocity_covariance[7] = 0;
-    msg.angular_velocity_covariance[8] = 0;
-
-    pub_imu_.publish(msg);
-
-    publishTemperature(imu_accel_->temperature, imu_sync_count_, stamp);
-
-    ++imu_sync_count_;
-    imu_accel_ = nullptr;
-    imu_gyro_ = nullptr;
   }
 
   void publishTemperature(
@@ -1334,7 +1326,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
               camera_info->D.push_back(info_pair->left.D[i]);
             }
           } else {
-            camera_info->distortion_model = "plumb_bob";
+            camera_info->distortion_model = "KANNALA_BRANDT";
             for (size_t i; i < 4; i++) {
               camera_info->D.push_back(0.0);
             }
@@ -1581,6 +1573,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   bool is_started_;
   int frame_rate_;
   bool is_intrinsics_enable_;
+  std::vector<ImuData> imu_align_;
 };
 
 MYNTEYE_END_NAMESPACE
