@@ -3,6 +3,13 @@
 Changelog
 =========
 
+2019-04-15(v2.3.6)
+-------------------
+
+1. Fix imu align bug of ros wrapper
+2. Fix 14.04 complie error of ros wrapper
+3. Support set iic address for s2100
+
 2019-04-01(v2.3.5)
 -------------------
 
@@ -21,10 +28,8 @@ Changelog
 7. Modify default orientation of point in ROS.
 
 
-
 2019-03-18(v2.3.4)
 -------------------
-
 
 1. Add API to get subsidiary chip&ISP's version(Depend on S2100/S210A 1.1 firmware & 1.0 subsidiary chip firmware).
 
