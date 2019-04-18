@@ -9,36 +9,31 @@ If you wanna run ORB_SLAM2 with MYNT EYE camera, please follow the steps:
 
 1. Download `MYNT-EYE-S-SDK <https://github.com/slightech/MYNT-EYE-S-SDK.git>`_ and follow steps to install.
 2. Follow the normal procedure to install ORB_SLAM2.
-3. Update ``distortion_parameters`` and ``projection_parameters`` to ``<ORB_SLAM2>/config/mynteye_*.yaml``.
-4. Run examples by MYNT® EYE.
+3. Run examples by MYNT® EYE.
 
-Binocular camera sample
-------------------------
-
-* Calibrate a stereo camera with `ROS-StereoCalibration <http://wiki.ros.org/camera_calibration/Tutorials/StereoCalibration>`_ or OpenCV, and then update parameters to ``<ORB_SLAM2>/config/mynteye_s_stereo.yaml``.
-
-* Execute ``build.sh``:
+Prerequisites
+--------------
 
 .. code-block:: bash
 
-  chmod +x build.sh
-  ./build.sh
-
-* Run stereo sample using the follow type:
-
-.. code-block:: bash
-
-  ./Examples/Stereo/stereo_mynt_s ./Vocabulary/ORBvoc.txt ./config/mynteye_s_stereo.yaml true /mynteye/left/image_raw /mynteye/right/image_raw
-
+  sudo apt-get -y install libglew-dev cmake
+  cd ~
+  git clone https://github.com/stevenlovegrove/Pangolin.git
+  cd Pangolin
+  mkdir build
+  cd build
+  cmake ..
+  cmake --build .
+  sudo make install
 
 Building the nodes for mono and stereo (ROS)
 --------------------------------------------
 
-* Add the path including ``Examples/ROS/ORB_SLAM2`` to the ``ROS_PACKAGE_PATH`` environment variable. Open ``.bashrc`` file and add at the end the following line. Replace ``PATH`` by the folder where you cloned ORB_SLAM2:
+* Add the path including ``Examples/ROS/ORB_SLAM2`` to the ``ROS_PACKAGE_PATH`` environment variable. Open ``.bashrc`` file and add at the end the following line.
 
 .. code-block:: bash
 
-  export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:PATH/ORB_SLAM2/Examples/ROS
+  export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:~/catkin_ws/src/MYNT-EYE-ORB-SLAM2-Sample
 
 * Execute `build_ros.sh`:
 
@@ -50,8 +45,6 @@ Building the nodes for mono and stereo (ROS)
 
 Stereo_ROS Example
 ~~~~~~~~~~~~~~~~~~~
-
-  * Reference ``Get camera calibration parameters`` in :ref:`slam_okvis` to get ``distortion_parameters`` and ``projection_parameters`` , and update ``<ORB_SLAM2>/config/mynteye_s_stereo.yaml`` .
 
   * Launch ORB_SLAM2 ``Stereo_ROS``
 
@@ -68,4 +61,4 @@ Stereo_ROS Example
 
 .. code-block:: bash
 
-  rosrun ORB_SLAM2 mynteye_s_stereo ./Vocabulary/ORBvoc.txt ./config/mynteye_s_stereo.yaml true /mynteye/left/image_raw /mynteye/right/image_raw
+  rosrun ORB_SLAM2 mynteye_s_stereo ./Vocabulary/ORBvoc.txt ./config/mynteye_s_stereo.yaml false /mynteye/left_rect/image_rect /mynteye/right_rect/image_rect
