@@ -9,8 +9,7 @@ If you wanna run VINS-Mono with MYNT EYE camera, please follow the steps:
 
 1. Download `MYNT-EYE-S-SDK <https://github.com/slightech/MYNT-EYE-S-SDK.git>`_ and install mynt_eye_ros_wrapper.
 2. Follow the normal procedure to install VINS-Mono.
-3. Update ``distortion_parameters`` and ``projection_parameters`` to `here <https://github.com/slightech/MYNT-EYE-VINS-Sample/blob/mynteye/config/mynteye/mynteye_s_config.yaml>`_ .
-4. Run mynt_eye_ros_wrapper and VINS-Mono.
+3. Run mynt_eye_ros_wrapper and VINS-Mono.
 
 Install ROS Kinetic conveniently (if already installed, please ignore)
 ----------------------------------------------------------------------
@@ -21,6 +20,22 @@ Install ROS Kinetic conveniently (if already installed, please ignore)
   wget https://raw.githubusercontent.com/oroca/oroca-ros-pkg/master/ros_install.sh && \
   chmod 755 ./ros_install.sh && bash ./ros_install.sh catkin_ws kinetic
 
+Install Ceres
+--------------
+
+.. code-block:: bash
+
+  cd ~
+  git clone https://ceres-solver.googlesource.com/ceres-solver
+  sudo apt-get -y install cmake libgoogle-glog-dev libatlas-base-dev libeigen3-dev libsuitesparse-dev
+  sudo add-apt-repository ppa:bzindovic/suitesparse-bugfix-1319687
+  sudo apt-get update && sudo apt-get install libsuitesparse-dev
+  mkdir ceres-bin
+  cd ceres-bin
+  cmake ../ceres-solver
+  make -j3
+  sudo make install
+
 Install MYNT-EYE-VINS-Sample
 ------------------------------
 
@@ -28,28 +43,14 @@ Install MYNT-EYE-VINS-Sample
 
   mkdir -p ~/catkin_ws/src
   cd ~/catkin_ws/src
-  git clone -b mynteye https://github.com/slightech/MYNT-EYE-VINS-Sample.git
+  git clone https://github.com/slightech/MYNT-EYE-VINS-Sample.git
   cd ..
   catkin_make
   source devel/setup.bash
   echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
   source ~/.bashrc
 
-Get image calibration parameters
----------------------------------
-
-Use MYNT® EYE's left eye camera and IMU. By `MYNT-EYE-S-SDK <https://github.com/slightech/MYNT-EYE-S-SDK.git>`_ API ``GetIntrinsics()`` function and ``GetExtrinsics()`` function, you can "get the image calibration parameters of the current working device:
-
-.. code-block:: bash
-
-  cd MYNT-EYE-S-SDK
-  ./samples/_output/bin/tutorials/get_img_params
-
-After running the above type, pinhole's ``distortion_parameters`` and ``projection_parameters`` is obtained , and then update to `here <https://github.com/slightech/MYNT-EYE-VINS-Sample/blob/mynteye-s/config/mynteye/mynteye_config.yaml>`_ .
-
-.. tip::
-
-  You can get the camera model of device when get camera calibration parameters, if model is equidistant you need calibrate pinhole model by yourself or reference :ref:`write_img_params` to write a default pinhole config file to your device.
+(if you fail in this step, try to find another computer with clean system or reinstall Ubuntu and ROS)
 
 Run VINS-Mono with MYNT® EYE
 -----------------------------
@@ -68,7 +69,3 @@ Run VINS-Mono with MYNT® EYE
 
   cd ~/catkin_ws
   roslaunch vins_estimator mynteye_s.launch
-
-.. note::
-
-  If you want to use a fish-eye camera model, please click `here <https://github.com/slightech/MYNT-EYE-VINS-Sample/tree/mynteye-s/calibration_images>`_ .

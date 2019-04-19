@@ -24,7 +24,7 @@ copyright = '2018, MYNTAI'
 author = 'MYNTAI'
 
 # The short X.Y version
-version = '2.3.6'
+version = '2.3.7'
 # The full version, including alpha/beta/rc tags
 release = version
 
