@@ -39,6 +39,8 @@ Building the nodes for mono and stereo (ROS)
 
 .. code-block:: bash
 
+  chmod +x build.sh
+  ./build.sh
   chmod +x build_ros.sh
   ./build_ros.sh
 
