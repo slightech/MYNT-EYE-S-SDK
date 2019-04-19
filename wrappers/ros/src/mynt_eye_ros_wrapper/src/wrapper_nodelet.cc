@@ -104,7 +104,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
   ros::Time hardTimeToSoftTime(std::uint64_t _hard_time) {
     static bool isInited = false;
-    static double soft_time_begin(0);
+    static std::uint32_t soft_time_begin(0);
     static std::uint64_t hard_time_begin(0);
 
     if (false == isInited) {
@@ -113,10 +113,30 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       isInited = true;
     }
 
+    std::uint64_t time_ns_detal = (_hard_time - hard_time_begin);
+    std::uint64_t time_ns_detal_s = time_ns_detal / 1000000;
+    std::uint64_t time_ns_detal_ns = time_ns_detal % 1000000;
+
     return ros::Time(
-        static_cast<double>(soft_time_begin +
-        static_cast<double>(_hard_time - hard_time_begin) * 0.000001f));
+                     soft_time_begin + time_ns_detal_s,
+                     time_ns_detal_ns * 1000);
   }
+
+  // ros::Time hardTimeToSoftTime(std::uint64_t _hard_time) {
+  //   static bool isInited = false;
+  //   static double soft_time_begin(0);
+  //   static std::uint64_t hard_time_begin(0);
+
+  //   if (false == isInited) {
+  //     soft_time_begin = ros::Time::now().toSec();
+  //     hard_time_begin = _hard_time;
+  //     isInited = true;
+  //   }
+
+  //   return ros::Time(
+  //       static_cast<double>(soft_time_begin +
+  //       static_cast<double>(_hard_time - hard_time_begin) * 0.000001f));
+  // }
 
   inline bool is_overflow(std::uint64_t now,
       std::uint64_t pre) {
