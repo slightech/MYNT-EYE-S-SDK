@@ -3,6 +3,12 @@
 Changelog
 =========
 
+2019-04-19(v2.3.7)
+-------------------
+1. Improve VINS-Fusion supporting
+2. Improve ORB-SLAM2 supporting
+
+
 2019-04-15(v2.3.6)
 -------------------
 
