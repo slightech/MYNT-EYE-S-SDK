@@ -1,6 +1,6 @@
 .. _firmware_stm_update:
 
-How to upgrade the auxiliary chip
+How to update the Auxiliary Chip
 ==================================
 
 Update auxiliary chip(Only Support S2100/S210A)
