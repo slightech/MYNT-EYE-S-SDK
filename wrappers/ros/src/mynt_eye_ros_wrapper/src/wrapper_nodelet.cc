@@ -1322,6 +1322,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     sensor_msgs::CameraInfo *camera_info = new sensor_msgs::CameraInfo();
     camera_info_ptrs_[stream] = sensor_msgs::CameraInfoPtr(camera_info);
     auto info_pair = api_->GetCameraROSMsgInfoPair();
+    camera_info->width = info_pair->left.width;
+    camera_info->height = info_pair->left.height;
     if (is_intrinsics_enable_) {
       if (stream == Stream::RIGHT ||
           stream == Stream::RIGHT_RECTIFIED) {
