@@ -25,7 +25,7 @@ if(MSVC)
   endif()
 endif()
 
-## mynteyed
+## mynteye
 
 find_package(mynteye REQUIRED)
 message(STATUS "Found mynteye: ${mynteye_VERSION}")
@@ -51,7 +51,7 @@ include_directories(
   ${OpenCV_INCLUDE_DIRS}
 )
 
-## mynteyed_demo
+## mynteye_demo
 
 add_executable(mynteye_demo mynteye_demo.cc)
 target_link_libraries(mynteye_demo mynteye ${OpenCV_LIBS})
@@ -65,7 +65,7 @@ target_link_libraries(mynteye_demo mynteye ${OpenCV_LIBS})
 #   cmake -G "Visual Studio 15 2017 Win64" ..
 #   msbuild.exe ALL_BUILD.vcxproj /property:Configuration=Release
 #
-#   .\Release\mynteyed_demo.exe
+#   .\Release\mynteye_demo.exe
 #   
 #   # unix
 #   cmake ..
