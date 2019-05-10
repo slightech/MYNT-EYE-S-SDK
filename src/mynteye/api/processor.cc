@@ -300,10 +300,10 @@ api::StreamData Processor::GetStreamData(const Stream &stream) {
       }
       auto streams = getTargetStreams();
       if (output != nullptr) {
-        int num = 0;
         for (auto it : streams) {
           if (it.stream == stream) {
-            if (num == 1) {
+            if (it.stream == Stream::LEFT ||
+                it.stream == Stream::LEFT_RECTIFIED) {
               if (!is_enable_cd) {
                 if (output->first_data &&
                   last_frame_id_cd == output->first_data->frame_id) {
@@ -313,7 +313,8 @@ api::StreamData Processor::GetStreamData(const Stream &stream) {
                 last_frame_id_cd = output->first_data->frame_id;
               }
               return obj_data_first(output);
-            } else {
+            } else if (it.stream == Stream::RIGHT ||
+                       it.stream == Stream::RIGHT_RECTIFIED) {
               // last_frame_id_cd = output->second_data->frame_id;
               if (!is_enable_cd) {
                 if (output->second_data &&
@@ -325,7 +326,6 @@ api::StreamData Processor::GetStreamData(const Stream &stream) {
               return obj_data_second(output);
             }
           }
-          num++;
         }
       }
       VLOG(2) << "Frame not ready now";
