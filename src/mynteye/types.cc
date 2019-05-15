@@ -340,14 +340,6 @@ std::ostream &operator<<(std::ostream &os, const CameraROSMsgInfo &info) {
 std::ostream &operator<<(std::ostream &os, const CameraROSMsgInfoPair &info) {
   os << "left:\n" << info.left << std::endl;
   os << "right:\n" << info.right << std::endl;
-  os << "base R:";
-  for (size_t i = 0; i < 9; i++)
-    os << info.R[i] << ",";
-  os << std::endl << "base P:";
-  for (size_t i = 0; i < 12; i++)
-    os << info.P[i] << ",";
-  os << std::endl;
-
   return os;
 }
 
