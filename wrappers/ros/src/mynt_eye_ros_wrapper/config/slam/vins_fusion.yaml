@@ -19,4 +19,4 @@
 standard2/request_index: 1
 
 # standard/frame_rate range: {10,15,20,25,30,35,40,45,50,55,60}
-standard/frame_rate: 20
+standard/frame_rate: 15
