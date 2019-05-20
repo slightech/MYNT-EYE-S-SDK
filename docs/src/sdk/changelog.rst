@@ -3,6 +3,11 @@
 Changelog
 =========
 
+2019-05-20(v2.3.8)
+-------------------
+1. Improve VINS-Fusion supporting
+2. Improve VINS-MONO supporting
+
 2019-04-19(v2.3.7)
 -------------------
 1. Improve VINS-Fusion supporting
