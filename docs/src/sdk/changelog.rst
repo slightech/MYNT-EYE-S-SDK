@@ -7,6 +7,7 @@ Changelog
 -------------------
 1. Improve VINS-Fusion supporting
 2. Improve VINS-MONO supporting
+3. Fix left/right rect image order error
 
 2019-04-19(v2.3.7)
 -------------------
