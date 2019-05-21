@@ -103,12 +103,12 @@
         - 'image_transport/compressedDepth'
       </rosparam>
     </group>
-    <group ns="/right_rect_mono">
+    <group ns="/mynteye/right_rect_mono">
       <rosparam param="disable_pub_plugins">
         - 'image_transport/compressedDepth'
       </rosparam>
     </group>
-    <group ns="/left_rect_mono">
+    <group ns="/mynteye/left_rect_mono">
       <rosparam param="disable_pub_plugins">
         - 'image_transport/compressedDepth'
       </rosparam>
