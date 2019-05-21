@@ -122,6 +122,13 @@ std::size_t from_data(ImuIntrinsics *in, const std::uint8_t *data,
       }
     }
     i += 72;
+  } else {
+    // assembly
+    for (std::size_t j = 0; j < 3; j++) {
+      for (std::size_t k = 0; k < 3; k++) {
+        in->assembly[j][k] = 0.0;
+      }
+    }
   }
   // drift
   for (std::size_t j = 0; j < 3; j++) {
