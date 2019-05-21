@@ -13,15 +13,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -march=native")
 # packages
 
 if(MSVC)
-  set(SDK_ROOT "$ENV{MYNTEYE_SDK_ROOT}")
+  set(SDK_ROOT "$ENV{MYNTEYES_SDK_ROOT}")
   if(SDK_ROOT)
-    message(STATUS "MYNTEYE_SDK_ROOT: ${SDK_ROOT}")
+    message(STATUS "MYNTEYES_SDK_ROOT: ${SDK_ROOT}")
     list(APPEND CMAKE_PREFIX_PATH
       "${SDK_ROOT}/lib/cmake"
       "${SDK_ROOT}/3rdparty/opencv/build"
     )
   else()
-    message(FATAL_ERROR "MYNTEYE_SDK_ROOT not found, please install SDK firstly")
+    message(FATAL_ERROR "MYNTEYES_SDK_ROOT not found, please install SDK firstly")
   endif()
 endif()
 
