@@ -168,12 +168,10 @@ std::size_t from_data(ImuIntrinsics *in, const std::uint8_t *data,
     for (std::size_t j = 0; j < 2; j++) {
       in->x[j] = 0.0;
     }
-    i += 16;
     // y
     for (std::size_t j = 0; j < 2; j++) {
       in->y[j] = 0.0;
     }
-    i += 16;
     // z
     for (std::size_t j = 0; j < 2; j++) {
       in->z[j] = 0.0;
