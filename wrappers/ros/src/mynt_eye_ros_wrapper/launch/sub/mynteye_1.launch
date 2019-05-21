@@ -103,6 +103,16 @@
         - 'image_transport/compressedDepth'
       </rosparam>
     </group>
+    <group ns="/right_rect_mono">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
+    <group ns="/left_rect_mono">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+      </rosparam>
+    </group>
     <group ns="$(arg left_mono_topic)">
       <rosparam param="disable_pub_plugins">
         - 'image_transport/compressedDepth'
