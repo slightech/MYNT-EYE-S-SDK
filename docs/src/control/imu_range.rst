@@ -15,7 +15,7 @@ To set the range of accelerometer and gyroscope, set ``Option::ACCELEROMETER_RAN
 
   For mynteye s2100/s210a, the available settings are:
   
-  * The effective range of accelerometer(unit:g): 6, 12, 24, 32.
+  * The effective range of accelerometer(unit:g): 6, 12, 24, 48.
   * The effective range of gyroscope(unit:deg/s): 250, 500, 1000, 2000, 4000.
 
 Reference Code:
@@ -50,7 +50,7 @@ s2100/s210a：
   if (!ok) return 1;
   api->ConfigStreamRequest(request);
 
-  // ACCELEROMETER_RANGE values: 6, 12, 24, 32
+  // ACCELEROMETER_RANGE values: 6, 12, 24, 48
   api->SetOptionValue(Option::ACCELEROMETER_RANGE, 6);
   // GYROSCOPE_RANGE values: 250, 500, 1000, 2000, 4000
   api->SetOptionValue(Option::GYROSCOPE_RANGE, 1000);

@@ -8,7 +8,7 @@ SDK is built on CMake and can be used cross multiple platforms such as "Linux, W
 These are the platforms that can be used:
 
 * Windows 10
-* Ubuntu 18.04 / 16.04 / 14.04
+* Ubuntu 18.04.1 / 16.04.6 / 14.04.5
 * Jetson TX1/TX2 / Xavier
 * firefly RK3399
 

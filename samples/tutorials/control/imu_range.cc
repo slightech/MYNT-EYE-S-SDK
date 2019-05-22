@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 
   // Set imu range for S2000/S2100/S210A
   if (model == Model::STANDARD2 || model == Model::STANDARD210A) {
-    // ACCELEROMETER_RANGE values: 6, 12, 24, 32
+    // ACCELEROMETER_RANGE values: 6, 12, 24, 48
     api->SetOptionValue(Option::ACCELEROMETER_RANGE, 6);
     // GYROSCOPE_RANGE values: 250, 500, 1000, 2000, 4000
     api->SetOptionValue(Option::GYROSCOPE_RANGE, 1000);

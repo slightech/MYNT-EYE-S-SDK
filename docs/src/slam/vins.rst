@@ -20,37 +20,40 @@ Install ROS Kinetic conveniently (if already installed, please ignore)
   wget https://raw.githubusercontent.com/oroca/oroca-ros-pkg/master/ros_install.sh && \
   chmod 755 ./ros_install.sh && bash ./ros_install.sh catkin_ws kinetic
 
-Install Ceres
---------------
+Install Docker
+---------------
 
 .. code-block:: bash
 
-  cd ~
-  git clone https://ceres-solver.googlesource.com/ceres-solver
-  sudo apt-get -y install cmake libgoogle-glog-dev libatlas-base-dev libeigen3-dev libsuitesparse-dev
-  sudo add-apt-repository ppa:bzindovic/suitesparse-bugfix-1319687
-  sudo apt-get update && sudo apt-get install libsuitesparse-dev
-  mkdir ceres-bin
-  cd ceres-bin
-  cmake ../ceres-solver
-  make -j3
-  sudo make install
+  sudo apt-get update
+  sudo apt-get install \
+      apt-transport-https \
+      ca-certificates \
+      curl \
+      gnupg-agent \
+      software-properties-common
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  sudo add-apt-repository \
+     "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+     $(lsb_release -cs) \
+     stable"
+  sudo apt-get update
+  sudo apt-get install docker-ce docker-ce-cli containerd.io
+
+Then add your account to ``docker`` group by ``sudo usermod -aG docker $YOUR_USER_NAME`` . Relaunch the terminal or logout and re-login if you get ``Permission denied`` error.
+
+To complie with docker,we recommend that you should use more than 16G RAM, or ensure that the RAM and virtual memory space is greater than 16G.
 
 Install MYNT-EYE-VINS-Sample
 ------------------------------
 
 .. code-block:: bash
 
-  mkdir -p ~/catkin_ws/src
-  cd ~/catkin_ws/src
-  git clone https://github.com/slightech/MYNT-EYE-VINS-Sample.git
-  cd ..
-  catkin_make
-  source devel/setup.bash
-  echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
-  source ~/.bashrc
+  git clone -b docker_feat https://github.com/slightech/MYNT-EYE-VINS-Sample.git
+  cd MYNT-EYE-VINS-Sample/docker
+  make build
 
-(if you fail in this step, try to find another computer with clean system or reinstall Ubuntu and ROS)
+Note that the docker building process may take a while depends on your network and machine. After VINS-Mono successfully started, open another terminal and play your bag file, then you should be able to see the result. If you need modify the code, simply run ``./run.sh LAUNCH_FILE_NAME`` after your changes.
 
 Run VINS-Mono with MYNT® EYE
 -----------------------------
@@ -61,11 +64,12 @@ Run VINS-Mono with MYNT® EYE
 
   cd (local path of MYNT-EYE-S-SDK)
   source ./wrappers/ros/devel/setup.bash
-  roslaunch mynt_eye_ros_wrapper mynteye.launch
+  roslaunch mynt_eye_ros_wrapper vins_mono.launch
 
 2. Open another terminal and run vins
 
 .. code-block:: bash
 
-  cd ~/catkin_ws
-  roslaunch vins_estimator mynteye_s.launch
+  cd path/to/VINS-Mono/docker
+  ./run.sh mynteye_s.launch
+  # ./run.sh mynteye_s2100.launch  # mono with s2100

@@ -51,9 +51,17 @@ The ROS file is structured like follows:
   <sdk>/wrappers/ros/
   ├─src/
   │  └─mynt_eye_ros_wrapper/
+  │     ├─config/
+  │     │  ├─device/
+  │     │     ├─standard.yaml   # S1030
+  │     │     └─standard2.yaml  # S2100/S210A
+  │     │  ├─laserscan/
+  │     │  ├─process/
+  │     │  └─...
   │     ├─launch/
   │     │  ├─display.launch
   │     │  └─mynteye.launch
+  │     │  └─...
   │     ├─msg/
   │     ├─rviz/
   │     ├─src/
@@ -64,34 +72,40 @@ The ROS file is structured like follows:
   │     └─package.xml
   └─README.md
 
-In ``mynteye.launch``, you can configure the topics and frame_ids, decide which data to enable, and set the control options. Please set ``gravity`` to the local gravity acceleration.
+In ``mynteye.launch``, you can configure the topics and frame_ids, decide which data to enable, ``standard.yaml`` (standard2.yaml is S2100/S210A config file) can set parameters for device. Please set ``gravity`` to the local gravity acceleration.
+
+
+standard.yaml/standard2.yaml:
 
 .. code-block:: xml
 
   # s2100/s210a modify frame/resolution
-  <arg name="request_index" default="$(arg index_s2_2)" />
+  standard2/request_index: 2
 
   # s1030 modify frame/imu hz
-  <!-- standard/frame_rate range: {10,15,20,25,30,35,40,45,50,55,60} -->
-  <arg name="standard/frame_rate" default="-1" />
-  <!-- <arg name="standard/frame_rate" default="25" /> -->
+  # standard/frame_rate range: {10,15,20,25,30,35,40,45,50,55,60}
+  standard/frame_rate: -1
+  # standard/frame_rate: 25
 
-  <!-- standard/imu_frequency range: {100,200,250,333,500} -->
-  <arg name="standard/imu_frequency" default="-1" />
-  <!-- <arg name="standard/imu_frequency" default="200" /> -->
+  # standard/imu_frequency range: {100,200,250,333,500}
+  standard/imu_frequency: -1
+  # standard/imu_frequency: 200
   ...
 
   # s2100 modify brightness
-  <!-- standard2/brightness range: [0,240] -->
-  <arg name="standard2/brightness" default="-1" />
-  <!-- <arg name="standard2/brightness" default="120" /> -->
+  # standard2/brightness range: [0,240]
+  standard2/brightness: -1
+  # standard2/brightness: 120
   ...
 
   # s210a modify brightness
-  <!-- standard210a/brightness range: [0,240] -->
-  <arg name="standard210a/brightness" default="-1" />
-  <!-- <arg name="standard210a/brightness" default="120" /> -->
+  # standard210a/brightness range: [0,240]
+  standard210a/brightness: -1
+  # standard210a/brightness: 120
   ...
+
+
+mynteye.launch:
 
 .. code-block:: xml
 
