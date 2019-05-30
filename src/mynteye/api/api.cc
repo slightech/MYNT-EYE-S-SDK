@@ -90,7 +90,10 @@ bool dir_exists(const std::string &p) {
 
 std::vector<std::string> get_plugin_paths() {
   std::string info_path = utils::get_sdk_install_dir();
-  info_path.append(MYNTEYE_OS_SEP "share" MYNTEYE_OS_SEP "mynteye" MYNTEYE_OS_SEP "build.info");
+  if (info_path.empty()) return {};
+
+  info_path.append(MYNTEYE_OS_SEP "share" MYNTEYE_OS_SEP "mynteye"
+                   MYNTEYE_OS_SEP "build.info");
 
   cv::FileStorage fs(info_path, cv::FileStorage::READ);
   if (!fs.isOpened()) {
