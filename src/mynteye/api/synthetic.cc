@@ -65,7 +65,7 @@ void Synthetic::InitCalibInfo() {
   } else {
     calib_default_tag_ = true;
     calib_model_ = CalibrationModel::PINHOLE;
-    LOG(INFO) << "camera calib model: unknow ,use default pinhole data";
+    LOG(INFO) << "camera calib model: unknow, use default pinhole data";
     intr_left_ = getDefaultIntrinsics();
     intr_right_ = getDefaultIntrinsics();
     extr_ =  getDefaultExtrinsics();
