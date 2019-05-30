@@ -25,16 +25,11 @@ MKFILE_DIR := $(patsubst %/,%,$(dir $(MKFILE_PATH)))
 # Options
 #
 #   SUDO: sudo command
-#   CAM_MODELS: cmake build with -DWITH_CAM_MODELS=ON
 #
 # e.g. make [TARGET] SUDO=
-# e.g. make [TARGET] CAM_MODELS=1
 
 SUDO ?= sudo
-
-CAM_MODELS ?=
-
-CMAKE_BUILD_EXTRA_OPTIONS := $(CMAKE_BUILD_EXTRA_OPTIONS) -DWITH_CAM_MODELS=ON
+CMAKE_BUILD_EXTRA_OPTIONS ?=
 
 .DEFAULT_GOAL := all
 
