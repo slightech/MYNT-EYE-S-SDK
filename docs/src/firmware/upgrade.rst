@@ -5,7 +5,7 @@ How to update Main Processing Chip
 
 Please use the MYNT EYE TOOL to update main processing chip.
 
-You can download the firmware and MYNT EYE TOOL installation package in the ``Firmwares`` folder of `MYNTEYE_BOX(Download Link) <http://www.myntai.com/mynteye/s/download>`_ . The file structure is as follows:
+You can download the firmware and MYNT EYE TOOL installation package in the ``Firmwares`` folder of `MYNTEYE_BOX(Download Link) <http://doc.myntai.com/mynteye/s/download>`_ . The file structure is as follows:
 
 .. code-block:: none
 
