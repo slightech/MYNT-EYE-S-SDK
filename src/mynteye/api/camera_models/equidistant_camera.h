@@ -11,14 +11,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_CAMERA_MODELS_EQUIDISTANTCAMERA_H_
-#define SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_CAMERA_MODELS_EQUIDISTANTCAMERA_H_
+#ifndef MYNTEYE_CAMERA_MODELS_EQUIDISTANT_CAMERA_H_
+#define MYNTEYE_CAMERA_MODELS_EQUIDISTANT_CAMERA_H_
 
 #include <string>
-#include "Camera.h"
 #include <opencv2/core/core.hpp>
 
-namespace camodocal {
+#include "camera.h"
+
+MYNTEYE_BEGIN_NAMESPACE
+
+namespace models {
 
 /**
  * J. Kannala, and S. Brandt, A Generic Camera Model and Calibration Method
@@ -227,5 +230,7 @@ void EquidistantCamera::spaceToPlane(
 }
 }
 
-#endif  // SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_CAMERA_MODELS_EQUIDISTANTCAMERA_H_
+MYNTEYE_END_NAMESPACE
+
+#endif  // MYNTEYE_CAMERA_MODELS_EQUIDISTANT_CAMERA_H_
 

@@ -16,15 +16,19 @@
 #include <cstdint>
 #include <cmath>
 #include <cstdio>
-#include "camodocal/camera_models/EquidistantCamera.h"
+
 #include "eigen3/Eigen/Dense"
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/eigen.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include "camodocal/gpl/gpl.h"
-// #include "mynteye/logger.h"
 
-namespace camodocal {
+#include "equidistant_camera.h"
+#include "gpl.h"
+
+MYNTEYE_BEGIN_NAMESPACE
+
+namespace models {
+
 #define PI M_PI
 #define PI_2 1.5707963
 float ApproxAtan2(float y, float x)
@@ -652,4 +656,7 @@ void EquidistantCamera::backprojectSymmetric(
     }
   }
 }
-}  // namespace camodocal
+
+}  // namespace models
+
+MYNTEYE_END_NAMESPACE

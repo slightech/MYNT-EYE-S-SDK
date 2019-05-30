@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include <opencv2/calib3d/calib3d.hpp>
-#include "camodocal/camera_models/Camera.h"
 
-namespace camodocal {
+#include "camera.h"
+
+MYNTEYE_BEGIN_NAMESPACE
+
+namespace models {
 
 Camera::Parameters::Parameters(ModelType modelType)
     : m_modelType(modelType), m_imageWidth(0), m_imageHeight(0) {
@@ -208,4 +211,7 @@ void Camera::projectPoints(
     imagePoints.push_back(cv::Point2f(p(0), p(1)));
   }
 }
-}
+
+}  // namespace models
+
+MYNTEYE_END_NAMESPACE

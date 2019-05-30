@@ -37,8 +37,8 @@ cv::Mat RectifyProcessor::rectifyrad(const cv::Mat& R) {
   return R.clone();
 }
 
-void RectifyProcessor::stereoRectify(camodocal::CameraPtr leftOdo,
-    camodocal::CameraPtr rightOdo, const CvMat* K1, const CvMat* K2,
+void RectifyProcessor::stereoRectify(models::CameraPtr leftOdo,
+    models::CameraPtr rightOdo, const CvMat* K1, const CvMat* K2,
     const CvMat* D1, const CvMat* D2, CvSize imageSize,
     const CvMat* matR, const CvMat* matT,
     CvMat* _R1, CvMat* _R2, CvMat* _P1, CvMat* _P2, double* T_mul_f,
@@ -249,8 +249,8 @@ struct CameraROSMsgInfo RectifyProcessor::getCalibMatData(
 }
 
 std::shared_ptr<struct CameraROSMsgInfoPair> RectifyProcessor::stereoRectify(
-    camodocal::CameraPtr leftOdo,
-    camodocal::CameraPtr rightOdo,
+    models::CameraPtr leftOdo,
+    models::CameraPtr rightOdo,
     mynteye::IntrinsicsEquidistant in_left,
     mynteye::IntrinsicsEquidistant in_right,
     mynteye::Extrinsics ex_right_to_left) {
@@ -330,10 +330,10 @@ std::shared_ptr<struct CameraROSMsgInfoPair> RectifyProcessor::stereoRectify(
   return std::make_shared<struct CameraROSMsgInfoPair>(info_pair);
 }
 
-camodocal::CameraPtr RectifyProcessor::generateCameraFromIntrinsicsEquidistant(
+models::CameraPtr RectifyProcessor::generateCameraFromIntrinsicsEquidistant(
     const mynteye::IntrinsicsEquidistant & in) {
-  camodocal::EquidistantCameraPtr camera(
-      new camodocal::EquidistantCamera("KANNALA_BRANDT",
+  models::EquidistantCameraPtr camera(
+      new models::EquidistantCamera("KANNALA_BRANDT",
                                        in.width,
                                        in.height,
                                        in.coeffs[0],
@@ -354,9 +354,9 @@ void RectifyProcessor::InitParams(
   calib_model = CalibrationModel::KANNALA_BRANDT;
   in_left.ResizeIntrinsics();
   in_right.ResizeIntrinsics();
-  camodocal::CameraPtr camera_odo_ptr_left =
+  models::CameraPtr camera_odo_ptr_left =
       generateCameraFromIntrinsicsEquidistant(in_left);
-  camodocal::CameraPtr camera_odo_ptr_right =
+  models::CameraPtr camera_odo_ptr_right =
       generateCameraFromIntrinsicsEquidistant(in_right);
   auto calib_info_tmp = stereoRectify(camera_odo_ptr_left,
         camera_odo_ptr_right,
