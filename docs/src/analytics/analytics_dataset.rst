@@ -1,6 +1,6 @@
-.. _dataset:
+.. _analytics_dataset:
 
-Recording data sets
+Recording Data Sets
 ====================
 
 The SDK provides the tool ``record`` for recording data sets. Tool details can be seen in `tools/README.md <https://github.com/slightech/MYNT-EYE-S-SDK/tree/master/tools>`_ .

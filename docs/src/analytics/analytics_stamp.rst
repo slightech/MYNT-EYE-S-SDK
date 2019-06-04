@@ -1,6 +1,6 @@
 .. _analytics_stamp:
 
-Analyze time stamps
+Analyze Time Stamps
 ====================
 
 SDK provides a script for timestamp analysis ``stamp_analytics.py`` . Tool details are visible in `tools/README.md <https://github.com/slightech/MYNT-EYE-S-SDK/tree/master/tools>`_ .

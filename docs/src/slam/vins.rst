@@ -1,4 +1,4 @@
-.. _slam_vins:
+.. _vins:
 
 How to use in `VINS-Mono <https://github.com/HKUST-Aerial-Robotics/VINS-Mono>`_
 ================================================================================

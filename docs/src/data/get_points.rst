@@ -1,4 +1,4 @@
-.. _get_points:
+.. _data_get_points:
 
 Get point image
 ================

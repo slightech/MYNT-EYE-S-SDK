@@ -1,4 +1,4 @@
-.. _write_imu_params:
+.. _data_write_imu_params:
 
 Write IMU parameters
 =====================

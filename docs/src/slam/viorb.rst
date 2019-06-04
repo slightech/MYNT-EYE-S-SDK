@@ -1,4 +1,4 @@
-.. _slam_viorb:
+.. _viorb:
 
 How to use in `VIORB <https://github.com/jingpang/LearnVIORB>`_
 ================================================================

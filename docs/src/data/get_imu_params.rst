@@ -1,4 +1,4 @@
-.. _get_imu_params:
+.. _data_get_imu_params:
 
 Get IMU calibration parameters
 ==============================

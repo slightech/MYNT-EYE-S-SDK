@@ -1,6 +1,6 @@
-.. _mynteye_intro:
+.. _mynteye:
 
-Product description
+Product Description
 ====================
 
 MYNT® EYE S Series includes MYNT EYE S, MYNT EYE SE and MYNT EYE SC. The “Binocular + IMU” inertial navigation solution for MYNT® EYE S Series provides accurate six-axis complementary data for vSLAM applications and is more accurate and robust than other single solutions.

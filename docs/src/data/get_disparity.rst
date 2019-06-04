@@ -1,4 +1,4 @@
-.. _get_disparity:
+.. _data_get_disparity:
 
 Get disparity image
 ===================

@@ -1,4 +1,4 @@
-.. _slam_okvis:
+.. _okvis:
 
 How to use in `OKVIS <https://github.com/ethz-asl/okvis>`_
 =============================================================

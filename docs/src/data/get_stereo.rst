@@ -1,4 +1,4 @@
-.. _get_stereo:
+.. _data_get_stereo:
 
 Get original binocular image
 =============================

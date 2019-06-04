@@ -1,4 +1,4 @@
-.. _get_with_plugin:
+.. _data_get_with_plugin:
 
 Using the plugin to get data
 ============================

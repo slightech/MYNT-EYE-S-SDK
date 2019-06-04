@@ -1,4 +1,4 @@
-.. _write_img_params:
+.. _data_write_img_params:
 
 Write image parameters
 =======================

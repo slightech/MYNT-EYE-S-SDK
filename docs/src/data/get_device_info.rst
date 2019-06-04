@@ -1,4 +1,4 @@
-.. _get_device_info:
+.. _data_get_device_info:
 
 Get device information
 ======================

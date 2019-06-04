@@ -1,4 +1,4 @@
-.. _save_params:
+.. _data_save_params:
 
 Save device infomation and parameters
 =====================================

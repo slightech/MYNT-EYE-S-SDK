@@ -1,4 +1,4 @@
-.. _get_from_callbacks:
+.. _data_get_from_callbacks:
 
 Get data from callbacks
 ========================

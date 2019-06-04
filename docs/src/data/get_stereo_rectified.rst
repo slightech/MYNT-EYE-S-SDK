@@ -1,4 +1,4 @@
-.. _get_stereo_rectified:
+.. _data_get_stereo_rectified:
 
 Get stereo camera correction image
 ==================================

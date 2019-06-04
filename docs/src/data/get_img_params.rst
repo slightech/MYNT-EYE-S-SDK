@@ -1,4 +1,4 @@
-.. _get_img_params:
+.. _data_get_img_params:
 
 Get image calibration parameters
 ================================

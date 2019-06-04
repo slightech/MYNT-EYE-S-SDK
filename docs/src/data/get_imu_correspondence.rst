@@ -1,4 +1,4 @@
-.. _get_imu_correspondence:
+.. _data_get_imu_correspondence:
 
 Get IMU data with timestamp correspondence
 ===========================================

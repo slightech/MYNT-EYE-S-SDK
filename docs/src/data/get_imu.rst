@@ -1,4 +1,4 @@
-.. _get_imu_data:
+.. _data_get_imu_data:
 
 Get IMU data
 =============

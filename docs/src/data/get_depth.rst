@@ -1,4 +1,4 @@
-.. _get_depth:
+.. _data_get_depth:
 
 Get depth image
 ===============
