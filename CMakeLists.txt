@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.0)
 
-project(mynteye VERSION 2.3.8 LANGUAGES C CXX)
+project(mynteye VERSION 2.3.9 LANGUAGES C CXX)
 
 include(cmake/Common.cmake)
 
