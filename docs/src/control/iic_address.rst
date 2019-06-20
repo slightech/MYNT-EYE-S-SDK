@@ -55,4 +55,4 @@ s210a/s2100：
   I/imu_range.cc:51 Set iic address to 0x31
 
 After the sample program finishes running with ``ESC/Q``.
-Complete code samples，please see `iic_address.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/control/iic_address.cc>`_.
+Complete code samples，please see `iic_address.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/control/iic_address.cc>`_ .
