@@ -22,6 +22,8 @@ if(NOT CMAKE_DEBUG_POSTFIX)
   set(CMAKE_DEBUG_POSTFIX d)
 endif()
 
+LIST(APPEND CMAKE_MODULE_PATH cmake)
+
 # options
 
 include(cmake/Option.cmake)
@@ -58,8 +60,6 @@ macro(target_link_threads NAME)
     target_link_libraries(${NAME} PUBLIC "${CMAKE_THREAD_LIBS_INIT}")
   endif()
 endmacro()
-
-LIST(APPEND CMAKE_MODULE_PATH cmake)
 
 include(CMakePackageConfigHelpers)
 
