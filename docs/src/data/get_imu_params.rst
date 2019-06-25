@@ -1,6 +1,6 @@
 .. _data_get_imu_params:
 
-Get IMU calibration parameters
+Get IMU Calibration Parameters
 ==============================
 
 Use ``GetMotionIntrinsics()`` & ``GetMotionExtrinsics()`` to get current IMU calibration parameters.

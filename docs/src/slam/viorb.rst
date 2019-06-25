@@ -1,6 +1,6 @@
 .. _viorb:
 
-How to use in `VIORB <https://github.com/jingpang/LearnVIORB>`_
+How To Use In `VIORB <https://github.com/jingpang/LearnVIORB>`_
 ================================================================
 
 

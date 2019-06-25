@@ -1,6 +1,6 @@
 .. _data_get_imu_data:
 
-Get IMU data
+Get IMU Data
 =============
 
 The API offers ``Start()`` / ``Stop()`` function to start/stop capturing data. You can set the argument to``Source::MOTION_TRACKING`` to capture IMU data only, or set it to ``Source::ALL`` to capture both image and IMU data.

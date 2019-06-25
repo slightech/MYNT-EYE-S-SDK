@@ -1,6 +1,6 @@
 .. _data_get_stereo:
 
-Get original binocular image
+Get Original Binocular Image
 =============================
 
 Use ``Start()`` or ``Stop()`` , to start or stop data capturing. If you only need the image data, use ``Source::VIDEO_STREAMING`` .

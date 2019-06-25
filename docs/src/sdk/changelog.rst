@@ -1,6 +1,6 @@
 .. _sdk_changelog:
 
-Changelog
+Change Log
 =========
 
 2019-04-19(v2.3.7)

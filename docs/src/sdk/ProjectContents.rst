@@ -1,6 +1,6 @@
 .. _sdk:
 
-Program Reference
+Project Reference
 ==================
 
 .. toctree::

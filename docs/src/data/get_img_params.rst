@@ -1,6 +1,6 @@
 .. _data_get_img_params:
 
-Get image calibration parameters
+Get Image Calibration Parameters
 ================================
 
 Use ``GetIntrinsics()`` & ``GetExtrinsics()`` to get image calibration parameters.

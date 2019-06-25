@@ -1,6 +1,6 @@
 .. _sdk:
 
-Update Log
+Change Log
 ==================
 
 .. toctree::

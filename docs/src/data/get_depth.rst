@@ -1,6 +1,6 @@
 .. _data_get_depth:
 
-Get depth image
+Get Depth Image
 ===============
 
 Depth images belongs to the upper layer of synthetic data. You need to start the ``EnableStreamData()`` beforehand, to get it through ``GetStreamData()``. The depth image type is CV_16UC1. In addition, it should be check not be empty before use.

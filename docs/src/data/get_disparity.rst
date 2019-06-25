@@ -1,6 +1,6 @@
 .. _data_get_disparity:
 
-Get disparity image
+Get Disparity Image
 ===================
 
 Disparity image belongs to the upper layer of synthetic data. You need to start the ``EnableStreamData()`` beforehand, to get it through ``GetStreamData()``. In addition, it should be check not be empty before use.

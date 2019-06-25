@@ -1,6 +1,6 @@
 .. _orb_slam2:
 
-How to use in `ORB_SLAM2 <https://github.com/raulmur/ORB_SLAM2>`_
+How To Use In `ORB_SLAM2 <https://github.com/raulmur/ORB_SLAM2>`_
 ==================================================================
 
 

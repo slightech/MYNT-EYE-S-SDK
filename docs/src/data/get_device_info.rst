@@ -1,6 +1,6 @@
 .. _data_get_device_info:
 
-Get device information
+Get Device Information
 ======================
 
 Use ``GetInfo()`` function to get various current information values.

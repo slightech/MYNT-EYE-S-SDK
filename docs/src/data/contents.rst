@@ -1,6 +1,4 @@
-.. _data:
-
-MYNT® EYE Data
+SDK SAMPLES
 ==============
 
 .. toctree::
@@ -17,6 +15,3 @@ MYNT® EYE Data
    get_imu_correspondence
    get_from_callbacks
    get_with_plugin
-   save_params
-   write_img_params
-   write_imu_params

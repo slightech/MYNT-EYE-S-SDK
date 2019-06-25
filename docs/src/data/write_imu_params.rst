@@ -1,6 +1,6 @@
 .. _data_write_imu_params:
 
-Write IMU parameters
+Write IMU Parameters
 =====================
 
 SDK provides the tool ``imu_params_writer`` to write IMU parameters. For deltail, please read `tools/README.md <https://github.com/slightech/MYNT-EYE-S-SDK/tree/master/tools>`_ .
