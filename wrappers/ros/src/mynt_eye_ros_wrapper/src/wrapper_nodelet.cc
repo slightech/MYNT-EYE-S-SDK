@@ -58,6 +58,7 @@ inline double compute_time(const double end, const double start) {
 class ROSWrapperNodelet : public nodelet::Nodelet {
  public:
   ROSWrapperNodelet() {
+    unit_hard_time *= 10;
   }
 
   ~ROSWrapperNodelet() {
@@ -140,10 +141,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
   inline bool is_overflow(std::uint64_t now,
       std::uint64_t pre) {
-    static std::uint64_t unit =
-      std::numeric_limits<std::uint32_t>::max();
 
-    return (now < pre) && ((pre - now) > (unit / 2));
+    return (now < pre) && ((pre - now) > (unit_hard_time / 2));
   }
 
   inline bool is_repeated(std::uint64_t now,
@@ -153,18 +152,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
   inline bool is_abnormal(std::uint32_t now,
       std::uint32_t pre) {
-    static std::uint64_t unit =
-      std::numeric_limits<std::uint32_t>::max();
 
-    return (now < pre) && ((pre - now) < (unit / 4));
+    return (now < pre) && ((pre - now) < (unit_hard_time / 4));
   }
 
   ros::Time checkUpTimeStamp(std::uint64_t _hard_time,
       const Stream &stream) {
     static std::map<Stream, std::uint64_t> hard_time_now;
     static std::map<Stream, std::uint64_t> acc;
-    static std::uint64_t unit_hard_time =
-      std::numeric_limits<std::uint32_t>::max();
 
     if (is_overflow(_hard_time, hard_time_now[stream])) {
       acc[stream]++;
@@ -178,8 +173,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
   ros::Time checkUpImuTimeStamp(std::uint64_t _hard_time) {
     static std::uint64_t hard_time_now(0), acc(0);
-    static std::uint64_t unit_hard_time =
-      std::numeric_limits<std::uint32_t>::max();
 
     if (is_overflow(_hard_time, hard_time_now)) {
       acc++;
@@ -1606,6 +1599,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   int frame_rate_;
   bool is_intrinsics_enable_;
   std::vector<ImuData> imu_align_;
+
+  std::uint64_t unit_hard_time = std::numeric_limits<std::uint32_t>::max();
 };
 
 MYNTEYE_END_NAMESPACE
