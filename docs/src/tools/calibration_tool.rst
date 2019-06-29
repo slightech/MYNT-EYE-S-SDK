@@ -12,12 +12,12 @@ Introduction
 
 Currently the calibration tool only supports Ubuntu 16.04 LTS, but support the official, ROS multiple version of OpenCV dependencies.
 
-====================  ====================  ======================  ====================
-Platform              Architecture          Different dependence    Description 
-====================  ====================  ======================  ====================
+====================  ====================  ======================
+Platform              Architecture          Different dependence
+====================  ====================  ======================
 Ubuntu 16.04 LTS      x64(amd64)            libopencv-dev 
-                                            ros-kinetic-opencv3
-====================  ====================  ======================  ====================
+Ubuntu 16.04 LTS      x64(amd64)            ros-kinetic-opencv3
+====================  ====================  ======================
 
 
 
@@ -59,70 +59,74 @@ Installation
 
 2.2 Install ppa Package
 --------
-$ sudo add-apt-repository ppa:slightech/mynt-eye-s-sdk
-$ sudo apt-get update
-$ sudo apt-get install mynteye-s-calibrator
-$ sudo ln -sf /opt/myntai/mynteye-s-calibrator/mynteye-s-calibrator /usr/local/bin/ mynteye-s-calibrator
+.. code-block:: bash
+
+  $ sudo add-apt-repository ppa:slightech/mynt-eye-s-sdk
+  $ sudo apt-get update
+  $ sudo apt-get install mynteye-s-calibrator
+  $ sudo ln -sf /opt/myntai/mynteye-s-calibrator/mynteye-s-calibrator /usr/local/bin/ mynteye-s-calibrator
 
 
 2.3 Install deb Package
 --------
 Install the deb package with udo dpkg -i:
 
-$ sudo dpkg -i mynteye-s-calibrator-opencv-official-1.0.0_amd64.deb
-...
-(Reading database ... 359020 files and directories currently installed.)
-Preparing to unpack mynteye-s-calibrator-opencv-official-1.0.0_amd64.deb ...
-Unpacking mynteye-s-calibrator (1.0.0) over (1.0.0) ...
-Setting up mynteye-s-calibrator (1.0.0) ...
+.. code-block:: bash
+
+  $ sudo dpkg -i mynteye-s-calibrator-opencv-official-1.0.0_amd64.deb
+  ...
+  (Reading database ... 359020 files and directories currently installed.)
+  Preparing to unpack mynteye-s-calibrator-opencv-official-1.0.0_amd64.deb ...
+  Unpacking mynteye-s-calibrator (1.0.0) over (1.0.0) ...
+  Setting up mynteye-s-calibrator (1.0.0) ...
 
 If you encounter an error that the dependency package is not installed, for example:
---------
 
-$ sudo dpkg -i mynteye-s-calibrator-opencv-official-1.0.0_amd64.deb
-Selecting previously unselected package mynteye-s-calibrator.
-(Reading database ... 358987 files and directories currently installed.)
-Preparing to unpack mynteye-s-calibrator-opencv-official-1.0.0_amd64.deb ...
-Unpacking mynteye-s-calibrator (1.0.0) ...
-dpkg: dependency problems prevent configuration of mynteye-s-calibrator:
-mynteye-s-calibrator depends on libatlas-base-dev; however:
-Package libatlas-base-dev is not installed.
+.. code-block:: bash
 
-dpkg: error processing package mynteye-s-calibrator (--install):
-dependency problems - leaving unconfigured
-Errors were encountered while processing:
-mynteye-s-calibrator
+  $ sudo dpkg -i mynteye-s-calibrator-opencv-official-1.0.0_amd64.deb
+  Selecting previously unselected package mynteye-s-calibrator.
+  (Reading database ... 358987 files and directories currently installed.)
+  Preparing to unpack mynteye-s-calibrator-opencv-official-1.0.0_amd64.deb ...
+  Unpacking mynteye-s-calibrator (1.0.0) ...
+  dpkg: dependency problems prevent configuration of mynteye-s-calibrator:
+  mynteye-s-calibrator depends on libatlas-base-dev; however:
+  Package libatlas-base-dev is not installed.
+  dpkg: error processing package mynteye-s-calibrator (--install):
+  dependency problems - leaving unconfigured
+  Errors were encountered while processing:
+  mynteye-s-calibrator
  
 You can continue use sudo apt-get -f install to finished install
---------
 
-$ sudo apt-get -f install
-Reading package lists... Done
-Building dependency tree
-Reading state information... Done
+.. code-block:: bash
 
-Correcting dependencies... Done
-The following additional packages will be installed:
-libatlas-base-dev
-Suggested packages:
-libblas-doc liblapack-doc
-The following NEW packages will be installed:
-libatlas-base-dev
-0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
-1 not fully installed or removed.
-Need to get 3,596 kB of archives.
-After this operation, 30.8 MB of additional disk space will be used.
-Do you want to continue? [Y/n]
-Get:1 http://cn.archive.ubuntu.com/ubuntu xenial/universe amd64 libatlas-base-dev amd64 3.10.2-9 [3,596 kB]
-Fetched 3,596 kB in 3s (1,013 kB/s)
-Selecting previously unselected package libatlas-base-dev.
-(Reading database ... 358993 files and directories currently installed.)
-Preparing to unpack .../libatlas-base-dev_3.10.2-9_amd64.deb ...
-Unpacking libatlas-base-dev (3.10.2-9) ...
-Setting up libatlas-base-dev (3.10.2-9) ...
-update-alternatives: using /usr/lib/atlas-base/atlas/libblas.so to provide /usr/lib/libblas.so (libblas.so) in auto mode
-update-alternatives: using /usr/lib/atlas-base/atlas/liblapack.so to provide /usr/lib/liblapack.so (liblapack.so) in auto mode
-Setting up mynteye-s-calibrator (1.0.0) ...
+  $ sudo apt-get -f install
+  Reading package lists... Done
+  Building dependency tree
+  Reading state information... Done
+  Correcting dependencies... Done
+  The following additional packages will be installed:
+  libatlas-base-dev
+  Suggested packages:
+  libblas-doc liblapack-doc
+  The following NEW packages will be installed:
+  libatlas-base-dev
+  0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+  1 not fully installed or removed.
+  Need to get 3,596 kB of archives.
+  After this operation, 30.8 MB of additional disk space will be used.
+  Do you want to continue? [Y/n]
+  Get:1 http://cn.archive.ubuntu.com/ubuntu xenial/universe amd64 libatlas-base-dev amd64 3.10.2-9 [3,596 kB]
+  Fetched 3,596 kB in 3s (1,013 kB/s)
+  Selecting previously unselected package libatlas-base-dev.
+  (Reading database ... 358993 files and directories currently installed.)
+  Preparing to unpack .../libatlas-base-dev_3.10.2-9_amd64.deb ...
+  Unpacking libatlas-base-dev (3.10.2-9) ...
+  Setting up libatlas-base-dev (3.10.2-9) ...
+  update-alternatives: using /usr/lib/atlas-base/atlas/libblas.so to provide /usr/lib/libblas.so (libblas.so) in auto mode
+  update-alternatives: using /usr/lib/atlas-base/atlas/liblapack.so to provide /usr/lib/liblapack.so (liblapack.so) in auto mode
+  Setting up mynteye-s-calibrator (1.0.0) ...
 
 
 How To Use
@@ -137,14 +141,15 @@ How To Use
 3.2 Use Command
 --------
 
-* After installing the calibration tool, you can run the mynteye-s-calibrator command directly on the terminal to calibrate.。 -h can see its options：
+* After installing the calibration tool, you can run the `mynteye-s-calibrator` command directly on the terminal to calibrate. -h can see its options:
 
-$ mynteye-s-calibrator -h
-Usage: mynteye-s-calibrator [options]
-help: mynteye-s-calibrator -h
-calibrate: mynteye-s-calibrator -x 11 -y 7 -s 0.036
+.. code-block:: bash
 
-Calibrate MYNT EYE S device.
+  $ mynteye-s-calibrator -h
+  Usage: mynteye-s-calibrator [options]
+  help: mynteye-s-calibrator -h
+  calibrate: mynteye-s-calibrator -x 11 -y 7 -s 0.036
+  Calibrate MYNT EYE S device.
 
 Options:
 
@@ -153,9 +158,9 @@ Options:
 -y HEIGHT, --height=HEIGHT  The chessboard height, default: 7
 -s METERS, --square=METERS  The chessboard square size in meters, default: 0.036
 -n NUMBER, --number=NUMBER  The number of images to use for calibration, default: 11
--p PATH, --path=PATH        The path to save the result, default: SN?
+-p PATH, --path=PATH        The path to save the result, default: folder name using device's SN
 
-* -x -y -s Used to set the width, height, and grid size of the calibration plate. Width and height refer to the number of black and white intersections in the horizontal and vertical directions of the checkerboard. Lattice size in m
+* -x -y -s Used to set the width, height, and grid size of the calibration plate. Width and height refer to the number of black and white intersections in the horizontal and vertical directions of the checkerboard. Square size in meters.
 
 
 3.3 Steps For Usage
@@ -170,7 +175,7 @@ Options:
 
 * Follow the prompts to select an index for the camera's resolution, perform image calibration at this resolution
 
-* The S1030 camera only needs to be calibrated to 752*480 resolution. The S2100 camera needs to be calibrated to 2560*800 and 1280*400 resolutions.
+* The S1030 camera only need calibrate 752*480 resolution. The S2100 camera need calibrate 2560*800 and 1280*400 resolutions.
 
 * As far as possible, let the calibration plate cover the left and right eye images of the camera, 
 and take care of the surroundings (maximum distortion). The calibration tool will automatically 
@@ -207,7 +212,7 @@ Reference acquisition image, as follows:
 
 * 1.  The terminal will print out the left and right purpose calibration results.
 
-* 2.  The calibration results are written into the file in the SNXXX directory.
+* 2.  The calibration results will be written into the files in <SN number> directory.
 
     a)  camera_left.yaml: Left eye parameter
     b)  camera_right.yaml: Right eye parameter
@@ -226,7 +231,7 @@ Reference acquisition image, as follows:
 
 3.4 Calibration result
 --------
-Calibration result，It is desirable to have a reprojection error of 0.2 or less. If it exceeds 1, it needs to be recalibrated.
+Calibration result, It is desirable to have a reprojection error of 0.2 or less. If exceeds 1, it needs to be recalibrated.
 
 Reprojection error, visible output after calibration completion "Final reprojection error: 0.201
 

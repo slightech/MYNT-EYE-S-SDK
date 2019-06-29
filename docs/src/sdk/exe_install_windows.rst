@@ -26,7 +26,7 @@ Download and install SDK
 
 .. tip::
 
-  Download here: mynteye-s-2.3.6-win-x64-opencv-3.4.3.exe `Google Drive <https://drive.google.com/open?id=1PYC_5Mh2pzLFVXkYlkllEzPnr50EbKht>`_ `Baidu Pan <https://pan.baidu.com/s/1s4KIcuYkO5i_9E1pG5blQA>`_ .
+  Download here: mynteye-s-2.3.6-win-x64-opencv-3.4.3.exe `Google Drive <https://drive.google.com/open?id=1PYC_5Mh2pzLFVXkYlkllEzPnr50EbKht>`_ `Baidu Pan(key:rj4k) <https://pan.baidu.com/s/1yCKjvivB2gsqTV8xyY7DQg>`_ .
 
 After you install the win pack of SDK, there will be a shortcut to the SDK root directory on your desktop.
 
