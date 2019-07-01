@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "camodocal/gpl/gpl.h"
+#include "gpl.h"
 
 #include <set>
 #ifdef _WIN32
@@ -56,7 +56,9 @@ const double WGS84_ECCSQ = 0.00669437999013;
 #define fminf(x, y) (((x) < (y)) ? (x) : (y))
 #endif
 
-namespace camodocal {
+MYNTEYE_BEGIN_NAMESPACE
+
+namespace models {
 
 double hypot3(double x, double y, double z) {
   return sqrt(square(x) + square(y) + square(z));
@@ -524,5 +526,6 @@ char UTMLetterDesignator(double latitude) {
   return letterDesignator;
 }
 
-}  // namespace camodocal
+}  // namespace models
 
+MYNTEYE_END_NAMESPACE

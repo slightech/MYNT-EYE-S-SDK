@@ -11,15 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_GPL_GPL_H_
-#define SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_GPL_GPL_H_
+#ifndef MYNTEYE_CAMERA_MODELS_GPL_H_
+#define MYNTEYE_CAMERA_MODELS_GPL_H_
 
 #include <vector>
 #include <algorithm>
 #include <cmath>
 #include <opencv2/core/core.hpp>
 
-namespace camodocal {
+#include "mynteye/mynteye.h"
+
+MYNTEYE_BEGIN_NAMESPACE
+
+namespace models {
 
 template <class T>
 const T clamp(const T &v, const T &a, const T &b) {
@@ -105,5 +109,7 @@ void UTMtoLL(
     double &latitude, double &longitude);  // NOLINT
 }
 
-#endif  // SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_GPL_GPL_H_
+MYNTEYE_END_NAMESPACE
+
+#endif  // MYNTEYE_CAMERA_MODELS_GPL_H_
 

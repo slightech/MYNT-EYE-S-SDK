@@ -23,11 +23,13 @@
 #include "mynteye/types.h"
 #include "mynteye/api/processor.h"
 #include "mynteye/device/device.h"
-#include <camodocal/camera_models/EquidistantCamera.h>
-#include <opencv2/core/eigen.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/opencv.hpp>
+
+#include "equidistant_camera.h"
+
 #include <opencv2/core/core.hpp>
+#include <opencv2/core/eigen.hpp>
+#include <opencv2/calib3d/calib3d.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -76,8 +78,8 @@ class RectifyProcessor : public Processor {
 
   cv::Mat rectifyrad(const cv::Mat& R);
 
-  void stereoRectify(camodocal::CameraPtr leftOdo,
-      camodocal::CameraPtr rightOdo, const CvMat* K1, const CvMat* K2,
+  void stereoRectify(models::CameraPtr leftOdo,
+      models::CameraPtr rightOdo, const CvMat* K1, const CvMat* K2,
       const CvMat* D1, const CvMat* D2, CvSize imageSize,
       const CvMat* matR, const CvMat* matT,
       CvMat* _R1, CvMat* _R2, CvMat* _P1, CvMat* _P2, double* T_mul_f,
@@ -93,13 +95,13 @@ class RectifyProcessor : public Processor {
       const mynteye::IntrinsicsEquidistant& in);
 
   std::shared_ptr<struct CameraROSMsgInfoPair> stereoRectify(
-      camodocal::CameraPtr leftOdo,
-      camodocal::CameraPtr rightOdo,
+      models::CameraPtr leftOdo,
+      models::CameraPtr rightOdo,
       mynteye::IntrinsicsEquidistant in_left,
       mynteye::IntrinsicsEquidistant in_right,
       mynteye::Extrinsics ex_right_to_left);
 
-  camodocal::CameraPtr generateCameraFromIntrinsicsEquidistant(
+  models::CameraPtr generateCameraFromIntrinsicsEquidistant(
       const mynteye::IntrinsicsEquidistant & in);
 
   CalibrationModel calib_model;

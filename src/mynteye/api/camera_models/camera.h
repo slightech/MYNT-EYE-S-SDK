@@ -11,15 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_CAMERA_MODELS_CAMERA_H_
-#define SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_CAMERA_MODELS_CAMERA_H_
+#ifndef MYNTEYE_CAMERA_MODELS_CAMERA_H_
+#define MYNTEYE_CAMERA_MODELS_CAMERA_H_
 
 #include <vector>
 #include <memory>
 #include "eigen3/Eigen/Dense"
 #include <opencv2/core/core.hpp>
 
-namespace camodocal {
+#include "mynteye/mynteye.h"
+
+MYNTEYE_BEGIN_NAMESPACE
+
+namespace models {
 
 class Camera {
  public:
@@ -134,5 +138,7 @@ typedef std::shared_ptr<Camera> CameraPtr;
 typedef std::shared_ptr<const Camera> CameraConstPtr;
 }
 
-#endif  // SRC_MYNTEYE_API_CAMODOCAL_INCLUDE_CAMODOCAL_CAMERA_MODELS_CAMERA_H_
+MYNTEYE_END_NAMESPACE
+
+#endif  // MYNTEYE_CAMERA_MODELS_CAMERA_H_
 

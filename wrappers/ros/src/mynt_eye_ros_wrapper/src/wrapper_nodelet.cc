@@ -843,7 +843,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     //   return;
 
     auto &&in = api_->GetIntrinsicsBase(Stream::LEFT);
-
+    in -> ResizeIntrinsics();
     sensor_msgs::PointCloud2 msg;
     msg.header.seq = seq;
     msg.header.stamp = stamp;

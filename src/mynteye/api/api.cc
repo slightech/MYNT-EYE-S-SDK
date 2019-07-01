@@ -90,7 +90,10 @@ bool dir_exists(const std::string &p) {
 
 std::vector<std::string> get_plugin_paths() {
   std::string info_path = utils::get_sdk_install_dir();
-  info_path.append(MYNTEYE_OS_SEP "share" MYNTEYE_OS_SEP "mynteye" MYNTEYE_OS_SEP "build.info");
+  if (info_path.empty()) return {};
+
+  info_path.append(MYNTEYE_OS_SEP "share" MYNTEYE_OS_SEP "mynteye"
+                   MYNTEYE_OS_SEP "build.info");
 
   cv::FileStorage fs(info_path, cv::FileStorage::READ);
   if (!fs.isOpened()) {
@@ -332,17 +335,7 @@ std::string API::GetInfo(const Info &info) const {
 }
 
 std::string API::GetSDKVersion() const {
-  std::string info_path =
-      utils::get_sdk_install_dir();
-  info_path.append(MYNTEYE_OS_SEP "share" \
-      MYNTEYE_OS_SEP "mynteye" MYNTEYE_OS_SEP "build.info");
-
-  cv::FileStorage fs(info_path, cv::FileStorage::READ);
-  if (!fs.isOpened()) {
-    LOG(WARNING) << "build.info not found: " << info_path;
-    return "null";
-  }
-  return fs["MYNTEYE_VERSION"];
+  return MYNTEYE_API_VERSION_STR;
 }
 
 IntrinsicsPinhole API::GetIntrinsics(const Stream &stream) const {

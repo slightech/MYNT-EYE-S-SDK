@@ -128,22 +128,25 @@ if(WITH_GLOG)
   )
 endif()
 
-## camodocal
+## camera_models
 
 if(WITH_CAM_MODELS)
   set(EIGEN_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
   message(STATUS "EIGEN_INCLUDE_DIR: ${EIGEN_INCLUDE_DIR}")
 
   include_directories(
+    include
+    ${CMAKE_CURRENT_BINARY_DIR}/include
     ${EIGEN_INCLUDE_DIR}
-    src/mynteye/api/camodocal/include
+    src/mynteye/api/camera_models
   )
 
-  add_library(camodocal STATIC
-    src/mynteye/api/camodocal/src/camera_models/Camera.cc
-    src/mynteye/api/camodocal/src/camera_models/EquidistantCamera.cc
-    src/mynteye/api/camodocal/src/gpl/gpl.cc
+  add_library(camera_models STATIC
+    src/mynteye/api/camera_models/camera.cc
+    src/mynteye/api/camera_models/equidistant_camera.cc
+    src/mynteye/api/camera_models/gpl.cc
   )
+
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 endif()
 
@@ -252,7 +255,7 @@ if(OS_MAC)
   target_link_libraries(${MYNTEYE_NAME} PUBLIC ${OSX_EXTRA_LIBS} )
 endif()
 if(WITH_CAM_MODELS)
-  target_link_libraries(${MYNTEYE_NAME} PRIVATE camodocal)
+  target_link_libraries(${MYNTEYE_NAME} PRIVATE camera_models)
 endif()
 target_link_threads(${MYNTEYE_NAME})
 

@@ -313,13 +313,14 @@ std::ostream &operator<<(std::ostream &os, const Extrinsics &ex) {
 }
 
 std::ostream &operator<<(std::ostream &os, const OptionInfo &info) {
-  return os << "min: " << info.min << ", max: " << info.max
+  return os << FULL_PRECISION << "min: " << info.min << ", max: " << info.max
             << ", def: " << info.def;
 }
 
 std::ostream &operator<<(std::ostream &os, const CameraROSMsgInfo &info) {
-  os << "width: " << info.width << ", height: " << info.height << std::endl
-      << "distortion_model: " << info.distortion_model;
+  os << FULL_PRECISION << "width: " << info.width << ", height: "
+    << info.height << std::endl << "distortion_model: "
+    << info.distortion_model;
   os << std::endl << "D: ";
   for (size_t i = 0; i < 5; i++)
     os << info.D[i] << ",";
