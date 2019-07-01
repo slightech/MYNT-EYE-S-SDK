@@ -3,6 +3,11 @@
 Changelog
 =========
 
+2019-07-01(v2.3.9)
+-------------------
+1. Fix ros timestamp issue
+
+
 2019-05-20(v2.3.8)
 -------------------
 1. Improve VINS-Fusion supporting
