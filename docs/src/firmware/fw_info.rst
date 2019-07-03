@@ -1,8 +1,9 @@
-FIRMWARE
+.. _fw_info:
+
+Firmware Description
 ==================
 
 .. toctree::
    :maxdepth: 2
 
-   fw_info
-   fw_update
+   applicable

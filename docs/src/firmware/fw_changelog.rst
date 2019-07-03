@@ -1,8 +1,5 @@
-FIRMWARE
+Change Log
 ==================
 
 .. toctree::
    :maxdepth: 2
-
-   fw_info
-   fw_update

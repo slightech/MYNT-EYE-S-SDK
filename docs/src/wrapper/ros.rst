@@ -3,7 +3,7 @@
 How to use ROS
 ==============
 
-Compile and run the node according to :ref:`sdk_install_ros` .
+Compile and run the node according to :ref:`sdk_install_ros_wrapper` .
 
 .. tip::
 

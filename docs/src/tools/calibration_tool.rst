@@ -1,8 +1,7 @@
 .. _calibration_tool:
 
-MYNT EYE S Manual Calibration Tool
-==========
-
+Calibration Tool Manual
+=======================
 
 Introduction
 --------
@@ -15,7 +14,7 @@ Currently the calibration tool only supports Ubuntu 16.04 LTS, but support the o
 ====================  ====================  ======================
 Platform              Architecture          Different dependence
 ====================  ====================  ======================
-Ubuntu 16.04 LTS      x64(amd64)            libopencv-dev 
+Ubuntu 16.04 LTS      x64(amd64)            libopencv-dev
 Ubuntu 16.04 LTS      x64(amd64)            ros-kinetic-opencv3
 ====================  ====================  ======================
 
@@ -29,22 +28,22 @@ Deb/ppa installation package is available on Ubuntu. The architecture, dependenc
 * mynteye-s-calibrator-opencv-official-1.0.0_amd64.deb
 * mynteye-s-calibrator-opencv-ros-kinetic-1.0.0_amd64.deb
 
-=======================  ====================  ============================================================ 
-Dependency identifier    Dependency package     Detailed description            
 =======================  ====================  ============================================================
-opencv-official          libopencv-dev          https://packages.ubuntu.com/xenial/libopencv-dev                                
-opencv-ros-kinetic       ros-kinetic-opencv3    http://wiki.ros.org/opencv3                                         
+Dependency identifier    Dependency package     Detailed description
+=======================  ====================  ============================================================
+opencv-official          libopencv-dev          https://packages.ubuntu.com/xenial/libopencv-dev
+opencv-ros-kinetic       ros-kinetic-opencv3    http://wiki.ros.org/opencv3
 =======================  ====================  ============================================================
 
 
 1.3 Deb Toolkit Get
 --------
 
-====================  ======================================================================== 
-Method of Obtaining   Get address          
 ====================  ========================================================================
-Baidu Cloud            https://pan.baidu.com/s/19rW0fPKUlQj6eldZpZFoAA  Extraction code: a6ps                          
-Google Drive           https://drive.google.com/open?id=1RsV2WEKAsfxbn-Z5nGjk5g3ml1UDEsDc                               
+Method of Obtaining   Get address
+====================  ========================================================================
+Baidu Cloud            https://pan.baidu.com/s/19rW0fPKUlQj6eldZpZFoAA  Extraction code: a6ps
+Google Drive           https://drive.google.com/open?id=1RsV2WEKAsfxbn-Z5nGjk5g3ml1UDEsDc
 ====================  ========================================================================
 
 
@@ -96,7 +95,7 @@ If you encounter an error that the dependency package is not installed, for exam
   dependency problems - leaving unconfigured
   Errors were encountered while processing:
   mynteye-s-calibrator
- 
+
 You can continue use sudo apt-get -f install to finished install
 
 .. code-block:: bash
@@ -157,7 +156,7 @@ Options:
 -x WIDTH, --width=WIDTH     The chessboard width, default: 11
 -y HEIGHT, --height=HEIGHT  The chessboard height, default: 7
 -s METERS, --square=METERS  The chessboard square size in meters, default: 0.036
--n NUMBER, --number=NUMBER  The number of images to use for calibration, default: 11
+-n NUMBER, --number=NUMBER  The number of imagestools to use for calibration, default: 11
 -p PATH, --path=PATH        The path to save the result, default: folder name using device's SN
 
 * -x -y -s Used to set the width, height, and grid size of the calibration plate. Width and height refer to the number of black and white intersections in the horizontal and vertical directions of the checkerboard. Square size in meters.
@@ -170,43 +169,43 @@ Options:
 
 * Then, run the mynteye-s-calibrator <calibration board parameter> command in the terminal.
 
-.. image:: ../../images/calibration001.png
+.. image:: ../../images/tools/calibration001.png
    :width: 60%
 
 * Follow the prompts to select an index for the camera's resolution, perform image calibration at this resolution
 
 * The S1030 camera only need calibrate 752*480 resolution. The S2100 camera need calibrate 2560*800 and 1280*400 resolutions.
 
-* As far as possible, let the calibration plate cover the left and right eye images of the camera, 
-and take care of the surroundings (maximum distortion). The calibration tool will automatically 
+* As far as possible, let the calibration plate cover the left and right eye images of the camera,
+and take care of the surroundings (maximum distortion). The calibration tool will automatically
 evaluate the qualified image for the calibration calculation and will indicate on the terminal how many have been selected.
 
 Reference acquisition image, as follows:
 
-.. image:: ../../images/calibration002.png
+.. image:: ../../images/tools/calibration002.png
    :width: 60%
 
-.. image:: ../../images/calibration003.png
+.. image:: ../../images/tools/calibration003.png
    :width: 60%
 
-.. image:: ../../images/calibration004.png
+.. image:: ../../images/tools/calibration004.png
    :width: 60%
 
-.. image:: ../../images/calibration005.png
+.. image:: ../../images/tools/calibration005.png
    :width: 60%
 
-.. image:: ../../images/calibration006.png
+.. image:: ../../images/tools/calibration006.png
    :width: 60%
 
 
-* Note: p_x, p_y, size, skew respectively indicate the scale of the calibration plate on the x-axis, y-axis, 
+* Note: p_x, p_y, size, skew respectively indicate the scale of the calibration plate on the x-axis, y-axis,
   zoom, and tilt when the image is acquired. Make a point for reference.
 
-* Once the number of images acquired by the calibration needs is reached, 
+* Once the number of images acquired by the calibration needs is reached,
   the calibration calculation will be performed. The output is as follows:
 
 
-.. image:: ../../images/calibration007.png
+.. image:: ../../images/tools/calibration007.png
    :width: 60%
 
 
@@ -222,7 +221,7 @@ Reference acquisition image, as follows:
 
 * Finally, you will also be asked if you want to write to the camera device. Enter or `y` to confirm
 
-.. image:: ../../images/calibration008.png
+.. image:: ../../images/tools/calibration008.png
    :width: 60%
 
 * After writing to the device, you will be prompted with "Write to device done".

@@ -10,11 +10,9 @@ MYNT® EYE S SDK
    :titlesonly:
    :maxdepth: 2
 
-   src/mynteye/contents
+   src/product/contents
    src/sdk/contents
    src/firmware/contents
-   src/data/contents
-   src/analytics/contents
    src/tools/contents
    src/slam/contents
    api/contents

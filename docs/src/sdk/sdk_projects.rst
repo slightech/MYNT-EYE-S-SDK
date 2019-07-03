@@ -1,8 +1,7 @@
-FIRMWARE
+.. _sdk_projects:
+
+Project Samples
 ==================
 
 .. toctree::
    :maxdepth: 2
-
-   fw_info
-   fw_update

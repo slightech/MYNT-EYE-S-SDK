@@ -4,7 +4,9 @@ SDK
 .. toctree::
    :maxdepth: 5
 
-   platform
-   InstallContents
-   ProjectContentsToDos
-   changelog
+   sdk_info
+   sdk_install
+   data/contents
+   control/contents
+   tools/contents
+   sdk_changelog
