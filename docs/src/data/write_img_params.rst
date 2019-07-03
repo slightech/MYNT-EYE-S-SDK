@@ -1,6 +1,6 @@
-.. _write_img_params:
+.. _data_write_img_params:
 
-Write image parameters
+Write Image Parameters
 =======================
 
 The SDK provides a tool ``img_params_writer`` for writing image parameters. For details, read `tools/README.md <https://github.com/slightech/MYNT-EYE-S-SDK/tree/master/tools>`_ .

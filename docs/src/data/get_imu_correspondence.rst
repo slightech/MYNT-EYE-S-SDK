@@ -1,6 +1,6 @@
-.. _get_imu_correspondence:
+.. _data_get_imu_correspondence:
 
-Get IMU data with timestamp correspondence
+Get IMU Data With Timestamp Correspondence
 ===========================================
 
 If wanna get image with timestamp in the middle of IMU datas, you could call `EnableTimestampCorrespondence()`` to enable this feature.

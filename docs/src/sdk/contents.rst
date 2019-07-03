@@ -1,16 +1,10 @@
-.. _sdk:
-
-MYNT® EYE SDK
-=============
+SDK
+==================
 
 .. toctree::
+   :maxdepth: 5
 
-   changelog
    platform
-   ppa_install_ubuntu
-   exe_install_windows
-   source_install_ubuntu
-   source_install_windows
-   install_macos
-   install_ros
-   without_opencv
+   InstallContents
+   ProjectContentsToDos
+   changelog

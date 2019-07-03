@@ -1,6 +1,6 @@
-.. _save_params:
+.. _data_save_params:
 
-Save device infomation and parameters
+Save Device Infomation And Parameters
 =====================================
 
 The SDK provides a tool ``save_all_infos`` for save information and parameters. For more information, please read `tools/README.md <https://github.com/slightech/MYNT-EYE-S-SDK/tree/master/tools>`_ .

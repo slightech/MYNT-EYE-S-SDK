@@ -1,6 +1,6 @@
-.. _get_stereo_rectified:
+.. _data_get_stereo_rectified:
 
-Get stereo camera correction image
+Get Stereo Camera Correction Image
 ==================================
 
 The ``GetStreamData()`` API provided can only get the raw data of the hardware, for example, the stereo camera raw image.

@@ -1,10 +1,9 @@
-.. _analytics:
-
-Data Analytics
-===============
+SDK TOOLS
+==================
 
 .. toctree::
+   :maxdepth: 2
 
-   dataset
+   analytics_dataset
    analytics_imu
    analytics_stamp

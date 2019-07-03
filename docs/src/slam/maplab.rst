@@ -1,4 +1,4 @@
-.. _slam_maplab:
+.. _maplab:
 
-How to use in `Maplab <https://github.com/ethz-asl/maplab>`_ x
+How To Use In `Maplab <https://github.com/ethz-asl/maplab>`_ x
 ===============================================================

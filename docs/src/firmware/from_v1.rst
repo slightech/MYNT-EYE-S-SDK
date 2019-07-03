@@ -1,4 +1,4 @@
-.. _sdk_from_v1:
+..  _firmware_from_v1:
 
 Change from SDK 1.x to 2.x
 ===========================

@@ -1,6 +1,6 @@
 .. _sdk_platform:
 
-Supported platforms
+Supported Platforms
 ====================
 
 SDK is built on CMake and can be used cross multiple platforms such as "Linux, Windows, etc. We provides two installation: Download and install, and Compile and install from source code.

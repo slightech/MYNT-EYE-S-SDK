@@ -1,6 +1,6 @@
-.. _get_with_plugin:
+.. _data_get_with_plugin:
 
-Using the plugin to get data
+Using The Plugin To Get Data
 ============================
 
 API provides a ``EnablePlugin()`` function to enable plugins under a path.

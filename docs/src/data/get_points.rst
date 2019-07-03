@@ -1,6 +1,6 @@
-.. _get_points:
+.. _data_get_points:
 
-Get point image
+Get Point Image
 ================
 
 Point images belongs to upper layer of synthetic data. To get this kind of data through ``GetStreamData()``, you need to start the ``EnableStreamData()`` beforehand. It should be check not empty before use.

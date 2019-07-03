@@ -1,14 +1,11 @@
-.. _mynteye:
-
-MYNT® EYE product introduction
-==============================
+PRODUCT
+==================
 
 .. toctree::
+   :maxdepth: 2
 
-   intro
-   surface_s1030
-   imu_coord_s1030
-   spec_s1030
-   surface_s2100
-   imu_coord_s2100
-   spec_s2100
+   product_description
+   product_surface
+   pro_intro
+   support_resolutions
+   imu_coord

@@ -1,6 +1,6 @@
-.. _get_from_callbacks:
+.. _data_get_from_callbacks:
 
-Get data from callbacks
+Get Data From Callbacks
 ========================
 
 API offers function ``SetStreamCallback()`` and ``SetMotionCallback()`` to set callbacks for various data.
