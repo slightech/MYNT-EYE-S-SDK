@@ -7,19 +7,16 @@ MYNT® EYE S SDK
 ===============
 
 .. toctree::
-   :maxdepth: 2
    :titlesonly:
+   :maxdepth: 2
 
-   src/mynteye/contents
+   src/product/contents
    src/sdk/contents
    src/firmware/contents
-   src/data/contents
-   src/control/contents
-   src/log/contents
-   src/wrapper/contents
-   src/analytics/contents
+   src/tools/contents
    src/slam/contents
    api/contents
+   src/support/contents
 
 ..
   Indices and tables

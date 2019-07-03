@@ -1,6 +1,6 @@
-.. _slam_okvis:
+.. _okvis:
 
-How to use in `OKVIS <https://github.com/ethz-asl/okvis>`_
+How To Use In `OKVIS <https://github.com/ethz-asl/okvis>`_
 =============================================================
 
 If you wanna run OKVIS with MYNT EYE camera, please follow the steps:

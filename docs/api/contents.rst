@@ -1,7 +1,5 @@
-.. _api:
-
-API DOC
-=========
+API DOCS
+==============
 
 .. toctree::
 

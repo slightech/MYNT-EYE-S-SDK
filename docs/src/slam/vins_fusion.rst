@@ -1,6 +1,6 @@
-.. _slam_vins_fusion:
+.. _vins_fusion:
 
-How to use in `VINS-Fusion <https://github.com/HKUST-Aerial-Robotics/Vins-Fusion>`_
+How To Use In `VINS-Fusion <https://github.com/HKUST-Aerial-Robotics/Vins-Fusion>`_
 ====================================================================================
 
 
