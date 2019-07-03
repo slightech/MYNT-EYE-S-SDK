@@ -3,9 +3,10 @@
 Change Log
 ==========
 
-2019-07-01(v2.3.9)
+2019-07-03(v2.3.9)
 -------------------
 1. Fix ros timestamp issue
+2. Add calibration tool doc
 
 2019-05-20(v2.3.8)
 -------------------
