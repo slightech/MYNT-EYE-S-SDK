@@ -16,7 +16,7 @@ Prerequisites
 
 .. code-block:: bash
 
-  sudo apt-get -y install libglew-dev cmake
+  sudo apt-get -y install libglew-dev cmake libgoogle-glog-dev
   cd ~
   git clone https://github.com/stevenlovegrove/Pangolin.git
   cd Pangolin
