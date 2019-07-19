@@ -797,6 +797,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     pthread_mutex_unlock(&mutex_data_);
     auto &&info = getCameraInfo(stream);
     info->header.stamp = msg->header.stamp;
+    info->header.frame_id = frame_ids_[stream];
     camera_publishers_[stream].publish(msg, info);
   }
 
