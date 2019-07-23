@@ -172,7 +172,7 @@ void RectifyProcessor::stereoRectify(models::CameraPtr leftOdo,
   *T_mul_f = 0. - _t[idx] * fc_new;
   cvConvert(&pp, _P2);
 
-  alpha = MIN(alpha, 1.);
+  _alpha = MIN(alpha, 1.);
   {
     newImgSize = newImgSize.width*newImgSize.height != 0 ? newImgSize : imageSize;
     double cx1_0 = cc_new[0].x;
@@ -184,6 +184,25 @@ void RectifyProcessor::stereoRectify(models::CameraPtr leftOdo,
     double cx2 = newImgSize.width*cx2_0/imageSize.width;
     double cy2 = newImgSize.height*cy2_0/imageSize.height;
     double s = 1.;
+
+    if ( _alpha >= 0 ) {
+      double s0 = std::max(std::max(std::max((double)cx1/(cx1_0 - inner1.x), (double)cy1/(cy1_0 - inner1.y)),
+                          (double)(newImgSize.width - cx1)/(inner1.x + inner1.width - cx1_0)),
+                      (double)(newImgSize.height - cy1)/(inner1.y + inner1.height - cy1_0));
+      s0 = std::max(std::max(std::max(std::max((double)cx2/(cx2_0 - inner2.x), (double)cy2/(cy2_0 - inner2.y)),
+                        (double)(newImgSize.width - cx2)/(inner2.x + inner2.width - cx2_0)),
+                    (double)(newImgSize.height - cy2)/(inner2.y + inner2.height - cy2_0)),
+                s0); 
+
+      double s1 = std::min(std::min(std::min((double)cx1/(cx1_0 - outer1.x), (double)cy1/(cy1_0 - outer1.y)),
+                          (double)(newImgSize.width - cx1)/(outer1.x + outer1.width - cx1_0)),
+                      (double)(newImgSize.height - cy1)/(outer1.y + outer1.height - cy1_0));
+      s1 = std::min(std::min(std::min(std::min((double)cx2/(cx2_0 - outer2.x), (double)cy2/(cy2_0 - outer2.y)),
+                        (double)(newImgSize.width - cx2)/(outer2.x + outer2.width - cx2_0)),
+                    (double)(newImgSize.height - cy2)/(outer2.y + outer2.height - cy2_0)),
+                s1);
+      s = s0*(1 - alpha) + s1*alpha;
+    }
 
     fc_new *= s;
     cc_new[0] = cvPoint2D64f(cx1, cy1);
@@ -353,12 +372,12 @@ void RectifyProcessor::InitParams(
     IntrinsicsEquidistant in_left,
     IntrinsicsEquidistant in_right,
     Extrinsics ex_right_to_left) {
-  in_left_cur = in_left;
-  in_right_cur = in_right;
-  ex_right_to_left_cur = ex_right_to_left;
   calib_model = CalibrationModel::KANNALA_BRANDT;
   in_left.ResizeIntrinsics();
   in_right.ResizeIntrinsics();
+  in_left_cur = in_left;
+  in_right_cur = in_right;
+  ex_right_to_left_cur = ex_right_to_left;
   models::CameraPtr camera_odo_ptr_left =
       generateCameraFromIntrinsicsEquidistant(in_left);
   models::CameraPtr camera_odo_ptr_right =
