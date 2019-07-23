@@ -555,7 +555,7 @@ void Synthetic::OnDepthPostProcess(Object *const out) {
 }
 
 void Synthetic::SetDisparityComputingMethodType(
-      const DisparityComputingMethod &MethodType) {
+    const DisparityComputingMethod &MethodType) {
   if (checkControlDateWithStream(Stream::LEFT_RECTIFIED)) {
     auto processor = find_processor<DisparityProcessor>(processor_);
     if (processor)
@@ -563,6 +563,19 @@ void Synthetic::SetDisparityComputingMethodType(
     return;
   }
   LOG(ERROR) << "ERROR: no suited processor for disparity computing.";
+}
+
+bool Synthetic::SetRectifyAlpha(const double &alpha) {
+  if (checkControlDateWithStream(Stream::LEFT_RECTIFIED)) {
+#ifdef WITH_CAM_MODELS
+    auto processor = find_processor<RectifyProcessor>(processor_);
+    if (processor)
+      processor->SetRectifyAlpha(alpha);
+    return true;
+#endif
+  }
+  LOG(ERROR) << "ERROR: no suited processor for rectify.";
+  return false;
 }
 
 void Synthetic::NotifyStreamData(

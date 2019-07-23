@@ -52,6 +52,9 @@ class RectifyProcessor : public Processor {
       std::shared_ptr<IntrinsicsBase> intr_left,
       std::shared_ptr<IntrinsicsBase> intr_right,
       std::shared_ptr<Extrinsics> extr);
+  void ReloadImageParams() {
+    InitParams(in_left_cur, in_right_cur, ex_right_to_left_cur);
+  }
 
   cv::Mat R1, P1, R2, P2, Q;
   cv::Mat map11, map12, map21, map22;
@@ -59,6 +62,7 @@ class RectifyProcessor : public Processor {
       getCameraROSMsgInfoPair() {
     return calib_infos;
   }
+  bool SetRectifyAlpha(float alpha);
 
  protected:
   Object *OnCreateOutput() override;
@@ -106,6 +110,10 @@ class RectifyProcessor : public Processor {
 
   CalibrationModel calib_model;
   std::shared_ptr<struct CameraROSMsgInfoPair> calib_infos;
+  double _alpha;
+  IntrinsicsEquidistant in_left_cur;
+  IntrinsicsEquidistant in_right_cur;
+  Extrinsics ex_right_to_left_cur;
 };
 
 MYNTEYE_END_NAMESPACE

@@ -30,6 +30,11 @@ int main(int argc, char *argv[]) {
   api->EnableStreamData(Stream::LEFT_RECTIFIED);
   api->EnableStreamData(Stream::RIGHT_RECTIFIED);
 
+  /** SetRectifyAlpha
+      -1 is default
+  */
+  // api->SetRectifyAlpha(0.5);
+
   api->Start(Source::VIDEO_STREAMING);
 
   double fps;

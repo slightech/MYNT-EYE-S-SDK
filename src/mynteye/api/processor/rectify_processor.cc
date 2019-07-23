@@ -43,6 +43,8 @@ void RectifyProcessor::stereoRectify(models::CameraPtr leftOdo,
     const CvMat* matR, const CvMat* matT,
     CvMat* _R1, CvMat* _R2, CvMat* _P1, CvMat* _P2, double* T_mul_f,
     int flags, double alpha, CvSize newImgSize) {
+  // std::cout << _alpha << std::endl;
+  alpha = _alpha;
   double _om[3], _t[3] = {0}, _uu[3]={0, 0, 0}, _r_r[3][3], _pp[3][4];
   double _ww[3], _wr[3][3], _z[3] = {0, 0, 0}, _ri[3][3], _w3[3];
   cv::Rect_<float> inner1, inner2, outer1, outer2;
@@ -351,6 +353,9 @@ void RectifyProcessor::InitParams(
     IntrinsicsEquidistant in_left,
     IntrinsicsEquidistant in_right,
     Extrinsics ex_right_to_left) {
+  in_left_cur = in_left;
+  in_right_cur = in_right;
+  ex_right_to_left_cur = ex_right_to_left;
   calib_model = CalibrationModel::KANNALA_BRANDT;
   in_left.ResizeIntrinsics();
   in_right.ResizeIntrinsics();
@@ -398,7 +403,8 @@ RectifyProcessor::RectifyProcessor(
       std::shared_ptr<Extrinsics> extr,
       std::int32_t proc_period)
     : Processor(std::move(proc_period)),
-      calib_model(CalibrationModel::UNKNOW) {
+      calib_model(CalibrationModel::UNKNOW),
+      _alpha(-1) {
   calib_infos = std::make_shared<struct CameraROSMsgInfoPair>();
   InitParams(
     *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_left),
@@ -426,6 +432,11 @@ void RectifyProcessor::ReloadImageParams(
 
 Object *RectifyProcessor::OnCreateOutput() {
   return new ObjMat2();
+}
+
+bool RectifyProcessor::SetRectifyAlpha(float alpha) {
+  _alpha = alpha;
+  ReloadImageParams();
 }
 
 bool RectifyProcessor::OnProcess(

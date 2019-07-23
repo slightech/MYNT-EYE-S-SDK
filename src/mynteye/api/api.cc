@@ -562,6 +562,10 @@ void API::SetDisparityComputingMethodType(
   synthetic_->SetDisparityComputingMethodType(MethodType);
 }
 
+void API::SetRectifyAlpha(const double &alpha) {
+  synthetic_->SetRectifyAlpha(alpha);
+}
+
 std::shared_ptr<Device> API::device() {
   return device_;
 }

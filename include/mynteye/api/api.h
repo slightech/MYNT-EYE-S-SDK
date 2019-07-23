@@ -238,6 +238,11 @@ class MYNTEYE_API API {
       const DisparityComputingMethod &MethodType);
 
   /**
+   * Set the rectify bord cut alpha.
+   */
+  void SetRectifyAlpha(const double &alpha);
+
+  /**
    * Set if the duplicate frames is enable.
    */
   void setDuplicate(bool isEnable);

@@ -95,6 +95,7 @@ class Synthetic {
       const DisparityComputingMethod &MethoType);
   std::shared_ptr<struct CameraROSMsgInfoPair> GetCameraROSMsgInfoPair();
   bool ConfigDisparityFromFile(const std::string& config_file);
+  bool SetRectifyAlpha(const double &alpha);
 
  private:
   void InitCalibInfo();
