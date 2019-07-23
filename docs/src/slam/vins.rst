@@ -1,6 +1,6 @@
-.. _slam_vins:
+.. _vins:
 
-How to use in `VINS-Mono <https://github.com/HKUST-Aerial-Robotics/VINS-Mono>`_
+How To Use In `VINS-Mono <https://github.com/HKUST-Aerial-Robotics/VINS-Mono>`_
 ================================================================================
 
 
@@ -70,6 +70,6 @@ Run VINS-Mono with MYNT® EYE
 
 .. code-block:: bash
 
-  cd path/to/VINS-Mono/docker
+  cd path/to/MYNT-EYE-VINS-Sample/docker
   ./run.sh mynteye_s.launch
   # ./run.sh mynteye_s2100.launch  # mono with s2100

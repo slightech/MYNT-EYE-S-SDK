@@ -1,11 +1,8 @@
-.. _firmware:
-
-MYNT® EYE Firmware
+FIRMWARE
 ==================
 
 .. toctree::
+   :maxdepth: 2
 
-   applicable
-   upgrade
-   stm_update
-   from_v1.rst
+   fw_info
+   fw_update

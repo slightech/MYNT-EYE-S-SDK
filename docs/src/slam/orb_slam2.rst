@@ -1,6 +1,6 @@
-.. _slam_orb_slam2:
+.. _orb_slam2:
 
-How to use in `ORB_SLAM2 <https://github.com/raulmur/ORB_SLAM2>`_
+How To Use In `ORB_SLAM2 <https://github.com/raulmur/ORB_SLAM2>`_
 ==================================================================
 
 
@@ -16,7 +16,7 @@ Prerequisites
 
 .. code-block:: bash
 
-  sudo apt-get -y install libglew-dev cmake
+  sudo apt-get -y install libglew-dev cmake libgoogle-glog-dev
   cd ~
   git clone https://github.com/stevenlovegrove/Pangolin.git
   cd Pangolin

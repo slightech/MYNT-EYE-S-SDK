@@ -323,8 +323,8 @@ JniOption to_jni(const RawOption& Option) {
       return JniOption::ACCELEROMETER_LOW_PASS_FILTER;
     case RawOption::GYROSCOPE_LOW_PASS_FILTER:
       return JniOption::GYROSCOPE_LOW_PASS_FILTER;
-    case JniOption::IIC_ADDRESS_SETTING:
-      return RawOption::IIC_ADDRESS_SETTING;
+    case RawOption::IIC_ADDRESS_SETTING:
+      return JniOption::IIC_ADDRESS_SETTING;
     case RawOption::ZERO_DRIFT_CALIBRATION:
       return JniOption::ZERO_DRIFT_CALIBRATION;
     case RawOption::ERASE_CHIP:

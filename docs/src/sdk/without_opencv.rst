@@ -1,6 +1,6 @@
 .. _sdk_without_opencv:
 
-OpenCV independency
+OpenCV Description
 ===================
 
 SDK provides a three-tier interface with OpenCV dependencies:

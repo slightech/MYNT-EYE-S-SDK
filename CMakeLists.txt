@@ -14,13 +14,15 @@
 
 cmake_minimum_required(VERSION 3.0)
 
-project(mynteye VERSION 2.3.8 LANGUAGES C CXX)
+project(mynteye VERSION 2.3.9 LANGUAGES C CXX)
 
 include(cmake/Common.cmake)
 
 if(NOT CMAKE_DEBUG_POSTFIX)
   set(CMAKE_DEBUG_POSTFIX d)
 endif()
+
+LIST(APPEND CMAKE_MODULE_PATH cmake)
 
 # options
 
@@ -58,8 +60,6 @@ macro(target_link_threads NAME)
     target_link_libraries(${NAME} PUBLIC "${CMAKE_THREAD_LIBS_INIT}")
   endif()
 endmacro()
-
-LIST(APPEND CMAKE_MODULE_PATH cmake)
 
 include(CMakePackageConfigHelpers)
 

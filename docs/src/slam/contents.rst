@@ -1,7 +1,5 @@
-.. _slam:
-
-Open Source project Support
-============================
+OPEN SOURCE SUPPORT
+==============
 
 .. toctree::
 
