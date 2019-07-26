@@ -197,6 +197,7 @@ struct device {
         }
       }
     } else {
+      throw_error() << dev_name + " is no video capture device";
     }  // Errors ignored
   }
 
@@ -474,7 +475,8 @@ std::vector<std::shared_ptr<device>> query_devices(
     }
 
     try {
-      devices.push_back(std::make_shared<device>(context, name));
+      auto one_device = std::make_shared<device>(context, name);
+      devices.push_back(one_device);
     } catch (const std::exception &e) {
       VLOG(2) << "Not a USB video device: " << e.what();
     }
