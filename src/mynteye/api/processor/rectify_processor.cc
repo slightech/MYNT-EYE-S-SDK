@@ -456,6 +456,7 @@ Object *RectifyProcessor::OnCreateOutput() {
 bool RectifyProcessor::SetRectifyAlpha(float alpha) {
   _alpha = alpha;
   ReloadImageParams();
+  return true;
 }
 
 bool RectifyProcessor::OnProcess(
