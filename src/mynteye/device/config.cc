@@ -42,8 +42,7 @@ const std::map<Model, OptionSupports> option_supports_map = {
   {Model::STANDARD2, {
     Option::BRIGHTNESS,
     Option::EXPOSURE_MODE, Option::MAX_GAIN, Option::MAX_EXPOSURE_TIME,
-      Option::IR_CONTROL, Option::MIN_EXPOSURE_TIME,
-    Option::DESIRED_BRIGHTNESS, Option::ACCELEROMETER_RANGE,
+      Option::MIN_EXPOSURE_TIME, Option::DESIRED_BRIGHTNESS, Option::ACCELEROMETER_RANGE,
     Option::GYROSCOPE_RANGE, Option::ACCELEROMETER_LOW_PASS_FILTER,
     Option::GYROSCOPE_LOW_PASS_FILTER, Option::IIC_ADDRESS_SETTING,
     Option::ERASE_CHIP}

@@ -49,10 +49,6 @@ standard2/desired_brightness: -1
 standard2/min_exposure_time: -1
 # standard2/min_exposure_time: 0
 
-# standard2/ir_control range: [0,160]
-standard2/ir_control: 80
-# standard2/ir_control: 0
-
 # standard2/accel_range range: [6,48]
 standard2/accel_range: -1
 # standard2/accel_range: 6

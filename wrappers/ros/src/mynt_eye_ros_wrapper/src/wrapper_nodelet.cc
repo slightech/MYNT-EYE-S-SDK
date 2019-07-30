@@ -280,7 +280,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           {Option::MAX_EXPOSURE_TIME, "standard2/max_exposure_time"},
           {Option::DESIRED_BRIGHTNESS, "standard2/desired_brightness"},
           {Option::MIN_EXPOSURE_TIME, "standard2/min_exposure_time"},
-          {Option::IR_CONTROL, "STANDARD/ir_control"},
           {Option::ACCELEROMETER_RANGE, "standard2/accel_range"},
           {Option::GYROSCOPE_RANGE, "standard2/gyro_range"},
           {Option::ACCELEROMETER_LOW_PASS_FILTER, "standard2/accel_low_filter"},
