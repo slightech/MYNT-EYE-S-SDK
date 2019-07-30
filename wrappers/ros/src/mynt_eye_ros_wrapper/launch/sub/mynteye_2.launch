@@ -53,7 +53,7 @@
       <!-- node params -->
 
       <param name="is_multiple" value="$(arg is_multiple)" />
-      <param name="serial_number" value="$(arg serial_number)" />
+      <param name="serial_number" type="string" value="$(arg serial_number)" />
 
       <param name="depth_type" value="$(arg depth_type)" />
 
