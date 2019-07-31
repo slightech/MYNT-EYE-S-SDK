@@ -40,8 +40,8 @@ int main(int argc, char *argv[]) {
     api->SetOptionValue(Option::GAIN, 24);
     // brightness/exposure_time: range [0,240], default 120
     api->SetOptionValue(Option::BRIGHTNESS, 120);
-    // contrast/black_level_calibration: range [0,255], default 127
-    api->SetOptionValue(Option::CONTRAST, 127);
+    // contrast/black_level_calibration: range [0,255], default 116
+    api->SetOptionValue(Option::CONTRAST, 116);
 
     frame_rate = api->GetOptionValue(Option::FRAME_RATE);
 
