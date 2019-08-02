@@ -55,8 +55,8 @@ s2100/s210a：
   // manual-exposure: 1
   api->SetOptionValue(Option::EXPOSURE_MODE, 1);
 
-  // brightness/exposure_time: range [0,240], default 120
-  api->SetOptionValue(Option::BRIGHTNESS, 120);
+  // brightness/exposure_time: range [1,255], default 70
+  api->SetOptionValue(Option::BRIGHTNESS, 70);
 
   LOG(INFO) << "Enable manual-exposure";
   LOG(INFO) << "Set EXPOSURE_MODE to "
@@ -102,7 +102,7 @@ s2100/s210a：
   3
   I/manual_exposure.cc:62 Enable manual-exposure
   I/manual_exposure.cc:63 Set EXPOSURE_MODE to 1
-  I/manual_exposure.cc:65 Set BRIGHTNESS to 120
+  I/manual_exposure.cc:65 Set BRIGHTNESS to 70
 
 
 The sample program displays an image with a real exposure time in the upper left corner, in milliseconds.

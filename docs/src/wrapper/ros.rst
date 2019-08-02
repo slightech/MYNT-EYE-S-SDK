@@ -93,15 +93,15 @@ standard.yaml/standard2.yaml:
   ...
 
   # s2100 modify brightness
-  # standard2/brightness range: [0,240]
+  # standard2/brightness range: [1,255]
   standard2/brightness: -1
-  # standard2/brightness: 120
+  # standard2/brightness: 70
   ...
 
   # s210a modify brightness
-  # standard210a/brightness range: [0,240]
+  # standard210a/brightness range: [1,255]
   standard210a/brightness: -1
-  # standard210a/brightness: 120
+  # standard210a/brightness: 70
   ...
 
 

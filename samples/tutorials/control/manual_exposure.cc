@@ -59,8 +59,8 @@ int main(int argc, char *argv[]) {
     // manual-exposure: 1
     api->SetOptionValue(Option::EXPOSURE_MODE, 1);
 
-    // brightness/exposure_time: range [0,240], default 120
-    api->SetOptionValue(Option::BRIGHTNESS, 120);
+    // brightness/exposure_time: range [1,255], default 70
+    api->SetOptionValue(Option::BRIGHTNESS, 70);
 
     LOG(INFO) << "Enable manual-exposure";
     LOG(INFO) << "Set EXPOSURE_MODE to "

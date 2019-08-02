@@ -25,9 +25,9 @@ standard2/imu_process_mode: 2
 
 # device options of standard2, -1 will not set the value
 
-# standard2/brightness range: [0,240]
+# standard2/brightness range: [1,255]
 standard2/brightness: -1
-# standard2/brightness: 120
+# standard2/brightness: 70
 
 # standard2/exposure_mode, 0: auto-exposure, 1: manual-exposure
 standard2/exposure_mode: -1
@@ -67,9 +67,9 @@ standard2/gyro_low_filter: -1
 
 # device options of standard210a, -1 will not set the value
 
-# standard210a/brightness range: [0,240]
+# standard210a/brightness range: [1,255]
 standard210a/brightness: -1
-# standard210a/brightness: 120
+# standard210a/brightness: 70
 
 # standard210a/exposure_mode, 0: auto-exposure, 1: manual-exposure
 standard210a/exposure_mode: -1
