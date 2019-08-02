@@ -123,6 +123,26 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     return ros::Time(soft_time_begin + time_sec_double);
   }
 
+  ros::Time imuHardTimeToSoftTime(std::uint64_t _hard_time) {
+    static bool isInited = false;
+    static double soft_time_begin(0);
+    static std::uint64_t hard_time_begin(0);
+
+    if (false == isInited) {
+      soft_time_begin = ros::Time::now().toSec();
+      hard_time_begin = _hard_time;
+      isInited = true;
+    }
+
+    std::uint64_t time_ns_detal = (_hard_time - hard_time_begin);
+    std::uint64_t time_ns_detal_s = time_ns_detal / 1000000;
+    std::uint64_t time_ns_detal_ns = time_ns_detal % 1000000;
+    double time_sec_double =
+      ros::Time(time_ns_detal_s, time_ns_detal_ns * 1000).toSec();
+
+    return ros::Time(soft_time_begin + time_sec_double);
+  }
+
   // ros::Time hardTimeToSoftTime(std::uint64_t _hard_time) {
   //   static bool isInited = false;
   //   static double soft_time_begin(0);
@@ -180,7 +200,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     hard_time_now = _hard_time;
 
-    return hardTimeToSoftTime(
+    return imuHardTimeToSoftTime(
         acc * unit_hard_time + _hard_time);
   }
 
