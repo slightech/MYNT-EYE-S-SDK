@@ -369,6 +369,8 @@ class MYNTEYE_API API {
    */
   bool ConfigDisparityFromFile(const std::string& config_file);
 
+  bool IsDefaultIntrinsics();
+
  private:
   std::shared_ptr<Device> device_;
 

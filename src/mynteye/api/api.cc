@@ -589,4 +589,22 @@ bool API::ConfigDisparityFromFile(const std::string& config_file) {
   return synthetic_->ConfigDisparityFromFile(config_file);
 }
 
+bool API::IsDefaultIntrinsics() {
+  if (device_ != nullptr) {
+    return device_->CheckImageParams();
+    if (device_->CheckImageParams()) {
+      LOG(WARNING) << "Default intrinsics are currently being used.";
+      LOG(FATAL) << "Image params not found, but we need it to process the "
+                    "images. Please `make tools` and use `img_params_writer` "
+                    "to write the image params. If you update the SDK from "
+                    "1.x, the `SN*.conf` is the file contains them. Besides, "
+                    "you could also calibrate them by yourself. Read the guide "
+                    "doc (https://github.com/slightech/MYNT-EYE-SDK-2-Guide) "
+                    "to learn more.";
+    }
+  }
+
+  return false;
+}
+
 MYNTEYE_END_NAMESPACE

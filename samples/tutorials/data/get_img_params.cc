@@ -53,5 +53,16 @@ int main(int argc, char *argv[]) {
     LOG(INFO) << *info;
   }
 
+  if (api->IsDefaultIntrinsics()) {
+    LOG(WARNING) << "Default intrinsics are currently being used.";
+    LOG(WARNING) << "Image params not found, but we need it to process the "
+                  "images. Please `make tools` and use `img_params_writer` "
+                  "to write the image params. If you update the SDK from "
+                  "1.x, the `SN*.conf` is the file contains them. Besides, "
+                  "you could also calibrate them by yourself. Read the guide "
+                  "doc (https://github.com/slightech/MYNT-EYE-SDK-2-Guide) "
+                  "to learn more.";
+  }
+
   return 0;
 }
