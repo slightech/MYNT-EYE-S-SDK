@@ -20,6 +20,7 @@
 MYNTEYE_BEGIN_NAMESPACE
 
 std::shared_ptr<IntrinsicsBase> getDefaultIntrinsics();
+std::shared_ptr<IntrinsicsBase> getDefaultIntrinsics(const StreamRequest &request);
 
 std::shared_ptr<Extrinsics> getDefaultExtrinsics();
 

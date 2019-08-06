@@ -41,6 +41,13 @@ std::shared_ptr<IntrinsicsBase> getDefaultIntrinsics() {
   return res;
 }
 
+std::shared_ptr<IntrinsicsBase> getDefaultIntrinsics(const StreamRequest &request) {
+  auto res = getDefaultIntrinsics();
+  res->resize_scale = static_cast<double>(request.width / res->width);
+  res->ResizeIntrinsics();
+  return res;
+}
+
 std::shared_ptr<Extrinsics> getDefaultExtrinsics() {
   auto res = std::make_shared<Extrinsics>();
   double rotation[9] = {
