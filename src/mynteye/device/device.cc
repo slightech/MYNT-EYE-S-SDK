@@ -89,7 +89,8 @@ Device::Device(const Model &model,
     device_(device),
     streams_(std::make_shared<Streams>(streams_adapter)),
     channels_(std::make_shared<Channels>(device_, channels_adapter)),
-    motions_(std::make_shared<Motions>(channels_)) {
+    motions_(std::make_shared<Motions>(channels_)),
+    is_default_intrinsics_(false) {
   VLOG(2) << __func__;
   ReadAllInfos();
 }
@@ -612,11 +613,28 @@ void Device::ReadAllInfos() {
 
   motions_->SetDeviceInfo(device_info_);
 
-  bool img_params_ok = false;
+  if (all_img_params_.empty()) {
+    is_default_intrinsics_ = true;
+    LOG(ERROR) << "Image params not found, but we need it to process the "
+                  "images. Please `make tools` and use `img_params_writer` "
+                  "to write the image params. If you update the SDK from "
+                  "1.x, the `SN*.conf` is the file contains them. Besides, "
+                  "you could also calibrate them by yourself. Read the guide "
+                  "doc (https://github.com/slightech/MYNT-EYE-SDK-2-Guide) "
+                  "to learn more.";
+    LOG(WARNING) << "Intrinsics & extrinsics not exist. Use default intrinsics.";
+    LOG(INFO) << "camera calib model: unknow, use default pinhole data";
+    auto spec_string = device_info_->spec_version.to_string();
+    for (auto &&resolution : resolution_list) {
+      all_img_params_[resolution] = {
+          true, spec_string, getDefaultIntrinsics(resolution),
+          getDefaultIntrinsics(resolution), *getDefaultExtrinsics()};
+    }
+  }
+
   for (auto &&params : all_img_params_) {
     auto &&img_params = params.second;
     if (img_params.ok) {
-      img_params_ok = true;
       SetIntrinsics(Stream::LEFT, img_params.in_left);
       SetIntrinsics(Stream::RIGHT, img_params.in_right);
       SetExtrinsics(Stream::RIGHT, Stream::LEFT, img_params.ex_right_to_left);
@@ -626,9 +644,6 @@ void Device::ReadAllInfos() {
               << GetExtrinsics(Stream::LEFT, Stream::RIGHT) << "}";
       break;
     }
-  }
-  if (!img_params_ok) {
-    LOG(WARNING) << "Intrinsics & extrinsics not exist";
   }
 
   if (imu_params.ok) {
@@ -724,6 +739,10 @@ void Device::EnableProcessMode(const ProcessMode& mode) {
 
 void Device::EnableProcessMode(const std::int32_t& mode) {
   motions_->EnableProcessMode(mode);
+}
+
+bool Device::CheckImageParams() {
+  return is_default_intrinsics_;
 }
 
 MYNTEYE_END_NAMESPACE

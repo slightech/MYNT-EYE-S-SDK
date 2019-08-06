@@ -29,7 +29,6 @@
 #include "mynteye/api/processor/rectify_processor_ocv.h"
 #include "mynteye/api/processor/depth_processor_ocv.h"
 #include "mynteye/api/processor/points_processor_ocv.h"
-#include "mynteye/api/config.h"
 #ifdef WITH_CAM_MODELS
 #include "mynteye/api/processor/depth_processor.h"
 #include "mynteye/api/processor/points_processor.h"
@@ -50,27 +49,16 @@ MYNTEYE_BEGIN_NAMESPACE
 void Synthetic::InitCalibInfo() {
   if (calib_model_ == CalibrationModel::PINHOLE) {
     LOG(INFO) << "camera calib model: pinhole";
-    intr_left_ = api_->GetIntrinsicsBase(Stream::LEFT);
-    intr_right_ = api_->GetIntrinsicsBase(Stream::RIGHT);
-    extr_ =  std::make_shared<Extrinsics>(
-        api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
 #ifdef WITH_CAM_MODELS
   } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
     LOG(INFO) << "camera calib model: kannala_brandt";
-    intr_left_ = api_->GetIntrinsicsBase(Stream::LEFT);
-    intr_right_ = api_->GetIntrinsicsBase(Stream::RIGHT);
-    extr_ =  std::make_shared<Extrinsics>(
-        api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
 #endif
-  } else {
-    calib_default_tag_ = true;
-    calib_model_ = CalibrationModel::PINHOLE;
-    LOG(INFO) << "camera calib model: unknow, use default pinhole data";
-    auto stream_request = api_->GetStreamRequest();
-    intr_left_ = getDefaultIntrinsics(stream_request);
-    intr_right_ = getDefaultIntrinsics(stream_request);
-    extr_ =  getDefaultExtrinsics();
   }
+
+  intr_left_ = api_->GetIntrinsicsBase(Stream::LEFT);
+  intr_right_ = api_->GetIntrinsicsBase(Stream::RIGHT);
+  extr_ = std::make_shared<Extrinsics>(
+      api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
 }
 
 Synthetic::Synthetic(API *api, CalibrationModel calib_model)

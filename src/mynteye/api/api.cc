@@ -244,27 +244,15 @@ std::shared_ptr<API> API::Create(const std::shared_ptr<Device> &device) {
     bool in_l_ok, in_r_ok;
     auto left_intr  = device->GetIntrinsics(Stream::LEFT, &in_l_ok);
     auto right_intr = device->GetIntrinsics(Stream::RIGHT, &in_r_ok);
-    if (!in_l_ok || !in_r_ok) {
-      LOG(ERROR) << "Image params not found, but we need it to process the "
-                    "images. Please `make tools` and use `img_params_writer` "
-                    "to write the image params. If you update the SDK from "
-                    "1.x, the `SN*.conf` is the file contains them. Besides, "
-                    "you could also calibrate them by yourself. Read the guide "
-                    "doc (https://github.com/slightech/MYNT-EYE-SDK-2-Guide) "
-                    "to learn more.";
+
+    if (left_intr->calib_model() != right_intr->calib_model()) {
+      LOG(ERROR) << "left camera and right camera use different calib models!";
       LOG(WARNING) << "use pinhole as default";
       api = std::make_shared<API>(device, CalibrationModel::UNKNOW);
       return api;
     } else {
-      if (left_intr->calib_model() != right_intr->calib_model()) {
-        LOG(ERROR) << "left camera and right camera use different calib models!";
-        LOG(WARNING) << "use pinhole as default";
-        api = std::make_shared<API>(device, CalibrationModel::UNKNOW);
-        return api;
-      } else {
-        api = std::make_shared<API>(device, left_intr->calib_model());
-        return api;
-      }
+      api = std::make_shared<API>(device, left_intr->calib_model());
+      return api;
     }
   } else {
     LOG(ERROR) <<"no device!";
@@ -573,11 +561,7 @@ std::shared_ptr<Device> API::device() {
 // TODO(Kalman): Call this function in the appropriate place
 void API::CheckImageParams() {
   if (device_ != nullptr) {
-    bool in_l_ok, in_r_ok, ex_l2r_ok;
-    device_->GetIntrinsics(Stream::LEFT, &in_l_ok);
-    device_->GetIntrinsics(Stream::RIGHT, &in_r_ok);
-    device_->GetExtrinsics(Stream::LEFT, Stream::RIGHT, &ex_l2r_ok);
-    if (!in_l_ok || !in_r_ok || !ex_l2r_ok) {
+    if (device_->CheckImageParams()) {
       LOG(FATAL) << "Image params not found, but we need it to process the "
                     "images. Please `make tools` and use `img_params_writer` "
                     "to write the image params. If you update the SDK from "

@@ -18,6 +18,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <memory>
 
 #include "mynteye/mynteye.h"
 #include "mynteye/types.h"
@@ -36,6 +37,14 @@ using StreamRequests = std::vector<StreamRequest>;
 
 extern const std::map<Model, std::map<Capabilities, StreamRequests>>
     stream_requests_map;
+
+const std::vector<Resolution> resolution_list = {{640, 400},
+                                                 {1280, 800}};
+
+std::shared_ptr<IntrinsicsBase> getDefaultIntrinsics();
+std::shared_ptr<IntrinsicsBase> getDefaultIntrinsics(const Resolution &resolution);
+
+std::shared_ptr<Extrinsics> getDefaultExtrinsics();
 
 MYNTEYE_END_NAMESPACE
 

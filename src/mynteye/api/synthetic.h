@@ -22,7 +22,6 @@
 #include <mutex>
 
 #include "mynteye/api/api.h"
-#include "mynteye/api/config.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 

@@ -300,6 +300,8 @@ class MYNTEYE_API Device {
   /** Enable process mode, e.g. imu assembly, temp_drift */
   void EnableProcessMode(const std::int32_t& mode);
 
+  bool CheckImageParams();
+
  protected:
   std::shared_ptr<uvc::device> device() const {
     return device_;
@@ -378,6 +380,8 @@ class MYNTEYE_API Device {
       DeviceInfo *info, img_params_map_t *img_params, imu_params_t *imu_params);
   bool SetFiles(
       DeviceInfo *info, img_params_map_t *img_params, imu_params_t *imu_params);
+
+  bool is_default_intrinsics_;
 
   friend API;
   friend tools::DeviceWriter;
