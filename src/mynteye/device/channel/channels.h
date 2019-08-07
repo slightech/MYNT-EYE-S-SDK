@@ -50,6 +50,7 @@ class MYNTEYE_API Channels {
   typedef enum XuCmd {
     XU_CMD_ZDC = 0xE6,    // zero drift calibration
     XU_CMD_ERASE = 0xDE,  // erase chip
+    XU_SYNC_TIMESTAMP = 0x200,  // sync timestamp
     XU_CMD_LAST
   } xu_cmd_t;
 
@@ -72,6 +73,7 @@ class MYNTEYE_API Channels {
 
   std::int32_t GetControlValue(const Option &option) const;
   void SetControlValue(const Option &option, std::int32_t value);
+  bool SetControlValue(const Option &option, std::uint64_t value);
 
   bool RunControlAction(const Option &option) const;
 

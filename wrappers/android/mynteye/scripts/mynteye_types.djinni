@@ -27,6 +27,8 @@ model = enum {
   standard2;
   # Standard 210a
   standard210a;
+  # Standard 200b
+  standard200B;
 }
 
 # Formats define how each stream can be encoded

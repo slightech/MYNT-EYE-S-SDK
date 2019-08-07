@@ -31,6 +31,7 @@ const char *to_string(const Model &value) {
     CASE(STANDARD)
     CASE(STANDARD2)
     CASE(STANDARD210A)
+    CASE(STANDARD200B)
     default:
       CHECK(is_valid(value));
       return "Model::UNKNOWN";
@@ -125,6 +126,7 @@ const char *to_string(const Option &value) {
     CASE(IIC_ADDRESS_SETTING)
     CASE(ZERO_DRIFT_CALIBRATION)
     CASE(ERASE_CHIP)
+    CASE(SYNC_TIMESTAMP)
     default:
       CHECK(is_valid(value));
       return "Option::UNKNOWN";

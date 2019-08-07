@@ -64,6 +64,7 @@ RawModel from_jni(const JniModel& model) {
     case JniModel::STANDARD: return RawModel::STANDARD;
     case JniModel::STANDARD2: return RawModel::STANDARD2;
     case JniModel::STANDARD210A: return RawModel::STANDARD210A;
+    case JniModel::STANDARD200B: return RawModel::STANDARD200B;
     default:
       LOG(FATAL) << "Model is unknown";
   }
@@ -75,6 +76,7 @@ JniModel to_jni(const RawModel& model) {
     case RawModel::STANDARD: return JniModel::STANDARD;
     case RawModel::STANDARD2: return JniModel::STANDARD2;
     case RawModel::STANDARD210A: return JniModel::STANDARD210A;
+    case RawModel::STANDARD200B: return JniModel::STANDARD200B;
     default:
       LOG(FATAL) << "Model is unknown";
   }

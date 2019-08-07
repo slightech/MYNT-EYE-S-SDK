@@ -111,12 +111,23 @@ std::shared_ptr<Device> Device::Create(
       if (model.generation == '1') {
         return std::make_shared<StandardDevice>(device);
       } else if (model.generation == '2') {
-        if (model.custom_code == '0') {
-          return std::make_shared<Standard2Device>(Model::STANDARD2, device);
-        } else if (model.custom_code == 'A') {
-          return std::make_shared<Standard2Device>(Model::STANDARD210A, device);
+        if (model.baseline_code == '1') {
+          if (model.custom_code == '0') {
+            return std::make_shared<Standard2Device>(Model::STANDARD2, device);
+          } else if (model.custom_code == 'A') {
+            return std::make_shared<Standard2Device>(
+                Model::STANDARD210A, device);
+          } else {
+            LOG(FATAL) << "No such custom code now";
+          }
+        } else if (model.baseline_code == '0') {
+          if (model.custom_code == 'B') {
+            return std::make_shared<Standard2Device>(Model::STANDARD200B, device);
+          } else {
+            LOG(FATAL) << "No such custom code now";
+          }
         } else {
-          LOG(FATAL) << "No such custom code now";
+          LOG(FATAL) << "No such baseline now";
         }
       } else {
         LOG(FATAL) << "No such generation now";

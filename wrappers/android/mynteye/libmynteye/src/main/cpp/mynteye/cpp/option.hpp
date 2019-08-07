@@ -104,6 +104,8 @@ enum class Option : int {
     ZERO_DRIFT_CALIBRATION,
     /** Erase chip */
     ERASE_CHIP,
+    /** Sync timestamp */
+    SYNC_TIMESTAMP,
 };
 
 }  // namespace mynteye_jni

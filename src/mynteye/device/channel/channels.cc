@@ -96,6 +96,9 @@ int XuHalfDuplexId(Option option) {
     case Option::ERASE_CHIP:
       return 1;
       break;
+    case Option::SYNC_TIMESTAMP:
+      return 2;
+      break;
     default:
       LOG(FATAL) << "No half duplex id for " << option;
   }
@@ -206,6 +209,9 @@ std::int32_t Channels::GetControlValue(const Option &option) const {
     case Option::ERASE_CHIP:
       LOG(WARNING) << option << " get value useless";
       return -1;
+    case Option::SYNC_TIMESTAMP:
+      LOG(WARNING) << option << " get value useless";
+      return -1;
     default:
       LOG(ERROR) << "Unsupported option " << option;
   }
@@ -292,9 +298,47 @@ void Channels::SetControlValue(const Option &option, std::int32_t value) {
     case Option::ERASE_CHIP:
       LOG(WARNING) << option << " set value useless";
       break;
+    case Option::SYNC_TIMESTAMP:
+      XuCamCtrlSet(option, value);
+      break;
     default:
       LOG(ERROR) << "Unsupported option " << option;
   }
+}
+
+bool Channels::SetControlValue(const Option &option, std::uint64_t value) {
+  switch (option) {
+    case Option::GAIN:
+    case Option::BRIGHTNESS:
+    case Option::CONTRAST:
+    case Option::FRAME_RATE:
+    case Option::IMU_FREQUENCY:
+    case Option::ACCELEROMETER_RANGE:
+    case Option::GYROSCOPE_RANGE:
+    case Option::ACCELEROMETER_LOW_PASS_FILTER:
+    case Option::GYROSCOPE_LOW_PASS_FILTER:
+    case Option::EXPOSURE_MODE:
+    case Option::MAX_GAIN:
+    case Option::MAX_EXPOSURE_TIME:
+    case Option::DESIRED_BRIGHTNESS:
+    case Option::IR_CONTROL:
+    case Option::HDR_MODE:
+    case Option::MIN_EXPOSURE_TIME:
+    case Option::IIC_ADDRESS_SETTING:
+    case Option::ZERO_DRIFT_CALIBRATION:
+      LOG(WARNING) << option << " refer to function SetControlValue(const Option &option, std::int32_t value)";
+      break;
+    case Option::ERASE_CHIP:
+      LOG(WARNING) << option << " set value useless";
+      break;
+    case Option::SYNC_TIMESTAMP:
+      return XuHalfDuplexSet(option, XU_SYNC_TIMESTAMP);
+      break;
+    default:
+      LOG(ERROR) << "Unsupported option " << option;
+  }
+
+  return false;
 }
 
 bool Channels::RunControlAction(const Option &option) const {

@@ -75,6 +75,7 @@ TEST(Option, VerifyToString) {
       "Option::ZERO_DRIFT_CALIBRATION",
       to_string(Option::ZERO_DRIFT_CALIBRATION));
   EXPECT_STREQ("Option::ERASE_CHIP", to_string(Option::ERASE_CHIP));
+  EXPECT_STREQ("Option::SYNC_TIMESTAMP", to_string(Option::SYNC_TIMESTAMP));
 }
 
 TEST(Source, VerifyToString) {

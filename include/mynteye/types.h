@@ -44,6 +44,8 @@ enum class Model : std::uint8_t {
   STANDARD2,
   /** Standard 210a */
   STANDARD210A,
+  /** Standard 200b */
+  STANDARD200B,
   /** Last guard */
   LAST
 };
@@ -272,6 +274,9 @@ enum class Option : std::uint8_t {
   ZERO_DRIFT_CALIBRATION,
   /** Erase chip */
   ERASE_CHIP,
+
+  /** Sync timestamp */
+  SYNC_TIMESTAMP,
 
   /** Last guard */
   LAST

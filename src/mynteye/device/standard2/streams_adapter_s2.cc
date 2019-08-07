@@ -227,6 +227,7 @@ Standard2StreamsAdapter::GetUnpackImgPixelsMap() {
         {Stream::RIGHT, s210a::unpack_right_img_pixels}
       };
     case Model::STANDARD2:
+    case Model::STANDARD200B:
     default:
       return {
         {Stream::LEFT, unpack_left_img_pixels},

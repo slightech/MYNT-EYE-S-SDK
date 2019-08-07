@@ -14,5 +14,7 @@ public enum Model {
     STANDARD2,
     /** Standard 210a */
     STANDARD210A,
+    /** Standard 200b */
+    STANDARD200B,
     ;
 }

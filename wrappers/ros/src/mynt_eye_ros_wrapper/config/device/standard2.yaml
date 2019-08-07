@@ -19,7 +19,7 @@
 
 standard2/request_index: 2
 
-# MYNTEYE-S2100/S2000/S210A/imu_process_mode range: [0,3]
+# MYNTEYE-S2100/S2000/S210A/S200B imu_process_mode range: [0,3]
 # 0 - none process, 1 - temperature process, 2 - scale and assembly process, 3 - both
 standard2/imu_process_mode: 2
 
@@ -110,3 +110,45 @@ standard210a/gyro_low_filter: -1
 # standard210a/iic_address_setting range: [0,127]
 standard210a/iic_address_setting: -1
 # standard210a/iic_address_setting: 0x01
+
+# device options of standard200b, -1 will not set the value
+
+# standard200b/brightness range: [1,255]
+standard200b/brightness: -1
+# standard200b/brightness: 70
+
+# standard200b/exposure_mode, 0: auto-exposure, 1: manual-exposure
+standard200b/exposure_mode: -1
+# standard200b/exposure_mode: 0
+
+# standard200b/max_gain range: [0,255]
+standard200b/max_gain: -1
+# standard200b/max_gain: 8
+
+# standard200b/max_exposure_time range: [0,1000]
+standard200b/max_exposure_time: -1
+# standard200b/max_exposure_time: 333
+
+# standard200b/desired_brightness range: [1,255]
+standard200b/desired_brightness: -1
+# standard200b/desired_brightness: 122
+
+# standard200b/min_exposure_time range: [0,1000]
+standard200b/min_exposure_time: -1
+# standard200b/min_exposure_time: 0
+
+# standard200b/accel_range range: [6,48]
+standard200b/accel_range: -1
+# standard200b/accel_range: 6
+
+# standard200b/gyro_range range: [250,4000]
+standard200b/gyro_range: -1
+# standard200b/gyro_range: 1000
+
+# standard200b/accel_low_filter range: [0,2]
+standard200b/accel_low_filter: -1
+# standard200b/accel_low_filter: 2
+
+# standard200b/gyro_low_filter range: [23,64]
+standard200b/gyro_low_filter: -1
+# standard200b/gyro_low_filter: 64

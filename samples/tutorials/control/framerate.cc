@@ -45,8 +45,9 @@ int main(int argc, char *argv[]) {
               << api->GetOptionValue(Option::IMU_FREQUENCY);
   }
 
-  // You should set frame rate for S2000/S2100/S210A by 'SelectStreamRequest()'
-  if (model == Model::STANDARD2 || model == Model::STANDARD210A) {
+  // You should set frame rate for S2000/S2100/S210A/S200B by 'SelectStreamRequest()'
+  if (model == Model::STANDARD2 ||
+   model == Model::STANDARD210A || model == Model::STANDARD200B) {
     LOG(INFO) << "Please set frame rate by 'SelectStreamRequest()'";
   }
 
