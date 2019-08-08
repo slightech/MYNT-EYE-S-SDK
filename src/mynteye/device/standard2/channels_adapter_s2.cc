@@ -73,7 +73,7 @@ void unpack_imu_packet(const std::uint8_t *data, ImuPacket *pkg) {
     unpack_imu_segment(ImuData(data + data_n * i), &seg);
     pkg->segments.push_back(seg);
   }
-  pkg->serial_number = pkg->segments.back().frame_id;
+  if (pkg->count) pkg->serial_number = pkg->segments.back().frame_id;
 }
 
 void unpack_imu_res_packet(const std::uint8_t *data, ImuResPacket *res) {
