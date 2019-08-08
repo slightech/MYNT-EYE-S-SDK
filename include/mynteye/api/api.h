@@ -253,6 +253,11 @@ class MYNTEYE_API API {
   void SetOptionValue(const Option &option, std::int32_t value);
 
   /**
+   * Set the option value.
+   */
+  bool SetOptionValue(const Option &option, std::uint64_t value);
+
+  /**
    * Run the option action.
    */
   bool RunOptionAction(const Option &option) const;

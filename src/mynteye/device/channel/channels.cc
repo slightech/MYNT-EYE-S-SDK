@@ -97,7 +97,7 @@ int XuHalfDuplexId(Option option) {
       return 1;
       break;
     case Option::SYNC_TIMESTAMP:
-      return 2;
+      return 3;
       break;
     default:
       LOG(FATAL) << "No half duplex id for " << option;
@@ -332,7 +332,7 @@ bool Channels::SetControlValue(const Option &option, std::uint64_t value) {
       LOG(WARNING) << option << " set value useless";
       break;
     case Option::SYNC_TIMESTAMP:
-      return XuHalfDuplexSet(option, XU_SYNC_TIMESTAMP);
+      return XuHalfDuplexSet(option, value);
       break;
     default:
       LOG(ERROR) << "Unsupported option " << option;
@@ -715,6 +715,29 @@ bool Channels::XuHalfDuplexSet(Option option, xu_cmd_t cmd) const {
   } else {
     LOG(WARNING) << "XuHalfDuplexSet value (0x" << std::hex << std::uppercase
                  << cmd << ") of " << option << " failed";
+    return false;
+  }
+}
+
+bool Channels::XuHalfDuplexSet(Option option, std::uint64_t value) const {
+  int id = XuHalfDuplexId(option);
+  std::uint8_t data[20] = {static_cast<std::uint8_t>(id & 0xFF),
+                           static_cast<std::uint8_t>(value & 0xFF),
+                           static_cast<std::uint8_t>((value >> 8) & 0xFF),
+                           static_cast<std::uint8_t>((value >> 16) & 0xFF),
+                           static_cast<std::uint8_t>((value >> 24) & 0xFF),
+                           static_cast<std::uint8_t>((value >> 32) & 0xFF),
+                           static_cast<std::uint8_t>((value >> 40) & 0xFF),
+                           static_cast<std::uint8_t>((value >> 48) & 0xFF),
+                           static_cast<std::uint8_t>((value >> 56) & 0xFF)};
+
+  if (XuControlQuery(CHANNEL_HALF_DUPLEX, uvc::XU_QUERY_SET, 20, data)) {
+    VLOG(2) << "XuHalfDuplexSet value (0x" << std::hex << std::uppercase << value
+            << ") of " << option << " success";
+    return true;
+  } else {
+    LOG(WARNING) << "XuHalfDuplexSet value (0x" << std::hex << std::uppercase
+                 << value << ") of " << option << " failed";
     return false;
   }
 }

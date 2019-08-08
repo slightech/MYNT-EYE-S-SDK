@@ -368,6 +368,10 @@ void API::SetOptionValue(const Option &option, std::int32_t value) {
   device_->SetOptionValue(option, value);
 }
 
+bool API::SetOptionValue(const Option &option, std::uint64_t value) {
+  return device_->SetOptionValue(option, value);
+}
+
 bool API::RunOptionAction(const Option &option) const {
   return device_->RunOptionAction(option);
 }
