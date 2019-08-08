@@ -381,6 +381,14 @@ void Device::SetOptionValue(const Option &option, std::int32_t value) {
   channels_->SetControlValue(option, value);
 }
 
+bool Device::SetOptionValue(const Option &option, std::uint64_t value) {
+  if (!Supports(option)) {
+    LOG(WARNING) << "Unsupported option: " << option;
+    return false;
+  }
+  return channels_->SetControlValue(option, value);
+}
+
 bool Device::RunOptionAction(const Option &option) const {
   if (!Supports(option)) {
     LOG(WARNING) << "Unsupported option: " << option;

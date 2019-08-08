@@ -223,6 +223,10 @@ class MYNTEYE_API Device {
    * Set the option value.
    */
   void SetOptionValue(const Option &option, std::int32_t value);
+  /**
+   * Set the option value.
+   */
+  bool SetOptionValue(const Option &option, std::uint64_t value);
 
   /**
    * Run the option action.

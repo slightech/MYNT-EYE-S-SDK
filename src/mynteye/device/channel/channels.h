@@ -112,6 +112,7 @@ class MYNTEYE_API Channels {
   void XuCamCtrlSet(Option option, std::int32_t value) const;
 
   bool XuHalfDuplexSet(Option option, xu_cmd_t cmd) const;
+  bool XuHalfDuplexSet(Option option, std::uint64_t value) const;
 
   bool XuImuWrite(const ImuReqPacket &req) const;
   bool XuImuRead(ImuResPacket *res) const;
