@@ -16,7 +16,7 @@ Update auxiliary chip (Only Support S2100/S210A)
 
 .. image:: ../../images/firmware/stmupdate.png
 
-* In the open file selection box, select the firmware ``MYNTEYE-S210x-auxiliary-chip-v1.0.bin``  and start upgrading.
+* In the open file selection box, select the firmware ``MYNTEYE-S210x-auxiliary-chip-v1.4.bin``  and start upgrading.
 
 * Once the upgrade is complete, it will display update finished.
 

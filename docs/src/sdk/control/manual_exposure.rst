@@ -79,7 +79,7 @@ s1030：
   I0513 14:09:17.552918 31908 manual_exposure.cc:37] Enable manual-exposure
   I0513 14:09:17.552953 31908 manual_exposure.cc:38] Set GAIN to 24
   I0513 14:09:17.552958 31908 manual_exposure.cc:39] Set BRIGHTNESS to 120
-  I0513 14:09:17.552963 31908 manual_exposure.cc:40] Set CONTRAST to 127
+  I0513 14:09:17.552963 31908 manual_exposure.cc:40] Set CONTRAST to 116
 
 s2100/s210a：
 

@@ -11,6 +11,11 @@ If you wanna run OKVIS with MYNT EYE camera, please follow the steps:
 3. Update camera parameters to ``<OKVIS>/config/config_mynteye.yaml``.
 4. Run OKVIS using MYNT® EYE.
 
+.. tip::
+
+  OKVIS doesn't support ARM right now
+
+
 Install MYNTEYE OKVIS
 ---------------------
 

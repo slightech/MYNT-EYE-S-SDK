@@ -3,6 +3,14 @@
 Change Log
 ==========
 
+2019-08-09(v2.4.0)
+-------------------
+1. Optimize the synchronization of images and imu
+2. Add 4.16+ kernel support on Ubuntu
+3. Fix missinf frame_id issue in image information
+4. Fix S1030 device not work issue in mynteye_multiple.launch
+5. Add save single picture sample save_single_image
+
 2019-07-03(v2.3.9)
 -------------------
 1. Fix ros timestamp issue
