@@ -6,7 +6,7 @@ Change Log
 
 2019-08-09
 -------------------
-S1030 (MYNTEYE_S_2.5.0)/S2100 (MYNTEYE_S2100_1.3)
+S1030 (MYNTEYE_S_2.5.0) / S2100 (MYNTEYE_S2100_1.3)
 
 1. Optimize the synchronization of images and imu
 2. Camera settings parameters are not saved by default
