@@ -17,3 +17,4 @@ SDK Data Samples
    get_imu_correspondence
    get_from_callbacks
    get_with_plugin
+   save_single_image
