@@ -10,19 +10,19 @@ You can download the firmware and MYNT EYE TOOL installation package in the ``Fi
 .. code-block:: none
 
   Firmwares/
-  ├─Checksum.txt                 # file checksum
-  ├─MYNTEYE_S_2.5.0.img          # S1030 firmware
-  ├─MYNTEYE_S2100_1.4.img        # S2100 firmware
+  ├─Checksum.txt             # File checksum
+  ├─MYNTEYE-S1030-2.5.0.img  # S1030 firmware
+  ├─MYNTEYE-S2100-1.3.2.img  # S2100 firmware
   ├─...
-  └─setup.zip                    # MYNTEYE TOOL zip
+  └─mynt-eye-tool-setup.zip  # MYNT EYE TOOL zip
 
 The firmware upgrade program currently only supports Windows, so you need to operate under Windows. Proceed as follows:
 
 Download preparation
 ---------------------
 
-* Download and unzip ``setup.zip``
-* Find firmware, such as ``MYNTEYE_S_2.5.0.img``
+* Download and unzip ``mynt-eye-tool-setup.zip``
+* Find firmware, such as ``MYNTEYE-S1030-2.5.0.img``
 
   * Please refer to :ref:`firmware_applicable` to select the firmware suitable for the SDK version
 
