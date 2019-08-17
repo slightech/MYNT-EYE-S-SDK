@@ -42,6 +42,7 @@ void RectifyProcessor::stereoRectify(models::CameraPtr leftOdo,
     const CvMat* D1, const CvMat* D2, CvSize imageSize,
     const CvMat* matR, const CvMat* matT,
     CvMat* _R1, CvMat* _R2, CvMat* _P1, CvMat* _P2, double* T_mul_f,
+    double *cx1_min_cx2,
     int flags, double alpha, CvSize newImgSize) {
   // std::cout << _alpha << std::endl;
   alpha = _alpha;
@@ -218,6 +219,8 @@ void RectifyProcessor::stereoRectify(models::CameraPtr leftOdo,
     cvmSet(_P2, 0, 2, cx2);
     cvmSet(_P2, 1, 2, cy2);
     cvmSet(_P2, idx, 3, s*cvmGet(_P2, idx, 3));
+
+    *cx1_min_cx2 = -(cx1 - cx2);
   }
 }
 
@@ -299,8 +302,10 @@ std::shared_ptr<struct CameraROSMsgInfoPair> RectifyProcessor::stereoRectify(
   CvMat c_K1 = K1, c_K2 = K2, c_D1 = D1, c_D2 = D2;
   CvMat c_R1 = R1, c_R2 = R2, c_P1 = P1, c_P2 = P2;
   double T_mul_f;
+  double cx1_min_cx2;
   stereoRectify(leftOdo, rightOdo, &c_K1, &c_K2, &c_D1, &c_D2,
-      image_size1, &c_R, &c_t, &c_R1, &c_R2, &c_P1, &c_P2, &T_mul_f);
+      image_size1, &c_R, &c_t, &c_R1, &c_R2, &c_P1, &c_P2, &T_mul_f,
+      &cx1_min_cx2);
 
   VLOG(2) << "K1: " << K1 << std::endl;
   VLOG(2) << "D1: " << D1 << std::endl;
@@ -334,6 +339,7 @@ std::shared_ptr<struct CameraROSMsgInfoPair> RectifyProcessor::stereoRectify(
   info_pair.left = calib_mat_data_left;
   info_pair.right = calib_mat_data_right;
   info_pair.T_mul_f = T_mul_f;
+  info_pair.cx1_minus_cx2 = cx1_min_cx2;
   for (std::size_t i = 0; i< 3 * 4; i++) {
     info_pair.P[i] = calib_mat_data_left.P[i];
   }

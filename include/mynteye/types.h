@@ -775,6 +775,7 @@ struct CameraROSMsgInfoPair {
   struct CameraROSMsgInfo left;
   struct CameraROSMsgInfo right;
   double T_mul_f = -1.f;
+  double cx1_minus_cx2 = 0.f;
   double  R[9] = {0};
   double  P[12] = {0};
 };

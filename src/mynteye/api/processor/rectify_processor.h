@@ -87,6 +87,7 @@ class RectifyProcessor : public Processor {
       const CvMat* D1, const CvMat* D2, CvSize imageSize,
       const CvMat* matR, const CvMat* matT,
       CvMat* _R1, CvMat* _R2, CvMat* _P1, CvMat* _P2, double* T_mul_f,
+      double *cx1_min_cx2,
       int flags = cv::CALIB_ZERO_DISPARITY, double alpha = -1,
       CvSize newImgSize = cv::Size());
 

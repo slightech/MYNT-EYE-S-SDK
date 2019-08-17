@@ -32,6 +32,7 @@ class DisparityProcessor : public Processor {
   static const char NAME[];
 
   explicit DisparityProcessor(DisparityComputingMethod type,
+      std::shared_ptr<struct CameraROSMsgInfoPair> calib_infos,
       std::int32_t proc_period = 0);
   virtual ~DisparityProcessor();
 
@@ -54,6 +55,7 @@ class DisparityProcessor : public Processor {
   cv::Ptr<cv::StereoSGBM> sgbm_matcher;
   cv::Ptr<cv::StereoBM> bm_matcher;
   DisparityComputingMethod type_;
+  double cx1_minus_cx2_;
 };
 
 MYNTEYE_END_NAMESPACE

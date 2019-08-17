@@ -27,8 +27,14 @@ MYNTEYE_BEGIN_NAMESPACE
 const char DisparityProcessor::NAME[] = "DisparityProcessor";
 
 DisparityProcessor::DisparityProcessor(DisparityComputingMethod type,
+    std::shared_ptr<struct CameraROSMsgInfoPair> calib_infos,
     std::int32_t proc_period)
     : Processor(std::move(proc_period)), type_(type) {
+  if (calib_infos) {
+    cx1_minus_cx2_ = calib_infos->cx1_minus_cx2;
+  } else {
+    cx1_minus_cx2_ = 1.f;
+  }
   VLOG(2) << __func__ << ": proc_period=" << proc_period;
   int sgbmWinSize = 3;
   int numberOfDisparities = 64;
@@ -156,6 +162,7 @@ bool DisparityProcessor::OnProcess(
   } else if (type_ == DisparityComputingMethod::BM) {
     // LOG(ERROR) << "not supported in opencv 2.x";
     (*sgbm_matcher)(input->first, input->second, disparity);
+    disparity.convertTo(output->value, CV_32F, 1./16, 1);
     // cv::Mat tmp1, tmp2;
     // cv::cvtColor(input->first, tmp1, CV_RGB2GRAY);
     // cv::cvtColor(input->second, tmp2, CV_RGB2GRAY);
@@ -188,7 +195,7 @@ bool DisparityProcessor::OnProcess(
     sgbm_matcher->compute(input->first, input->second, disparity);
   }
 #endif
-  disparity.convertTo(output->value, CV_32F, 1./16, 1);
+  disparity.convertTo(output->value, CV_32F, 1./16, cx1_minus_cx2_);
   output->id = input->first_id;
   output->data = input->first_data;
   return true;

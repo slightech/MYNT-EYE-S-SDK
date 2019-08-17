@@ -313,10 +313,8 @@ void Synthetic::InitProcessors() {
   std::shared_ptr<Processor> rectify_processor = nullptr;
   std::shared_ptr<Processor> points_processor = nullptr;
   std::shared_ptr<Processor> depth_processor = nullptr;
+  std::shared_ptr<Processor> disparity_processor = nullptr;
 
-  auto &&disparity_processor =
-      std::make_shared<DisparityProcessor>(DisparityComputingMethod::BM,
-                                           DISPARITY_PROC_PERIOD);
   auto &&disparitynormalized_processor =
       std::make_shared<DisparityNormalizedProcessor>(
           DISPARITY_NORM_PROC_PERIOD);
@@ -333,6 +331,10 @@ void Synthetic::InitProcessors() {
     points_processor = std::make_shared<PointsProcessorOCV>(
         rectify_processor_ocv->Q, POINTS_PROC_PERIOD);
     depth_processor = std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
+    disparity_processor =
+      std::make_shared<DisparityProcessor>(DisparityComputingMethod::BM,
+                                           nullptr,
+                                           DISPARITY_PROC_PERIOD);
 
     root_processor->AddChild(rectify_processor);
     rectify_processor->AddChild(disparity_processor);
@@ -352,6 +354,10 @@ void Synthetic::InitProcessors() {
     depth_processor = std::make_shared<DepthProcessor>(
         rectify_processor_imp -> getCameraROSMsgInfoPair(),
         DEPTH_PROC_PERIOD);
+    disparity_processor =
+      std::make_shared<DisparityProcessor>(DisparityComputingMethod::BM,
+          rectify_processor_imp -> getCameraROSMsgInfoPair(),
+          DISPARITY_PROC_PERIOD);
 
     root_processor->AddChild(rectify_processor);
     rectify_processor->AddChild(disparity_processor);
