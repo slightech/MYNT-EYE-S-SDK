@@ -37,7 +37,7 @@ standard2/exposure_mode: -1
 standard2/max_gain: -1
 # standard2/max_gain: 8
 
-# standard2/max_exposure_time range: [0,1000]
+# standard2/max_exposure_time range: [0,655]
 standard2/max_exposure_time: -1
 # standard2/max_exposure_time: 333
 
@@ -79,7 +79,7 @@ standard210a/exposure_mode: -1
 standard210a/max_gain: -1
 # standard210a/max_gain: 8
 
-# standard210a/max_exposure_time range: [0,1000]
+# standard210a/max_exposure_time range: [0,655]
 standard210a/max_exposure_time: -1
 # standard210a/max_exposure_time: 333
 
@@ -125,7 +125,7 @@ standard200b/exposure_mode: -1
 standard200b/max_gain: -1
 # standard200b/max_gain: 8
 
-# standard200b/max_exposure_time range: [0,1000]
+# standard200b/max_exposure_time range: [0,655]
 standard200b/max_exposure_time: -1
 # standard200b/max_exposure_time: 333
 
