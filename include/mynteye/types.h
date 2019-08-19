@@ -225,8 +225,8 @@ enum class Option : std::uint8_t {
   /**
    * HDR mode
    * <p>
-   *   0: 10-bit<br>
-   *   1: 12-bit
+   *   0: normal<br>
+   *   1: WDR
    * </p>
    */
   HDR_MODE,

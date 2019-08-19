@@ -38,7 +38,7 @@ standard/desired_brightness: -1
 standard/ir_control: 80
 # standard/ir_control: 0
 
-# standard/hdr_mode, 0: 10-bit, 1: 12-bit
+# standard/hdr_mode, 0: normal, 1: WDR
 standard/hdr_mode: -1
 # standard/hdr_mode: 0
 
