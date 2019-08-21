@@ -1491,9 +1491,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     l2i_msg.header.stamp = tf_stamp;
     l2i_msg.header.frame_id = frame_ids_[Stream::LEFT];
     l2i_msg.child_frame_id = imu_frame_id_;
-    l2i_msg.transform.translation.x = 0;
-    l2i_msg.transform.translation.y = 0;
-    l2i_msg.transform.translation.z = 0;
+    l2i_msg.transform.translation.x = l2i_ex.translation[0];
+    l2i_msg.transform.translation.y = l2i_ex.translation[1];
+    l2i_msg.transform.translation.z = l2i_ex.translation[2];
     if (l2i_ex.rotation[0][0] == 0 && l2i_ex.rotation[2][2] == 0) {
       l2i_msg.transform.rotation.x = 0;
       l2i_msg.transform.rotation.y = 0;
