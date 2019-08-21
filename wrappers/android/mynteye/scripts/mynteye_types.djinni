@@ -161,8 +161,8 @@ option = enum {
   #  range: [0,160], default: 0
   ir_control;
   # HDR mode
-  #  0: 10-bit
-  #  1: 12-bit
+  #  0: normal
+  #  1: WDR
   hdr_mode;
 
   # The range of accelerometer

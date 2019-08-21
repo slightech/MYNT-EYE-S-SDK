@@ -69,8 +69,8 @@ enum class Option : int {
     IR_CONTROL,
     /**
      * HDR mode
-     *  0: 10-bit
-     *  1: 12-bit
+     *  0: normal
+     *  1: WDR
      */
     HDR_MODE,
     /**
