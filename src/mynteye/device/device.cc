@@ -713,7 +713,7 @@ void Device::UpdateStreamIntrinsics(
       VLOG(2) << "Intrinsics left: {" << *GetIntrinsics(Stream::LEFT) << "}";
       VLOG(2) << "Intrinsics right: {" << *GetIntrinsics(Stream::RIGHT) << "}";
       VLOG(2) << "Extrinsics left to right: {"
-              << GetExtrinsics(Stream::LEFT, Stream::RIGHT) << "}";
+              << GetExtrinsics(Stream::RIGHT, Stream::LEFT) << "}";
       break;
     }
   }

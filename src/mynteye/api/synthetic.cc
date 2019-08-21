@@ -58,7 +58,7 @@ void Synthetic::InitCalibInfo() {
   intr_left_ = api_->GetIntrinsicsBase(Stream::LEFT);
   intr_right_ = api_->GetIntrinsicsBase(Stream::RIGHT);
   extr_ = std::make_shared<Extrinsics>(
-      api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
+      api_->GetExtrinsics(Stream::RIGHT, Stream::LEFT));
 }
 
 Synthetic::Synthetic(API *api, CalibrationModel calib_model)
@@ -91,7 +91,7 @@ void Synthetic::NotifyImageParamsChanged() {
     intr_left_ = api_->GetIntrinsicsBase(Stream::LEFT);
     intr_right_ = api_->GetIntrinsicsBase(Stream::RIGHT);
     extr_ =  std::make_shared<Extrinsics>(
-        api_->GetExtrinsics(Stream::LEFT, Stream::RIGHT));
+        api_->GetExtrinsics(Stream::RIGHT, Stream::LEFT));
   }
   auto processor = getProcessorWithStream(Stream::LEFT_RECTIFIED);
 
