@@ -26,9 +26,6 @@
 #include <tf/tf.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 
-#include "tf/transform_datatypes.h"//转换函数头文件
-#include <nav_msgs/Odometry.h>//里程计信息格式
-
 #include <opencv2/calib3d/calib3d.hpp>
 
 #include <mynt_eye_ros_wrapper/GetInfo.h>
@@ -126,26 +123,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     return ros::Time(soft_time_begin + time_sec_double);
   }
 
-  ros::Time imuHardTimeToSoftTime(std::uint64_t _hard_time) {
-    static bool isInited = false;
-    static double soft_time_begin(0);
-    static std::uint64_t hard_time_begin(0);
-
-    if (false == isInited) {
-      soft_time_begin = ros::Time::now().toSec();
-      hard_time_begin = _hard_time;
-      isInited = true;
-    }
-
-    std::uint64_t time_ns_detal = (_hard_time - hard_time_begin);
-    std::uint64_t time_ns_detal_s = time_ns_detal / 1000000;
-    std::uint64_t time_ns_detal_ns = time_ns_detal % 1000000;
-    double time_sec_double =
-      ros::Time(time_ns_detal_s, time_ns_detal_ns * 1000).toSec();
-
-    return ros::Time(soft_time_begin + time_sec_double);
-  }
-
   // ros::Time hardTimeToSoftTime(std::uint64_t _hard_time) {
   //   static bool isInited = false;
   //   static double soft_time_begin(0);
@@ -203,7 +180,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     hard_time_now = _hard_time;
 
-    return imuHardTimeToSoftTime(
+    return hardTimeToSoftTime(
         acc * unit_hard_time + _hard_time);
   }
 
@@ -303,12 +280,12 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           {Option::MAX_EXPOSURE_TIME, "standard2/max_exposure_time"},
           {Option::DESIRED_BRIGHTNESS, "standard2/desired_brightness"},
           {Option::MIN_EXPOSURE_TIME, "standard2/min_exposure_time"},
+          {Option::IR_CONTROL, "STANDARD/ir_control"},
           {Option::ACCELEROMETER_RANGE, "standard2/accel_range"},
           {Option::GYROSCOPE_RANGE, "standard2/gyro_range"},
           {Option::ACCELEROMETER_LOW_PASS_FILTER, "standard2/accel_low_filter"},
           {Option::GYROSCOPE_LOW_PASS_FILTER, "standard2/gyro_low_filter"}};
     }
-
     // device options of standard
     if (model_ == Model::STANDARD) {
       option_names_ = {
@@ -327,20 +304,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           {Option::GYROSCOPE_RANGE, "standard/gyro_range"}};
     }
 
-    // device options of standard200b
-    if (model_ == Model::STANDARD200B) {
-      option_names_ = {
-          {Option::BRIGHTNESS, "standard200b/brightness"},
-          {Option::EXPOSURE_MODE, "standard200b/exposure_mode"},
-          {Option::MAX_GAIN, "standard200b/max_gain"},
-          {Option::MAX_EXPOSURE_TIME, "standard200b/max_exposure_time"},
-          {Option::DESIRED_BRIGHTNESS, "standard200b/desired_brightness"},
-          {Option::MIN_EXPOSURE_TIME, "standard200b/min_exposure_time"},
-          {Option::ACCELEROMETER_RANGE, "standard200b/accel_range"},
-          {Option::GYROSCOPE_RANGE, "standard200b/gyro_range"},
-          {Option::ACCELEROMETER_LOW_PASS_FILTER, "standard200b/accel_low_filter"},
-          {Option::GYROSCOPE_LOW_PASS_FILTER, "standard200b/gyro_low_filter"}};
-    }
     for (auto &&it = option_names_.begin(); it != option_names_.end(); ++it) {
       if (!api_->Supports(it->first))
         continue;
@@ -367,9 +330,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       NODELET_INFO_STREAM("Advertized on topic " << topic);
     }
 
-    // Only STANDARD2/STANDARD210A/STANDARD200B need publish mono_topics
-    if (model_ == Model::STANDARD2 ||
-     model_ == Model::STANDARD210A || model_ == Model::STANDARD200B) {
+    // Only STANDARD2/STANDARD210A need publish mono_topics
+    if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
       for (auto &&it = mono_topics.begin(); it != mono_topics.end(); ++it) {
         auto &&topic = mono_topics[it->first];
         if (it->first == Stream::LEFT ||
@@ -384,8 +346,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     int depth_type = 0;
     private_nh_.getParamCached("depth_type", depth_type);
-    if (model_ == Model::STANDARD2 ||
-     model_ == Model::STANDARD210A || model_ == Model::STANDARD200B) {
+    if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
       camera_encodings_ = {{Stream::LEFT, enc::BGR8},
                           {Stream::RIGHT, enc::BGR8},
                           {Stream::LEFT_RECTIFIED, enc::BGR8},
@@ -836,7 +797,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     pthread_mutex_unlock(&mutex_data_);
     auto &&info = getCameraInfo(stream);
     info->header.stamp = msg->header.stamp;
-    info->header.frame_id = frame_ids_[stream];
     camera_publishers_[stream].publish(msg, info);
   }
 
@@ -883,7 +843,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     //   return;
 
     auto &&in = api_->GetIntrinsicsBase(Stream::LEFT);
-    in -> ResizeIntrinsics();
+
     sensor_msgs::PointCloud2 msg;
     msg.header.seq = seq;
     msg.header.stamp = stamp;
@@ -1115,8 +1075,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     int request_index = 0;
 
     model_ = api_->GetModel();
-    if (model_ == Model::STANDARD2 ||
-     model_ == Model::STANDARD210A || model_ == Model::STANDARD200B) {
+    if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
       private_nh_.getParamCached("standard2/request_index", request_index);
       switch (request_index) {
         case 0:
@@ -1143,7 +1102,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     std::int32_t process_mode = 0;
     if (model_ == Model::STANDARD2 ||
-        model_ == Model::STANDARD210A || model_ == Model::STANDARD200B) {
+        model_ == Model::STANDARD210A) {
       private_nh_.getParamCached("standard2/imu_process_mode", process_mode);
       api_->EnableProcessMode(process_mode);
     }
@@ -1221,6 +1180,48 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     return nullptr;
   }
 
+  std::shared_ptr<IntrinsicsBase> getDefaultIntrinsics() {
+    auto res = std::make_shared<IntrinsicsPinhole>();
+    res->width = 640;
+    res->height = 400;
+    res->model = 0;
+    res->fx = 3.6220059643202876e+02;
+    res->fy = 3.6350065250745848e+02;
+    res->cx = 4.0658699068023441e+02;
+    res->cy = 2.3435161110061483e+02;
+    double codffs[5] = {
+      -2.5034765682756088e-01,
+      5.0579399202897619e-02,
+      -7.0536676161976066e-04,
+      -8.5255451307033846e-03,
+      0.
+    };
+    for (unsigned int i = 0; i < 5; i++) {
+      res->coeffs[i] = codffs[i];
+    }
+    return res;
+  }
+
+  std::shared_ptr<Extrinsics> getDefaultExtrinsics() {
+    auto res = std::make_shared<Extrinsics>();
+    double rotation[9] = {
+      9.9867908939669447e-01,  -6.3445566137485428e-03, 5.0988459509619687e-02,
+      5.9890316389333252e-03,  9.9995670037792639e-01,  7.1224201868366971e-03,
+      -5.1031440326695092e-02, -6.8076406092671274e-03, 9.9867384471984544e-01
+    };
+    double translation[3] = {-1.2002489764113250e+02, -1.1782637409050747e+00,
+        -5.2058205159996538e+00};
+    for (unsigned int i = 0; i < 3; i++) {
+      for (unsigned int j = 0; j < 3; j++) {
+        res->rotation[i][j] = rotation[i*3 + j];
+      }
+    }
+    for (unsigned int i = 0; i < 3; i++) {
+      res->translation[i] = translation[i];
+    }
+    return res;
+  }
+
   void publishMesh() {
     mesh_msg_.header.frame_id = base_frame_id_;
     mesh_msg_.header.stamp = ros::Time::now();
@@ -1262,15 +1263,24 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     ROS_ASSERT(api_);
     auto in_left_base = api_->GetIntrinsicsBase(Stream::LEFT);
     auto in_right_base = api_->GetIntrinsicsBase(Stream::RIGHT);
-    if (in_left_base->calib_model() != CalibrationModel::PINHOLE ||
-        in_right_base->calib_model() != CalibrationModel::PINHOLE) {
-      return;
+    is_intrinsics_enable_ = in_left_base && in_right_base;
+    if (is_intrinsics_enable_) {
+      if (in_left_base->calib_model() != CalibrationModel::PINHOLE ||
+          in_right_base->calib_model() != CalibrationModel::PINHOLE) {
+        return;
+      }
+    } else {
+      in_left_base = getDefaultIntrinsics();
+      in_right_base = getDefaultIntrinsics();
     }
 
     auto in_left = *std::dynamic_pointer_cast<IntrinsicsPinhole>(in_left_base);
     auto in_right = *std::dynamic_pointer_cast<IntrinsicsPinhole>(
         in_right_base);
     auto ex_right_to_left = api_->GetExtrinsics(Stream::RIGHT, Stream::LEFT);
+    if (!is_intrinsics_enable_) {
+      ex_right_to_left = *(getDefaultExtrinsics());
+    }
 
     cv::Size size{in_left.width, in_left.height};
     cv::Mat M1 =
