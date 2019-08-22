@@ -21,8 +21,8 @@ MYNTEYE_BEGIN_NAMESPACE
 
 const char DepthProcessor::NAME[] = "DepthProcessor";
 
-const int DISPARITY_MIN = 0;
-const int DISPARITY_MAX = 64;
+int DISPARITY_MIN = 0;
+int DISPARITY_MAX = 64;
 
 DepthProcessor::DepthProcessor(
     std::shared_ptr<struct CameraROSMsgInfoPair> calib_infos,
