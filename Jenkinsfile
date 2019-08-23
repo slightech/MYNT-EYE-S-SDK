@@ -93,11 +93,11 @@ pipeline {
       subject: "${env.JOB_NAME} 编译失败 Failed Pipeline: ${currentBuild.fullDisplayName}",
       body: """
                 详情：
-                FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'             
-                状态：${env.JOB_NAME} jenkins 运行失败 
-                URL ：<a href="${env.BUILD_URL}">${env.BUILD_URL}</a>
-                项目名称 ：${env.JOB_NAME} 
-                项目更新进度：${env.BUILD_NUMBER}
+                FAILED       : Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'             
+                状态         ：${env.JOB_NAME} jenkins 运行失败 
+                URL          ：${env.BUILD_URL}
+                项目名称     ：${env.JOB_NAME} 
+                项目更新进度 ：${env.BUILD_NUMBER}
             """
     }
     unstable {
