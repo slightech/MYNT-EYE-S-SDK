@@ -90,7 +90,7 @@ pipeline {
       echo 'This will run only if failed'
 	  // mail to: 'mynteye-ci@slightech.com',
       mail to: 'cocowang@slightech.com',
-      subject: "编译失败 Failed Pipeline: ${currentBuild.fullDisplayName}",
+      subject: "${env.JOB_NAME} 编译失败 Failed Pipeline: ${currentBuild.fullDisplayName}",
       body: """
                 详情：
                 FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'             
