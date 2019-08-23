@@ -95,7 +95,7 @@ pipeline {
                 详情：
                 FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'             
                 状态：${env.JOB_NAME} jenkins 运行失败 
-                URL ：${env.BUILD_URL}
+                URL ：<a href="${env.BUILD_URL}">${env.BUILD_URL}</a>
                 项目名称 ：${env.JOB_NAME} 
                 项目更新进度：${env.BUILD_NUMBER}
             """
