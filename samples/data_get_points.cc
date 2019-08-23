@@ -16,7 +16,7 @@
 
 #include "mynteye/api/api.h"
 
-#include "util/pc_viewer.h"
+#include "util_pc_viewer.h"
 
 MYNTEYE_USE_NAMESPACE
 

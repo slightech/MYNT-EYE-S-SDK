@@ -17,8 +17,8 @@
 // #include "mynteye/logger.h"
 #include "mynteye/api/api.h"
 
-#include "util/cv_painter.h"
-#include "util/pc_viewer.h"
+#include "util_cv_painter.h"
+#include "util_pc_viewer.h"
 
 namespace {
 
