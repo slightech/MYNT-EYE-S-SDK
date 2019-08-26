@@ -1326,22 +1326,22 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           stream == Stream::RIGHT_RECTIFIED) {
         if (info_pair->right.distortion_model == "KANNALA_BRANDT") {
           camera_info->distortion_model = "KANNALA_BRANDT";
-          for (size_t i; i < 4; i++) {
+          for (size_t i = 0; i < 4; i++) {
             camera_info->D.push_back(info_pair->right.D[i]);
           }
         } else if (info_pair->right.distortion_model == "PINHOLE") {
           camera_info->distortion_model = "plumb_bob";
-          for (size_t i; i < 5; i++) {
+          for (size_t i = 0; i < 5; i++) {
             camera_info->D.push_back(info_pair->right.D[i]);
           }
         }
-        for (size_t i; i < 9; i++) {
+        for (size_t i = 0; i < 9; i++) {
           camera_info->K.at(i) = info_pair->right.K[i];
         }
-        for (size_t i; i < 9; i++) {
+        for (size_t i = 0; i < 9; i++) {
           camera_info->R.at(i) = info_pair->right.R[i];
         }
-        for (size_t i; i < 12; i++) {
+        for (size_t i = 0; i < 12; i++) {
           camera_info->P.at(i) = info_pair->right.P[i];
         }
       } else {
@@ -1351,28 +1351,28 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           private_nh_.getParamCached("is_laserscan", is_laserscan);
           if (!is_laserscan) {
             camera_info->distortion_model = "KANNALA_BRANDT";
-            for (size_t i; i < 4; i++) {
+            for (size_t i = 0; i < 4; i++) {
               camera_info->D.push_back(info_pair->left.D[i]);
             }
           } else {
             camera_info->distortion_model = "KANNALA_BRANDT";
-            for (size_t i; i < 4; i++) {
+            for (size_t i = 0; i < 4; i++) {
               camera_info->D.push_back(0.0);
             }
           }
         } else if (info_pair->left.distortion_model == "PINHOLE") {
           camera_info->distortion_model = "plumb_bob";
-          for (size_t i; i < 5; i++) {
+          for (size_t i = 0; i < 5; i++) {
             camera_info->D.push_back(info_pair->left.D[i]);
           }
         }
-        for (size_t i; i < 9; i++) {
+        for (size_t i = 0; i < 9; i++) {
           camera_info->K.at(i) = info_pair->left.K[i];
         }
-        for (size_t i; i < 9; i++) {
+        for (size_t i = 0; i < 9; i++) {
           camera_info->R.at(i) = info_pair->left.R[i];
         }
-        for (size_t i; i < 12; i++) {
+        for (size_t i = 0; i < 12; i++) {
           camera_info->P.at(i) = info_pair->left.P[i];
         }
       }
