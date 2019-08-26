@@ -528,8 +528,8 @@ bool pu_control_range(
   if (min) *min = static_cast<int>(minVal);
   if (max) *max = static_cast<int>(maxVal);
   if (def) *def = static_cast<int>(defVal);
-  VLOG_INFO << __func__ << " " << option <<
-      ": min=" << *min << ", max=" << *max << ", def=" << *def;
+  // VLOG_INFO << __func__ << " " << option <<
+  //     ": min=" << *min << ", max=" << *max << ", def=" << *def;
   return true;
 }
 
