@@ -88,7 +88,7 @@ if(OS_MAC)
 else()
   # samples above device layer
 
-  make_executable(camera_use_device
+  make_executable(camera_with_junior_device_api
     SRCS device_camera.cc
     LINK_LIBS mynteye ${OpenCV_LIBS}
     DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
@@ -99,7 +99,7 @@ else()
   if(WITH_API)
     ## camera_a
 
-    make_executable(camera_use_api
+    make_executable(camera_with_senior_api
     SRCS api_camera.cc
     LINK_LIBS mynteye ${OpenCV_LIBS}
     DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
