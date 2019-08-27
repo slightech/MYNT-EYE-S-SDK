@@ -2,6 +2,13 @@
 
 Change Log
 ==========
+2019-08-27(v2.4.2)
+-------------------
+
+1. Part of the sample examples were sorted out, and useless tools and engineering code were removed.
+2. Optimize disparity calculation.
+3. Improving the logic of model display.
+4. Fix some bugs.
 
 2019-08-17(v2.4.1)
 -------------------
