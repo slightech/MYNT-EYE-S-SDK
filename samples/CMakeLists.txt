@@ -221,7 +221,7 @@ if(WITH_API)
   make_executable2(ctrl_imu_low_pass_filter SRCS control_imu_low_pass_filter.cc WITH_OPENCV)
   make_executable2(ctrl_imu_range SRCS control_imu_range.cc WITH_OPENCV)
   make_executable2(ctrl_infrared SRCS control_infrared.cc WITH_OPENCV)
-  make_executable2(ctrl_iic_adress SRCS control_iic_address.cc WITH_OPENCV)
+  make_executable2(ctrl_iic_address SRCS control_iic_address.cc WITH_OPENCV)
   make_executable2(ctrl_sync_timestamp SRCS control_sync_timestamp.cc WITH_OPENCV)
   make_executable2(ctrl_auto_exposure
   SRCS control_auto_exposure.cc util_cv_painter.cc
