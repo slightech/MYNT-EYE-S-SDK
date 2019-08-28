@@ -77,6 +77,8 @@
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/slam/vins_fusion.yaml" command="load" />
 
       <param name="gravity" value="$(arg gravity)" />
+
+      <param name="ros_output_framerate_cut"     value="2" />
     </node>
 
     <!-- disable compressed depth plugin for image topics -->

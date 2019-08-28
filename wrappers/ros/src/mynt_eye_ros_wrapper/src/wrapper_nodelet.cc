@@ -58,6 +58,9 @@ inline double compute_time(const double end, const double start) {
 class ROSWrapperNodelet : public nodelet::Nodelet {
  public:
   ROSWrapperNodelet() {
+    skip_tag = -1;
+    skip_tmp_left_tag = 0;
+    skip_tmp_right_tag = 0;
     unit_hard_time *= 10;
   }
 
@@ -408,6 +411,12 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       }
     }
 
+    int ros_output_framerate = -1;
+    private_nh_.getParamCached("ros_output_framerate_cut", ros_output_framerate);
+    if (ros_output_framerate > 0 && ros_output_framerate < 7) {
+      skip_tag = ros_output_framerate;
+    }
+
     // services
 
     const std::string DEVICE_INFO_SERVICE = "get_info";
@@ -672,6 +681,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
               // ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
               ros::Time stamp = checkUpTimeStamp(
                   data.img->timestamp, Stream::LEFT);
+              if (skip_tag > 0) {
+                if (skip_tmp_left_tag == 0) {
+                  skip_tmp_left_tag = skip_tag;
+                } else {
+                  skip_tmp_left_tag--;
+                  return;
+                }
+              }
               publishCamera(Stream::LEFT, data, left_count_, stamp);
               publishMono(Stream::LEFT, data, left_count_, stamp);
               NODELET_DEBUG_STREAM(
@@ -696,6 +713,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
               // ros::Time stamp = hardTimeToSoftTime(data.img->timestamp);
               ros::Time stamp = checkUpTimeStamp(
                   data.img->timestamp, Stream::RIGHT);
+              if (skip_tag > 0) {
+                if (skip_tmp_right_tag == 0) {
+                  skip_tmp_right_tag = skip_tag;
+                } else {
+                  skip_tmp_right_tag--;
+                  return;
+                }
+              }
               publishCamera(Stream::RIGHT, data, right_count_, stamp);
               publishMono(Stream::RIGHT, data, right_count_, stamp);
               NODELET_DEBUG_STREAM(
@@ -1603,6 +1628,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   int frame_rate_;
   bool is_intrinsics_enable_;
   std::vector<ImuData> imu_align_;
+  int skip_tag;
+  int skip_tmp_left_tag;
+  int skip_tmp_right_tag;
 
   std::uint64_t unit_hard_time = std::numeric_limits<std::uint32_t>::max();
 };
