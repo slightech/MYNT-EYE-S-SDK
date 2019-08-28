@@ -116,18 +116,48 @@ cv::Rect CVPainter::DrawImuData(
   int sign = 1;
   if (gravity == BOTTOM_LEFT || gravity == BOTTOM_RIGHT)
     sign = -1;
-
-  Clear(ss) << "stamp: " << data.timestamp
+  static auto fmt_time = NewFormat(0, 2);
+  Clear(ss) << "stamp: " << fmt_time << (0.001f * data.timestamp)
             << ", temp: " << fmt_temp << data.temperature;
   cv::Rect rect_i = DrawText(img, ss.str(), gravity, 5);
 
-  Clear(ss) << "accel(x,y,z): " << fmt_imu << data.accel[0] << "," << fmt_imu
-            << data.accel[1] << "," << fmt_imu << data.accel[2];
+  static double accel1_s = 0.0;
+  static double accel2_s = 0.0;
+  static double accel3_s = 0.0;
+
+  if (data.accel[0] > 0.000001 ||
+      data.accel[1] > 0.000001 ||
+      data.accel[2] > 0.000001 ||
+      data.accel[0] < -0.000001 ||
+      data.accel[1] < -0.000001 ||
+      data.accel[2] < -0.000001) {
+    accel1_s = data.accel[0];
+    accel2_s = data.accel[1];
+    accel3_s = data.accel[2];
+  }
+
+  Clear(ss) << "accel(x,y,z): " << fmt_imu << accel1_s << "," << fmt_imu
+            << accel2_s << "," << fmt_imu << accel3_s;
   cv::Rect rect_a =
       DrawText(img, ss.str(), gravity, 5, 0, sign * (5 + rect_i.height));
 
-  Clear(ss) << "gyro(x,y,z): " << fmt_imu << data.gyro[0] << "," << fmt_imu
-            << data.gyro[1] << "," << fmt_imu << data.gyro[2];
+  static double gyro1_s = 0.0;
+  static double gyro2_s = 0.0;
+  static double gyro3_s = 0.0;
+
+  if (data.gyro[0] > 0.01 ||
+      data.gyro[1] > 0.01 ||
+      data.gyro[2] > 0.01 ||
+      data.gyro[0] < -0.01 ||
+      data.gyro[1] < -0.01 ||
+      data.gyro[2] < -0.01 ) {
+    gyro1_s = data.gyro[0];
+    gyro2_s = data.gyro[1];
+    gyro3_s = data.gyro[2];
+  }
+
+  Clear(ss) << "gyro(x,y,z): " << fmt_imu << gyro1_s << "," << fmt_imu
+            << gyro2_s << "," << fmt_imu << gyro3_s;
   cv::Rect rect_g = DrawText(
       img, ss.str(), gravity, 5, 0,
       sign * (10 + rect_i.height + rect_a.height));
