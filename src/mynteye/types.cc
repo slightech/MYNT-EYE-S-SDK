@@ -190,13 +190,8 @@ std::size_t bytes_per_pixel(const Format &value) {
 }
 
 std::ostream &operator<<(std::ostream &os, const StreamRequest &request) {
-  if (request.fps == 0) {
-    return os << "width: " << request.width << ", height: " << request.height
-      << ", format: " << request.format;
-  } else {
-    return os << "width: " << request.width << ", height: " << request.height
+  return os << "width: " << request.width << ", height: " << request.height
       << ", format: " << request.format << ", fps: " << request.fps;
-  }
 }
 
 const char *to_string(const CalibrationModel &model) {

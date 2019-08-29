@@ -89,10 +89,16 @@ MYNTEYE_NAMESPACE::StreamRequest select_request(
     *ok = false;
     return {};
   }
+  auto requests_display = requests;
+  if (Model::STANDARD == device->GetModel()) {
+    for (std::size_t i = 0; i < n; i++) {
+      requests_display[i].fps = 25;
+    }
+  }
 
   LOG(INFO) << "MYNT EYE requests:";
   for (std::size_t i = 0; i < n; i++) {
-    auto &&request = requests[i];
+    auto &&request = requests_display[i];
     LOG(INFO) << "  index: " << i
               << ", request: " << request;
   }
