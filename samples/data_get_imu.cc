@@ -64,8 +64,13 @@ int main(int argc, char *argv[]) {
       */
 
       painter.DrawImgData(img, *left_data.img);
+      static std::vector<api::MotionData> motion_datas_s = motion_datas;
+
       if (!motion_datas.empty() && motion_datas.size() > 0) {
-        painter.DrawImuData(img, *motion_datas[0].imu);
+        motion_datas_s = motion_datas;
+      }
+      if (!motion_datas_s.empty() && motion_datas_s.size() > 0) {
+        painter.DrawImuData(img, *motion_datas_s[0].imu);
       }
 
       cv::imshow("frame", img);
