@@ -43,7 +43,6 @@ help:
 	@echo "  make install         install project"
 	@echo "  make test            build test and run"
 	@echo "  make samples         build samples"
-	@echo "  make tools           build tools"
 	@echo "  make pkg             package sdk"
 	@echo "  make ros             build ros wrapper"
 	@echo "  make py              build python wrapper"
@@ -51,7 +50,7 @@ help:
 
 .PHONY: help
 
-all: init samples tools ros
+all: init samples ros
 
 .PHONY: all
 
@@ -159,20 +158,6 @@ samples: install
 
 .PHONY: samples
 
-# tools
-
-tools: install
-	@$(call echo,Make $@)
-ifeq ($(HOST_OS),Mac)
-	$(error "Can't make tools on $(HOST_OS)")
-else
-	@$(call cmake_build,./tools/_build)
-endif
-
-
-
-.PHONY: tools
-
 # pkg
 
 pkg: clean
@@ -262,8 +247,6 @@ clean:
 	@$(call rm,./_install/)
 	@$(call rm,./samples/_build/)
 	@$(call rm,./samples/_output/)
-	@$(call rm,./tools/_build/)
-	@$(call rm,./tools/_output/)
 	@$(call rm,./test/_build/)
 	@$(call rm,./test/_output/)
 	@$(MAKE) cleanlog
