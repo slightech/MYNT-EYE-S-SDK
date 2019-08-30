@@ -16,7 +16,7 @@
 #include "mynteye/logger.h"
 #include "mynteye/api/api.h"
 
-#include "util_cv_painter.h"
+#include "util_cv.h"
 
 // #define CHECK_ACCEL_THEN_GYRO
 #define SEQ_FIRST  1  // accel

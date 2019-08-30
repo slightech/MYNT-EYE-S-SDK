@@ -89,7 +89,7 @@ else()
   # samples above device layer
 
   make_executable(camera_with_junior_device_api
-    SRCS device_camera.cc
+    SRCS camera_with_junior_device_api.cc
     LINK_LIBS mynteye ${OpenCV_LIBS}
     DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
   )
@@ -100,7 +100,7 @@ else()
     ## camera_a
 
     make_executable(camera_with_senior_api
-    SRCS api_camera.cc
+    SRCS camera_with_senior_api.cc
     LINK_LIBS mynteye ${OpenCV_LIBS}
     DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
     )
@@ -108,7 +108,7 @@ else()
     ## get_depth_with_region
 
     make_executable(get_depth_with_region
-    SRCS api_get_depth_with_region.cc
+    SRCS get_depth_with_region.cc
     LINK_LIBS mynteye ${OpenCV_LIBS}
     DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
     )
@@ -194,48 +194,48 @@ if(WITH_API)
 
   ## data
 
-  make_executable2(get_device_info SRCS data_get_device_info.cc WITH_OPENCV)
-  make_executable2(get_img_params SRCS data_get_img_params.cc WITH_OPENCV)
-  make_executable2(get_imu_params SRCS data_get_imu_params.cc WITH_OPENCV)
+  make_executable2(get_device_info SRCS get_device_info.cc WITH_OPENCV)
+  make_executable2(get_img_params SRCS get_img_params.cc WITH_OPENCV)
+  make_executable2(get_imu_params SRCS get_imu_params.cc WITH_OPENCV)
 
-  make_executable2(get_stereo_rectified SRCS data_get_stereo_rectified.cc WITH_OPENCV)
-  make_executable2(get_disparity SRCS data_get_disparity.cc WITH_OPENCV)
-  make_executable2(get_depth SRCS data_get_depth.cc WITH_OPENCV)
+  make_executable2(get_stereo_rectified SRCS get_stereo_rectified.cc WITH_OPENCV)
+  make_executable2(get_disparity SRCS get_disparity.cc WITH_OPENCV)
+  make_executable2(get_depth SRCS get_depth.cc WITH_OPENCV)
 
-  make_executable2(get_data_without_select SRCS data_get_data_without_select.cc WITH_OPENCV)
+  make_executable2(get_data_without_select SRCS get_data_without_select.cc WITH_OPENCV)
   make_executable2(get_imu_correspondence
-  SRCS data_get_imu_correspondence.cc util_cv_painter.cc
+  SRCS get_imu_correspondence.cc util_cv.cc
   WITH_OPENCV
   )
-  make_executable2(get_imu SRCS data_get_imu.cc util_cv_painter.cc WITH_OPENCV)
-  make_executable2(save_single_image SRCS data_save_single_image.cc WITH_OPENCV)
+  make_executable2(get_imu SRCS get_imu.cc util_cv.cc WITH_OPENCV)
+  make_executable2(save_single_image SRCS save_single_image.cc WITH_OPENCV)
   make_executable2(get_from_callbacks
-  SRCS data_get_from_callbacks.cc util_cv_painter.cc
+  SRCS get_from_callbacks.cc util_cv.cc
   WITH_OPENCV
   )
-  make_executable2(get_with_plugin SRCS data_get_with_plugin.cc WITH_OPENCV)
+  make_executable2(get_with_plugin SRCS get_with_plugin.cc WITH_OPENCV)
 
   ## control
 
-  make_executable2(ctrl_framerate SRCS control_framerate.cc WITH_OPENCV)
-  make_executable2(ctrl_imu_low_pass_filter SRCS control_imu_low_pass_filter.cc WITH_OPENCV)
-  make_executable2(ctrl_imu_range SRCS control_imu_range.cc WITH_OPENCV)
-  make_executable2(ctrl_infrared SRCS control_infrared.cc WITH_OPENCV)
-  make_executable2(ctrl_iic_address SRCS control_iic_address.cc WITH_OPENCV)
-  make_executable2(ctrl_sync_timestamp SRCS control_sync_timestamp.cc WITH_OPENCV)
+  make_executable2(ctrl_framerate SRCS ctrl_framerate.cc WITH_OPENCV)
+  make_executable2(ctrl_imu_low_pass_filter SRCS ctrl_imu_low_pass_filter.cc WITH_OPENCV)
+  make_executable2(ctrl_imu_range SRCS ctrl_imu_range.cc WITH_OPENCV)
+  make_executable2(ctrl_infrared SRCS ctrl_infrared.cc WITH_OPENCV)
+  make_executable2(ctrl_iic_address SRCS ctrl_iic_address.cc WITH_OPENCV)
+  make_executable2(ctrl_sync_timestamp SRCS ctrl_sync_timestamp.cc WITH_OPENCV)
   make_executable2(ctrl_auto_exposure
-  SRCS control_auto_exposure.cc util_cv_painter.cc
+  SRCS ctrl_auto_exposure.cc util_cv.cc
   WITH_OPENCV
   )
   make_executable2(ctrl_manual_exposure
-  SRCS control_manual_exposure.cc util_cv_painter.cc
+  SRCS ctrl_manual_exposure.cc util_cv.cc
   WITH_OPENCV
   )
 
   if(PCL_FOUND)
 
     make_executable2(get_depth_and_points
-    SRCS intermediate_get_depth_and_points.cc util_cv_painter.cc util_pc_viewer.cc
+    SRCS get_depth_and_points.cc util_cv.cc util_pcl.cc
     WITH_OPENCV WITH_PCL
     )
 
