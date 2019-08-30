@@ -1,7 +1,7 @@
 .. _mynteye_spec_s2110:
 
 
-S2110-146/Color Product Specification
+S2110-95/Color Product Specification
 ========================================
 
 Product Specification
