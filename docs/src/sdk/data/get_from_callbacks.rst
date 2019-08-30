@@ -116,4 +116,4 @@ Reference code snippet:
 
 OpenCV is used to display images and data above. When the window is selected, pressing ``ESC/Q`` will exit program.
 
-Complete code examples, see `get_from_callbacks.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/data/get_from_callbacks.cc>`_ .
+Complete code examples, see `get_from_callbacks.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/get_from_callbacks.cc>`_ .

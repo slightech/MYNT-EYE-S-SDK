@@ -48,4 +48,4 @@ Reference code snippet:
 
 OpenCV is used to display the image above. Select the display window, press ``ESC/Q`` to exit the program.
 
-Complete code examples, see `get_stereo_rectified.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/data/get_stereo_rectified.cc>`_ .
+Complete code examples, see `get_stereo_rectified.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/get_stereo_rectified.cc>`_ .

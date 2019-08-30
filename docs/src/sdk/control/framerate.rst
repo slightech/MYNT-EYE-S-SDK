@@ -67,7 +67,7 @@ s1030：
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/ctrl_framerate
+  $ ./samples/_output/bin/ctrl_framerate
   I0513 14:05:57.218222 31813 utils.cc:26] Detecting MYNT EYE devices
   I0513 14:05:57.899404 31813 utils.cc:33] MYNT EYE devices:
   I0513 14:05:57.899430 31813 utils.cc:37]   index: 0, name: MYNT-EYE-S1000
@@ -82,7 +82,7 @@ s2100/s210a：
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/ctrl_framerate 
+  $ ./samples/_output/bin/ctrl_framerate 
   I/utils.cc:30 Detecting MYNT EYE devices
   I/utils.cc:40 MYNT EYE devices:
   I/utils.cc:43   index: 0, name: MYNT-EYE-S210A, sn: 07C41A190009071F
@@ -105,4 +105,4 @@ s2100/s210a：
 
 After the sample program finishes running with ``ESC/Q``, it will output the calculated value of the frame rate of image & IMU frequency.
 
-Complete code samples，please see `framerate.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/control/framerate.cc>`_ .
+Complete code samples，please see `ctrl_framerate.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/ctrl_framerate.cc>`_ .

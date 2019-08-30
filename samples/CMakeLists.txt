@@ -242,4 +242,40 @@ if(WITH_API)
   endif()
 endif()
 
+## device_writer
+
+add_library(device_writer STATIC device_writer.cc)
+target_link_libraries(device_writer mynteye ${OpenCV_LIBS})
+
+## device_info_writer
+
+make_executable(write_device_info
+  SRCS write_device_info.cc
+  LINK_LIBS device_writer
+  DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
+)
+
+## img_params_writer
+
+make_executable(write_img_params
+  SRCS write_img_params.cc
+  LINK_LIBS device_writer
+  DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
+)
+
+## imu_params_writer
+
+make_executable(write_imu_params
+  SRCS write_imu_params.cc
+  LINK_LIBS device_writer
+  DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
+)
+
+## save_all_infos
+
+make_executable(save_all_infos
+  SRCS save_all_infos.cc
+  LINK_LIBS device_writer
+  DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
+)
 

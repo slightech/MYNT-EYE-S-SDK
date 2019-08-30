@@ -67,7 +67,7 @@ s1030：
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/ctrl_imu_range
+  $ ./samples/_output/bin/ctrl_imu_range
   I/utils.cc:28 Detecting MYNT EYE devices
   I/utils.cc:38 MYNT EYE devices:
   I/utils.cc:41   index: 0, name: MYNT-EYE-S1030, sn: 4B4C1F1100090712
@@ -82,7 +82,7 @@ s2100/s210a：
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/ctrl_imu_range 
+  $ ./samples/_output/bin/ctrl_imu_range 
   I/utils.cc:30 Detecting MYNT EYE devices
   I/utils.cc:40 MYNT EYE devices:
   I/utils.cc:43   index: 0, name: MYNT-EYE-S210A, sn: 07C41A190009071F
@@ -105,4 +105,4 @@ s2100/s210a：
 
 After the sample program finishes running with ``ESC/Q``, the ranges of imu setting is complete. The ranges will be kept inside the hardware and not affected by power off.
 
-Complete code samples，please see `imu_range.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/control/imu_range.cc>`_.
+Complete code samples，please see `ctrl_imu_range.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/ctrl_imu_range.cc>`_.

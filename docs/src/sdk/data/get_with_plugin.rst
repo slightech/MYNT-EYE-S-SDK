@@ -83,7 +83,7 @@ In addition, the following command can be executed to check whether the dependen
 
 If the plugin's dependent library is not found, it will report an error \"Open plugin failed\" when loading.
 
-Complete code sample, see `get_with_plugin.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/data/get_with_plugin.cc>`_ .
+Complete code sample, see `get_with_plugin.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/get_with_plugin.cc>`_ .
 
 .. tip::
 

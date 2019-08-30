@@ -37,7 +37,7 @@ Reference running results on Linux:
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/ctrl_imu_low_pass_filter 
+  $ ./samples/_output/bin/ctrl_imu_low_pass_filter 
   I/utils.cc:30 Detecting MYNT EYE devices
   I/utils.cc:40 MYNT EYE devices:
   I/utils.cc:43   index: 0, name: MYNT-EYE-S210A, sn: 07C41A190009071F
@@ -60,4 +60,4 @@ Reference running results on Linux:
 
 After the sample program finishes running with ``ESC/Q``, the low-pass filter of imu setting is complete. The ranges will be kept inside the hardware and not affected by power off.
 
-Complete code samples，please see `imu_low_pass_filter.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/control/imu_low_pass_filter.cc>`_ 。
+Complete code samples，please see `ctrl_imu_low_pass_filter.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/ctrl_imu_low_pass_filter.cc>`_ 。

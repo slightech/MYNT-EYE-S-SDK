@@ -86,7 +86,7 @@ s1030：
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/ctrl_auto_exposure
+  $ ./samples/_output/bin/ctrl_auto_exposure
   I0513 14:07:57.963943 31845 utils.cc:26] Detecting MYNT EYE devices
   I0513 14:07:58.457536 31845 utils.cc:33] MYNT EYE devices:
   I0513 14:07:58.457563 31845 utils.cc:37]   index: 0, name: MYNT-EYE-S1000
@@ -101,7 +101,7 @@ s2100/s210a：
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/ctrl_auto_exposure 
+  $ ./samples/_output/bin/ctrl_auto_exposure 
   I/utils.cc:30 Detecting MYNT EYE devices
   I/utils.cc:40 MYNT EYE devices:
   I/utils.cc:43   index: 0, name: MYNT-EYE-S210A, sn: 07C41A190009071F
@@ -126,4 +126,4 @@ s2100/s210a：
 
 The sample program displays an image with a real exposure time in the upper left corner, in milliseconds.
 
-Complete code examples, see `auto_exposure.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/control/auto_exposure.cc>`_ .
+Complete code examples, see `ctrl_auto_exposure.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/ctrl_auto_exposure.cc>`_ .

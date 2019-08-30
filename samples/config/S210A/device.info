@@ -1,0 +1,12 @@
+%YAML:1.0
+---
+device_name: MYNT-EYE-S210A
+serial_number: "07C40D1C0009071F"
+firmware_version: "1.1"
+hardware_version: "1.0"
+spec_version: "1.2"
+lens_type: "0001"
+imu_type: "0001"
+nominal_baseline: 80
+auxiliary_chip_version: "1.0"
+isp_version: "1.0"
