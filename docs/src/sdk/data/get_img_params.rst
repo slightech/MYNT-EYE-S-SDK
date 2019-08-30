@@ -10,6 +10,10 @@ Use ``GetIntrinsics()`` & ``GetExtrinsics()`` to get image calibration parameter
   the image calibration parameters of S2100/S210A are in  ``tools/writer/config/S210A``
   the image calibration parameters of S1030 are in   ``tools/writer/config/S1030``
 
+Note
+
+Camera Intrinsics/Extrinsics, please ref to: ros `CameraInfo <http://docs.ros.org/melodic/api/sensor_msgs/html/msg/CameraInfo.html>`_.
+
 Reference code snippet:
 
 .. code-block:: c++

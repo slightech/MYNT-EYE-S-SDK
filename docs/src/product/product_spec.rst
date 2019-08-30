@@ -9,3 +9,4 @@ Product Specification
    spec_s1030
    spec_s1030_ir
    spec_s2100
+   spec_s2110
