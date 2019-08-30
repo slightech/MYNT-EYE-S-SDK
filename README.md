@@ -53,7 +53,7 @@ Init project, build samples and run someone.
 ```bash
 make init
 make samples
-./samples/_output/bin/device/camera_d
+./samples/_output/bin/camera_with_junior_device_api
 ```
 
 ## Mirrors

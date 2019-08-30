@@ -16,7 +16,7 @@
 #include "mynteye/logger.h"
 #include "mynteye/api/api.h"
 
-#include "util_cv_painter.h"
+#include "util_cv.h"
 
 MYNTEYE_USE_NAMESPACE
 
@@ -32,57 +32,42 @@ int main(int argc, char *argv[]) {
 
   Model model = api->GetModel();
 
-  // Set auto exposure options fo s1030
+  // Set manual exposure options fo s1030
   if (model == Model::STANDARD) {
-    // auto-exposure: 0
-    api->SetOptionValue(Option::EXPOSURE_MODE, 0);
-
-    // max_gain: range [0,48], default 48
-    api->SetOptionValue(Option::MAX_GAIN, 48);
-    // max_exposure_time: range [0,240], default 240
-    api->SetOptionValue(Option::MAX_EXPOSURE_TIME, 240);
-    // desired_brightness: range [0,255], default 192
-    api->SetOptionValue(Option::DESIRED_BRIGHTNESS, 192);
+    // manual-exposure: 1
+    api->SetOptionValue(Option::EXPOSURE_MODE, 1);
+    // gain: range [0,48], default 24
+    api->SetOptionValue(Option::GAIN, 24);
+    // brightness/exposure_time: range [0,240], default 120
+    api->SetOptionValue(Option::BRIGHTNESS, 120);
+    // contrast/black_level_calibration: range [0,255], default 116
+    api->SetOptionValue(Option::CONTRAST, 116);
 
     frame_rate = api->GetOptionValue(Option::FRAME_RATE);
 
-    LOG(INFO) << "Enable auto-exposure";
+    LOG(INFO) << "Enable manual-exposure";
     LOG(INFO) << "Set EXPOSURE_MODE to "
               << api->GetOptionValue(Option::EXPOSURE_MODE);
-    LOG(INFO) << "Set EXPOSURE_MODE to "
-              << api->GetOptionValue(Option::EXPOSURE_MODE);
-    LOG(INFO) << "Set MAX_GAIN to " << api->GetOptionValue(Option::MAX_GAIN);
-    LOG(INFO) << "Set MAX_EXPOSURE_TIME to "
-              << api->GetOptionValue(Option::MAX_EXPOSURE_TIME);
-    LOG(INFO) << "Set DESIRED_BRIGHTNESS to "
-              << api->GetOptionValue(Option::DESIRED_BRIGHTNESS);
+    LOG(INFO) << "Set GAIN to " << api->GetOptionValue(Option::GAIN);
+    LOG(INFO) << "Set BRIGHTNESS to "
+              << api->GetOptionValue(Option::BRIGHTNESS);
+    LOG(INFO) << "Set CONTRAST to " << api->GetOptionValue(Option::CONTRAST);
   }
 
-  // Set auto exposure options fo S2000/S2100/S210A/S200B
+  // Set manual exposure options fo S2000/S2100/S210A/S200B
   if (model == Model::STANDARD2 ||
    model == Model::STANDARD210A || model == Model::STANDARD200B) {
-    // auto-exposure: 0
-    api->SetOptionValue(Option::EXPOSURE_MODE, 0);
+    // manual-exposure: 1
+    api->SetOptionValue(Option::EXPOSURE_MODE, 1);
 
-    // max_gain: range [0,255], default 8
-    api->SetOptionValue(Option::MAX_GAIN, 8);
-    // max_exposure_time: range [0,1000], default 333
-    api->SetOptionValue(Option::MAX_EXPOSURE_TIME, 333);
-    // desired_brightness: range [1,255], default 122
-    api->SetOptionValue(Option::DESIRED_BRIGHTNESS, 122);
-    // min_exposure_time: range [0,1000], default 0
-    api->SetOptionValue(Option::MIN_EXPOSURE_TIME, 0);
+    // brightness/exposure_time: range [1,255], default 70
+    api->SetOptionValue(Option::BRIGHTNESS, 70);
 
-    LOG(INFO) << "Enable auto-exposure";
+    LOG(INFO) << "Enable manual-exposure";
     LOG(INFO) << "Set EXPOSURE_MODE to "
               << api->GetOptionValue(Option::EXPOSURE_MODE);
-    LOG(INFO) << "Set MAX_GAIN to " << api->GetOptionValue(Option::MAX_GAIN);
-    LOG(INFO) << "Set MAX_EXPOSURE_TIME to "
-              << api->GetOptionValue(Option::MAX_EXPOSURE_TIME);
-    LOG(INFO) << "Set DESIRED_BRIGHTNESS to "
-              << api->GetOptionValue(Option::DESIRED_BRIGHTNESS);
-    LOG(INFO) << "Set MIN_EXPOSURE_TIME to "
-              << api->GetOptionValue(Option::MIN_EXPOSURE_TIME);
+    LOG(INFO) << "Set BRIGHTNESS to "
+              << api->GetOptionValue(Option::BRIGHTNESS);
   }
 
   api->Start(Source::VIDEO_STREAMING);
