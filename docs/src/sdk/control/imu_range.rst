@@ -13,7 +13,7 @@ To set the range of accelerometer and gyroscope, set ``Option::ACCELEROMETER_RAN
   * The effective range of accelerometer(unit:g): 4, 8, 16, 32.
   * Gyroscope Range Valid value (unit: DEG/S): 500, 1000, 2000, 4000.
 
-  For mynteye s2100/s210a, the available settings are:
+  For mynteye s21XX, the available settings are:
   
   * The effective range of accelerometer(unit:g): 6, 12, 24, 48.
   * The effective range of gyroscope(unit:deg/s): 250, 500, 1000, 2000, 4000.
@@ -38,7 +38,7 @@ s1030：
   LOG(INFO) << "Set GYROSCOPE_RANGE to "
             << api->GetOptionValue(Option::GYROSCOPE_RANGE);
 
-s2100/s210a：
+s21XX：
 
 .. code-block:: c++
 
@@ -78,7 +78,7 @@ s1030：
   I/imu_range.cc:84 Img count: 363, fps: 25.0967
   I/imu_range.cc:86 Imu count: 2825, hz: 195.312
 
-s2100/s210a：
+s21XX：
 
 .. code-block:: bash
 

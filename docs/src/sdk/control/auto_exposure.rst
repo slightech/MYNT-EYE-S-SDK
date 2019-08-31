@@ -13,7 +13,7 @@ For mynteye s1030, the settings available for adjustment during auto exposure ar
 * ``Option::MAX_EXPOSURE_TIME`` Maximum exposure time.
 * ``Option::DESIRED_BRIGHTNESS`` Expected brightness.
 
-For mynteye s2100/s210a, the settings available for adjustment during auto exposure are:
+For mynteye s21XX, the settings available for adjustment during auto exposure are:
 
 * ``Option::MAX_GAIN`` Maximum gain.
 * ``Option::MAX_EXPOSURE_TIME`` Maximum exposure time.
@@ -45,7 +45,7 @@ s1030：
   LOG(INFO) << "Set DESIRED_BRIGHTNESS to "
             << api->GetOptionValue(Option::DESIRED_BRIGHTNESS);
 
-s2100/s210a：
+s21XX：
 
 .. code-block:: c++
 
@@ -97,7 +97,7 @@ s1030：
   I0513 14:07:58.521375 31845 auto_exposure.cc:41] Set DESIRED_BRIGHTNESS to 192
 
 
-s2100/s210a：
+s21XX：
 
 .. code-block:: bash
 

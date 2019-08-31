@@ -9,11 +9,11 @@ To set the IIC address, set ``Option::IIC_ADDRESS_SETTING``.
 
 
 .. Attention::
-  Only support S210A/2100
+  Only support S21XX
 
 Reference Code:
 
-s210a/s2100：
+s2XX：
 
 .. code-block:: c++
 
@@ -33,7 +33,7 @@ s210a/s2100：
 
 Reference running results on Linux:
 
-s210a/s2100：
+s21XX：
 
 .. code-block:: bash
 

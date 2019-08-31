@@ -7,7 +7,7 @@ Use ``GetIntrinsics()`` & ``GetExtrinsics()`` to get image calibration parameter
 
 .. tip::
   The detailed meaning of parameters can reference the files in ``tools/writer/config`` , of these
-  the image calibration parameters of S2100/S210A are in  ``tools/writer/config/S210A``
+  the image calibration parameters of S21XX are in  ``tools/writer/config/S21XX``
   the image calibration parameters of S1030 are in   ``tools/writer/config/S1030``
 
 Note

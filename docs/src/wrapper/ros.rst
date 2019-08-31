@@ -54,7 +54,7 @@ The ROS file is structured like follows:
   │     ├─config/
   │     │  ├─device/
   │     │     ├─standard.yaml   # S1030
-  │     │     └─standard2.yaml  # S2100/S210A
+  │     │     └─standard2.yaml  # S21XX
   │     │  ├─laserscan/
   │     │  ├─process/
   │     │  └─...
@@ -72,14 +72,14 @@ The ROS file is structured like follows:
   │     └─package.xml
   └─README.md
 
-In ``mynteye.launch``, you can configure the topics and frame_ids, decide which data to enable, ``standard.yaml`` (standard2.yaml is S2100/S210A config file) can set parameters for device. Please set ``gravity`` to the local gravity acceleration.
+In ``mynteye.launch``, you can configure the topics and frame_ids, decide which data to enable, ``standard.yaml`` (standard2.yaml is S21XX config file) can set parameters for device. Please set ``gravity`` to the local gravity acceleration.
 
 
 standard.yaml/standard2.yaml:
 
 .. code-block:: xml
 
-  # s2100/s210a modify frame/resolution
+  # s21XX modify frame/resolution
   standard2/request_index: 2
 
   # s1030 modify frame/imu hz
