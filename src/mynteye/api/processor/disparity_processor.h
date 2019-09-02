@@ -16,6 +16,7 @@
 #pragma once
 
 #include <string>
+#include <memory>
 #include "mynteye/api/processor.h"
 #include "mynteye/types.h"
 
@@ -41,18 +42,18 @@ class DisparityProcessor : public Processor {
       const DisparityComputingMethod &MethodType);
   void NotifyComputingTypeChanged(const DisparityComputingMethod &MethodType);
   bool ConfigFromFile(const std::string& config);
-  double GetMinDisparity() {
+  std::shared_ptr<int> GetMinDisparity() {
     if (type_ == DisparityComputingMethod::BM) {
-      return disparity_min_bm;
+      return disparity_min_bm_ptr;
     } else {
-      return disparity_min_sgbm;
+      return disparity_min_sgbm_ptr;
     }
   }
-  double GetMaxDisparity() {
+  std::shared_ptr<int> GetMaxDisparity() {
     if (type_ == DisparityComputingMethod::BM) {
-      return disparity_max_bm;
+      return disparity_max_bm_ptr;
     } else {
-      return disparity_max_sgbm;
+      return disparity_max_sgbm_ptr;
     }
   }
 
@@ -70,10 +71,10 @@ class DisparityProcessor : public Processor {
   cv::Ptr<cv::StereoBM> bm_matcher;
   DisparityComputingMethod type_;
   double cx1_minus_cx2_;
-  double disparity_min_bm;
-  double disparity_max_bm;
-  double disparity_min_sgbm;
-  double disparity_max_sgbm;
+  std::shared_ptr<int> disparity_min_bm_ptr;
+  std::shared_ptr<int> disparity_max_bm_ptr;
+  std::shared_ptr<int> disparity_min_sgbm_ptr;
+  std::shared_ptr<int> disparity_max_sgbm_ptr;
 };
 
 MYNTEYE_END_NAMESPACE

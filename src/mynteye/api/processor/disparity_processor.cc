@@ -81,9 +81,10 @@ DisparityProcessor::DisparityProcessor(DisparityComputingMethod type,
     sgbm_matcher->setSpeckleWindowSize(100);
     sgbm_matcher->setSpeckleRange(32);
     sgbm_matcher->setDisp12MaxDiff(1);
-    disparity_min_sgbm = sgbm_matcher->getMinDisparity();
-    disparity_max_sgbm = sgbm_matcher->getNumDisparities();
-
+    disparity_min_sgbm_ptr =
+      std::make_shared<int>(sgbm_matcher->getMinDisparity());
+    disparity_max_sgbm_ptr =
+      std::make_shared<int>(sgbm_matcher->getNumDisparities());
     bm_matcher = cv::StereoBM::create(0, 3);
     bm_matcher->setPreFilterSize(9);
     bm_matcher->setPreFilterCap(31);
@@ -95,8 +96,10 @@ DisparityProcessor::DisparityProcessor(DisparityComputingMethod type,
     bm_matcher->setSpeckleWindowSize(100);
     bm_matcher->setSpeckleRange(4);
     bm_matcher->setPreFilterType(cv::StereoBM::PREFILTER_XSOBEL);
-    disparity_min_bm = bm_matcher->getMinDisparity();
-    disparity_max_bm = bm_matcher->getNumDisparities();
+    disparity_min_bm_ptr =
+      std::make_shared<int>(bm_matcher->getMinDisparity());
+    disparity_max_bm_ptr =
+      std::make_shared<int>(bm_matcher->getNumDisparities());
 #endif
   NotifyComputingTypeChanged(type_);
 }
@@ -125,11 +128,15 @@ bool DisparityProcessor::ConfigFromFile(const std::string& config_file) {
   cv::FileNode node_sgbm = fsSettings["SGBM"];
   if (node_sgbm.type() == cv::FileNode::MAP) {
     sgbm_matcher->read(node_sgbm);
+    *disparity_min_sgbm_ptr = sgbm_matcher->getMinDisparity();
+    *disparity_max_sgbm_ptr = sgbm_matcher->getNumDisparities();
   }
 
   cv::FileNode node_bm = fsSettings["BM"];
   if (node_bm.type() == cv::FileNode::MAP) {
     bm_matcher->read(node_bm);
+    *disparity_min_bm_ptr = bm_matcher->getMinDisparity();
+    *disparity_max_bm_ptr = bm_matcher->getNumDisparities();
   }
   return true;
 #else
