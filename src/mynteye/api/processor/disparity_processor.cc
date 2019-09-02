@@ -81,6 +81,8 @@ DisparityProcessor::DisparityProcessor(DisparityComputingMethod type,
     sgbm_matcher->setSpeckleWindowSize(100);
     sgbm_matcher->setSpeckleRange(32);
     sgbm_matcher->setDisp12MaxDiff(1);
+    disparity_min_sgbm = sgbm_matcher->getMinDisparity();
+    disparity_max_sgbm = sgbm_matcher->getNumDisparities();
 
     bm_matcher = cv::StereoBM::create(0, 3);
     bm_matcher->setPreFilterSize(9);
@@ -93,8 +95,8 @@ DisparityProcessor::DisparityProcessor(DisparityComputingMethod type,
     bm_matcher->setSpeckleWindowSize(100);
     bm_matcher->setSpeckleRange(4);
     bm_matcher->setPreFilterType(cv::StereoBM::PREFILTER_XSOBEL);
-    // DISPARITY_MIN = bm_matcher->getMinDisparity();
-    // DISPARITY_MAX = bm_matcher->getMinDisparity();
+    disparity_min_bm = bm_matcher->getMinDisparity();
+    disparity_max_bm = bm_matcher->getNumDisparities();
 #endif
   NotifyComputingTypeChanged(type_);
 }

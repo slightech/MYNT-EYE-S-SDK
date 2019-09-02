@@ -41,6 +41,20 @@ class DisparityProcessor : public Processor {
       const DisparityComputingMethod &MethodType);
   void NotifyComputingTypeChanged(const DisparityComputingMethod &MethodType);
   bool ConfigFromFile(const std::string& config);
+  double GetMinDisparity() {
+    if (type_ == DisparityComputingMethod::BM) {
+      return disparity_min_bm;
+    } else {
+      return disparity_min_sgbm;
+    }
+  }
+  double GetMaxDisparity() {
+    if (type_ == DisparityComputingMethod::BM) {
+      return disparity_max_bm;
+    } else {
+      return disparity_max_sgbm;
+    }
+  }
 
  protected:
   // inline Processor::process_type ProcessOutputConnection() override {
@@ -56,6 +70,10 @@ class DisparityProcessor : public Processor {
   cv::Ptr<cv::StereoBM> bm_matcher;
   DisparityComputingMethod type_;
   double cx1_minus_cx2_;
+  double disparity_min_bm;
+  double disparity_max_bm;
+  double disparity_min_sgbm;
+  double disparity_max_sgbm;
 };
 
 MYNTEYE_END_NAMESPACE
