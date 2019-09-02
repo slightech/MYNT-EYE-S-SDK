@@ -12,8 +12,12 @@ SDK Data Samples
    get_stereo_rectified
    get_disparity
    get_depth
+   get_points
    get_imu
    get_imu_correspondence
    get_from_callbacks
    get_with_plugin
+   save_params
    save_single_image
+   write_img_params
+   write_imu_params

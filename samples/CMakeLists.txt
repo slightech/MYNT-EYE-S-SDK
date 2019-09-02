@@ -279,3 +279,11 @@ make_executable(save_all_infos
   DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
 )
 
+## record
+
+make_executable(record
+  SRCS record.cc dataset.cc
+  LINK_LIBS mynteye ${OpenCV_LIBS}
+  DLL_SEARCH_PATHS ${PRO_DIR}/_install/bin ${OpenCV_LIB_SEARCH_PATH}
+)
+

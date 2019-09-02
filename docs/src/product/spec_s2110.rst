@@ -1,7 +1,7 @@
 .. _mynteye_spec_s2110:
 
 
-S2110-146/Color Product Specification
+S2110-95/Color Product Specification
 ========================================
 
 Product Specification
@@ -9,7 +9,7 @@ Product Specification
 
 
 ==========================  =====================================================
-  Model                        S2110-146/Color
+  Model                        S2110-95/Color
 --------------------------  -----------------------------------------------------
   Size                         PCB dimension:15x100mm
                                Total dimension:125x47x26.6mm

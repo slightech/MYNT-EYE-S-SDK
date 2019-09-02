@@ -16,7 +16,7 @@ Reference commands:
   # Windows
   .\samples\_output\bin\write_imu_params.bat samples\config\imu.params
 
-The path of parameters file can be found in `samples/config/img.params <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/config/img.params>`_ . If you calibrated the parameters yourself, you can edit the file and run above commands to write them into the device.
+The path of parameters folder can be found in `samples/config/imu.params <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/config>`_ . If you calibrated the parameters yourself, you can edit the file and run above commands to write them into the device.
 
 .. warning::
 

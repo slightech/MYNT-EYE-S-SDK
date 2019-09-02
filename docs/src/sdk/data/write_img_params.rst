@@ -24,7 +24,7 @@ And, `samples/config/S1030/img.params.pinhole <https://github.com/slightech/MYNT
 
 .. tip::
 
-  The image calibration parameters of S2100/S210A are in  ``samples/config/S210A``
+  The image calibration parameters of S21XX are in  ``samples/config/S21XX``
   The image calibration parameters of S1030 are in   ``samples/config/S1030``
 
 .. tip::

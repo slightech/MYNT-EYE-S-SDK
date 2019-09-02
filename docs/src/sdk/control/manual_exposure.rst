@@ -13,7 +13,7 @@ For mynteye s1030, during manual exposure, the settings available for adjustment
 * ``Option::BRIGHTNESS`` Brightness (Exposure time).
 * ``Option::CONTRAST`` Contrast (Black level calibration).
 
-For mynteye s2100/s210a, during manual exposure, the settings available for adjustment are:
+For mynteye s21XX, during manual exposure, the settings available for adjustment are:
 
 * ``Option::BRIGHTNESS`` Brightness (Exposure time).
 
@@ -41,7 +41,7 @@ s1030：
   LOG(INFO) << "Set BRIGHTNESS to " << api->GetOptionValue(Option::BRIGHTNESS);
   LOG(INFO) << "Set CONTRAST to " << api->GetOptionValue(Option::CONTRAST);
 
-s2100/s210a：
+s21XX：
 
 .. code-block:: c++
 
@@ -81,7 +81,7 @@ s1030：
   I0513 14:09:17.552958 31908 manual_exposure.cc:39] Set BRIGHTNESS to 120
   I0513 14:09:17.552963 31908 manual_exposure.cc:40] Set CONTRAST to 116
 
-s2100/s210a：
+s21XX：
 
 .. code-block:: bash
 
