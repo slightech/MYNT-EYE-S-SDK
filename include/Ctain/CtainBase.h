@@ -15,7 +15,8 @@ namespace Ctain {
     typedef SMatrix<double> Matrixd;
     typedef Matrix<double> MatrixXd;
     typedef Matrix<double> Matrix23d;
-    typedef SMatrix<double> Matrix33d;
+    typedef SMatrix<double> Matrix3d;
+    typedef SMatrix<double> Matrix4d;
 
     typedef SMatrix<float> Matrixf;
     typedef Matrixf Matrix2f;

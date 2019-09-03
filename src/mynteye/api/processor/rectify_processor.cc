@@ -120,19 +120,21 @@ void RectifyProcessor::stereoRectify(models::CameraPtr leftOdo,
     CvPoint3D32f _pts_3[4];
     CvMat pts = cvMat(1, 4, CV_32FC2, _pts);
     CvMat pts_3 = cvMat(1, 4, CV_32FC3, _pts_3);
-    Eigen::Vector2d a;
-    Eigen::Vector3d b;
+    // Eigen::Vector2d a;
+    // Eigen::Vector3d b;
+    Ctain::Vector2d a(2, 1);
+    Ctain::Vector3d b(3, 1);
     for (i = 0; i < 4; i++) {
       int j = (i < 2) ? 0 : 1;
-      a.x() = (float)((i % 2)*(nx));
-      a.y() = (float)(j*(ny));
+      a(0) = (float)((i % 2)*(nx));
+      a(1) = (float)(j*(ny));
       if (0 == k) {
         leftOdo->liftProjective(a, b);
       } else {
         rightOdo->liftProjective(a, b);
       }
-      _pts[i].x = b.x()/b.z();
-      _pts[i].y = b.y()/b.z();
+      _pts[i].x = b(0)/b(2);
+      _pts[i].y = b(1)/b(2);
     }
     cvConvertPointsHomogeneous(&pts, &pts_3);
 
@@ -224,22 +226,26 @@ void RectifyProcessor::stereoRectify(models::CameraPtr leftOdo,
   }
 }
 
-Eigen::Matrix4d RectifyProcessor::loadT(const mynteye::Extrinsics& in) {
-  Eigen::Matrix3d R;
+// Eigen::Matrix4d RectifyProcessor::loadT(const mynteye::Extrinsics& in) {
+  // subEigen
+Ctain::Matrix4d RectifyProcessor::loadT(const mynteye::Extrinsics &in) {
+  Ctain::Matrix3d R;
   R<<
-  in.rotation[0][0], in.rotation[0][1], in.rotation[0][2],
-  in.rotation[1][0], in.rotation[1][1], in.rotation[1][2],
-  in.rotation[2][0], in.rotation[2][1], in.rotation[2][2];
+  in.rotation[0][0] << in.rotation[0][1] << in.rotation[0][2] <<
+  in.rotation[1][0] << in.rotation[1][1] << in.rotation[1][2] <<
+  in.rotation[2][0] << in.rotation[2][1] << in.rotation[2][2];
 
   double t_x = in.translation[0];
   double t_y = in.translation[1];
   double t_z = in.translation[2];
 
-  Eigen::Quaterniond q(R);
+  Ctain::Quaterniond q(R);
   q.normalize();
-  Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
+  Ctain::Matrix4d T(4);
   T.topLeftCorner<3, 3>() = q.toRotationMatrix();
-  T.topRightCorner<3, 1>() << t_x, t_y, t_z;
+  Ctain::Vector3d t(3, 1);
+  t << t_x << t_y << t_z;
+  T.topRightCorner<3, 1>() = t;
 
   return T;
 }
@@ -278,12 +284,25 @@ std::shared_ptr<struct CameraROSMsgInfoPair> RectifyProcessor::stereoRectify(
     mynteye::IntrinsicsEquidistant in_left,
     mynteye::IntrinsicsEquidistant in_right,
     mynteye::Extrinsics ex_right_to_left) {
-  Eigen::Matrix4d T = loadT(ex_right_to_left);
-  Eigen::Matrix3d R = T.topLeftCorner<3, 3>();
-  Eigen::Vector3d t = T.topRightCorner<3, 1>();
-  cv::Mat cv_R, cv_t;
-  cv::eigen2cv(R, cv_R);
-  cv::eigen2cv(t, cv_t);
+  // Eigen::Matrix4d T = loadT(ex_right_to_left);
+  // Eigen::Matrix3d R = T.topLeftCorner<3, 3>();
+  // Eigen::Vector3d t = T.topRightCorner<3, 1>();
+  Ctain::Matrix4d T = loadT(ex_right_to_left);
+  Ctain::Matrix3d R = T.topLeftCorner<3, 3>();
+  Ctain::Vector3d t = T.topRightCorner<3, 1>();
+  // cv::Mat cv_R, cv_t;
+  // cv::eigen2cv(R, cv_R);
+  cv::Mat cv_R(3, 3, CV_64FC1);
+  for(int i = 0; i < 3; ++i) {
+    for(int j = 0; j < 3; ++j) {
+      cv_R.at<double>(i, j) = R(i, j);
+    }
+  }
+  // cv::eigen2cv(t, cv_t);
+  cv::Mat cv_t(3, 1, CV_64FC1);
+  for(int i = 0; i < 3; ++i) {
+      cv_t.at<double>(i, 0) = t(i, 0);   
+  }
   cv::Mat K1, D1, K2, D2;
   cv::Size image_size1, image_size2;
 

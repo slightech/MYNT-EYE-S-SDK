@@ -91,7 +91,10 @@ class RectifyProcessor : public Processor {
       int flags = cv::CALIB_ZERO_DISPARITY, double alpha = -1,
       CvSize newImgSize = cv::Size());
 
-  Eigen::Matrix4d loadT(const mynteye::Extrinsics& in);
+// Eigen::Matrix4d loadT(const mynteye::Extrinsics& in);
+// subEigen
+  Ctain::Matrix4d loadT(const mynteye::Extrinsics &in);
+
   void loadCameraMatrix(cv::Mat& K, cv::Mat& D,  // NOLINT
       cv::Size& image_size,  // NOLINT
       struct CameraROSMsgInfo& calib_data); // NOLINT

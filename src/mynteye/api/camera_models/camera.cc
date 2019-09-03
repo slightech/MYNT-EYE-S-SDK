@@ -262,7 +262,7 @@ void Camera::projectPoints(
   }
 }
 
-//subEigen
+// subEigen
 void Camera::projectPoints2(
     const std::vector<cv::Point3f> &objectPoints, const cv::Mat &rvec,
     const cv::Mat &tvec, std::vector<cv::Point2f> &imagePoints) const {
