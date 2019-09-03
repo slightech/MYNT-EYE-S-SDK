@@ -229,7 +229,7 @@ void RectifyProcessor::stereoRectify(models::CameraPtr leftOdo,
 // Eigen::Matrix4d RectifyProcessor::loadT(const mynteye::Extrinsics& in) {
   // subEigen
 Ctain::Matrix4d RectifyProcessor::loadT(const mynteye::Extrinsics &in) {
-  Ctain::Matrix3d R;
+  Ctain::Matrix3d R(3);
   R<<
   in.rotation[0][0] << in.rotation[0][1] << in.rotation[0][2] <<
   in.rotation[1][0] << in.rotation[1][1] << in.rotation[1][2] <<
