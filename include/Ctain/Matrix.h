@@ -94,7 +94,6 @@ namespace Ctain {
             return m;
         }
 
-
         friend std::ostream &operator <<(std::ostream &os,const Matrix<_Scalar> &m) {
 //            os << std::endl;
             for (int i = 0; i < m._Rows; i++) {

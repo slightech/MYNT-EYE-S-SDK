@@ -282,6 +282,7 @@ void EquidistantCamera::estimateIntrinsics(
     std::vector<Eigen::Vector2d> center(boardSize.height);
     int arrayLength = boardSize.height;
     double *radius = new double[arrayLength];
+    memset(radius, 0, arrayLength * sizeof(double));
     for (int r = 0; r < boardSize.height; ++r) {
       std::vector<cv::Point2d> circle;
       for (int c = 0; c < boardSize.width; ++c) {
@@ -378,6 +379,7 @@ void EquidistantCamera::estimateIntrinsics2(
     std::vector<Ctain::Vector2d> center(boardSize.height);
     int arrayLength = boardSize.height;
     double *radius = new double[arrayLength];
+    memset(radius, 0, arrayLength * sizeof(double));
     for (int r = 0; r < boardSize.height; ++r) {
       std::vector<cv::Point2d> circle;
       for (int c = 0; c < boardSize.width; ++c) {
