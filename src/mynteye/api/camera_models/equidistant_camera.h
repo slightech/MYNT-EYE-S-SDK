@@ -115,12 +115,28 @@ class EquidistantCamera : public Camera {
       const std::vector<std::vector<cv::Point3f> > &objectPoints,
       const std::vector<std::vector<cv::Point2f> > &imagePoints);
 
+//subEigen
+  void estimateIntrinsics2(
+      const cv::Size &boardSize,
+      const std::vector<std::vector<cv::Point3f> > &objectPoints,
+      const std::vector<std::vector<cv::Point2f> > &imagePoints);
+
   // Lift points from the image plane to the projective space
   void liftProjective(const Eigen::Vector2d &p, Eigen::Vector3d &P) const;  // NOLINT
   // %output P
 
+  //subEigen
+  // Lift points from the image plane to the projective space
+  void liftProjective(const Ctain::Vector2d &p, Ctain::Vector3d &P) const;  // NOLINT
+  // %output P
+
   // Projects 3D points to the image plane (Pi function)
   void spaceToPlane(const Eigen::Vector3d &P, Eigen::Vector2d &p) const;  // NOLINT
+  // %output p
+
+  //subEigen
+  // Projects 3D points to the image plane (Pi function)
+  void spaceToPlane(const Ctain::Vector3d &P, Ctain::Vector2d &p) const;  // NOLINT
   // %output p
 
   // Projects 3D points to the image plane (Pi function)
@@ -131,14 +147,39 @@ class EquidistantCamera : public Camera {
   // %output p
   // %output J
 
+    // subEigen
+  // Projects 3D points to the image plane (Pi function)
+  // and calculates jacobian
+void spaceToPlane(
+    const Ctain::Vector3d &P, Ctain::Vector2d &p,
+    Ctain::Matrix23d &J) const;  // NOLINT
+  // %output p
+  // %output J
+
   template <typename T>
   static void spaceToPlane(
       const T *const params, const T *const q, const T *const t,
       const Eigen::Matrix<T, 3, 1> &P, Eigen::Matrix<T, 2, 1> &p);  // NOLINT
 
+// subEigen
+  template <typename T>
+  static void spaceToPlane(
+      const T *const params, const T *const q, const T *const t,
+      const Ctain::Matrix<T> &P, Ctain::Matrix<T> &p);  // NOLINT
+
   void initUndistortMap(
       cv::Mat &map1, cv::Mat &map2, double fScale = 1.0) const;  // NOLINT
+
   cv::Mat initUndistortRectifyMap(
+      cv::Mat &map1, cv::Mat &map2, float fx = -1.0f, float fy = -1.0f,  // NOLINT
+      cv::Size imageSize = cv::Size(0, 0), float cx = -1.0f, float cy = -1.0f,
+      cv::Mat rmat = cv::Mat::eye(3, 3, CV_32F)) const;
+
+// subEigen
+  void initUndistortMap2(
+      cv::Mat &map1, cv::Mat &map2, double fScale = 1.0) const;  // NOLINT
+
+  cv::Mat initUndistortRectifyMap2(
       cv::Mat &map1, cv::Mat &map2, float fx = -1.0f, float fy = -1.0f,  // NOLINT
       cv::Size imageSize = cv::Size(0, 0), float cx = -1.0f, float cy = -1.0f,
       cv::Mat rmat = cv::Mat::eye(3, 3, CV_32F)) const;
@@ -161,8 +202,17 @@ class EquidistantCamera : public Camera {
       const std::vector<double> &x, const std::vector<double> &y, int n,
       std::vector<double> &coeffs) const;  // NOLINT
 
+// subEigen
+  void fitOddPoly2(
+      const std::vector<double> &x, const std::vector<double> &y, int n,
+      std::vector<double> &coeffs) const; 
+
   void backprojectSymmetric(
       const Eigen::Vector2d &p_u, double &theta, double &phi) const;  // NOLINT
+
+// subEigen
+  void backprojectSymmetric(
+      const Ctain::Vector2d &p_u, double &theta, double &phi) const;  // NOLINT
 
   Parameters mParameters;
 
@@ -228,7 +278,55 @@ void EquidistantCamera::spaceToPlane(
   p(0) = mu * p_u(0) + u0;
   p(1) = mv * p_u(1) + v0;
 }
+
+// subEigen
+template <typename T>
+void spaceToPlane(
+      const T *const params, const T *const q, const T *const t,
+      const Ctain::Matrix<T> &P, Ctain::Matrix<T> &p) {
+  T P_w[3];
+  P_w[0] = T(P(0));
+  P_w[1] = T(P(1));
+  P_w[2] = T(P(2));
+
+  // Convert quaternion from Eigen convention (x, y, z, w)
+  // to Ceres convention (w, x, y, z)
+  T q_ceres[4] = {q[3], q[0], q[1], q[2]};
+
+  T P_c[3];
+  QuaternionRotatePoint(q_ceres, P_w, P_c);
+
+  P_c[0] += t[0];
+  P_c[1] += t[1];
+  P_c[2] += t[2];
+
+  // project 3D object point to the image plane;
+  T k2 = params[0];
+  T k3 = params[1];
+  T k4 = params[2];
+  T k5 = params[3];
+  T mu = params[4];
+  T mv = params[5];
+  T u0 = params[6];
+  T v0 = params[7];
+
+  T len = sqrt(P_c[0] * P_c[0] + P_c[1] * P_c[1] + P_c[2] * P_c[2]);
+  T theta = acos(P_c[2] / len);
+  T phi = atan2(P_c[1], P_c[0]);
+
+  Ctain::Matrix<T> p_u(2, 1), tmp(2, 1);
+  tmp(0) = cos(phi);
+  tmp(1) = sin(phi);
+  p_u = r(k2, k3, k4, k5, theta) * tmp;
+
+  p(0) = mu * p_u(0) + u0;
+  p(1) = mv * p_u(1) + v0;
 }
+
+}
+
+
+
 
 MYNTEYE_END_NAMESPACE
 
