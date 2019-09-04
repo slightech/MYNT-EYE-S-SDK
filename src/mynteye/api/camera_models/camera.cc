@@ -97,46 +97,23 @@ const cv::Mat &Camera::mask(void) const {
   return m_mask;
 }
 
+
 void Camera::estimateExtrinsics(
     const std::vector<cv::Point3f> &objectPoints,
     const std::vector<cv::Point2f> &imagePoints, cv::Mat &rvec,
     cv::Mat &tvec) const {
   std::vector<cv::Point2f> Ms(imagePoints.size());
   for (size_t i = 0; i < Ms.size(); ++i) {
-  Eigen::Vector3d P;
-  
-     liftProjective(
-         Eigen::Vector2d(imagePoints.at(i).x, imagePoints.at(i).y), P);
- 
-    P = P / P(2);
+  // Eigen::Vector3d P;
+  Ctain::Vectord P(3, 1), p(2, 1);
+  p<< imagePoints.at(i).x << imagePoints.at(i).y;
 
-    Ms.at(i).x = P(0);
-    Ms.at(i).y = P(1);
-  }
-
-  // assume unit focal length, zero principal point, and zero distortion
-  cv::solvePnP(
-      objectPoints, Ms, cv::Mat::eye(3, 3, CV_64F), cv::noArray(), rvec, tvec);
-}
-
-//subEigen
-void Camera::estimateExtrinsics2(
-    const std::vector<cv::Point3f> &objectPoints,
-    const std::vector<cv::Point2f> &imagePoints, cv::Mat &rvec,
-    cv::Mat &tvec) const {
-  std::vector<cv::Point2f> Ms(imagePoints.size());
-  for (size_t i = 0; i < Ms.size(); ++i) {
-   // Eigen::Vector3d P;
-   Ctain::Vectord P(3, 1), p(2, 1);
-   p<< imagePoints.at(i).x << imagePoints.at(i).y;
-
-    // liftProjective(
-        // Eigen::Vector2d(imagePoints.at(i).x, imagePoints.at(i).y), P);
-    liftProjective(p, P);
-    P = P / P(2);
-
-    Ms.at(i).x = P(0);
-    Ms.at(i).y = P(1);
+  // liftProjective(
+  // Eigen::Vector2d(imagePoints.at(i).x, imagePoints.at(i).y), P);
+  liftProjective(p, P);
+  P = P / P(2);
+  Ms.at(i).x = P(0);
+  Ms.at(i).y = P(1);
   }
 
   // assume unit focal length, zero principal point, and zero distortion
@@ -145,19 +122,8 @@ void Camera::estimateExtrinsics2(
 }
 
 double Camera::reprojectionDist(
-    const Eigen::Vector3d &P1, const Eigen::Vector3d &P2) const {
-  Eigen::Vector2d p1, p2;
-
-  spaceToPlane(P1, p1);
-  spaceToPlane(P2, p2);
-
-  return (p1 - p2).norm();
-}
-
-//subEigen
- double Camera::reprojectionDist(
-      const Ctain::Vectord &P1, const Ctain::Vectord &P2) const {
-  Ctain::Vectord p1(2, 1), p2(2, 1);
+    const Ctain::Vector3d &P1, const Ctain::Vector3d &P2) const {
+  Ctain::Vector2d p1(2, 1), p2(2, 1);
 
   spaceToPlane(P1, p1);
   spaceToPlane(P2, p2);
@@ -205,65 +171,18 @@ double Camera::reprojectionError(
 }
 
 double Camera::reprojectionError(
-    const Eigen::Vector3d &P, const Eigen::Quaterniond &camera_q,
-    const Eigen::Vector3d &camera_t, const Eigen::Vector2d &observed_p) const {
-  Eigen::Vector3d P_cam = camera_q.toRotationMatrix() * P + camera_t;
-
-  Eigen::Vector2d p;
-  spaceToPlane(P_cam, p);
-
-  return (p - observed_p).norm();
-}
-
-//subEigen
-double Camera::reprojectionError(
       const Ctain::Vector3d &P, const Ctain::Quaterniond &camera_q,
       const Ctain::Vector3d &camera_t, const Ctain::Vector2d &observed_p) const {
   Ctain::Vector3d P_cam;
   P_cam = camera_q.toRotationMatrix() * P + camera_t;
 
-  Ctain::Vector2d p, res;
+  Ctain::Vector2d p(2, 1), res(2, 1);
   spaceToPlane(P_cam, p);
   res = p - observed_p;
   return res.norm();
 }
 
 void Camera::projectPoints(
-    const std::vector<cv::Point3f> &objectPoints, const cv::Mat &rvec,
-    const cv::Mat &tvec, std::vector<cv::Point2f> &imagePoints) const {
-  // project 3D object points to the image plane
-  imagePoints.reserve(objectPoints.size());
-
-  // double
-  cv::Mat R0;
-  cv::Rodrigues(rvec, R0);
-
-  Eigen::MatrixXd R(3, 3);
-  R << R0.at<double>(0, 0), R0.at<double>(0, 1), R0.at<double>(0, 2),
-      R0.at<double>(1, 0), R0.at<double>(1, 1), R0.at<double>(1, 2),
-      R0.at<double>(2, 0), R0.at<double>(2, 1), R0.at<double>(2, 2);
-
-  Eigen::Vector3d t;
-  t << tvec.at<double>(0), tvec.at<double>(1), tvec.at<double>(2);
-
-  for (size_t i = 0; i < objectPoints.size(); ++i) {
-    const cv::Point3f &objectPoint = objectPoints.at(i);
-
-    // Rotate and translate
-    Eigen::Vector3d P;
-    P << objectPoint.x, objectPoint.y, objectPoint.z;
-
-    P = R * P + t;
-
-    Eigen::Vector2d p;
-    spaceToPlane(P, p);
-
-    imagePoints.push_back(cv::Point2f(p(0), p(1)));
-  }
-}
-
-// subEigen
-void Camera::projectPoints2(
     const std::vector<cv::Point3f> &objectPoints, const cv::Mat &rvec,
     const cv::Mat &tvec, std::vector<cv::Point2f> &imagePoints) const {
   // project 3D object points to the image plane
@@ -290,7 +209,7 @@ void Camera::projectPoints2(
 
     P = R * P + t;
 
-    Ctain::Vector2d p;
+    Ctain::Vector2d p(2, 1);
     spaceToPlane(P, p);
 
     imagePoints.push_back(cv::Point2f(p(0), p(1)));

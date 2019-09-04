@@ -242,6 +242,7 @@ Ctain::Matrix4d RectifyProcessor::loadT(const mynteye::Extrinsics &in) {
   Ctain::Quaterniond q(R);
   q.normalize();
   Ctain::Matrix4d T(4);
+  T(3, 3) = 1;
   T.topLeftCorner<3, 3>() = q.toRotationMatrix();
   Ctain::Vector3d t(3, 1);
   t << t_x << t_y << t_z;
@@ -290,6 +291,7 @@ std::shared_ptr<struct CameraROSMsgInfoPair> RectifyProcessor::stereoRectify(
   Ctain::Matrix4d T = loadT(ex_right_to_left);
   Ctain::Matrix3d R = T.topLeftCorner<3, 3>();
   Ctain::Vector3d t = T.topRightCorner<3, 1>();
+  std::cout<<"T:"<<T;
   // cv::Mat cv_R, cv_t;
   // cv::eigen2cv(R, cv_R);
   cv::Mat cv_R(3, 3, CV_64FC1);
@@ -326,16 +328,16 @@ std::shared_ptr<struct CameraROSMsgInfoPair> RectifyProcessor::stereoRectify(
       image_size1, &c_R, &c_t, &c_R1, &c_R2, &c_P1, &c_P2, &T_mul_f,
       &cx1_min_cx2);
 
-  VLOG(2) << "K1: " << K1 << std::endl;
-  VLOG(2) << "D1: " << D1 << std::endl;
-  VLOG(2) << "K2: " << K2 << std::endl;
-  VLOG(2) << "D2: " << D2 << std::endl;
-  VLOG(2) << "R: " << cv_R << std::endl;
-  VLOG(2) << "t: " << cv_t << std::endl;
-  VLOG(2) << "R1: " << R1 << std::endl;
-  VLOG(2) << "R2: " << R2 << std::endl;
-  VLOG(2) << "P1: " << P1 << std::endl;
-  VLOG(2) << "P2: " << P2 << std::endl;
+  std::cout << "K1: " << K1 << std::endl;
+  std::cout << "D1: " << D1 << std::endl;
+  std::cout << "K2: " << K2 << std::endl;
+  std::cout << "D2: " << D2 << std::endl;
+  std::cout << "R: " << cv_R << std::endl;
+  std::cout << "t: " << cv_t << std::endl;
+  std::cout << "R1: " << R1 << std::endl;
+  std::cout << "R2: " << R2 << std::endl;
+  std::cout << "P1: " << P1 << std::endl;
+  std::cout << "P2: " << P2 << std::endl;
 
   R1 = rectifyrad(R1);
   R2 = rectifyrad(R2);
@@ -397,21 +399,31 @@ void RectifyProcessor::InitParams(
     IntrinsicsEquidistant in_left,
     IntrinsicsEquidistant in_right,
     Extrinsics ex_right_to_left) {
+      LOG(INFO) <<"q1";
   calib_model = CalibrationModel::KANNALA_BRANDT;
   in_left.ResizeIntrinsics();
   in_right.ResizeIntrinsics();
   in_left_cur = in_left;
   in_right_cur = in_right;
   ex_right_to_left_cur = ex_right_to_left;
+    
+  LOG(INFO) <<"q2";
+  
   models::CameraPtr camera_odo_ptr_left =
       generateCameraFromIntrinsicsEquidistant(in_left);
   models::CameraPtr camera_odo_ptr_right =
       generateCameraFromIntrinsicsEquidistant(in_right);
+         
+  LOG(INFO) <<"q3";
+  
   auto calib_info_tmp = stereoRectify(camera_odo_ptr_left,
         camera_odo_ptr_right,
         in_left,
         in_right,
         ex_right_to_left);
+           
+  LOG(INFO) <<"q4";
+  
   *calib_infos = *calib_info_tmp;
   cv::Mat rect_R_l =
       cv::Mat::eye(3, 3, CV_32F), rect_R_r = cv::Mat::eye(3, 3, CV_32F);
@@ -421,6 +433,9 @@ void RectifyProcessor::InitParams(
       rect_R_r.at<float>(i, j) = calib_infos->right.R[i*3+j];
     }
   }
+     
+  LOG(INFO) <<"q5";
+  
   double left_f[] =
       {calib_infos->left.P[0], calib_infos->left.P[5]};
   double left_center[] =
@@ -429,6 +444,11 @@ void RectifyProcessor::InitParams(
       {calib_infos->right.P[0], calib_infos->right.P[5]};
   double right_center[] =
       {calib_infos->right.P[2], calib_infos->right.P[6]};
+         
+  LOG(INFO) <<"q6";
+  std::cout << "rectR:" << rect_R_l;
+  LOG(INFO) <<"q9\n";
+  std::cout << "left_center:"<<left_center[0]<<","<<left_center[1]<<std::endl;
   camera_odo_ptr_left->initUndistortRectifyMap(
       map11, map12, left_f[0], left_f[1],
       cv::Size(0, 0), left_center[0],
@@ -437,6 +457,18 @@ void RectifyProcessor::InitParams(
       map21, map22, right_f[0], right_f[1],
       cv::Size(0, 0), right_center[0],
       right_center[1], rect_R_r);
+//  cv::Mat a;
+//  cv::Mat b;
+
+  // camera_odo_ptr_left->initUndistortRectifyMap(
+  //     rect_R_l, rect_R_l,0, 0);
+  // camera_odo_ptr_right->initUndistortRectifyMap(
+  //     map21, map22, right_f[0], right_f[1],
+  //     cv::Size(0, 0), right_center[0],
+  //     right_center[1], rect_R_r);
+         
+  LOG(INFO) <<"q7";
+  
 }
 
 const char RectifyProcessor::NAME[] = "RectifyProcessor";
@@ -449,11 +481,20 @@ RectifyProcessor::RectifyProcessor(
     : Processor(std::move(proc_period)),
       calib_model(CalibrationModel::UNKNOW),
       _alpha(-1) {
+          
+  LOG(INFO) <<"Q";
+  
   calib_infos = std::make_shared<struct CameraROSMsgInfoPair>();
+    
+  LOG(INFO) <<"W";
+  
   InitParams(
     *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_left),
     *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_right),
     *extr);
+      
+  LOG(INFO) <<"E";
+  
 }
 
 RectifyProcessor::~RectifyProcessor() {

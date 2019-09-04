@@ -190,7 +190,7 @@ namespace Ctain {
         Matrix<_Scalar> topRightCorner() const {
             Matrix<_Scalar> sub;
             sub = *this;
-            sub.setSub(_Rows-1-Rows, _Cols-1-Cols, Rows, Cols, data);
+            sub.setSub(0, _Cols-Cols, Rows, Cols, data);
             return sub;
         }
 
@@ -340,7 +340,7 @@ namespace Ctain {
         Matrix<_Scalar> res(_Rows, m._Cols);
         for(int i = 0; i < _Rows; i++) {
             for(int j = 0; j < m._Cols; j++) {
-                int sum = 0;
+                _Scalar sum = 0;
                 for(int k = 0; k < _Cols; k++) {
                     sum += cData(i, k) * m.cData(k, j);
                 }
@@ -383,7 +383,7 @@ namespace Ctain {
         double sum = 0;
         for(int i = 0; i < _Rows; i++) {
             for(int j = 0; j < _Cols; j++) {
-                sum += Matrix::cData(i, j);
+                sum += Matrix::cData(i, j) * Matrix::cData(i, j);
             }
         }
         sum = sqrt(sum);

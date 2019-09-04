@@ -279,104 +279,8 @@ void EquidistantCamera::estimateIntrinsics(
   // f = ||v1 - v2|| / PI;
   double f0 = 0.0;
   for (size_t i = 0; i < imagePoints.size(); ++i) {
-    std::vector<Eigen::Vector2d> center(boardSize.height);
-    int arrayLength = boardSize.height;
-    double *radius = new double[arrayLength];
-    memset(radius, 0, arrayLength * sizeof(double));
-    for (int r = 0; r < boardSize.height; ++r) {
-      std::vector<cv::Point2d> circle;
-      for (int c = 0; c < boardSize.width; ++c) {
-        circle.push_back(imagePoints.at(i).at(r * boardSize.width + c));
-      }
-
-      fitCircle(circle, center[r](0), center[r](1), radius[r]);
-    }
-
-    for (int j = 0; j < boardSize.height; ++j) {
-      for (int k = j + 1; k < boardSize.height; ++k) {
-        // find distance between pair of vanishing points which
-        // correspond to intersection points of 2 circles
-        std::vector<cv::Point2d> ipts;
-        ipts = intersectCircles(
-            center[j](0), center[j](1), radius[j], center[k](0), center[k](1),
-            radius[k]);
-
-        if (ipts.size() < 2) {
-          continue;
-        }
-
-        double f = cv::norm(ipts.at(0) - ipts.at(1)) / M_PI;
-
-        params.mu() = f;
-        params.mv() = f;
-
-        setParameters(params);
-
-        for (size_t l = 0; l < objectPoints.size(); ++l) {
-          estimateExtrinsics(
-              objectPoints.at(l), imagePoints.at(l), rvecs.at(l), tvecs.at(l));
-        }
-
-        double reprojErr = reprojectionError(
-            objectPoints, imagePoints, rvecs, tvecs, cv::noArray());
-
-        if (reprojErr < minReprojErr) {
-          minReprojErr = reprojErr;
-          f0 = f;
-        }
-      }
-    }
-    delete[] radius;
-  }
-
-  if (f0 <= 0.0 && minReprojErr >= std::numeric_limits<double>::max()) {
-    std::cout << "[" << params.cameraName() << "] "
-              << "# INFO: kannala-Brandt model fails with given data. "
-              << std::endl;
-
-    return;
-  }
-
-  params.mu() = f0;
-  params.mv() = f0;
-
-  setParameters(params);
-}
-
-// subEigen
-void EquidistantCamera::estimateIntrinsics2(
-    const cv::Size &boardSize,
-    const std::vector<std::vector<cv::Point3f> > &objectPoints,
-    const std::vector<std::vector<cv::Point2f> > &imagePoints) {
-  Parameters params = getParameters();
-
-  double u0 = params.imageWidth() / 2.0;
-  double v0 = params.imageHeight() / 2.0;
-
-  double minReprojErr = std::numeric_limits<double>::max();
-
-  std::vector<cv::Mat> rvecs, tvecs;
-  rvecs.assign(objectPoints.size(), cv::Mat());
-  tvecs.assign(objectPoints.size(), cv::Mat());
-
-  params.k2() = 0.0;
-  params.k3() = 0.0;
-  params.k4() = 0.0;
-  params.k5() = 0.0;
-  params.u0() = u0;
-  params.v0() = v0;
-
-  // Initialize focal length
-  // C. Hughes, P. Denny, M. Glavin, and E. Jones,
-  // Equidistant Fish-Eye Calibration and Rectification by Vanishing Point
-  // Extraction, PAMI 2010
-  // Find circles from rows of chessboard corners, and for each pair
-  // of circles, find vanishing points: v1 and v2.
-  // f = ||v1 - v2|| / PI;
-  double f0 = 0.0;
-  for (size_t i = 0; i < imagePoints.size(); ++i) {
     //std::vector<Eigen::Vector2d> center(boardSize.height);
-    std::vector<Ctain::Vector2d> center(boardSize.height);
+    std::vector<Ctain::Vector2d> center(boardSize.height, Ctain::Vector2d(2, 1));
     int arrayLength = boardSize.height;
     double *radius = new double[arrayLength];
     memset(radius, 0, arrayLength * sizeof(double));
@@ -446,22 +350,7 @@ void EquidistantCamera::estimateIntrinsics2(
  * \param p image coordinates
  * \param P coordinates of the projective ray
  */
-void EquidistantCamera::liftProjective(
-    const Eigen::Vector2d &p, Eigen::Vector3d &P) const {
-  // Lift points to normalised plane
-  Eigen::Vector2d p_u;
-  p_u << m_inv_K11 * p(0) + m_inv_K13, m_inv_K22 * p(1) + m_inv_K23;
 
-  // Obtain a projective ray
-  double theta, phi;
-  backprojectSymmetric(p_u, theta, phi);
-
-  P(0) = sin(theta) * cos(phi);
-  P(1) = sin(theta) * sin(phi);
-  P(2) = cos(theta);
-}
-
-// subEigen
 void EquidistantCamera::liftProjective(
     const Ctain::Vector2d &p, Ctain::Vector3d &P) const {
   // Lift points to normalised plane
@@ -483,28 +372,7 @@ void EquidistantCamera::liftProjective(
  * \param P 3D point coordinates
  * \param p return value, contains the image point coordinates
  */
-void EquidistantCamera::spaceToPlane(
-    const Eigen::Vector3d &P, Eigen::Vector2d &p) const {
-// double theta = acos(0.5);
-// double theta = 0.5;
-// double phi = 0.5;
-// Eigen::Vector2d p_u = r(mParameters.k2(), mParameters.k3(), mParameters.k4(),
-//                         mParameters.k5(), theta) *
-// Eigen::Vector2d(cos(0.5), sin(0.5));
-  double theta = acos(P(2) / P.norm());
-  double phi = atan2(P(1), P(0));
-// double phi = ApproxAtan2(P(1), P(0));
 
-  Eigen::Vector2d p_u = r(mParameters.k2(), mParameters.k3(), mParameters.k4(),
-                          mParameters.k5(), theta) *
-                        Eigen::Vector2d(cos(phi), sin(phi));
-
-  // Apply generalised projection matrix
-  p << mParameters.mu() * p_u(0) + mParameters.u0(),
-      mParameters.mv() * p_u(1) + mParameters.v0();
-}
-
-// subEigen
 void EquidistantCamera::spaceToPlane(
     const Ctain::Vector3d &P, Ctain::Vector2d &p) const {
 // double theta = acos(0.5);
@@ -536,22 +404,6 @@ void EquidistantCamera::spaceToPlane(
  * \param p return value, contains the image point coordinates
  */
 void EquidistantCamera::spaceToPlane(
-    const Eigen::Vector3d &P, Eigen::Vector2d &p,
-    Eigen::Matrix<double, 2, 3> &J) const {
-  double theta = acos(P(2) / P.norm());
-  double phi = atan2(P(1), P(0));
-
-  Eigen::Vector2d p_u = r(mParameters.k2(), mParameters.k3(), mParameters.k4(),
-                          mParameters.k5(), theta) *
-                        Eigen::Vector2d(cos(phi), sin(phi));
-
-  // Apply generalised projection matrix
-  p << mParameters.mu() * p_u(0) + mParameters.u0(),
-      mParameters.mv() * p_u(1) + mParameters.v0();
-}
-
-// subEigen
-void EquidistantCamera::spaceToPlane(
     const Ctain::Vector3d &P, Ctain::Vector2d &p,
     Ctain::Matrix23d &J) const {
   double theta = acos(P(2) / 3.0);
@@ -565,11 +417,10 @@ void EquidistantCamera::spaceToPlane(
   p << mParameters.mu() * p_u(0) + mParameters.u0()
     << mParameters.mv() * p_u(1) + mParameters.v0();
 }
- 
+
 void EquidistantCamera::initUndistortMap(
     cv::Mat &map1, cv::Mat &map2, double fScale) const {
   cv::Size imageSize(mParameters.imageWidth(), mParameters.imageHeight());
-
   cv::Mat mapX = cv::Mat::zeros(imageSize, CV_32F);
   cv::Mat mapY = cv::Mat::zeros(imageSize, CV_32F);
 
@@ -579,37 +430,9 @@ void EquidistantCamera::initUndistortMap(
       double my_u = m_inv_K22 / fScale * v + m_inv_K23 / fScale;
 
       double theta, phi;
-      backprojectSymmetric(Eigen::Vector2d(mx_u, my_u), theta, phi);
-
-      Eigen::Vector3d P;
-      P << sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta);
-
-      Eigen::Vector2d p;
-      spaceToPlane(P, p);
-
-      mapX.at<float>(v, u) = p(0);
-      mapY.at<float>(v, u) = p(1);
-    }
-  }
-
-  cv::convertMaps(mapX, mapY, map1, map2, CV_32FC1, false);
-}
-
-// subEigen
-void EquidistantCamera::initUndistortMap2(
-    cv::Mat &map1, cv::Mat &map2, double fScale) const {
-  cv::Size imageSize(mParameters.imageWidth(), mParameters.imageHeight());
-
-  cv::Mat mapX = cv::Mat::zeros(imageSize, CV_32F);
-  cv::Mat mapY = cv::Mat::zeros(imageSize, CV_32F);
-
-  for (int v = 0; v < imageSize.height; ++v) {
-    for (int u = 0; u < imageSize.width; ++u) {
-      double mx_u = m_inv_K11 / fScale * u + m_inv_K13 / fScale;
-      double my_u = m_inv_K22 / fScale * v + m_inv_K23 / fScale;
-
-      double theta, phi;
-      backprojectSymmetric(Eigen::Vector2d(mx_u, my_u), theta, phi);
+      Ctain::Vector2d tmp(2, 1);
+      tmp << mx_u << my_u;
+      backprojectSymmetric(tmp, theta, phi);
 
       Ctain::Vector3d P(3, 1);
       P << sin(theta) * cos(phi) << sin(theta) * sin(phi) << cos(theta);
@@ -625,86 +448,44 @@ void EquidistantCamera::initUndistortMap2(
   cv::convertMaps(mapX, mapY, map1, map2, CV_32FC1, false);
 }
 
+
 cv::Mat EquidistantCamera::initUndistortRectifyMap(
     cv::Mat &map1, cv::Mat &map2, float fx, float fy, cv::Size imageSize,
     float cx, float cy, cv::Mat rmat) const {
+      std::cout <<"w0";
   if (imageSize == cv::Size(0, 0)) {
     imageSize = cv::Size(mParameters.imageWidth(), mParameters.imageHeight());
   }
-
-  cv::Mat mapX = cv::Mat::zeros(imageSize.height, imageSize.width, CV_32F);
-  cv::Mat mapY = cv::Mat::zeros(imageSize.height, imageSize.width, CV_32F);
-
-  Eigen::Matrix3f K_rect;
-
-  if (cx == -1.0f && cy == -1.0f) {
-    K_rect << fx, 0, imageSize.width / 2, 0, fy, imageSize.height / 2, 0, 0, 1;
-  } else {
-    K_rect << fx, 0, cx, 0, fy, cy, 0, 0, 1;
-  }
-
-  if (fx == -1.0f || fy == -1.0f) {
-    K_rect(0, 0) = mParameters.mu();
-    K_rect(1, 1) = mParameters.mv();
-  }
-
-  Eigen::Matrix3f K_rect_inv = K_rect.inverse();
-
-  Eigen::Matrix3f R, R_inv;
-  cv::cv2eigen(rmat, R);
-  R_inv = R.inverse();
-
-  for (int v = 0; v < imageSize.height; ++v) {
-    for (int u = 0; u < imageSize.width; ++u) {
-      Eigen::Vector3f xo;
-      xo << u, v, 1;
-
-      Eigen::Vector3f uo = R_inv * K_rect_inv * xo;
-
-      Eigen::Vector2d p;
-      spaceToPlane(uo.cast<double>(), p);
-
-      mapX.at<float>(v, u) = p(0);
-      mapY.at<float>(v, u) = p(1);
-    }
-  }
-
-  cv::convertMaps(mapX, mapY, map1, map2, CV_32FC1, false);
-
-  cv::Mat K_rect_cv;
-  cv::eigen2cv(K_rect, K_rect_cv);
-  return K_rect_cv;
-}
-
-
-// subEigen
-cv::Mat EquidistantCamera::initUndistortRectifyMap2(
-    cv::Mat &map1, cv::Mat &map2, float fx, float fy, cv::Size imageSize,
-    float cx, float cy, cv::Mat rmat) const {
-  if (imageSize == cv::Size(0, 0)) {
-    imageSize = cv::Size(mParameters.imageWidth(), mParameters.imageHeight());
-  }
-
+     
+  std::cout << std::endl<<"w1";
+  
   cv::Mat mapX = cv::Mat::zeros(imageSize.height, imageSize.width, CV_32F);
   cv::Mat mapY = cv::Mat::zeros(imageSize.height, imageSize.width, CV_32F);
 
   Ctain::Matrix3f K_rect(3);
 
+  std::cout << std::endl <<"w2";
+  
   if (cx == -1.0f && cy == -1.0f) {
     K_rect << fx << 0 << imageSize.width / 2 << 0 << fy << imageSize.height / 2 << 0 << 0 << 1;
   } else {
     K_rect << fx << 0 << cx << 0 << fy << cy << 0 << 0 << 1;
   }
 
+  std::cout <<std::endl<<"w3";
+  
   if (fx == -1.0f || fy == -1.0f) {
     K_rect(0, 0) = mParameters.mu();
     K_rect(1, 1) = mParameters.mv();
   }
 
+
+  std::cout <<std::endl<<"w4";
   Ctain::Matrix3f K_rect_inv = K_rect.inverse();
 
   Ctain::Matrix3f R(3), R_inv(3);
   
+  std::cout <<std::endl<<"w5";
   for(int i = 0; i < 3; ++i) {
     for(int j = 0; j < 3; ++j) {
       R(i, j) = rmat.at<float>(i, j);
@@ -712,14 +493,15 @@ cv::Mat EquidistantCamera::initUndistortRectifyMap2(
   }
   R_inv = R.inverse();
 
+    std::cout<<"R:\n"<< R << std::endl;
+  std::cout <<"w6";
   for (int v = 0; v < imageSize.height; ++v) {
     for (int u = 0; u < imageSize.width; ++u) {
       Ctain::Vector3f xo(3, 1);
       xo << u << v << 1;
 
       Ctain::Vector3f uo = R_inv * K_rect_inv * xo;
-
-      Ctain::Vector2d p;
+      Ctain::Vector2d p(2, 1);
       spaceToPlane(uo.cast<double>(), p);
 
       mapX.at<float>(v, u) = p(0);
@@ -727,14 +509,17 @@ cv::Mat EquidistantCamera::initUndistortRectifyMap2(
     }
   }
 
+  std::cout <<"w7";
   cv::convertMaps(mapX, mapY, map1, map2, CV_32FC1, false);
-
+  //std::cout <<"mapX:\n"<<mapY;
   cv::Mat K_rect_cv(3, 3, CV_32FC1);
   for(int i = 0; i < 3; ++i) {
     for(int j = 0; j < 3; ++j) {
       K_rect_cv.at<float>(i, j) = K_rect(i, j);
     }
   }
+
+  std::cout <<"K_rect_cv:\n"<<K_rect_cv;
   return K_rect_cv;
 }
 
@@ -806,32 +591,6 @@ void EquidistantCamera::fitOddPoly(
     pows.push_back(i);
   }
 
-  Eigen::MatrixXd X(x.size(), pows.size());
-  Eigen::MatrixXd Y(y.size(), 1);
-  for (size_t i = 0; i < x.size(); ++i) {
-    for (size_t j = 0; j < pows.size(); ++j) {
-      X(i, j) = pow(x.at(i), pows.at(j));
-    }
-    Y(i, 0) = y.at(i);
-  }
-
-  Eigen::MatrixXd A = (X.transpose() * X).inverse() * X.transpose() * Y;
-
-  coeffs.resize(A.rows());
-  for (int i = 0; i < A.rows(); ++i) {
-    coeffs.at(i) = A(i, 0);
-  }
-}
-
-// subEigen
-void EquidistantCamera::fitOddPoly2(
-    const std::vector<double> &x, const std::vector<double> &y, int n,
-    std::vector<double> &coeffs) const {
-  std::vector<int> pows;
-  for (int i = 1; i <= n; i += 2) {
-    pows.push_back(i);
-  }
-
   Ctain::MatrixXd X(x.size(), pows.size());
   Ctain::MatrixXd Y(y.size(), 1);
   for (size_t i = 0; i < x.size(); ++i) {
@@ -851,89 +610,7 @@ void EquidistantCamera::fitOddPoly2(
 }
 
 void EquidistantCamera::backprojectSymmetric(
-    const Eigen::Vector2d &p_u, double &theta, double &phi) const {
-  double tol = 1e-10;
-  double p_u_norm = p_u.norm();
-
-  if (p_u_norm < 1e-10) {
-    phi = 0.0;
-  } else {
-    phi = atan2(p_u(1), p_u(0));
-  }
-
-  int npow = 9;
-  if (mParameters.k5() == 0.0) {
-    npow -= 2;
-  }
-  if (mParameters.k4() == 0.0) {
-    npow -= 2;
-  }
-  if (mParameters.k3() == 0.0) {
-    npow -= 2;
-  }
-  if (mParameters.k2() == 0.0) {
-    npow -= 2;
-  }
-
-  Eigen::MatrixXd coeffs(npow + 1, 1);
-  coeffs.setZero();
-  coeffs(0) = -p_u_norm;
-  coeffs(1) = 1.0;
-
-  if (npow >= 3) {
-    coeffs(3) = mParameters.k2();
-  }
-  if (npow >= 5) {
-    coeffs(5) = mParameters.k3();
-  }
-  if (npow >= 7) {
-    coeffs(7) = mParameters.k4();
-  }
-  if (npow >= 9) {
-    coeffs(9) = mParameters.k5();
-  }
-
-  if (npow == 1) {
-    theta = p_u_norm;
-  } else {
-    // Get eigenvalues of companion matrix corresponding to polynomial.
-    // Eigenvalues correspond to roots of polynomial.
-    Eigen::MatrixXd A(npow, npow);
-    A.setZero();
-    A.block(1, 0, npow - 1, npow - 1).setIdentity();
-    A.col(npow - 1) = -coeffs.block(0, 0, npow, 1) / coeffs(npow);
-
-    Eigen::EigenSolver<Eigen::MatrixXd> es(A);
-    Eigen::MatrixXcd eigval = es.eigenvalues();
-
-    std::vector<double> thetas;
-    for (int i = 0; i < eigval.rows(); ++i) {
-      if (fabs(eigval(i).imag()) > tol) {
-        continue;
-      }
-
-      double t = eigval(i).real();
-
-      if (t < -tol) {
-        continue;
-      } else if (t < 0.0) {
-        t = 0.0;
-      }
-
-      thetas.push_back(t);
-    }
-
-    if (thetas.empty()) {
-      theta = p_u_norm;
-    } else {
-      theta = *std::min_element(thetas.begin(), thetas.end());
-    }
-  }
-}
-
-// subEigen
-  void EquidistantCamera::backprojectSymmetric(
-      const Ctain::Vector2d &p_u, double &theta, double &phi) const {
+    const Ctain::Vector2d &p_u, double &theta, double &phi) const {
   double tol = 1e-10;
   double p_u_norm = p_u.norm();
 
@@ -1005,11 +682,11 @@ void EquidistantCamera::backprojectSymmetric(
       thetas.push_back(t);
     }
 
-    if (thetas.empty()) {
-      theta = p_u_norm;
-    } else {
-      theta = *std::min_element(thetas.begin(), thetas.end());
-    }
+      if (thetas.empty()) {
+        theta = p_u_norm;
+      } else {
+        theta = *std::min_element(thetas.begin(), thetas.end());
+      }
   }
 
 }
