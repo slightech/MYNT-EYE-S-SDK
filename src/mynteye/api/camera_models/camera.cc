@@ -171,8 +171,9 @@ double Camera::reprojectionError(
 }
 
 double Camera::reprojectionError(
-      const Ctain::Vector3d &P, const Ctain::Quaterniond &camera_q,
-      const Ctain::Vector3d &camera_t, const Ctain::Vector2d &observed_p) const {
+    const Ctain::Vector3d &P, const Ctain::Quaterniond &camera_q,
+    const Ctain::Vector3d &camera_t, 
+    const Ctain::Vector2d &observed_p) const {
   Ctain::Vector3d P_cam;
   P_cam = camera_q.toRotationMatrix() * P + camera_t;
 

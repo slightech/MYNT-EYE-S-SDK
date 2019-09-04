@@ -115,8 +115,8 @@ namespace Ctain {
             double a, const Matrix<_Scalar> &m) {
             Matrix<_Scalar> res;
             res = m;
-            for(int i = 0; i < m._Rows; i++) {
-                for(int j = 0; j < m._Cols; j++) {
+            for (int i = 0; i < m._Rows; i++) {
+                for (int j = 0; j < m._Cols; j++) {
                     res.Data(i,j) *= a;
                 }
             }
@@ -127,8 +127,8 @@ namespace Ctain {
                 const Matrix<_Scalar> &m, double a) {
             Matrix<_Scalar> res;
             res = m;
-            for(int i = 0; i < m._Rows; i++) {
-                for(int j = 0; j < m._Cols; j++) {
+            for (int i = 0; i < m._Rows; i++) {
+                for (int j = 0; j < m._Cols; j++) {
                     res.Data(i,j) *= a;
                 }
             }
@@ -139,8 +139,8 @@ namespace Ctain {
             const Matrix<_Scalar> &m) {
             Matrix<_Scalar> res;
             res = m;
-            for(int i = 0; i < m._Rows; i++) {
-                for(int j = 0; j < m._Cols; j++) {
+            for (int i = 0; i < m._Rows; i++) {
+                for (int j = 0; j < m._Cols; j++) {
                     res.Data(i,j) *= -1;
                 }
             }
@@ -151,8 +151,8 @@ namespace Ctain {
             double a, const Matrix<_Scalar> &m) {
             Matrix<_Scalar> res;
             res = m;
-            for(int i = 0; i < m._Rows; i++) {
-                for(int j = 0; j < m._Cols; j++) {
+            for (int i = 0; i < m._Rows; i++) {
+                for (int j = 0; j < m._Cols; j++) {
                     res.Data(i,j) += a;
                 }
             }
@@ -323,7 +323,7 @@ namespace Ctain {
     Matrix<_Scalar> Matrix<_Scalar>::operator +(const Matrix<_Scalar> &m) const{
         Matrix<_Scalar> sum;
         sum = *this;
-        for(int i = 0; i < _Rows * _Cols; i++) {
+        for (int i = 0; i < _Rows * _Cols; i++) {
             sum.data[i] += m.data[i];
         }
         return sum;
@@ -333,7 +333,7 @@ namespace Ctain {
     Matrix<_Scalar> Matrix<_Scalar>::operator -(const Matrix<_Scalar> &m) const{
         Matrix<_Scalar> sum;
         sum = *this;
-        for(int i = 0; i < _Rows * _Cols; i++) {
+        for (int i = 0; i < _Rows * _Cols; i++) {
             sum.data[i] -= m.data[i];
         }
         return sum;
@@ -343,7 +343,7 @@ namespace Ctain {
     Matrix<_Scalar> Matrix<_Scalar>::transpose() const
     {
         Matrix<_Scalar> res(_Cols, _Rows);
-        for(int i = 0; i < _Rows; i++) {
+        for (int i = 0; i < _Rows; i++) {
             for (int j = 0; j < _Cols; j++) {
                 res.Data(j, i) = cData(i, j);
             }
@@ -358,10 +358,10 @@ namespace Ctain {
             return m;
         }
         Matrix<_Scalar> res(_Rows, m._Cols);
-        for(int i = 0; i < _Rows; i++) {
-            for(int j = 0; j < m._Cols; j++) {
+        for (int i = 0; i < _Rows; i++) {
+            for (int j = 0; j < m._Cols; j++) {
                 _Scalar sum = 0;
-                for(int k = 0; k < _Cols; k++) {
+                for (int k = 0; k < _Cols; k++) {
                     sum += cData(i, k) * m.cData(k, j);
                 }
                 res.Data(i,j) = sum;
@@ -374,8 +374,8 @@ namespace Ctain {
     Matrix<_Scalar> Matrix<_Scalar>::operator /(double m) const {
         Matrix<_Scalar> res;
         res = *this;
-        for(int i = 0; i < _Rows; i++) {
-            for(int j = 0; j < _Cols; j++) {
+        for (int i = 0; i < _Rows; i++) {
+            for (int j = 0; j < _Cols; j++) {
                 res.Data(i,j) /= m;
             }
         }
@@ -386,14 +386,14 @@ namespace Ctain {
     template<typename _Scalar>
     void Matrix<_Scalar>::normalize() {
         double sum = 0;
-        for(int i = 0; i < _Rows; i++) {
-            for(int j = 0; j < _Cols; j++) {
+        for (int i = 0; i < _Rows; i++) {
+            for (int j = 0; j < _Cols; j++) {
                 sum += Matrix::cData(i, j);
             }
         }
         sum = sqrt(sum);
-        for(int i = 0; i < _Rows; i++) {
-            for(int j = 0; j < _Cols; j++) {
+        for (int i = 0; i < _Rows; i++) {
+            for (int j = 0; j < _Cols; j++) {
                 Matrix::Data(i, j) /= sum;
             }
         }
@@ -402,8 +402,8 @@ namespace Ctain {
     template<typename _Scalar>
     double Matrix<_Scalar>::norm() const{
         double sum = 0;
-        for(int i = 0; i < _Rows; i++) {
-            for(int j = 0; j < _Cols; j++) {
+        for (int i = 0; i < _Rows; i++) {
+            for (int j = 0; j < _Cols; j++) {
                 sum += Matrix::cData(i, j) * Matrix::cData(i, j);
             }
         }

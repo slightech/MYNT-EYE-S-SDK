@@ -25,7 +25,7 @@ namespace Ctain {
         SMatrix<_Scalar> inverse() {
             SMatrix<_Scalar> res(Matrix::_Rows);
             _Scalar d = determinant();
-            for(int i = 0; i < Matrix::_Rows; i++) {
+            for (int i = 0; i < Matrix::_Rows; i++) {
                 for (int j = 0; j < Matrix::_Cols; j++) {
                     res.Data(j, i) = 1.0*M(i, j)/d;
                 }

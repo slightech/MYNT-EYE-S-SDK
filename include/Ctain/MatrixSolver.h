@@ -14,7 +14,7 @@ namespace Ctain {
         EigenSolver(SMatrix<double> s) {
             double *A = new double[s.rows()*2];
             double *B = new double[s.size()];
-            for(int i = 0; i < s.size(); i++)
+            for (int i = 0; i < s.size(); i++)
                 B[i] = s(i);
             memset(A, 0, sizeof(s.rows()*2));
             Matrix_EigenValue(B, s.rows(),1000,1e-10,A);
@@ -65,12 +65,12 @@ static void Matrix_Hessenberg(double *A1,int n,double *ret)
         
         if (ret[0]!=0) {
             if (MaxNumber!=k) {
-                for(int j=k-1;j<n;j++) {
+                for (int j=k-1;j<n;j++) {
                     temp=A[i*n+j];
                     A[i*n+j]=A[k*n+j];
                     A[k*n+j]=temp;
                 }
-                for(int j=0;j<n;j++) {
+                for (int j=0;j<n;j++) {
                     temp=A[j*n+i];
                     A[j*n+i]=A[j*n+k];
                     A[j*n+k]=temp;

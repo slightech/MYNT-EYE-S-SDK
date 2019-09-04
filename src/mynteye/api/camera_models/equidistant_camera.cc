@@ -279,8 +279,9 @@ void EquidistantCamera::estimateIntrinsics(
   // f = ||v1 - v2|| / PI;
   double f0 = 0.0;
   for (size_t i = 0; i < imagePoints.size(); ++i) {
-    //std::vector<Eigen::Vector2d> center(boardSize.height);
-    std::vector<Ctain::Vector2d> center(boardSize.height, Ctain::Vector2d(2, 1));
+    // std::vector<Eigen::Vector2d> center(boardSize.height);
+    std::vector<Ctain::Vector2d> center(
+        boardSize.height, Ctain::Vector2d(2, 1));
     int arrayLength = boardSize.height;
     double *radius = new double[arrayLength];
     memset(radius, 0, arrayLength * sizeof(double));
@@ -330,7 +331,8 @@ void EquidistantCamera::estimateIntrinsics(
     delete[] radius;
   }
 
-  if (f0 <= 0.0 && minReprojErr >= std::numeric_limits<double>::max()) {
+  if (f0 <= 0.0 &&
+      minReprojErr >= std::numeric_limits<double>::max()) {
     std::cout << "[" << params.cameraName() << "] "
               << "# INFO: kannala-Brandt model fails with given data. "
               << std::endl;
@@ -456,45 +458,34 @@ cv::Mat EquidistantCamera::initUndistortRectifyMap(
   if (imageSize == cv::Size(0, 0)) {
     imageSize = cv::Size(mParameters.imageWidth(), mParameters.imageHeight());
   }
-     
-  std::cout << std::endl<<"w1";
-  
+
   cv::Mat mapX = cv::Mat::zeros(imageSize.height, imageSize.width, CV_32F);
   cv::Mat mapY = cv::Mat::zeros(imageSize.height, imageSize.width, CV_32F);
 
   Ctain::Matrix3f K_rect(3);
 
-  std::cout << std::endl <<"w2";
-  
   if (cx == -1.0f && cy == -1.0f) {
-    K_rect << fx << 0 << imageSize.width / 2 << 0 << fy << imageSize.height / 2 << 0 << 0 << 1;
+    K_rect << fx << 0 << imageSize.width / 2 <<
+        0 << fy << imageSize.height / 2 << 0 << 0 << 1;
   } else {
     K_rect << fx << 0 << cx << 0 << fy << cy << 0 << 0 << 1;
   }
 
-  std::cout <<std::endl<<"w3";
-  
   if (fx == -1.0f || fy == -1.0f) {
     K_rect(0, 0) = mParameters.mu();
     K_rect(1, 1) = mParameters.mv();
   }
 
-
-  std::cout <<std::endl<<"w4";
   Ctain::Matrix3f K_rect_inv = K_rect.inverse();
-
   Ctain::Matrix3f R(3), R_inv(3);
   
-  std::cout <<std::endl<<"w5";
-  for(int i = 0; i < 3; ++i) {
-    for(int j = 0; j < 3; ++j) {
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 3; ++j) {
       R(i, j) = rmat.at<float>(i, j);
     }
   }
   R_inv = R.inverse();
 
-    std::cout<<"R:\n"<< R << std::endl;
-  std::cout <<"w6";
   for (int v = 0; v < imageSize.height; ++v) {
     for (int u = 0; u < imageSize.width; ++u) {
       Ctain::Vector3f xo(3, 1);
@@ -509,17 +500,14 @@ cv::Mat EquidistantCamera::initUndistortRectifyMap(
     }
   }
 
-  std::cout <<"w7";
   cv::convertMaps(mapX, mapY, map1, map2, CV_32FC1, false);
-  //std::cout <<"mapX:\n"<<mapY;
   cv::Mat K_rect_cv(3, 3, CV_32FC1);
-  for(int i = 0; i < 3; ++i) {
-    for(int j = 0; j < 3; ++j) {
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 3; ++j) {
       K_rect_cv.at<float>(i, j) = K_rect(i, j);
     }
   }
 
-  std::cout <<"K_rect_cv:\n"<<K_rect_cv;
   return K_rect_cv;
 }
 
@@ -672,11 +660,11 @@ void EquidistantCamera::backprojectSymmetric(
     std::cout << std::endl <<"eigval:" << eigval;
     std::vector<double> thetas;
     for (int i = 0; i < eigval.rows(); ++i) {
-      if (fabs(eigval(i, 1)) > tol) {   //imag
+      if (fabs(eigval(i, 1)) > tol) {   // imag
         continue;
       }
 
-      double t = eigval(i, 0);          //real
+      double t = eigval(i, 0);          // real
 
       if (t < -tol) {
         continue;
@@ -689,18 +677,10 @@ void EquidistantCamera::backprojectSymmetric(
 
       if (thetas.empty()) {
         theta = p_u_norm;
-        std::cout<<std::endl<<"empty";
       } else {
         theta = *std::min_element(thetas.begin(), thetas.end());
-       // theta = 1.3457661;
-        std::cout<<"thetas[]:";
-        for(auto t:thetas)
-          std::cout<<t<<" ";
-      }
-   
+      } 
   }
-     std::cout << std::endl <<"thetas:" << theta <<" phi:"<<phi;
-
 }
 
 }  // namespace models
