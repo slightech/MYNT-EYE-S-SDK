@@ -651,20 +651,25 @@ void EquidistantCamera::backprojectSymmetric(
   if (npow >= 9) {
     coeffs(9) = mParameters.k5();
   }
-
+  std::cout << std::endl << std::endl << "coeffs:" << coeffs;
   if (npow == 1) {
     theta = p_u_norm;
   } else {
     // Get eigenvalues of companion matrix corresponding to polynomial.
     // Eigenvalues correspond to roots of polynomial.
-    Ctain::MatrixXd A(npow, npow);
+    Ctain::Matrixd A(npow);
     A.setZero();
     A.block(1, 0, npow - 1, npow - 1).setIdentity();
     A.col(npow - 1) = -coeffs.block(0, 0, npow, 1) / coeffs(npow);
+    std::cout << std::endl <<"A:" << A;
 
     Ctain::EigenSolver es(A);
-    Ctain::MatrixXcd eigval = es.eigenvalues();
-
+    Ctain::Matrix<double> eigval(9, 2);
+    eigval = es.eigenvalues();
+    // Ctain::EigenSolver es(A);
+    // Ctain::MatrixXcd eigval(npow, 2);
+    // eigval = es.eigenvalues();
+    std::cout << std::endl <<"eigval:" << eigval;
     std::vector<double> thetas;
     for (int i = 0; i < eigval.rows(); ++i) {
       if (fabs(eigval(i, 1)) > tol) {   //imag
@@ -684,10 +689,17 @@ void EquidistantCamera::backprojectSymmetric(
 
       if (thetas.empty()) {
         theta = p_u_norm;
+        std::cout<<std::endl<<"empty";
       } else {
         theta = *std::min_element(thetas.begin(), thetas.end());
+       // theta = 1.3457661;
+        std::cout<<"thetas[]:";
+        for(auto t:thetas)
+          std::cout<<t<<" ";
       }
+   
   }
+     std::cout << std::endl <<"thetas:" << theta <<" phi:"<<phi;
 
 }
 

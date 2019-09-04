@@ -123,6 +123,18 @@ namespace Ctain {
             return res;
         }
 
+        friend Matrix<_Scalar> operator *(
+                const Matrix<_Scalar> &m, double a) {
+            Matrix<_Scalar> res;
+            res = m;
+            for(int i = 0; i < m._Rows; i++) {
+                for(int j = 0; j < m._Cols; j++) {
+                    res.Data(i,j) *= a;
+                }
+            }
+            return res;
+        }
+
         friend Matrix<_Scalar> operator -(
             const Matrix<_Scalar> &m) {
             Matrix<_Scalar> res;
@@ -268,6 +280,14 @@ namespace Ctain {
     template<typename _Scalar>
     void Matrix<_Scalar>::operator =(Matrix<_Scalar> m) {
         if(m._isSub) {
+            if(_isSub) {
+                for (int i = 0; i < m._Rows; i++) {
+                    for (int j = 0; j < m._Cols; j++) {
+                        Data(i,j) = m.cData(i, j);
+                    }
+                }
+                return;
+            }
             _isSub = true;
             _Rows = m._Rows;
             _Cols = m._Cols;
@@ -352,7 +372,8 @@ namespace Ctain {
 
     template<typename _Scalar>
     Matrix<_Scalar> Matrix<_Scalar>::operator /(double m) const {
-        Matrix<_Scalar> res(_Rows, _Cols);
+        Matrix<_Scalar> res;
+        res = *this;
         for(int i = 0; i < _Rows; i++) {
             for(int j = 0; j < _Cols; j++) {
                 res.Data(i,j) /= m;

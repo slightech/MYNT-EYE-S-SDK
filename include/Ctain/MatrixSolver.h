@@ -7,20 +7,30 @@
 #include <cmath>
 #include <complex>
 static bool Matrix_EigenValue(double *K1,int n,int LoopNumber,double Error1,double *Ret);
+static void Matrix_Hessenberg(double *A1,int n,double *ret);
 namespace Ctain {
     class EigenSolver {
     public:
         EigenSolver(SMatrix<double> s) {
-            _matrix = s;
-            Matrix<double> tt(_matrix.rows(),2);
-            Matrix_EigenValue(_matrix.addr(),_matrix.rows(),1000,1e-10,tt.addr());
+            double *A = new double[s.rows()*2];
+            double *B = new double[s.size()];
+            for(int i = 0; i < s.size(); i++)
+                B[i] = s(i);
+            memset(A, 0, sizeof(s.rows()*2));
+            Matrix_EigenValue(B, s.rows(),1000,1e-10,A);
+            Matrix<double> tt(A, s.rows(), 2);
             t=tt;
+            std::cout<<"s:"<<s;
+            SMatrix<double> s2(A, s.rows());
+            std::cout<<"tt:"<<tt;
+            std::cout<<"s2:"<<s2;
+            delete []A;
+            delete []B;
         }
         Matrix<double> eigenvalues() {
             return t;
         }
     private:
-        SMatrix<double> _matrix;
         Matrix<double> t;
     };
 
@@ -29,56 +39,58 @@ namespace Ctain {
 
 static void Matrix_Hessenberg(double *A1,int n,double *ret)
 {
-    int i,j,k,MaxNumber;
+
+    int MaxNumber;
     double temp,*A;
     A=new double[n*n];
-    for (i=0;i<n;i++) {
-        k=i*n;
-        for (j=0;j<n;j++)
+    memset(A, 0, sizeof(double)*n*n);
+    for (int i=0;i<n;i++) {
+        int k=i*n;
+        for (int j=0;j<n;j++)
         {
             A[k+j]=A1[k+j];
         }
     }
-    for (k=1;k<n-1;k++) {
-        i=k-1;
+    for (int k=1;k<n-1;k++) {
+        int i=k-1;
         MaxNumber=k;
-        temp=abs(A[k*n+i]);
-        for (j=k+1;j<n;j++) {
-            if (abs(A[j*n+i])>temp) {
-                temp=abs(A[j*n+i]);
+        temp=fabs(A[k*n+i]);
+        for (int j=k+1;j<n;j++) {
+            if (fabs(A[j*n+i])>temp) {
+                temp=fabs(A[j*n+i]);
                 MaxNumber=j;
             }
         }
         ret[0]=A[MaxNumber*n+i];
-        i=MaxNumber;
+        
         if (ret[0]!=0) {
-            if (i!=k) {
-                for(j=k-1;j<n;j++) {
+            if (MaxNumber!=k) {
+                for(int j=k-1;j<n;j++) {
                     temp=A[i*n+j];
                     A[i*n+j]=A[k*n+j];
                     A[k*n+j]=temp;
                 }
-                for(j=0;j<n;j++) {
+                for(int j=0;j<n;j++) {
                     temp=A[j*n+i];
                     A[j*n+i]=A[j*n+k];
                     A[j*n+k]=temp;
                 }
             }
-            for (i=k+1;i<n;i++) {
+            for (int i=k+1;i<n;i++) {
                 temp=A[i*n+k-1]/ret[0];
                 A[i*n+k-1]=0;
-                for (j=k;j<n;j++) {
+                for (int j=k;j<n;j++) {
                     A[i*n+j]-=temp*A[k*n+j];
                 }
-                for (j=0;j<n;j++) {
+                for (int j=0;j<n;j++) {
                     A[j*n+k]+=temp*A[j*n+i];
                 }
             }
         }
     }
-    for (i=0;i<n;i++) {
-        k=i*n;
-        for (j=0;j<n;j++) {
+    for (int i=0;i<n;i++) {
+        int k=i*n;
+        for (int j=0;j<n;j++) {
             ret[k+j]=A[k+j];
         }
     }
@@ -90,16 +102,17 @@ static bool Matrix_EigenValue(double *K1,int n,int LoopNumber,double Error1,doub
     int i,j,k,t,m,Loop1;
     double b,c,d,g,xy,p,q,r,x,s,e,f,z,y,temp,*A;
     A=new double[n*n];
+    memset(A, 0, sizeof(double)*n*n);
     Matrix_Hessenberg(K1,n,A);
     m=n;
     Loop1=LoopNumber;
     while(m!=0) {
         t=m-1;
         while(t>0) {
-            temp=abs(A[(t-1)*n+t-1]);
-            temp+=abs(A[t*n+t]);
+            temp=fabs(A[(t-1)*n+t-1]);
+            temp+=fabs(A[t*n+t]);
             temp=temp*Error1;
-            if (abs(A[t*n+t-1])>temp) {
+            if (fabs(A[t*n+t-1])>temp) {
                 t--;
             }
             else {
@@ -116,7 +129,7 @@ static bool Matrix_EigenValue(double *K1,int n,int LoopNumber,double Error1,doub
             b=-A[(m-1)*n+m-1]-A[(m-2)*n+m-2];
             c=A[(m-1)*n+m-1]*A[(m-2)*n+m-2]-A[(m-1)*n+m-2]*A[(m-2)*n+m-1];
             d=b*b-4*c;
-            y=sqrt(abs(d));
+            y=sqrt(fabs(d));
             if (d>0) {
                 xy=1;
                 if (b<0) {
