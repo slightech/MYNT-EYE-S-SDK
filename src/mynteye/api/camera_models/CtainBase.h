@@ -44,7 +44,7 @@ namespace ctain {
   typedef Matrix<double> MatrixXcd;
 
   typedef Quaternion<double> Quaterniond;
-}
+}   //  namespace ctain
 
 MYNTEYE_END_NAMESPACE
 #endif  // SRC_MYNTEYE_API_CAMERA_MODELS_CTAINBASE_H_
