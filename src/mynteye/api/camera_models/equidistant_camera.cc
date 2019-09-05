@@ -281,8 +281,8 @@ void EquidistantCamera::estimateIntrinsics(
   double f0 = 0.0;
   for (size_t i = 0; i < imagePoints.size(); ++i) {
     // std::vector<Eigen::Vector2d> center(boardSize.height);
-    std::vector<ctain::Vector2d> center(
-        boardSize.height, ctain::Vector2d(2, 1));
+    std::vector<models::Vector2d> center(
+        boardSize.height, models::Vector2d(2, 1));
     int arrayLength = boardSize.height;
     double *radius = new double[arrayLength];
     memset(radius, 0, arrayLength * sizeof(double));
@@ -355,9 +355,9 @@ void EquidistantCamera::estimateIntrinsics(
  */
 
 void EquidistantCamera::liftProjective(
-    const ctain::Vector2d &p, ctain::Vector3d &P) const {
+    const models::Vector2d &p, models::Vector3d &P) const {
   // Lift points to normalised plane
-  ctain::Vector2d p_u(2, 1);
+  models::Vector2d p_u(2, 1);
   p_u << m_inv_K11 * p(0) + m_inv_K13 << m_inv_K22 * p(1) + m_inv_K23;
 
   // Obtain a projective ray
@@ -377,7 +377,7 @@ void EquidistantCamera::liftProjective(
  */
 
 void EquidistantCamera::spaceToPlane(
-    const ctain::Vector3d &P, ctain::Vector2d &p) const {
+    const models::Vector3d &P, models::Vector2d &p) const {
 // double theta = acos(0.5);
 // double theta = 0.5;
 // double phi = 0.5;
@@ -391,9 +391,9 @@ void EquidistantCamera::spaceToPlane(
 // double phi = ApproxAtan2(P(1), P(0));
 
   double tmp[2] = {cos(phi), sin(phi)};
-  ctain::Vector2d p_u = r(mParameters.k2(), mParameters.k3(), mParameters.k4(),
+  models::Vector2d p_u = r(mParameters.k2(), mParameters.k3(), mParameters.k4(),
                           mParameters.k5(), theta) *
-                        ctain::Vector2d(tmp, 2, 1);
+                        models::Vector2d(tmp, 2, 1);
 
   // Apply generalised projection matrix
   p << mParameters.mu() * p_u(0) + mParameters.u0()
@@ -407,14 +407,14 @@ void EquidistantCamera::spaceToPlane(
  * \param p return value, contains the image point coordinates
  */
 void EquidistantCamera::spaceToPlane(
-    const ctain::Vector3d &P, ctain::Vector2d &p,
-    ctain::Matrix23d &J) const {
+    const models::Vector3d &P, models::Vector2d &p,
+    models::Matrix23d &J) const {
   double theta = acos(P(2) / 3.0);
   double phi = atan2(P(1), P(0));
   double tmp[2] = {cos(phi), sin(phi)};
-  ctain::Vector2d p_u = r(mParameters.k2(), mParameters.k3(), mParameters.k4(),
+  models::Vector2d p_u = r(mParameters.k2(), mParameters.k3(), mParameters.k4(),
                           mParameters.k5(), theta) *
-                        ctain::Vector2d(tmp, 2, 1);
+                        models::Vector2d(tmp, 2, 1);
 
   // Apply generalised projection matrix
   p << mParameters.mu() * p_u(0) + mParameters.u0()
@@ -433,14 +433,14 @@ void EquidistantCamera::initUndistortMap(
       double my_u = m_inv_K22 / fScale * v + m_inv_K23 / fScale;
 
       double theta, phi;
-      ctain::Vector2d tmp(2, 1);
+      models::Vector2d tmp(2, 1);
       tmp << mx_u << my_u;
       backprojectSymmetric(tmp, theta, phi);
 
-      ctain::Vector3d P(3, 1);
+      models::Vector3d P(3, 1);
       P << sin(theta) * cos(phi) << sin(theta) * sin(phi) << cos(theta);
 
-      ctain::Vector2d p(2, 1);
+      models::Vector2d p(2, 1);
       spaceToPlane(P, p);
 
       mapX.at<float>(v, u) = p(0);
@@ -463,7 +463,7 @@ cv::Mat EquidistantCamera::initUndistortRectifyMap(
   cv::Mat mapX = cv::Mat::zeros(imageSize.height, imageSize.width, CV_32F);
   cv::Mat mapY = cv::Mat::zeros(imageSize.height, imageSize.width, CV_32F);
 
-  ctain::Matrix3f K_rect(3);
+  models::Matrix3f K_rect(3);
 
   if (cx == -1.0f && cy == -1.0f) {
     K_rect << fx << 0 << imageSize.width / 2 <<
@@ -477,8 +477,8 @@ cv::Mat EquidistantCamera::initUndistortRectifyMap(
     K_rect(1, 1) = mParameters.mv();
   }
 
-  ctain::Matrix3f K_rect_inv = K_rect.inverse();
-  ctain::Matrix3f R(3), R_inv(3);
+  models::Matrix3f K_rect_inv = K_rect.inverse();
+  models::Matrix3f R(3), R_inv(3);
 
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < 3; ++j) {
@@ -489,11 +489,11 @@ cv::Mat EquidistantCamera::initUndistortRectifyMap(
 
   for (int v = 0; v < imageSize.height; ++v) {
     for (int u = 0; u < imageSize.width; ++u) {
-      ctain::Vector3f xo(3, 1);
+      models::Vector3f xo(3, 1);
       xo << u << v << 1;
 
-      ctain::Vector3f uo = R_inv * K_rect_inv * xo;
-      ctain::Vector2d p(2, 1);
+      models::Vector3f uo = R_inv * K_rect_inv * xo;
+      models::Vector2d p(2, 1);
       spaceToPlane(uo.cast<double>(), p);
 
       mapX.at<float>(v, u) = p(0);
@@ -580,16 +580,16 @@ void EquidistantCamera::fitOddPoly(
     pows.push_back(i);
   }
 
-  ctain::MatrixXd X(x.size(), pows.size());
-  ctain::MatrixXd Y(y.size(), 1);
+  models::MatrixXd X(x.size(), pows.size());
+  models::MatrixXd Y(y.size(), 1);
   for (size_t i = 0; i < x.size(); ++i) {
     for (size_t j = 0; j < pows.size(); ++j) {
       X(i, j) = pow(x.at(i), pows.at(j));
     }
     Y(i, 0) = y.at(i);
   }
-  ctain::SMatrix<double> Tmp(X.transpose() * X);
-  ctain::MatrixXd A = Tmp.inverse() * X.transpose() * Y;
+  models::SMatrix<double> Tmp(X.transpose() * X);
+  models::MatrixXd A = Tmp.inverse() * X.transpose() * Y;
 
   coeffs.resize(A.rows());
   for (int i = 0; i < A.rows(); ++i) {
@@ -598,7 +598,7 @@ void EquidistantCamera::fitOddPoly(
 }
 
 void EquidistantCamera::backprojectSymmetric(
-    const ctain::Vector2d &p_u, double &theta, double &phi) const {
+    const models::Vector2d &p_u, double &theta, double &phi) const {
   double tol = 1e-10;
   double p_u_norm = p_u.norm();
 
@@ -622,7 +622,7 @@ void EquidistantCamera::backprojectSymmetric(
     npow -= 2;
   }
 
-  ctain::MatrixXd coeffs(npow + 1, 1);
+  models::MatrixXd coeffs(npow + 1, 1);
   coeffs.setZero();
   coeffs(0) = -p_u_norm;
   coeffs(1) = 1.0;
@@ -645,17 +645,17 @@ void EquidistantCamera::backprojectSymmetric(
   } else {
     // Get eigenvalues of companion matrix corresponding to polynomial.
     // Eigenvalues correspond to roots of polynomial.
-    ctain::Matrixd A(npow);
+    models::Matrixd A(npow);
     A.setZero();
     A.block(1, 0, npow - 1, npow - 1).setIdentity();
     A.col(npow - 1) = -coeffs.block(0, 0, npow, 1) / coeffs(npow);
     std::cout << std::endl <<"A:" << A;
 
-    ctain::EigenSolver es(A);
-    ctain::Matrix<double> eigval(9, 2);
+    models::EigenSolver es(A);
+    models::Matrix<double> eigval(9, 2);
     eigval = es.eigenvalues();
-    // ctain::EigenSolver es(A);
-    // ctain::MatrixXcd eigval(npow, 2);
+    // models::EigenSolver es(A);
+    // models::MatrixXcd eigval(npow, 2);
     // eigval = es.eigenvalues();
     std::cout << std::endl <<"eigval:" << eigval;
     std::vector<double> thetas;

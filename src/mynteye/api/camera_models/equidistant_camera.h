@@ -117,26 +117,26 @@ class EquidistantCamera : public Camera {
       const std::vector<std::vector<cv::Point2f> > &imagePoints);
 
   // Lift points from the image plane to the projective space
-  void liftProjective(const ctain::Vector2d &p, ctain::Vector3d &P) const;  // NOLINT
+  void liftProjective(const models::Vector2d &p, models::Vector3d &P) const;  // NOLINT
   // %output P
 
   // Projects 3D points to the image plane (Pi function)
-  void spaceToPlane(const ctain::Vector3d &P, ctain::Vector2d &p) const;  // NOLINT
+  void spaceToPlane(const models::Vector3d &P, models::Vector2d &p) const;  // NOLINT
   // %output p
 
 
   // Projects 3D points to the image plane (Pi function)
   // and calculates jacobian
   void spaceToPlane(
-      const ctain::Vector3d &P,ctain::Vector2d &p,  // NOLINT
-      ctain::Matrix23d &J) const;  // NOLINT
+      const models::Vector3d &P,models::Vector2d &p,  // NOLINT
+      models::Matrix23d &J) const;  // NOLINT
   // %output p
   // %output J
 
   template <typename T>
   static void spaceToPlane(
       const T *const params, const T *const q, const T *const t,
-      const ctain::Matrix<T> &P, ctain::Matrix<T> &p);  // NOLINT
+      const models::Matrix<T> &P, models::Matrix<T> &p);  // NOLINT
 
   void initUndistortMap(
       cv::Mat &map1, cv::Mat &map2, double fScale = 1.0) const;  // NOLINT
@@ -165,7 +165,7 @@ class EquidistantCamera : public Camera {
       std::vector<double> &coeffs) const;  // NOLINT
 
   void backprojectSymmetric(
-      const ctain::Vector2d &p_u, double &theta, double &phi) const;  // NOLINT
+      const models::Vector2d &p_u, double &theta, double &phi) const;  // NOLINT
 
   Parameters mParameters;
 
@@ -194,7 +194,7 @@ T EquidistantCamera::r(T k2, T k3, T k4, T k5, T theta) {
 template <typename T>
 void spaceToPlane(
     const T *const params, const T *const q, const T *const t,
-    const ctain::Matrix<T> &P, ctain::Matrix<T> &p) {  // NOLINT
+    const models::Matrix<T> &P, models::Matrix<T> &p) {  // NOLINT
   T P_w[3];
   P_w[0] = T(P(0));
   P_w[1] = T(P(1));
@@ -225,7 +225,7 @@ void spaceToPlane(
   T theta = acos(P_c[2] / len);
   T phi = atan2(P_c[1], P_c[0]);
 
-  ctain::Matrix<T> p_u(2, 1), tmp(2, 1);
+  models::Matrix<T> p_u(2, 1), tmp(2, 1);
   tmp(0) = cos(phi);
   tmp(1) = sin(phi);
   p_u = r(k2, k3, k4, k5, theta) * tmp;

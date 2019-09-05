@@ -21,7 +21,7 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
-namespace ctain {
+namespace models {
 template<typename T>
 class Quaternion {
  public:
@@ -66,7 +66,7 @@ class Quaternion {
   T _z;
   T _w;
 };
-}   // namespace ctain
+}   // namespace models
 
 MYNTEYE_END_NAMESPACE
 #endif   // SRC_MYNTEYE_API_CAMERA_MODELS_QUATERNION_H_

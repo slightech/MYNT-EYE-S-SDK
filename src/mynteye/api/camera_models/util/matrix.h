@@ -23,7 +23,7 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
-namespace ctain {
+namespace models {
 template<typename _Scalar>
 class Matrix {
  public:
@@ -419,7 +419,7 @@ double Matrix<_Scalar>::norm(void) const {
 
   return sum;
 }
-}   //  namespace ctain
+}   //  namespace models
 
 MYNTEYE_END_NAMESPACE
 #endif  //  SRC_MYNTEYE_API_CAMERA_MODELS_MATRIX_H_

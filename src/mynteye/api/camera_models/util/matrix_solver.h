@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #pragma once
-#ifndef SRC_MYNTEYE_API_CAMERA_MODELS_CTAIN_MATRIX_SOLVER_H_
-#define SRC_MYNTEYE_API_CAMERA_MODELS_CTAIN_MATRIX_SOLVER_H_
+#ifndef SRC_MYNTEYE_API_CAMERA_MODELS_models_MATRIX_SOLVER_H_
+#define SRC_MYNTEYE_API_CAMERA_MODELS_models_MATRIX_SOLVER_H_
 #include <cmath>
 #include <complex>
 #include "mynteye/mynteye.h"
@@ -24,7 +24,7 @@ static bool Matrix_EigenValue(double *k1, int n,
     int loop_number, double error1, double *ret);
 static void Matrix_Hessenberg(double *a1, int n, double *ret);
 
-namespace ctain {
+namespace models {
 class EigenSolver {
  public:
   explicit EigenSolver(SMatrix<double> s) {
@@ -48,7 +48,7 @@ class EigenSolver {
   Matrix<double> t;
 };
 
-}  // namespace ctain
+}  // namespace models
 
 static void Matrix_Hessenberg(double *a1, int n, double *ret) {
   int MaxNumber;
@@ -253,4 +253,4 @@ static bool Matrix_EigenValue(double *k1, int n,
 }
 
 MYNTEYE_END_NAMESPACE
-#endif    //  SRC_MYNTEYE_API_CAMERA_MODELS_CTAIN_MATRIX_SOLVER_H_
+#endif    //  SRC_MYNTEYE_API_CAMERA_MODELS_models_MATRIX_SOLVER_H_

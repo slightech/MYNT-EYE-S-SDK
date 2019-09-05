@@ -139,6 +139,7 @@ if(WITH_CAM_MODELS)
     ${CMAKE_CURRENT_BINARY_DIR}/include
     ${EIGEN_INCLUDE_DIR}
     src/mynteye/api/camera_models
+    src/mynteye
   )
 
   add_library(camera_models STATIC

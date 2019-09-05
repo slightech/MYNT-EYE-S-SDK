@@ -77,12 +77,12 @@ class Camera {
 
   // Lift points from the image plane to the projective space
   virtual void liftProjective(
-      const ctain::Vector2d &p, ctain::Vector3d &P) const = 0;  // NOLINT
+      const models::Vector2d &p, models::Vector3d &P) const = 0;  // NOLINT
   // %output P
 
   // Projects 3D points to the image plane (Pi function)
   virtual void spaceToPlane(
-      const ctain::Vector3d &P, ctain::Vector2d &p) const = 0;  // NOLINT
+      const models::Vector3d &P, models::Vector2d &p) const = 0;  // NOLINT
   // %output p
 
   // Projects 3D points to the image plane (Pi function)
@@ -114,7 +114,7 @@ class Camera {
    * \return euclidean distance in the plane
    */
   double reprojectionDist(
-      const ctain::Vector3d &P1, const ctain::Vector3d &P2) const;
+      const models::Vector3d &P1, const models::Vector3d &P2) const;
 
   double reprojectionError(
       const std::vector<std::vector<cv::Point3f> > &objectPoints,
@@ -123,8 +123,8 @@ class Camera {
       cv::OutputArray perViewErrors = cv::noArray()) const;
 
   double reprojectionError(
-      const ctain::Vector3d &P, const ctain::Quaterniond &camera_q,
-      const ctain::Vector3d &camera_t, const ctain::Vector2d &observed_p) const;
+      const models::Vector3d &P, const models::Quaterniond &camera_q,
+      const models::Vector3d &camera_t, const models::Vector2d &observed_p) const;
 
   void projectPoints(
       const std::vector<cv::Point3f> &objectPoints, const cv::Mat &rvec,

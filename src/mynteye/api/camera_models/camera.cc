@@ -104,7 +104,7 @@ void Camera::estimateExtrinsics(
   std::vector<cv::Point2f> Ms(imagePoints.size());
   for (size_t i = 0; i < Ms.size(); ++i) {
   // Eigen::Vector3d P;
-  ctain::Vectord P(3, 1), p(2, 1);
+  models::Vectord P(3, 1), p(2, 1);
   p<< imagePoints.at(i).x << imagePoints.at(i).y;
 
   // liftProjective(
@@ -121,8 +121,8 @@ void Camera::estimateExtrinsics(
 }
 
 double Camera::reprojectionDist(
-    const ctain::Vector3d &P1, const ctain::Vector3d &P2) const {
-  ctain::Vector2d p1(2, 1), p2(2, 1);
+    const models::Vector3d &P1, const models::Vector3d &P2) const {
+  models::Vector2d p1(2, 1), p2(2, 1);
 
   spaceToPlane(P1, p1);
   spaceToPlane(P2, p2);
@@ -170,13 +170,13 @@ double Camera::reprojectionError(
 }
 
 double Camera::reprojectionError(
-    const ctain::Vector3d &P, const ctain::Quaterniond &camera_q,
-    const ctain::Vector3d &camera_t,
-    const ctain::Vector2d &observed_p) const {
-  ctain::Vector3d P_cam;
+    const models::Vector3d &P, const models::Quaterniond &camera_q,
+    const models::Vector3d &camera_t,
+    const models::Vector2d &observed_p) const {
+  models::Vector3d P_cam;
   P_cam = camera_q.toRotationMatrix() * P + camera_t;
 
-  ctain::Vector2d p(2, 1), res(2, 1);
+  models::Vector2d p(2, 1), res(2, 1);
   spaceToPlane(P_cam, p);
   res = p - observed_p;
   return res.norm();
@@ -192,24 +192,24 @@ void Camera::projectPoints(
   cv::Mat R0;
   cv::Rodrigues(rvec, R0);
 
-  ctain::MatrixXd R(3, 3);
+  models::MatrixXd R(3, 3);
   R << R0.at<double>(0, 0) << R0.at<double>(0, 1) << R0.at<double>(0, 2) <<
        R0.at<double>(1, 0) << R0.at<double>(1, 1) << R0.at<double>(1, 2) <<
        R0.at<double>(2, 0) << R0.at<double>(2, 1) << R0.at<double>(2, 2);
 
-  ctain::Vectord t(3, 1);
+  models::Vectord t(3, 1);
   t << tvec.at<double>(0) << tvec.at<double>(1) << tvec.at<double>(2);
 
   for (size_t i = 0; i < objectPoints.size(); ++i) {
     const cv::Point3f &objectPoint = objectPoints.at(i);
 
     // Rotate and translate
-    ctain::Vectord P(3, 1);
+    models::Vectord P(3, 1);
     P << objectPoint.x << objectPoint.y << objectPoint.z;
 
     P = R * P + t;
 
-    ctain::Vector2d p(2, 1);
+    models::Vector2d p(2, 1);
     spaceToPlane(P, p);
 
     imagePoints.push_back(cv::Point2f(p(0), p(1)));

@@ -24,7 +24,7 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
-namespace ctain {
+namespace models {
   typedef SMatrix<double> Matrixd;
   typedef Matrix<double> MatrixXd;
   typedef Matrix<double> Matrix23d;
@@ -45,7 +45,7 @@ namespace ctain {
   typedef Matrix<double> MatrixXcd;
 
   typedef Quaternion<double> Quaterniond;
-}   //  namespace ctain
+}   // namespace models
 
 MYNTEYE_END_NAMESPACE
 #endif  // SRC_MYNTEYE_API_CAMERA_MODELS_CTAINBASE_H_
