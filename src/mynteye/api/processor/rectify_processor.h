@@ -92,7 +92,7 @@ class RectifyProcessor : public Processor {
 
 // Eigen::Matrix4d loadT(const mynteye::Extrinsics& in);
 // subEigen
-  Ctain::Matrix4d loadT(const mynteye::Extrinsics &in);
+  ctain::Matrix4d loadT(const mynteye::Extrinsics &in);
 
   void loadCameraMatrix(cv::Mat& K, cv::Mat& D,  // NOLINT
       cv::Size& image_size,  // NOLINT

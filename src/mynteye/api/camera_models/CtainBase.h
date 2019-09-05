@@ -16,11 +16,14 @@
 #include "SquareMatrix.h"
 #include "MatrixSolver.h"
 #include "Quaternion.h"
-#ifndef MATRIX_CTAIN_H
-#define MATRIX_CTAIN_H
+#ifndef SRC_MYNTEYE_API_CAMERA_MODELS_CTAINBASE_H_
+#define SRC_MYNTEYE_API_CAMERA_MODELS_CTAINBASE_H_
 
+#include "mynteye/mynteye.h"
 
-namespace Ctain {
+MYNTEYE_BEGIN_NAMESPACE
+
+namespace ctain {
   typedef SMatrix<double> Matrixd;
   typedef Matrix<double> MatrixXd;
   typedef Matrix<double> Matrix23d;
@@ -43,4 +46,5 @@ namespace Ctain {
   typedef Quaternion<double> Quaterniond;
 }
 
-#endif // Ctain_CtainBASE_H
+MYNTEYE_END_NAMESPACE
+#endif  // SRC_MYNTEYE_API_CAMERA_MODELS_CTAINBASE_H_

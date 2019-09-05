@@ -15,7 +15,12 @@
 #ifndef SRC_MYNTEYE_API_CAMERA_MODELS_SQUAREMATRIX_H_
 #define SRC_MYNTEYE_API_CAMERA_MODELS_SQUAREMATRIX_H_
 #include "Matrix.h"
-namespace Ctain {
+
+#include "mynteye/mynteye.h"
+
+MYNTEYE_BEGIN_NAMESPACE
+
+namespace ctain {
 #define Matrix_ Matrix<_Scalar>
 template<typename _Scalar>
 class SMatrix: public Matrix_{
@@ -92,5 +97,7 @@ _Scalar SMatrix<_Scalar>::M(int m, int n) {
 }
 #undef Matrix_
 
-}   //  namespace Ctain
+}   //  namespace ctain
+
+MYNTEYE_END_NAMESPACE
 #endif  // SRC_MYNTEYE_API_CAMERA_MODELS_SQUAREMATRIX_H_

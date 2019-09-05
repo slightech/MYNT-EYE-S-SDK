@@ -19,7 +19,11 @@
 #include <iostream>
 #include <cmath>
 
-namespace Ctain {
+#include "mynteye/mynteye.h"
+
+MYNTEYE_BEGIN_NAMESPACE
+
+namespace ctain {
 template<typename _Scalar>
 class Matrix {
  public:
@@ -280,7 +284,6 @@ class Matrix {
   inline _Scalar cData(int i, int j) const {
     return data[id(i, j)];
   }
-
 };    //  class Matrix
 
 template<typename _Scalar>
@@ -346,8 +349,7 @@ Matrix<_Scalar> Matrix<_Scalar>::operator -(const Matrix<_Scalar> &m) const {
 }
 
 template<typename _Scalar>
-Matrix<_Scalar> Matrix<_Scalar>::transpose() const
-{
+Matrix<_Scalar> Matrix<_Scalar>::transpose() const {
   Matrix<_Scalar> res(_Cols, _Rows);
   for (int i = 0; i < _Rows; i++) {
     for (int j = 0; j < _Cols; j++) {
@@ -417,5 +419,7 @@ double Matrix<_Scalar>::norm() const {
 
   return sum;
 }
-}   //  namespace Ctain
+}   //  namespace ctain
+
+MYNTEYE_END_NAMESPACE
 #endif  //  SRC_MYNTEYE_API_CAMERA_MODELS_MATRIX_H_

@@ -17,7 +17,12 @@
 
 #include "SquareMatrix.h"
 #include <cmath>
-namespace Ctain {
+
+#include "mynteye/mynteye.h"
+
+MYNTEYE_BEGIN_NAMESPACE
+
+namespace ctain {
 template<typename T>
 class Quaternion {
  public:
@@ -62,5 +67,7 @@ class Quaternion {
   T _z;
   T _w;
 };
-}   // namespace Ctain
+}   // namespace ctain
+
+MYNTEYE_END_NAMESPACE
 #endif   // SRC_MYNTEYE_API_CAMERA_MODELS_QUATERNION_H_
