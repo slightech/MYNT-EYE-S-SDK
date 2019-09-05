@@ -22,6 +22,7 @@
 
 #include "mynteye/mynteye.h"
 
+// #define _DOUTPUT
 MYNTEYE_BEGIN_NAMESPACE
 
 namespace models {

@@ -455,7 +455,6 @@ void EquidistantCamera::initUndistortMap(
 cv::Mat EquidistantCamera::initUndistortRectifyMap(
     cv::Mat &map1, cv::Mat &map2, float fx, float fy, cv::Size imageSize,
     float cx, float cy, cv::Mat rmat) const {
-      std::cout <<"w0";
   if (imageSize == cv::Size(0, 0)) {
     imageSize = cv::Size(mParameters.imageWidth(), mParameters.imageHeight());
   }
@@ -639,7 +638,9 @@ void EquidistantCamera::backprojectSymmetric(
   if (npow >= 9) {
     coeffs(9) = mParameters.k5();
   }
+#ifdef _DOUTPUT
   std::cout << std::endl << std::endl << "coeffs:" << coeffs;
+#endif  
   if (npow == 1) {
     theta = p_u_norm;
   } else {
@@ -649,15 +650,19 @@ void EquidistantCamera::backprojectSymmetric(
     A.setZero();
     A.block(1, 0, npow - 1, npow - 1).setIdentity();
     A.col(npow - 1) = -coeffs.block(0, 0, npow, 1) / coeffs(npow);
-    std::cout << std::endl <<"A:" << A;
 
+#ifdef _DOUTPUT
+    std::cout << std::endl <<"A:" << A;
+#endif
     models::EigenSolver es(A);
     models::Matrix<double> eigval(9, 2);
     eigval = es.eigenvalues();
     // models::EigenSolver es(A);
     // models::MatrixXcd eigval(npow, 2);
     // eigval = es.eigenvalues();
+#ifdef _DOUTPUT
     std::cout << std::endl <<"eigval:" << eigval;
+#endif
     std::vector<double> thetas;
     for (int i = 0; i < eigval.rows(); ++i) {
       if (fabs(eigval(i, 1)) > tol) {   // imag

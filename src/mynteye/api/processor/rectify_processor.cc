@@ -333,6 +333,7 @@ std::shared_ptr<struct CameraROSMsgInfoPair> RectifyProcessor::stereoRectify(
       image_size1, &c_R, &c_t, &c_R1, &c_R2, &c_P1, &c_P2, &T_mul_f,
       &cx1_min_cx2);
 
+#ifdef _DOUTPUT
   std::cout << "K1: " << K1 << std::endl;
   std::cout << "D1: " << D1 << std::endl;
   std::cout << "K2: " << K2 << std::endl;
@@ -343,7 +344,7 @@ std::shared_ptr<struct CameraROSMsgInfoPair> RectifyProcessor::stereoRectify(
   std::cout << "R2: " << R2 << std::endl;
   std::cout << "P1: " << P1 << std::endl;
   std::cout << "P2: " << P2 << std::endl;
-
+#endif
   R1 = rectifyrad(R1);
   R2 = rectifyrad(R2);
 
@@ -404,7 +405,6 @@ void RectifyProcessor::InitParams(
     IntrinsicsEquidistant in_left,
     IntrinsicsEquidistant in_right,
     Extrinsics ex_right_to_left) {
-      LOG(INFO) <<"q1";
   calib_model = CalibrationModel::KANNALA_BRANDT;
   in_left.ResizeIntrinsics();
   in_right.ResizeIntrinsics();
