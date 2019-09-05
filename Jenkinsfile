@@ -80,20 +80,22 @@ pipeline {
   post {
     always {
       echo 'This will always run'
+	  /*
 	  dingTalk accessToken: '7dca6ae9b1b159b8b4b375e858b71f2e6cec8f73fa20d07552d09791261b2344',
                     imageUrl: 'http://icon-park.com/imagefiles/loading7_gray.gif',
                     message: '开始构建',
                     jenkinsUrl: "${JENKINS_URL}"
-					
+					*/
 
     }
     success {
       echo 'This will run only if successful'
+	  /*
 	  dingTalk accessToken: '7dca6ae9b1b159b8b4b375e858b71f2e6cec8f73fa20d07552d09791261b2344',
                     imageUrl: 'http://icons.iconarchive.com/icons/paomedia/small-n-flat/1024/sign-check-icon.png',
                     message: '构建成功',
                     jenkinsUrl: "${JENKINS_URL}"
-
+*/
     }
     failure {
       echo 'This will run only if failed'

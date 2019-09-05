@@ -16,6 +16,7 @@
 #pragma once
 #include <memory>
 #include <string>
+#include <memory>
 
 #include "mynteye/api/processor.h"
 #include "mynteye/api/processor/rectify_processor.h"
@@ -29,6 +30,8 @@ class DepthProcessor : public Processor {
 
   explicit DepthProcessor(
       std::shared_ptr<struct CameraROSMsgInfoPair> calib_infos,
+      std::shared_ptr<int> min_disp = nullptr,
+      std::shared_ptr<int> max_disp = nullptr,
       std::int32_t proc_period = 0);
   virtual ~DepthProcessor();
 
@@ -44,6 +47,8 @@ class DepthProcessor : public Processor {
       std::shared_ptr<Processor> const parent) override;
  private:
   std::shared_ptr<struct CameraROSMsgInfoPair> calib_infos_;
+  std::shared_ptr<int> min_disp_;
+  std::shared_ptr<int> max_disp_;
 };
 
 MYNTEYE_END_NAMESPACE

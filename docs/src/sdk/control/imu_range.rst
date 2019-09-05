@@ -13,7 +13,7 @@ To set the range of accelerometer and gyroscope, set ``Option::ACCELEROMETER_RAN
   * The effective range of accelerometer(unit:g): 4, 8, 16, 32.
   * Gyroscope Range Valid value (unit: DEG/S): 500, 1000, 2000, 4000.
 
-  For mynteye s2100/s210a, the available settings are:
+  For mynteye s21XX, the available settings are:
   
   * The effective range of accelerometer(unit:g): 6, 12, 24, 48.
   * The effective range of gyroscope(unit:deg/s): 250, 500, 1000, 2000, 4000.
@@ -38,7 +38,7 @@ s1030：
   LOG(INFO) << "Set GYROSCOPE_RANGE to "
             << api->GetOptionValue(Option::GYROSCOPE_RANGE);
 
-s2100/s210a：
+s21XX：
 
 .. code-block:: c++
 
@@ -67,7 +67,7 @@ s1030：
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/ctrl_imu_range
+  $ ./samples/_output/bin/ctrl_imu_range
   I/utils.cc:28 Detecting MYNT EYE devices
   I/utils.cc:38 MYNT EYE devices:
   I/utils.cc:41   index: 0, name: MYNT-EYE-S1030, sn: 4B4C1F1100090712
@@ -78,11 +78,11 @@ s1030：
   I/imu_range.cc:84 Img count: 363, fps: 25.0967
   I/imu_range.cc:86 Imu count: 2825, hz: 195.312
 
-s2100/s210a：
+s21XX：
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/ctrl_imu_range 
+  $ ./samples/_output/bin/ctrl_imu_range 
   I/utils.cc:30 Detecting MYNT EYE devices
   I/utils.cc:40 MYNT EYE devices:
   I/utils.cc:43   index: 0, name: MYNT-EYE-S210A, sn: 07C41A190009071F
@@ -105,4 +105,4 @@ s2100/s210a：
 
 After the sample program finishes running with ``ESC/Q``, the ranges of imu setting is complete. The ranges will be kept inside the hardware and not affected by power off.
 
-Complete code samples，please see `imu_range.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/control/imu_range.cc>`_.
+Complete code samples，please see `ctrl_imu_range.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/ctrl_imu_range.cc>`_.

@@ -3,22 +3,22 @@
 Save Device Infomation And Parameters
 =====================================
 
-The SDK provides a tool ``save_all_infos`` for save information and parameters. For more information, please read `tools/README.md <https://github.com/slightech/MYNT-EYE-S-SDK/tree/master/tools>`_ .
+The SDK provides a tool ``save_all_infos`` for save information and parameters.
 
 Reference commands:
 
 .. code-block:: bash
 
-  ./tools/_output/bin/writer/save_all_infos
+  ./samples/_output/bin/save_all_infos
 
   # Windows
-  .\tools\_output\bin\writer\save_all_infos.bat
+  .\samples\_output\bin\save_all_infos.bat
 
 Reference result on Linux:
 
 .. code-block:: bash
 
-  $ ./tools/_output/bin/writer/save_all_infos
+  $ ./samples/_output/bin/save_all_infos
   I0512 21:40:08.687088  4092 utils.cc:26] Detecting MYNT EYE devices
   I0512 21:40:09.366693  4092 utils.cc:33] MYNT EYE devices:
   I0512 21:40:09.366734  4092 utils.cc:37]   index: 0, name: MYNT-EYE-S1000

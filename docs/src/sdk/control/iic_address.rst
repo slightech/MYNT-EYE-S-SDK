@@ -9,11 +9,11 @@ To set the IIC address, set ``Option::IIC_ADDRESS_SETTING``.
 
 
 .. Attention::
-  Only support S210A/2100
+  Only support S21XX
 
 Reference Code:
 
-s210a/s2100：
+s2XX：
 
 .. code-block:: c++
 
@@ -33,11 +33,11 @@ s210a/s2100：
 
 Reference running results on Linux:
 
-s210a/s2100：
+s21XX：
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/ctrl_iic_adress
+  $ ./samples/_output/bin/ctrl_iic_adress
   I/utils.cc:30 Detecting MYNT EYE devices
   I/utils.cc:40 MYNT EYE devices:
   I/utils.cc:43   index: 0, name: MYNT-EYE-S210A, sn: 07C41A190009071F
@@ -55,4 +55,4 @@ s210a/s2100：
   I/imu_range.cc:51 Set iic address to 0x31
 
 After the sample program finishes running with ``ESC/Q``.
-Complete code samples，please see `iic_address.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/control/iic_address.cc>`_ .
+Complete code samples，please see `ctrl_iic_address.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/ctrl_iic_address.cc>`_ .

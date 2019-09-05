@@ -8,7 +8,7 @@ Using the ``SetOptionValue()`` function of the API, you can set various control 
 Enabling IR is setting ``Option::IR_CONTROL`` greater than 0. The greater the value, the greater the IR's intensity.
 
 .. Attention::
-  * mynteye s2100/s210a doesn't support this feature.
+  * mynteye s21XX doesn't support this feature.
 
 Reference Code:
 
@@ -33,7 +33,7 @@ Reference running results on Linux:
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/ctrl_infrared
+  $ ./samples/_output/bin/ctrl_infrared
   I0504 16:16:28.016624 25848 utils.cc:13] Detecting MYNT EYE devices
   I0504 16:16:28.512462 25848 utils.cc:20] MYNT EYE devices:
   I0504 16:16:28.512473 25848 utils.cc:24]   index: 0, name: MYNT-EYE-S1000
@@ -49,6 +49,6 @@ At this point, if the image is displayed, you can see IR speckle on the image, a
 
 .. attention::
 
-  The hardware will not record the IR value after being turned off. In order to keep IR enabled, you must set the IR value after turning on the device.
+  The hardware will not record the IR value after being turned off and will reset to 0. In order to keep IR enabled, you must set the IR value after turning on the device.
 
-Complete code samples，see `infrared.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/control/infrared.cc>`_ .
+Complete code samples，see `ctrl_infrared.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/ctrl_infrared.cc>`_ .

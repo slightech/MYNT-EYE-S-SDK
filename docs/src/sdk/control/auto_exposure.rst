@@ -13,7 +13,7 @@ For mynteye s1030, the settings available for adjustment during auto exposure ar
 * ``Option::MAX_EXPOSURE_TIME`` Maximum exposure time.
 * ``Option::DESIRED_BRIGHTNESS`` Expected brightness.
 
-For mynteye s2100/s210a, the settings available for adjustment during auto exposure are:
+For mynteye s21XX, the settings available for adjustment during auto exposure are:
 
 * ``Option::MAX_GAIN`` Maximum gain.
 * ``Option::MAX_EXPOSURE_TIME`` Maximum exposure time.
@@ -45,7 +45,7 @@ s1030：
   LOG(INFO) << "Set DESIRED_BRIGHTNESS to "
             << api->GetOptionValue(Option::DESIRED_BRIGHTNESS);
 
-s2100/s210a：
+s21XX：
 
 .. code-block:: c++
 
@@ -86,7 +86,7 @@ s1030：
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/ctrl_auto_exposure
+  $ ./samples/_output/bin/ctrl_auto_exposure
   I0513 14:07:57.963943 31845 utils.cc:26] Detecting MYNT EYE devices
   I0513 14:07:58.457536 31845 utils.cc:33] MYNT EYE devices:
   I0513 14:07:58.457563 31845 utils.cc:37]   index: 0, name: MYNT-EYE-S1000
@@ -97,11 +97,11 @@ s1030：
   I0513 14:07:58.521375 31845 auto_exposure.cc:41] Set DESIRED_BRIGHTNESS to 192
 
 
-s2100/s210a：
+s21XX：
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/ctrl_auto_exposure 
+  $ ./samples/_output/bin/ctrl_auto_exposure 
   I/utils.cc:30 Detecting MYNT EYE devices
   I/utils.cc:40 MYNT EYE devices:
   I/utils.cc:43   index: 0, name: MYNT-EYE-S210A, sn: 07C41A190009071F
@@ -126,4 +126,4 @@ s2100/s210a：
 
 The sample program displays an image with a real exposure time in the upper left corner, in milliseconds.
 
-Complete code examples, see `auto_exposure.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/control/auto_exposure.cc>`_ .
+Complete code examples, see `ctrl_auto_exposure.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/ctrl_auto_exposure.cc>`_ .

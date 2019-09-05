@@ -19,7 +19,7 @@
 #include "mynteye/device/utils.h"
 #include "mynteye/util/times.h"
 
-#include "dataset/dataset.h"
+#include "dataset.h"
 
 MYNTEYE_USE_NAMESPACE
 

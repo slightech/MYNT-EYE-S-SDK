@@ -47,8 +47,8 @@ Reference code snippet:
 
 The above code uses OpenCV to display the image. When the display window is selected, pressing ``ESC/Q`` will end the program.
 
-Complete code examples, see `get_depth.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/data/get_depth.cc>`_ .
+Complete code examples, see `get_depth.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/get_depth.cc>`_ .
 
 .. tip::
 
-Preview the value of a region of the depth image, see `get_depth_with_region.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/api/get_depth_with_region.cc>`_ .
+Preview the value of a region of the depth image, see `get_depth_with_region.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/get_depth_with_region.cc>`_ .

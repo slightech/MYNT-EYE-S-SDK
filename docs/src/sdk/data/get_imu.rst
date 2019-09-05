@@ -47,8 +47,13 @@ Sample code snippet:
     */
 
     painter.DrawImgData(img, *left_data.img);
-    if (!motion_datas.empty()) {
-      painter.DrawImuData(img, *motion_datas[0].imu);
+    static std::vector<api::MotionData> motion_datas_s = motion_datas;
+
+    if (!motion_datas.empty() && motion_datas.size() > 0) {
+      motion_datas_s = motion_datas;
+    }
+    if (!motion_datas_s.empty() && motion_datas_s.size() > 0) {
+      painter.DrawImuData(img, *motion_datas_s[0].imu);
     }
 
     cv::imshow("frame", img);
@@ -63,4 +68,4 @@ Sample code snippet:
 
 OpenCV is used to display image and data. When window is selected, press ``ESC/Q`` to exit program.
 
-Complete code examples, see `get_imu.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/data/get_imu.cc>`_ .
+Complete code examples, see `get_imu.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/get_imu.cc>`_ .

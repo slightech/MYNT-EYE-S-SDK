@@ -26,9 +26,13 @@ int DISPARITY_MAX = 64;
 
 DepthProcessor::DepthProcessor(
     std::shared_ptr<struct CameraROSMsgInfoPair> calib_infos,
+    std::shared_ptr<int> min_disp,
+    std::shared_ptr<int> max_disp,
     std::int32_t proc_period)
     : Processor(std::move(proc_period)),
-    calib_infos_(calib_infos) {
+    calib_infos_(calib_infos),
+    min_disp_(min_disp),
+    max_disp_(max_disp) {
   VLOG(2) << __func__;
 }
 
@@ -54,11 +58,13 @@ bool DepthProcessor::OnProcess(
   int cols = input->value.cols;
   // std::cout << calib_infos_->T_mul_f << std::endl;
   // 0.0793434
+
   cv::Mat depth_mat = cv::Mat::zeros(rows, cols, CV_16U);
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {
       float disparity_value = input->value.at<float>(i, j);
-      if (disparity_value < DISPARITY_MAX && disparity_value > DISPARITY_MIN) {
+      if (disparity_value < (max_disp_ ? *max_disp_ : DISPARITY_MAX) &&
+          disparity_value > (min_disp_ ? *min_disp_ : DISPARITY_MIN)) {
         float depth = calib_infos_->T_mul_f / disparity_value;
         depth_mat.at<ushort>(i, j) = depth;
       }

@@ -13,7 +13,7 @@ For mynteye s1030, during manual exposure, the settings available for adjustment
 * ``Option::BRIGHTNESS`` Brightness (Exposure time).
 * ``Option::CONTRAST`` Contrast (Black level calibration).
 
-For mynteye s2100/s210a, during manual exposure, the settings available for adjustment are:
+For mynteye s21XX, during manual exposure, the settings available for adjustment are:
 
 * ``Option::BRIGHTNESS`` Brightness (Exposure time).
 
@@ -41,7 +41,7 @@ s1030：
   LOG(INFO) << "Set BRIGHTNESS to " << api->GetOptionValue(Option::BRIGHTNESS);
   LOG(INFO) << "Set CONTRAST to " << api->GetOptionValue(Option::CONTRAST);
 
-s2100/s210a：
+s21XX：
 
 .. code-block:: c++
 
@@ -71,7 +71,7 @@ s1030：
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/ctrl_manual_exposure
+  $ ./samples/_output/bin/ctrl_manual_exposure
   I0513 14:09:17.104431 31908 utils.cc:26] Detecting MYNT EYE devices
   I0513 14:09:17.501519 31908 utils.cc:33] MYNT EYE devices:
   I0513 14:09:17.501551 31908 utils.cc:37]   index: 0, name: MYNT-EYE-S1000
@@ -81,11 +81,11 @@ s1030：
   I0513 14:09:17.552958 31908 manual_exposure.cc:39] Set BRIGHTNESS to 120
   I0513 14:09:17.552963 31908 manual_exposure.cc:40] Set CONTRAST to 116
 
-s2100/s210a：
+s21XX：
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/ctrl_manual_exposure 
+  $ ./samples/_output/bin/ctrl_manual_exposure 
   I/utils.cc:30 Detecting MYNT EYE devices
   I/utils.cc:40 MYNT EYE devices:
   I/utils.cc:43   index: 0, name: MYNT-EYE-S210A, sn: 07C41A190009071F
@@ -107,4 +107,4 @@ s2100/s210a：
 
 The sample program displays an image with a real exposure time in the upper left corner, in milliseconds.
 
-Complete code samples，see `manual_exposure.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/control/manual_exposure.cc>`_ .
+Complete code samples，see `ctrl_manual_exposure.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/ctrl_manual_exposure.cc>`_ .

@@ -58,7 +58,7 @@ Reference result on Linux:
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/get_imu_correspondence
+  $ ./samples/_output/bin/get_imu_correspondence
   I/utils.cc:30 Detecting MYNT EYE devices
   I/utils.cc:40 MYNT EYE devices:
   I/utils.cc:43   index: 0, name: MYNT-EYE-S1030, sn: 0281351000090807
@@ -106,4 +106,4 @@ Reference result on Linux:
   I/get_imu_correspondence.cc:61 Imu timestamp: 171419650, diff_prev=2020, diff_img=16608
   I/get_imu_correspondence.cc:61 Imu timestamp: 171421660, diff_prev=2010, diff_img=18624
 
-Complete code examples, see `get_imu_correspondence.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/data/get_imu_correspondence.cc>`_ .
+Complete code examples, see `get_imu_correspondence.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/get_imu_correspondence.cc>`_ .

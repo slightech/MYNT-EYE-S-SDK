@@ -49,4 +49,4 @@ Reference commands:
 
 The above code uses OpenCV to display the image. When the display window is selected, pressing ``ESC/Q`` will end the program.
 
-Complete code examples, see `save_single_image.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/data/save_single_image.cc>`_ .
+Complete code examples, see `save_single_image.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/save_single_image.cc>`_ .

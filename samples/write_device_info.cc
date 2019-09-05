@@ -15,7 +15,7 @@
 #include "mynteye/device/device.h"
 #include "mynteye/device/utils.h"
 
-#include "writer/device_writer.h"
+#include "device_writer.h"
 
 MYNTEYE_USE_NAMESPACE
 

@@ -12,7 +12,7 @@ For mynteye s1030, to set the image frame rate and IMU frequency, set ``Option::
   * The effective fps of the image: 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60.
   * The effective frequency of IMU: 100, 200, 250, 333, 500.
 
-For mynteye s2100/s210a, the image frame rate should be selected when running the sample, and the frame rate and resolution are combined as follows:
+For mynteye s21XX, the image frame rate should be selected when running the sample, and the frame rate and resolution are combined as follows:
 
 .. code-block:: bash
 
@@ -45,7 +45,7 @@ s1030：
   LOG(INFO) << "Set IMU_FREQUENCY to "
             << api->GetOptionValue(Option::IMU_FREQUENCY);
 
-s2100/s210a：
+s21XX：
 
 .. code-block:: c++
 
@@ -67,7 +67,7 @@ s1030：
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/ctrl_framerate
+  $ ./samples/_output/bin/ctrl_framerate
   I0513 14:05:57.218222 31813 utils.cc:26] Detecting MYNT EYE devices
   I0513 14:05:57.899404 31813 utils.cc:33] MYNT EYE devices:
   I0513 14:05:57.899430 31813 utils.cc:37]   index: 0, name: MYNT-EYE-S1000
@@ -78,11 +78,11 @@ s1030：
   I0513 14:06:21.702388 31813 framerate.cc:85] Img count: 573, fps: 24.6122
   I0513 14:06:21.702404 31813 framerate.cc:87] Imu count: 11509, hz: 494.348
 
-s2100/s210a：
+s21XX：
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/ctrl_framerate 
+  $ ./samples/_output/bin/ctrl_framerate 
   I/utils.cc:30 Detecting MYNT EYE devices
   I/utils.cc:40 MYNT EYE devices:
   I/utils.cc:43   index: 0, name: MYNT-EYE-S210A, sn: 07C41A190009071F
@@ -105,4 +105,4 @@ s2100/s210a：
 
 After the sample program finishes running with ``ESC/Q``, it will output the calculated value of the frame rate of image & IMU frequency.
 
-Complete code samples，please see `framerate.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/control/framerate.cc>`_ .
+Complete code samples，please see `ctrl_framerate.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/ctrl_framerate.cc>`_ .

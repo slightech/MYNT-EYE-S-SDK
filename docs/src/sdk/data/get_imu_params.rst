@@ -15,4 +15,4 @@ Reference commands:
   LOG(INFO) << "Motion extrinsics left to imu: {"
             << api->GetMotionExtrinsics(Stream::LEFT) << "}";
 
-Complete code examples, see `get_imu_params.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/data/get_imu_params.cc>`_ .
+Complete code examples, see `get_imu_params.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/get_imu_params.cc>`_ .

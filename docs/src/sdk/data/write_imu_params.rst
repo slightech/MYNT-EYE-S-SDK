@@ -3,7 +3,7 @@
 Write IMU Parameters
 =====================
 
-SDK provides the tool ``imu_params_writer`` to write IMU parameters. For deltail, please read `tools/README.md <https://github.com/slightech/MYNT-EYE-S-SDK/tree/master/tools>`_ .
+SDK provides the tool ``write_imu_params`` to write IMU parameters.
 
 Information about how to get IMU parameters, please read :ref:`get_imu_params` .
 
@@ -11,12 +11,12 @@ Reference commands:
 
 .. code-block:: bash
 
-  ./tools/_output/bin/writer/imu_params_writer tools/writer/config/imu.params
+  ./samples/_output/bin/write_imu_params samples/config/imu.params
 
   # Windows
-  .\tools\_output\bin\writer\imu_params_writer.bat tools\writer\config\imu.params
+  .\samples\_output\bin\write_imu_params.bat samples\config\imu.params
 
-The path of parameters file can be found in `tools/writer/config/img.params <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/tools/writer/config/img.params>`_ . If you calibrated the parameters yourself, you can edit the file and run above commands to write them into the device.
+The path of parameters folder can be found in `samples/config/imu.params <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/config>`_ . If you calibrated the parameters yourself, you can edit the file and run above commands to write them into the device.
 
 .. warning::
 

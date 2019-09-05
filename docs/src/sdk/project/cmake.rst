@@ -5,7 +5,7 @@ How to use SDK with CMake
 
 This tutorial will create a project with CMake to start using SDK.
 
-    You could find the project demo in ``<sdk>/platforms/projects/cmake directory`` .
+    You could find the project demo in ``<sdk>/samples/simple_demo/project_cmake directory`` .
 
 Preparation
 -----------

@@ -7,7 +7,6 @@ Point images belongs to upper layer of synthetic data. To get this kind of data 
 
 For detail process description, please see :ref:`get_stereo` :ref:`get_stereo_rectified` .
 
-It is recommended to use plugin to calculate depth: the depth map will be better with a higher frame rate. Please see :ref:`get_with_plugin` for detail.
 
 Sample code snippet:
 
@@ -50,7 +49,7 @@ Sample code snippet:
 
 `PCL <https://github.com/PointCloudLibrary/pcl>`_ is used to display point images above. Program will close when point image window is closed.
 
-Complete code examples, see `get_points.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/data/get_points.cc>`_ .
+Complete code examples, see `get_depth_and_points.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/get_depth_and_points.cc>`_ .
 
 .. attention::
 

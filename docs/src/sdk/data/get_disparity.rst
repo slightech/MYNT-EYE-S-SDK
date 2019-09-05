@@ -59,4 +59,4 @@ Reference code snippet:
 
 The above code uses OpenCV to display the image. Select the display window, press ``ESC/Q`` to exit in the program.
 
-Complete code examples, see `get_disparity.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/data/get_disparity.cc>`_ .
+Complete code examples, see `get_disparity.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/get_disparity.cc>`_ .
