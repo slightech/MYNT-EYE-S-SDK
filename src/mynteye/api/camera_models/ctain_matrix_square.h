@@ -31,8 +31,8 @@ class SMatrix: public Matrix_{
   SMatrix(_Scalar **_data, int dim) : Matrix_(_data, dim, dim) {}
   explicit SMatrix(Matrix_ m) : Matrix_(m) {}
   _Scalar determinant(void) const;
-  _Scalar M(int m, int n);
-  SMatrix<_Scalar> inverse(void);
+  _Scalar M(int m, int n) const;
+  SMatrix<_Scalar> inverse(void) const;
   void operator =(Matrix<_Scalar> m) {
     SMatrix t(m);
     *this = t;
@@ -40,7 +40,7 @@ class SMatrix: public Matrix_{
 };
 
 template<typename _Scalar>
-SMatrix<_Scalar> inverse(void) const{
+SMatrix<_Scalar> SMatrix<_Scalar>::inverse(void) const{
     SMatrix<_Scalar> res(Matrix_::_Rows);
     _Scalar d = determinant();
     for (int i = 0; i < Matrix_::_Rows; i++) {
@@ -81,7 +81,7 @@ _Scalar SMatrix<_Scalar>::determinant(void) const{
 }
 
 template<typename _Scalar>
-_Scalar SMatrix<_Scalar>::M(int m, int n) {
+_Scalar SMatrix<_Scalar>::M(int m, int n) const {
   float mid_result = 0;
   int sign = 1;
   int k = Matrix_::_Rows;
