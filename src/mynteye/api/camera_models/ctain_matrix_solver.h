@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SRC_MYNTEYE_API_CAMERA_MODELS_MATRIXSOLVER_H_
-#define SRC_MYNTEYE_API_CAMERA_MODELS_MATRIXSOLVER_H_
+#ifndef SRC_MYNTEYE_API_CAMERA_MODELS_CTAIN_MATRIX_SOLVER_H_
+#define SRC_MYNTEYE_API_CAMERA_MODELS_CTAIN_MATRIX_SOLVER_H_
 #include <cmath>
 #include <complex>
 
@@ -254,4 +254,4 @@ static bool Matrix_EigenValue(double *K1, int n,
 }
 
 MYNTEYE_END_NAMESPACE
-#endif  // SRC_MYNTEYE_API_CAMERA_MODELS_MATRIXSOLVER_H_
+#endif    //  SRC_MYNTEYE_API_CAMERA_MODELS_CTAIN_MATRIX_SOLVER_H_

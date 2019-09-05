@@ -14,7 +14,7 @@
 
 #ifndef SRC_MYNTEYE_API_CAMERA_MODELS_SQUAREMATRIX_H_
 #define SRC_MYNTEYE_API_CAMERA_MODELS_SQUAREMATRIX_H_
-#include "Matrix.h"
+
 
 #include "mynteye/mynteye.h"
 

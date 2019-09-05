@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Matrix.h"
-#include "SquareMatrix.h"
-#include "MatrixSolver.h"
-#include "Quaternion.h"
+#include "ctain_matrix.h"
+#include "ctain_matrix_square.h"
+#include "ctain_matrix_solver.h"
+#include "ctain_quaternion.h"
 #ifndef SRC_MYNTEYE_API_CAMERA_MODELS_CTAINBASE_H_
 #define SRC_MYNTEYE_API_CAMERA_MODELS_CTAINBASE_H_
 
