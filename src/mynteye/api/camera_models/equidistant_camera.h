@@ -127,8 +127,8 @@ class EquidistantCamera : public Camera {
   // Projects 3D points to the image plane (Pi function)
   // and calculates jacobian
   void spaceToPlane(
-      const Ctain::Vector3d &P, Ctain::Vector2d &p,
-      Ctain::Matrix23d &J) const;  
+      const Ctain::Vector3d &P,Ctain::Vector2d &p,  // NOLINT
+      Ctain::Matrix23d &J) const;  // NOLINT
   // %output p
   // %output J
 
@@ -161,7 +161,7 @@ class EquidistantCamera : public Camera {
 
   void fitOddPoly(
       const std::vector<double> &x, const std::vector<double> &y, int n,
-      std::vector<double> &coeffs) const;
+      std::vector<double> &coeffs) const;  // NOLINT
 
   void backprojectSymmetric(
       const Ctain::Vector2d &p_u, double &theta, double &phi) const;  // NOLINT
@@ -172,7 +172,7 @@ class EquidistantCamera : public Camera {
 };
 
 typedef std::shared_ptr<EquidistantCamera> EquidistantCameraPtr;
-typedef std::shared_ptr<const EquidistantCamera> EquidistantCameraConstPtr;
+typedef std::shared_ptr<const EquidistantCamera> EquidistantCameraConstPtr;  // NOLINT
 
 template <typename T>
 T EquidistantCamera::r(T k2, T k3, T k4, T k5, T theta) {
@@ -193,7 +193,7 @@ T EquidistantCamera::r(T k2, T k3, T k4, T k5, T theta) {
 template <typename T>
 void spaceToPlane(
     const T *const params, const T *const q, const T *const t,
-    const Ctain::Matrix<T> &P, Ctain::Matrix<T> &p) {
+    const Ctain::Matrix<T> &P, Ctain::Matrix<T> &p) {  // NOLINT
   T P_w[3];
   P_w[0] = T(P(0));
   P_w[1] = T(P(1));

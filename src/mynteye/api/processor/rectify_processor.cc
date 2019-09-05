@@ -109,11 +109,15 @@ void RectifyProcessor::stereoRectify(models::CameraPtr leftOdo,
   // these contain the relevant rectified image internal params (fx, fy=fx, cx, cy)
   double fc_new = DBL_MAX;
   CvPoint2D64f cc_new[2] = {{0, 0}, {0, 0}};
-  newImgSize = newImgSize.width * newImgSize.height != 0 ? newImgSize : imageSize;
-  const double ratio_x = (double)newImgSize.width / imageSize.width / 2;
-  const double ratio_y = (double)newImgSize.height / imageSize.height / 2;
+  newImgSize = newImgSize.width * newImgSize.height != 0 ?
+      newImgSize : imageSize;
+  const double ratio_x = static_cast<double>(newImgSize.width) /
+      imageSize.width / 2;
+  const double ratio_y = static_cast<double>(newImgSize.height) /
+      imageSize.height / 2;
   const double ratio = idx == 1 ? ratio_x : ratio_y;
-  fc_new = (cvmGet(K1, idx ^ 1, idx ^ 1) + cvmGet(K2, idx ^ 1, idx ^ 1)) * ratio;
+  fc_new = (cvmGet(K1, idx ^ 1, idx ^ 1) +
+      cvmGet(K2, idx ^ 1, idx ^ 1)) * ratio;
 
   for (k = 0; k < 2; k++) {
     CvPoint2D32f _pts[4];
@@ -126,8 +130,8 @@ void RectifyProcessor::stereoRectify(models::CameraPtr leftOdo,
     Ctain::Vector3d b(3, 1);
     for (i = 0; i < 4; i++) {
       int j = (i < 2) ? 0 : 1;
-      a(0) = (float)((i % 2)*(nx));
-      a(1) = (float)(j*(ny));
+      a(0) = static_cast<float>((i % 2)*(nx));
+      a(1) = static_cast<float>(j*(ny));
       if (0 == k) {
         leftOdo->liftProjective(a, b);
       } else {
@@ -290,7 +294,8 @@ std::shared_ptr<struct CameraROSMsgInfoPair> RectifyProcessor::stereoRectify(
   // Eigen::Matrix3d R = T.topLeftCorner<3, 3>();
   // Eigen::Vector3d t = T.topRightCorner<3, 1>();
   Ctain::Matrix4d T = loadT(ex_right_to_left);
-  Ctain::Matrix3d R = T.topLeftCorner<3, 3>();
+  Ctain::Matrix3d R;
+  R = T.topLeftCorner<3, 3>();
   Ctain::Vector3d t = T.topRightCorner<3, 1>();
   // cv::Mat cv_R, cv_t;
   // cv::eigen2cv(R, cv_R);
@@ -444,7 +449,7 @@ void RectifyProcessor::InitParams(
   camera_odo_ptr_right->initUndistortRectifyMap(
       map21, map22, right_f[0], right_f[1],
       cv::Size(0, 0), right_center[0],
-      right_center[1], rect_R_r); 
+      right_center[1], rect_R_r);
 }
 
 const char RectifyProcessor::NAME[] = "RectifyProcessor";

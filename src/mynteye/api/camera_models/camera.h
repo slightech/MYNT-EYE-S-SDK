@@ -127,7 +127,8 @@ class Camera {
 
   void projectPoints(
       const std::vector<cv::Point3f> &objectPoints, const cv::Mat &rvec,
-      const cv::Mat &tvec, std::vector<cv::Point2f> &imagePoints) const;
+      const cv::Mat &tvec, std::vector<cv::Point2f> &imagePoints) const;  // NOLINT
+
  protected:
   cv::Mat m_mask;
 };

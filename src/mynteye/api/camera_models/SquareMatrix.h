@@ -1,91 +1,96 @@
+// Copyright 2018 Slightech Co., Ltd. All rights reserved.
 //
-// Created by 顾涵彬 on 2019-08-29.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#ifndef MATRIX_SQUAREMATRIX_H
-#define MATRIX_SQUAREMATRIX_H
+#ifndef SRC_MYNTEYE_API_CAMERA_MODELS_SQUAREMATRIX_H_
+#define SRC_MYNTEYE_API_CAMERA_MODELS_SQUAREMATRIX_H_
 #include "Matrix.h"
 namespace Ctain {
-#define Matrix Matrix<_Scalar>
-    template<typename _Scalar>
-    class SMatrix: public Matrix{
-    public:
-        SMatrix(int D) : Matrix(D, D) {}
-        SMatrix() : Matrix(0, 0) {}
-        SMatrix(_Scalar _data[], int D) :
-                Matrix(_data, D, D) {}
-        SMatrix(_Scalar **_data, int D) :
-                Matrix(_data, D, D) {}
-        SMatrix(Matrix m) :
-                Matrix(m) {}
-     //   void operator =(const Matrix &m){
-   //     }
-        _Scalar determinant();
-        _Scalar M(int m, int n);
-        SMatrix<_Scalar> inverse() {
-            SMatrix<_Scalar> res(Matrix::_Rows);
-            _Scalar d = determinant();
-            for (int i = 0; i < Matrix::_Rows; i++) {
-                for (int j = 0; j < Matrix::_Cols; j++) {
-                    res.Data(j, i) = 1.0*M(i, j)/d;
-                }
-            }
-            return res;
-
+#define Matrix_ Matrix<_Scalar>
+template<typename _Scalar>
+class SMatrix: public Matrix_{
+ public:
+  explicit SMatrix(int D) : Matrix_(D, D) {}
+  SMatrix() : Matrix_(0, 0) {}
+  SMatrix(_Scalar _data[], int D) : Matrix_(_data, D, D) {}
+  SMatrix(_Scalar **_data, int D) : Matrix_(_data, D, D) {}
+  explicit SMatrix(Matrix_ m) : Matrix_(m) {}
+  _Scalar determinant();
+  _Scalar M(int m, int n);
+  SMatrix<_Scalar> inverse() {
+    SMatrix<_Scalar> res(Matrix_::_Rows);
+    _Scalar d = determinant();
+    for (int i = 0; i < Matrix_::_Rows; i++) {
+        for (int j = 0; j < Matrix_::_Cols; j++) {
+            res.Data(j, i) = 1.0 * M(i, j) / d;
         }
-
-
-    };//class Matrix end
-
-    template<typename _Scalar>
-    _Scalar SMatrix<_Scalar>::determinant() {
-        int r, c, m;
-        int lop = 0;
-        int n = Matrix::_Rows;
-        _Scalar result = 0;
-        _Scalar mid = 1;
-        if (n != 1) {
-            lop = (n == 2) ? 1 : n;
-            for (m = 0; m < lop; m++) {
-                mid = 1;
-                for (r = 0, c = m; r < n; r++, c++) {
-                    mid = mid * (*(Matrix::data+r*n+c%n));
-                }
-                result += mid;
-            }
-            for (m = 0; m < lop; m++) {
-                mid = 1;
-                for (r = 0, c = n-1-m+n; r < n; r++, c--) {
-                    mid = mid * (*(Matrix::data+r*n+c%n));
-                }
-                result -= mid;
-            }
-        }
-        else
-            result = Matrix::data[0];
-        return result;
     }
+    return res;
+  }
+  void operator =(Matrix<_Scalar> m) {
+    SMatrix t(m);
+    *this = t;
+  }
+};
 
-    template<typename _Scalar>
-    _Scalar SMatrix<_Scalar>::M(int m, int n) {
-        float mid_result = 0;
-        int sign = 1;
-        int k = Matrix::_Rows;
-        SMatrix mid(k-1);
-        int c = 0;
-        for (int i = 0; i < k; i++) {
-            for (int j = 0; j < k; j++) {
-                if (i != m && j != n)
-                {
-                    mid.Data(c++) = Matrix::cData(i,j);
-                }
-            }
+template<typename _Scalar>
+_Scalar SMatrix<_Scalar>::determinant() {
+  int r, c, m;
+  int lop = 0;
+  int n = Matrix_::_Rows;
+  _Scalar result = 0;
+  _Scalar mid = 1;
+  if (n != 1) {
+    lop = (n == 2) ? 1 : n;
+    for (m = 0; m < lop; m++) {
+        mid = 1;
+        for (r = 0, c = m; r < n; r++, c++) {
+            mid = mid * (*(Matrix_::data+r*n+c%n));
         }
-        sign = (m+n)%2 == 0 ? 1 : -1;
-        mid_result = (float)sign*mid.determinant();
-        return mid_result;
+        result += mid;
     }
-#undef Matrix
+    for (m = 0; m < lop; m++) {
+        mid = 1;
+        for (r = 0, c = n-1-m+n; r < n; r++, c--) {
+            mid = mid * (*(Matrix_::data + r * n + c % n));
+        }
+        result -= mid;
+    }
+  } else {
+    result = Matrix_::data[0];
+  }
+  return result;
+}
 
-}//namespace Ctain end
-#endif //MATRIX_SQUAREMATRIX_H
+template<typename _Scalar>
+_Scalar SMatrix<_Scalar>::M(int m, int n) {
+  float mid_result = 0;
+  int sign = 1;
+  int k = Matrix_::_Rows;
+  SMatrix mid(k - 1);
+  int c = 0;
+  for (int i = 0; i < k; i++) {
+    for (int j = 0; j < k; j++) {
+      if (i != m && j != n) {
+        mid.Data(c++) = Matrix_::cData(i, j);
+      }
+    }
+  }
+  sign = (m+n)%2 == 0 ? 1 : -1;
+  mid_result = static_cast<_Scalar>(sign) * mid.determinant();
+  return mid_result;
+}
+#undef Matrix_
+
+}   //  namespace Ctain
+#endif  // SRC_MYNTEYE_API_CAMERA_MODELS_SQUAREMATRIX_H_

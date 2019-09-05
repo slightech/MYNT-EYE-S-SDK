@@ -478,7 +478,7 @@ cv::Mat EquidistantCamera::initUndistortRectifyMap(
 
   Ctain::Matrix3f K_rect_inv = K_rect.inverse();
   Ctain::Matrix3f R(3), R_inv(3);
-  
+
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < 3; ++j) {
       R(i, j) = rmat.at<float>(i, j);
@@ -587,8 +587,7 @@ void EquidistantCamera::fitOddPoly(
     }
     Y(i, 0) = y.at(i);
   }
-  Ctain::SMatrix<double> Tmp;
-  Tmp = X.transpose() * X;
+  Ctain::SMatrix<double> Tmp(X.transpose() * X);
   Ctain::MatrixXd A = Tmp.inverse() * X.transpose() * Y;
 
   coeffs.resize(A.rows());
@@ -679,7 +678,7 @@ void EquidistantCamera::backprojectSymmetric(
         theta = p_u_norm;
       } else {
         theta = *std::min_element(thetas.begin(), thetas.end());
-      } 
+      }
   }
 }
 
