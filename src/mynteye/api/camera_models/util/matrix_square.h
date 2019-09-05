@@ -24,14 +24,22 @@ namespace ctain {
 template<typename _Scalar>
 class SMatrix: public Matrix_{
  public:
-  explicit SMatrix(int D) : Matrix_(D, D) {}
+  explicit SMatrix(int dim) : Matrix_(dim, dim) {}
   SMatrix() : Matrix_(0, 0) {}
-  SMatrix(_Scalar _data[], int D) : Matrix_(_data, D, D) {}
-  SMatrix(_Scalar **_data, int D) : Matrix_(_data, D, D) {}
+  SMatrix(_Scalar _data[], int dim) : Matrix_(_data, dim, dim) {}
+  SMatrix(_Scalar **_data, int dim) : Matrix_(_data, dim, dim) {}
   explicit SMatrix(Matrix_ m) : Matrix_(m) {}
-  _Scalar determinant();
+  _Scalar determinant(void) const;
   _Scalar M(int m, int n);
-  SMatrix<_Scalar> inverse() {
+  SMatrix<_Scalar> inverse(void);
+  void operator =(Matrix<_Scalar> m) {
+    SMatrix t(m);
+    *this = t;
+  }
+};
+
+template<typename _Scalar>
+SMatrix<_Scalar> inverse(void) const{
     SMatrix<_Scalar> res(Matrix_::_Rows);
     _Scalar d = determinant();
     for (int i = 0; i < Matrix_::_Rows; i++) {
@@ -40,15 +48,10 @@ class SMatrix: public Matrix_{
         }
     }
     return res;
-  }
-  void operator =(Matrix<_Scalar> m) {
-    SMatrix t(m);
-    *this = t;
-  }
-};
+}
 
 template<typename _Scalar>
-_Scalar SMatrix<_Scalar>::determinant() {
+_Scalar SMatrix<_Scalar>::determinant(void) const{
   int r, c, m;
   int lop = 0;
   int n = Matrix_::_Rows;

@@ -20,9 +20,9 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
-static bool Matrix_EigenValue(double *K1, int n,
-    int LoopNumber, double Error1, double *Ret);
-static void Matrix_Hessenberg(double *A1, int n, double *ret);
+static bool Matrix_EigenValue(double *k1, int n,
+    int loop_number, double error1, double *ret);
+static void Matrix_Hessenberg(double *a1, int n, double *ret);
 
 namespace ctain {
 class EigenSolver {
@@ -40,7 +40,7 @@ class EigenSolver {
     delete []A;
     delete []B;
 }
-  Matrix<double> eigenvalues() {
+  Matrix<double> eigenvalues(void) {
     return t;
   }
 
@@ -50,7 +50,7 @@ class EigenSolver {
 
 }  // namespace ctain
 
-static void Matrix_Hessenberg(double *A1, int n, double *ret) {
+static void Matrix_Hessenberg(double *a1, int n, double *ret) {
   int MaxNumber;
   double temp, *A;
   A = new double[n*n];
@@ -58,7 +58,7 @@ static void Matrix_Hessenberg(double *A1, int n, double *ret) {
   for (int i = 0; i < n; i++) {
     int k = i * n;
     for (int j = 0; j < n; j++) {
-      A[k + j] = A1[k + j];
+      A[k + j] = a1[k + j];
     }
   }
   for (int k = 1; k < n-1; k++) {
@@ -106,21 +106,21 @@ static void Matrix_Hessenberg(double *A1, int n, double *ret) {
   delete []A;
 }
 
-static bool Matrix_EigenValue(double *K1, int n,
-    int LoopNumber, double Error1, double *Ret) {
+static bool Matrix_EigenValue(double *k1, int n,
+    int loop_number, double error1, double *ret) {
   int i, j, k, t, m, Loop1;
   double b, c, d, g, xy, p, q, r, x, s, e, f, z, y, temp, *A;
   A = new double[n * n];
   memset(A, 0, sizeof(double) * n * n);
-  Matrix_Hessenberg(K1, n, A);
+  Matrix_Hessenberg(k1, n, A);
   m = n;
-  Loop1 = LoopNumber;
+  Loop1 = loop_number;
   while (m != 0) {
     t = m - 1;
     while (t > 0) {
       temp = fabs(A[(t - 1) * n + t - 1]);
       temp += fabs(A[t * n + t]);
-      temp = temp * Error1;
+      temp = temp * error1;
       if (fabs(A[t * n + t - 1]) > temp) {
         t--;
       } else {
@@ -128,10 +128,10 @@ static bool Matrix_EigenValue(double *K1, int n,
       }
     }
     if (t == m-1) {
-      Ret[(m - 1) * 2] = A[(m - 1) * n + m - 1];
-      Ret[(m - 1) * 2 + 1] = 0;
+      ret[(m - 1) * 2] = A[(m - 1) * n + m - 1];
+      ret[(m - 1) * 2 + 1] = 0;
       m -= 1;
-      Loop1 = LoopNumber;
+      Loop1 = loop_number;
     } else if (t == m - 2) {
       b = -A[(m - 1) * n + m - 1] - A[(m - 2) * n + m - 2];
       c = A[(m - 1) * n + m - 1] * A[(m - 2) * n + m - 2]
@@ -143,18 +143,18 @@ static bool Matrix_EigenValue(double *K1, int n,
         if (b < 0) {
           xy = -1;
         }
-        Ret[(m - 1) * 2] = -(b + xy * y) / 2;
-        Ret[(m - 1) * 2 + 1] = 0;
-        Ret[(m - 2) * 2] = c / Ret[(m - 1) * 2];
-        Ret[(m - 2) * 2 + 1] = 0;
+        ret[(m - 1) * 2] = -(b + xy * y) / 2;
+        ret[(m - 1) * 2 + 1] = 0;
+        ret[(m - 2) * 2] = c / ret[(m - 1) * 2];
+        ret[(m - 2) * 2 + 1] = 0;
       } else {
-        Ret[(m - 1) * 2] = -b / 2;
-        Ret[(m - 2) * 2] = -b / 2;
-        Ret[(m - 1) * 2 + 1] = y / 2;
-        Ret[(m - 2) * 2 + 1] = -y / 2;
+        ret[(m - 1) * 2] = -b / 2;
+        ret[(m - 2) * 2] = -b / 2;
+        ret[(m - 1) * 2 + 1] = y / 2;
+        ret[(m - 2) * 2 + 1] = -y / 2;
       }
       m -= 2;
-      Loop1 = LoopNumber;
+      Loop1 = loop_number;
     } else {
       if (Loop1 < 1) {
         delete []A;

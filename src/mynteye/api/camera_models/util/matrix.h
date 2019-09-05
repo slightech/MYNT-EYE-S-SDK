@@ -27,46 +27,46 @@ namespace ctain {
 template<typename _Scalar>
 class Matrix {
  public:
-  Matrix(int Rows, int Cols) :
-    _Rows(Rows), _Cols(Cols), _isSub(0), input_id(0) {
+  Matrix(int _rows, int _cols) :
+    _Rows(_rows), _Cols(_cols), _isSub(0), input_id(0) {
   _startRow = 0;
   _startCol = 0;
-  _Rows_raw = Rows;
-  _Cols_raw = Cols;
+  _Rows_raw = _rows;
+  _Cols_raw = _cols;
   data = new _Scalar[_Rows * _Cols];
   memset(data, 0, _Rows * _Cols * sizeof(_Scalar));
   }
-  Matrix() :
+  Matrix(void) :
     _Rows(0), _Cols(0), _isSub(0), input_id(0) {
   _startRow = 0;
   _startCol = 0;
   _Rows_raw = 0;
   _Cols_raw = 0;
   }
-  Matrix(_Scalar _data[], int Rows, int Cols) :
-      _Rows(Rows), _Cols(Cols), _isSub(0), input_id(0) {
+  Matrix(_Scalar _data[], int _rows, int _cols) :
+      _Rows(_rows), _Cols(_cols), _isSub(0), input_id(0) {
     _startRow = 0;
     _startCol = 0;
-    _Rows_raw = Rows;
-    _Cols_raw = Cols;
-    data = new _Scalar[Rows * _Cols];
+    _Rows_raw = _rows;
+    _Cols_raw = _cols;
+    data = new _Scalar[_rows * _Cols];
     memcpy(data, _data, _Rows * _Cols * sizeof(_Scalar));
   }
 
-  Matrix(_Scalar **_data, int Rows, int Cols) :
-      _Rows(Rows), _Cols(Cols), _isSub(0), input_id(0) {
+  Matrix(_Scalar **_data, int _rows, int _cols) :
+      _Rows(_rows), _Cols(_cols), _isSub(0), input_id(0) {
     _startRow = 0;
     _startCol = 0;
-    _Rows_raw = Rows;
-    _Cols_raw = Cols;
-    data = new _Scalar[Rows * _Cols];
+    _Rows_raw = _rows;
+    _Cols_raw = _cols;
+    data = new _Scalar[_rows * _Cols];
     for (int i = 0; i < _Rows; ++i) {
     memcpy(data + i * _Cols, *(_data + i), _Cols * sizeof(_Scalar));
     }
   }
 
   template<typename T>
-  Matrix<T> cast() {
+  Matrix<T> cast(void) const{
     Matrix<T> res(_Rows, _Cols);
     for (int i = 0; i < _Rows; i++) {
       for (int j = 0; j < _Cols; j++) {
@@ -76,7 +76,7 @@ class Matrix {
     return res;
   }
 
-  void setIdentity() {
+  void setIdentity(void) {
     for (int i = 0; i < _Rows; i++) {
       for (int j = 0; j < _Cols; j++) {
         if (i == j) {
@@ -87,19 +87,19 @@ class Matrix {
       }
     }
   }
-  void setZero() {
+  void setZero(void) {
     for (int i = 0; i < _Rows; i++) {
       for (int j = 0; j < _Cols; j++) {
         Data(i, j) = 0;
       }
     }
   }
-  inline int cols() const { return _Cols; }
+  inline int cols(void) const { return _Cols; }
 
-  inline int rows() const { return _Rows; }
+  inline int rows(void) const { return _Rows; }
 
-  inline int size() const { return cols() * rows(); }
-  inline _Scalar * addr() {
+  inline int size(void) const { return cols() * rows(); }
+  inline _Scalar * addr(void) {
     return data;
   }
 
@@ -196,49 +196,49 @@ class Matrix {
   Matrix<_Scalar> row(int Row) {
     return block(Row, 0, 1, _Cols);
   }
-  Matrix<_Scalar> block(int sRow, int sCol, int Rows, int Cols) {
+  Matrix<_Scalar> block(int sRow, int sCol, int _rows, int _cols) {
     Matrix<_Scalar> sub;
     sub = *this;
-    sub.setSub(sRow, sCol, Rows, Cols, data);
+    sub.setSub(sRow, sCol, _rows, _cols, data);
     return sub;
   }
 
-  template<int Rows, int Cols>
-  Matrix<_Scalar> topLeftCorner() {
+  template<int _rows, int _cols>
+  Matrix<_Scalar> topLeftCorner(void) {
     Matrix<_Scalar> sub;
     sub = *this;
-    sub.setSub(0, 0, Rows, Cols, data);
+    sub.setSub(0, 0, _rows, _cols, data);
     return sub;
   }
 
-  template<int Rows, int Cols>
-  Matrix<_Scalar> topRightCorner() {
+  template<int _rows, int _cols>
+  Matrix<_Scalar> topRightCorner(void) {
     Matrix<_Scalar> sub;
     sub = *this;
-    sub.setSub(0, _Cols-Cols, Rows, Cols, data);
+    sub.setSub(0, _Cols-_cols, _rows, _cols, data);
     return sub;
   }
 
-  void setSub(int sRow, int sCol, int Rows, int Cols, _Scalar *Data) {
+  void setSub(int sRow, int sCol, int _rows, int _cols, _Scalar *Data) {
     _isSub = true;
     _Rows_raw = _Rows;
     _Cols_raw = _Cols;
-    _Rows = Rows;
-    _Cols = Cols;
+    _Rows = _rows;
+    _Cols = _cols;
     _startRow = sRow;
     _startCol = sCol;
     data = Data;
   }
 
-  void normalize();
-  double norm() const;
+  void normalize(void);
+  double norm(void) const;
 
   virtual ~Matrix() {
     if  (!data)
       delete[] data;
   }
 
-  inline _Scalar *Data() {
+  inline _Scalar *Data(void) {
     return data;
   }
 
@@ -349,7 +349,7 @@ Matrix<_Scalar> Matrix<_Scalar>::operator -(const Matrix<_Scalar> &m) const {
 }
 
 template<typename _Scalar>
-Matrix<_Scalar> Matrix<_Scalar>::transpose() const {
+Matrix<_Scalar> Matrix<_Scalar>::transpose(void) const {
   Matrix<_Scalar> res(_Cols, _Rows);
   for (int i = 0; i < _Rows; i++) {
     for (int j = 0; j < _Cols; j++) {
@@ -392,7 +392,7 @@ Matrix<_Scalar> Matrix<_Scalar>::operator /(double m) const {
 
 
 template<typename _Scalar>
-void Matrix<_Scalar>::normalize() {
+void Matrix<_Scalar>::normalize(void) {
   double sum = 0;
   for (int i = 0; i < _Rows; i++) {
     for (int j = 0; j < _Cols; j++) {
@@ -408,7 +408,7 @@ void Matrix<_Scalar>::normalize() {
 }
 
 template<typename _Scalar>
-double Matrix<_Scalar>::norm() const {
+double Matrix<_Scalar>::norm(void) const {
   double sum = 0;
   for (int i = 0; i < _Rows; i++) {
     for (int j = 0; j < _Cols; j++) {
