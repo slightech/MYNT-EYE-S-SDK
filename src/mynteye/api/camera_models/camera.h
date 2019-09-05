@@ -16,7 +16,7 @@
 
 #include <vector>
 #include <memory>
-#include "Ctain/CtainBase.h"
+#include "CtainBase.h"
 #include <opencv2/core/core.hpp>
 
 #include "mynteye/mynteye.h"
