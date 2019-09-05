@@ -11,13 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#include "ctain_matrix.h"
-#include "ctain_matrix_square.h"
-#include "ctain_matrix_solver.h"
-#include "ctain_quaternion.h"
+#pragma once
 #ifndef SRC_MYNTEYE_API_CAMERA_MODELS_CTAINBASE_H_
 #define SRC_MYNTEYE_API_CAMERA_MODELS_CTAINBASE_H_
+
+#include "util/matrix.h"
+#include "util/matrix_square.h"
+#include "util/matrix_solver.h"
+#include "util/quaternion.h"
 
 #include "mynteye/mynteye.h"
 

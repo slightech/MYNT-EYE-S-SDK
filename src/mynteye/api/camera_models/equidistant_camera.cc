@@ -16,6 +16,7 @@
 #include <cstdint>
 #include <cmath>
 #include <cstdio>
+#include <limits>
 
 #include "eigen3/Eigen/Dense"
 #include <opencv2/calib3d/calib3d.hpp>
@@ -23,7 +24,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "equidistant_camera.h"
-#include "gpl.h"
+#include "util/gpl.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 

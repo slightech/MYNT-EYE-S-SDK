@@ -11,12 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#pragma once
 #ifndef MYNTEYE_CAMERA_MODELS_CAMERA_H_
 #define MYNTEYE_CAMERA_MODELS_CAMERA_H_
 
 #include <vector>
 #include <memory>
-#include "ctain_base.h"
+#include "util/base.h"
 #include <opencv2/core/core.hpp>
 
 #include "mynteye/mynteye.h"
