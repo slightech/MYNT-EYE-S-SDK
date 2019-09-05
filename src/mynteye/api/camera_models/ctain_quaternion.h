@@ -25,7 +25,7 @@ namespace ctain {
 template<typename T>
 class Quaternion {
  public:
-  Quaternion() {}
+  Quaternion(void) {}
   explicit Quaternion(SMatrix<double> m) {
     _w = sqrt(m(0) + m(4) + m(8) + 1) / 2;
     _x = (m(5) - m(7)) / (4 * _w);
@@ -33,7 +33,7 @@ class Quaternion {
     _z = (m(1) - m(3)) / (4 * _w);
   }
   Quaternion(T X, T Y, T Z, T W) : _x(X), _y(Y), _z(Z), _w(W) {}
-  void normalize() {
+  void normalize(void) {
     double len;
     len = sqrt(_x * _x + _y * _y + _z * _z + _w * _w);
     _x = _x  /  len;
@@ -45,7 +45,7 @@ class Quaternion {
   inline T y() {return _y;}
   inline T z() {return _z;}
   inline T w() {return _w;}
-  SMatrix<double> toRotationMatrix() const {
+  SMatrix<double> toRotationMatrix(void) const {
     SMatrix<double> r(3);
     double q0 = _w, q1 = _x, q2 = _y, q3 = _z;
     r(0) = 1  -  2 * q2 * q2 - 2 * q3 * q3;
