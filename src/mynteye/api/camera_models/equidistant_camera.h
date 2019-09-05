@@ -18,7 +18,7 @@
 #include <string>
 #include <opencv2/core/core.hpp>
 
-#include "camera.h"  //  NO_LINT
+#include "api/camera_models/camera.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 

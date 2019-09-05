@@ -16,7 +16,7 @@
 #pragma once
 
 #include <string>
-
+#include <memory>
 #include <opencv2/core/core.hpp>
 
 #include "mynteye/api/processor.h"

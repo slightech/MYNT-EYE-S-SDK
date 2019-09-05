@@ -11,9 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include "api/camera_models/camera.h"
 #include <opencv2/calib3d/calib3d.hpp>
-
-#include "camera.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 

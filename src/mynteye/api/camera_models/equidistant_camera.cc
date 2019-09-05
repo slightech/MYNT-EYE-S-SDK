@@ -23,7 +23,7 @@
 #include <opencv2/core/eigen.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "equidistant_camera.h"
+#include "api/camera_models/equidistant_camera.h"
 #include "util/gpl.h"
 
 MYNTEYE_BEGIN_NAMESPACE
