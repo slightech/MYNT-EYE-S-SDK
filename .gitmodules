@@ -1,7 +1,0 @@
-[submodule "test/gtest"]
-	path = test/gtest
-	url = https://github.com/google/googletest.git
-[submodule "tools/linter"]
-  path = tools/linter
-  url = https://github.com/slightech/linter.git
-  branch = slightech
