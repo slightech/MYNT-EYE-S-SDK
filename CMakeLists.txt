@@ -131,13 +131,10 @@ endif()
 ## camera_models
 
 if(WITH_CAM_MODELS)
-  set(EIGEN_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty)
-  message(STATUS "EIGEN_INCLUDE_DIR: ${EIGEN_INCLUDE_DIR}")
 
   include_directories(
     include
     ${CMAKE_CURRENT_BINARY_DIR}/include
-    ${EIGEN_INCLUDE_DIR}
     src/mynteye/api/camera_models
     src/mynteye
   )
