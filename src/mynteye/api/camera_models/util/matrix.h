@@ -66,7 +66,7 @@ class Matrix {
   }
 
   template<typename T>
-  Matrix<T> cast(void) const{
+  Matrix<T> cast(void) const {
     Matrix<T> res(_Rows, _Cols);
     for (int i = 0; i < _Rows; i++) {
       for (int j = 0; j < _Cols; j++) {

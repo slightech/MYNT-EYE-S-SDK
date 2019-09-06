@@ -17,6 +17,8 @@
 #include <cmath>
 #include <cstdio>
 #include <limits>
+#include <vector>
+#include <algorithm>
 
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -306,7 +308,7 @@ void EquidistantCamera::estimateIntrinsics(
           continue;
         }
 
-        double f = cv::norm(ipts.at(0) - ipts.at(1)) / M_PI;
+        double f = cv::norm(ipts.at(0) - ipts.at(1)) / PI;
 
         params.mu() = f;
         params.mv() = f;
@@ -638,7 +640,7 @@ void EquidistantCamera::backprojectSymmetric(
   }
 #ifdef _DOUTPUT
   std::cout << std::endl << std::endl << "coeffs:" << coeffs;
-#endif  
+#endif
   if (npow == 1) {
     theta = p_u_norm;
   } else {

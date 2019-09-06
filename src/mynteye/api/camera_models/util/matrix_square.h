@@ -39,7 +39,7 @@ class SMatrix: public Matrix_{
 };
 
 template<typename _Scalar>
-SMatrix<_Scalar> SMatrix<_Scalar>::inverse(void) const{
+SMatrix<_Scalar> SMatrix<_Scalar>::inverse(void) const {
     SMatrix<_Scalar> res(Matrix_::_Rows);
     _Scalar d = determinant();
     for (int i = 0; i < Matrix_::_Rows; i++) {
@@ -51,7 +51,7 @@ SMatrix<_Scalar> SMatrix<_Scalar>::inverse(void) const{
 }
 
 template<typename _Scalar>
-_Scalar SMatrix<_Scalar>::determinant(void) const{
+_Scalar SMatrix<_Scalar>::determinant(void) const {
   int r, c, m;
   int lop = 0;
   int n = Matrix_::_Rows;

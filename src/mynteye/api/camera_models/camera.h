@@ -124,7 +124,8 @@ class Camera {
 
   double reprojectionError(
       const models::Vector3d &P, const models::Quaterniond &camera_q,
-      const models::Vector3d &camera_t, const models::Vector2d &observed_p) const;
+      const models::Vector3d &camera_t,
+          const models::Vector2d &observed_p) const;
 
   void projectPoints(
       const std::vector<cv::Point3f> &objectPoints, const cv::Mat &rvec,
@@ -136,7 +137,7 @@ class Camera {
 
 typedef std::shared_ptr<Camera> CameraPtr;
 typedef std::shared_ptr<const Camera> CameraConstPtr;
-}
+}  // namespace models
 
 MYNTEYE_END_NAMESPACE
 
