@@ -95,23 +95,6 @@ _rm "$ROOT_DIR/samples/_build"
 _rm "$ROOT_DIR/samples/_output"
 mv "$ROOT_DIR/samples" "$ROOT_DIR/_install/samples"
 
-# tools
-mv "$ROOT_DIR/tools/_output/bin" "$ROOT_DIR/_install/bin/tools"
-mv "$ROOT_DIR/tools/_output/lib" "$ROOT_DIR/_install/lib/tools"
-_rm "$ROOT_DIR/tools/_build"
-_rm "$ROOT_DIR/tools/_output"
-mv "$ROOT_DIR/tools/linter" "$ROOT_DIR/3rdparty/linter"
-mv "$ROOT_DIR/tools" "$ROOT_DIR/_install/tools"
-
-# platforms/win
-mv "$ROOT_DIR/platforms/win/README.txt" "$ROOT_DIR/_install"
-
-_rm "$ROOT_DIR/platforms/projects/vs2017/mynteyes_demo/.vs"
-_rm "$ROOT_DIR/platforms/projects/vs2017/mynteyes_demo/x64"
-_rm "$ROOT_DIR/platforms/projects/vs2017/mynteyes_demo/mynteyes_demo/x64"
-_rm "$ROOT_DIR/platforms/projects/vs2017/mynteyes_demo/mynteyes_demo/mynteyes_demo.vcxproj.user"
-mv "$ROOT_DIR/platforms/projects" "$ROOT_DIR/_install/projects"
-
 ################################################################################
 # copy to _install
 
@@ -119,7 +102,6 @@ cp -f "$ROOT_DIR/scripts/win/cmake/mynteye-targets.cmake" "$ROOT_DIR/_install/li
 cp -f "$ROOT_DIR/scripts/win/cmake/mynteye-targets-release.cmake" "$ROOT_DIR/_install/lib/cmake/mynteye/"
 
 cp -f "$ROOT_DIR/scripts/win/generate.bat" "$ROOT_DIR/_install/samples/"
-cp -f "$ROOT_DIR/scripts/win/generate.bat" "$ROOT_DIR/_install/tools/"
 
 ################################################################################
 # archive exe
@@ -159,15 +141,6 @@ mv "$ROOT_DIR/_install/cmake" "$ROOT_DIR/cmake"
 
 # samples
 mv "$ROOT_DIR/_install/samples" "$ROOT_DIR/samples"
-
-# tools
-mv "$ROOT_DIR/_install/tools" "$ROOT_DIR/tools"
-mv "$ROOT_DIR/3rdparty/linter" "$ROOT_DIR/tools/linter"
-
-# platforms/win
-mv "$ROOT_DIR/_install/README.txt" "$ROOT_DIR/platforms/win"
-
-mv "$ROOT_DIR/_install/projects" "$ROOT_DIR/platforms/projects"
 
 ################################################################################
 # clean build
