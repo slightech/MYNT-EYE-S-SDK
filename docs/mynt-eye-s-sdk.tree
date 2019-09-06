@@ -1,8 +1,8 @@
 mynt-eye-s-sdk
 ├── 3rdparty
-│   └── eigen3
+│   └── eigen3                   matrix 3rd lib
 ├── cmake
-│   ├── Common.cmake
+│   ├── Common.cmake             cmake common macro
 │   ├── DetectCXX11.cmake
 │   ├── DetectOpenCV.cmake
 │   ├── FindCUDA
@@ -11,14 +11,14 @@ mynt-eye-s-sdk
 │   │   └── run_nvcc.cmake
 │   ├── FindCUDA.cmake
 │   ├── IncludeGuard.cmake
-│   ├── Option.cmake
+│   ├── Option.cmake              include(DetectOpenCV.cmake)
 │   ├── TargetArch.cmake
 │   ├── templates
-│   └── Utils.cmake
+│   └── Utils.cmake               include(Common.cmake)
 ├── CMakeLists.txt
 ├── docs
 │   ├── api
-│   ├── conf.py
+│   ├── conf.py                   sdkHtml config
 │   ├── files
 │   ├── images
 │   │   ├── firmware
@@ -28,7 +28,7 @@ mynt-eye-s-sdk
 │   │   ├── sdk
 │   │   │   └── tools
 │   │   └── tools
-│   ├── Makefile
+│   ├── Makefile                  sdkHtml Makefile
 │   └── src
 │       ├── firmware
 │       ├── log
@@ -43,52 +43,53 @@ mynt-eye-s-sdk
 ├── include
 │   ├── deprecated
 │   │   └── mynteye
-│   │       ├── api.h
-│   │       ├── callbacks.h
-│   │       ├── context.h
-│   │       ├── device.h
-│   │       ├── files.h
-│   │       ├── glog_init.h
-│   │       ├── object.h
-│   │       ├── plugin.h
-│   │       ├── strings.h
-│   │       ├── times.h
-│   │       └── utils.h
+│   │       ├── api.h              x
+│   │       ├── callbacks.h        x
+│   │       ├── context.h          x
+│   │       ├── device.h           x
+│   │       ├── files.h            x
+│   │       ├── glog_init.h        x
+│   │       ├── object.h           x
+│   │       ├── plugin.h           x
+│   │       ├── strings.h          x
+│   │       ├── times.h            x
+│   │       └── utils.h            x
 │   └── mynteye
 │       ├── api
-│       │   ├── api.h
-│       │   ├── object.h
-│       │   └── plugin.h
+│       │   ├── api.h              user api(mynteye.h types.h opencv2*)
+│       │   ├── object.h           img formats transform(mynteye.h opencv2*)
+│       │   └── plugin.h           plugin process in&out(mynteye.h opencv2*)
 │       ├── device
-│       │   ├── callbacks.h
-│       │   ├── context.h
-│       │   ├── device.h
-│       │   ├── types.h
-│       │   └── utils.h
-│       ├── global.h
-│       ├── logger.h
-│       ├── miniglog.h
-│       ├── types.h
+│       │   ├── callbacks.h        processor data callback(mynteye.h mynteye/types.h)
+│       │   ├── context.h          detect uvc device(mynteye.h)
+│       │   ├── device.h           imu-->motions & camera-->streams(mynteye.h callbacks.h device/types.h)
+│       │   ├── types.h            img & imu_data types(mynteye.h mynteye/types.h)
+│       │   └── utils.h            user help(mynteye.h mynteye/types.h)
+│       ├── global.h               os adapter
+│       ├── logger.h               message output
+│       ├── miniglog.h             google miniglog
+│       ├── mynteye.h.in           api version(global.h)
+│       ├── types.h                all types(mynteye.h)
 │       └── util
-│           ├── files.h
-│           ├── strings.h
-│           └── times.h
+│           ├── files.h           (mynteye.h)
+│           ├── strings.h         (mynteye.h)
+│           └── times.h           (mynteye.h)
 ├── Makefile
 ├── samples
-│   ├── camera_with_junior_device_api.cc
-│   ├── camera_with_senior_api.cc
-│   ├── CMakeLists.txt
+│   ├── camera_with_junior_device_api.cc       (device.h utils.h times.h)
+│   ├── camera_with_senior_api.cc              (api.h times.h)
+│   ├── CMakeLists.txt                          samples build
 │   ├── config
 │   │   ├── S1030
 │   │   │   └── deprecated
 │   │   └── S210A
 │   │       └── deprecated
-│   ├── ctrl_auto_exposure.cc
-│   ├── ctrl_framerate.cc
-│   ├── ctrl_iic_address.cc
-│   ├── ctrl_imu_low_pass_filter.cc
-│   ├── ctrl_imu_range.cc
-│   ├── ctrl_infrared.cc
+│   ├── ctrl_auto_exposure.cc                  (api.h)
+│   ├── ctrl_framerate.cc                      (api.h times.h)
+│   ├── ctrl_iic_address.cc                    (api.h)
+│   ├── ctrl_imu_low_pass_filter.cc            (api.h times.h)
+│   ├── ctrl_imu_range.cc                      (api.h times.h)
+│   ├── ctrl_infrared.cc                          
 │   ├── ctrl_manual_exposure.cc
 │   ├── ctrl_sync_timestamp.cc
 │   ├── dataset.cc
@@ -111,20 +112,20 @@ mynt-eye-s-sdk
 │   ├── record.cc
 │   ├── save_all_infos.cc
 │   ├── save_single_image.cc
-│   ├── simple_demo
+│   ├── simple_demo                    independent demo
 │   │   ├── project_cmake
-│   │   │   ├── CMakeLists.txt
+│   │   │   ├── CMakeLists.txt         linux build
 │   │   │   └── mynteye_demo.cc
-│   │   └── project_vs2017
+│   │   └── project_vs2017             windows vs
 │   │       ├── images
-│   │       └── mynteyes_demo
+│   │       └── mynteyes_demo         
 │   │           └── mynteyes_demo
 │   │               ├── stdafx.h
 │   │               └── targetver.h
-│   ├── util_cv.cc
-│   ├── util_cv.h
-│   ├── util_pcl.cc
-│   ├── util_pcl.h
+│   ├── util_cv.cc                    (util_cv.h device/utils.h)          
+│   ├── util_cv.h                      cv painter(mynteye/types.h) 
+│   ├── util_pcl.cc		      (util_pcl.h)
+│   ├── util_pcl.h                     pcl cloud points viewer
 │   ├── uvc_camera.cc
 │   ├── write_device_info.cc
 │   ├── write_img_params.cc
@@ -141,44 +142,44 @@ mynt-eye-s-sdk
 │   ├── main.cc
 │   └── mynteye
 │       ├── api
-│       │   ├── api.cc
+│       │   ├── api.cc                                     (correspondence.h dl.h plugin.h ...)
 │       │   ├── camera_models
-│       │   │   ├── camera.cc
-│       │   │   ├── camera.h
-│       │   │   ├── equidistant_camera.cc
-│       │   │   ├── equidistant_camera.h
+│       │   │   ├── camera.cc                              (camera.h)
+│       │   │   ├── camera.h                                camera base(eigen3* opencv2* mynteye.h)
+│       │   │   ├── equidistant_camera.cc                  (equidistant_camera.h)
+│       │   │   ├── equidistant_camera.h                    KB projection model(opencv2* camera.h)
 │       │   │   ├── gpl.cc
 │       │   │   └── gpl.h
-│       │   ├── correspondence.cc
-│       │   ├── correspondence.h
-│       │   ├── data_tools.cc
-│       │   ├── data_tools.h
-│       │   ├── dl.cc
-│       │   ├── dl.h
-│       │   ├── processor
-│       │   │   ├── depth_processor.cc
-│       │   │   ├── depth_processor.h
-│       │   │   ├── depth_processor_ocv.cc
-│       │   │   ├── depth_processor_ocv.h
-│       │   │   ├── disparity_normalized_processor.cc
-│       │   │   ├── disparity_normalized_processor.h
-│       │   │   ├── disparity_processor.cc
-│       │   │   ├── disparity_processor.h
-│       │   │   ├── points_processor.cc
-│       │   │   ├── points_processor.h
-│       │   │   ├── points_processor_ocv.cc
+│       │   ├── correspondence.cc                          (correspondence.h device.h)
+│       │   ├── correspondence.h                            stream control(api.h callbacks.h)
+│       │   ├── data_tools.cc                              (data_tools.h)
+│       │   ├── data_tools.h                                api<--data<-->obj(object.h api.h device.h) 
+│       │   ├── dl.cc                                      (dl.h) 
+│       │   ├── dl.h                                        dynamic loading(mynteye.h)
+│       │   ├── processor                           root-->rectify-->disparity(norm)-->depth-->points
+│       │   │   ├── depth_processor.cc                     (depth_Processor.h)
+│       │   │   ├── depth_processor.h                      (processor.h types.h rectify_processor.h)
+│       │   │   ├── depth_processor_ocv.cc                 (depth_processor_ocv.h) 
+│       │   │   ├── depth_processor_ocv.h                   output cv::Mat(processor.h) 
+│       │   │   ├── disparity_normalized_processor.cc      (opencv2* disparity_normalized_processor.h)
+│       │   │   ├── disparity_normalized_processor.h       (processor.h)
+│       │   │   ├── disparity_processor.cc                 (opencv2* disparity_processor.h)
+│       │   │   ├── disparity_processor.h                  (mynteye/types.h processor.h)
+│       │   │   ├── points_processor.cc                    (opencv2* points_processor.h)
+│       │   │   ├── points_processor.h                     (mynteye/types.h processor.h)
+│       │   │   ├── points_processor_ocv.cc              
 │       │   │   ├── points_processor_ocv.h
-│       │   │   ├── rectify_processor.cc
-│       │   │   ├── rectify_processor.h
-│       │   │   ├── rectify_processor_ocv.cc
+│       │   │   ├── rectify_processor.cc                   (opencv2* rectify_processor.h)
+│       │   │   ├── rectify_processor.h                    (equidistant_camera.h ...)
+│       │   │   ├── rectify_processor_ocv.cc       
 │       │   │   ├── rectify_processor_ocv.h
-│       │   │   ├── root_camera_processor.cc
-│       │   │   └── root_camera_processor.h
-│       │   ├── processor.cc
-│       │   ├── processor.h
-│       │   ├── synthetic.cc
-│       │   ├── synthetic.h
-│       │   ├── version_checker.cc
+│       │   │   ├── root_camera_processor.cc               (opencv2* synthetic.h device.h data_tools.h)
+│       │   │   └── root_camera_processor.h                (opencv2* processor.h)
+│       │   ├── processor.cc                               (strings.h times.h data_tools.h)
+│       │   ├── processor.h                                processor base(synthetic.h mynteye.h object.h)
+│       │   ├── synthetic.cc                         (*processor.h object.h plugin.h device.h data_tools.h)
+│       │   ├── synthetic.h                                synthetic pipeline(api.h)               
+│       │   ├── version_checker.cc                         
 │       │   └── version_checker.h
 │       ├── device
 │       │   ├── async_callback.h
