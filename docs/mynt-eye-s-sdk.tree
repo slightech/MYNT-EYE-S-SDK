@@ -1,0 +1,550 @@
+mynt-eye-s-sdk
+├── 3rdparty
+│   └── eigen3
+├── cmake
+│   ├── Common.cmake
+│   ├── DetectCXX11.cmake
+│   ├── DetectOpenCV.cmake
+│   ├── FindCUDA
+│   │   ├── make2cmake.cmake
+│   │   ├── parse_cubin.cmake
+│   │   └── run_nvcc.cmake
+│   ├── FindCUDA.cmake
+│   ├── IncludeGuard.cmake
+│   ├── Option.cmake
+│   ├── TargetArch.cmake
+│   ├── templates
+│   └── Utils.cmake
+├── CMakeLists.txt
+├── docs
+│   ├── api
+│   ├── conf.py
+│   ├── files
+│   ├── images
+│   │   ├── firmware
+│   │   ├── product
+│   │   ├── project
+│   │   │   └── vs2017
+│   │   ├── sdk
+│   │   │   └── tools
+│   │   └── tools
+│   ├── Makefile
+│   └── src
+│       ├── firmware
+│       ├── log
+│       ├── product
+│       ├── sdk
+│       │   ├── control
+│       │   ├── data
+│       │   └── project
+│       ├── slam
+│       ├── support
+│       └── wrapper
+├── include
+│   ├── deprecated
+│   │   └── mynteye
+│   │       ├── api.h
+│   │       ├── callbacks.h
+│   │       ├── context.h
+│   │       ├── device.h
+│   │       ├── files.h
+│   │       ├── glog_init.h
+│   │       ├── object.h
+│   │       ├── plugin.h
+│   │       ├── strings.h
+│   │       ├── times.h
+│   │       └── utils.h
+│   └── mynteye
+│       ├── api
+│       │   ├── api.h
+│       │   ├── object.h
+│       │   └── plugin.h
+│       ├── device
+│       │   ├── callbacks.h
+│       │   ├── context.h
+│       │   ├── device.h
+│       │   ├── types.h
+│       │   └── utils.h
+│       ├── global.h
+│       ├── logger.h
+│       ├── miniglog.h
+│       ├── types.h
+│       └── util
+│           ├── files.h
+│           ├── strings.h
+│           └── times.h
+├── Makefile
+├── samples
+│   ├── camera_with_junior_device_api.cc
+│   ├── camera_with_senior_api.cc
+│   ├── CMakeLists.txt
+│   ├── config
+│   │   ├── S1030
+│   │   │   └── deprecated
+│   │   └── S210A
+│   │       └── deprecated
+│   ├── ctrl_auto_exposure.cc
+│   ├── ctrl_framerate.cc
+│   ├── ctrl_iic_address.cc
+│   ├── ctrl_imu_low_pass_filter.cc
+│   ├── ctrl_imu_range.cc
+│   ├── ctrl_infrared.cc
+│   ├── ctrl_manual_exposure.cc
+│   ├── ctrl_sync_timestamp.cc
+│   ├── dataset.cc
+│   ├── dataset.h
+│   ├── device_writer.cc
+│   ├── device_writer.h
+│   ├── get_data_without_select.cc
+│   ├── get_depth_and_points.cc
+│   ├── get_depth.cc
+│   ├── get_depth_with_region.cc
+│   ├── get_device_info.cc
+│   ├── get_disparity.cc
+│   ├── get_from_callbacks.cc
+│   ├── get_img_params.cc
+│   ├── get_imu.cc
+│   ├── get_imu_correspondence.cc
+│   ├── get_imu_params.cc
+│   ├── get_stereo_rectified.cc
+│   ├── get_with_plugin.cc
+│   ├── record.cc
+│   ├── save_all_infos.cc
+│   ├── save_single_image.cc
+│   ├── simple_demo
+│   │   ├── project_cmake
+│   │   │   ├── CMakeLists.txt
+│   │   │   └── mynteye_demo.cc
+│   │   └── project_vs2017
+│   │       ├── images
+│   │       └── mynteyes_demo
+│   │           └── mynteyes_demo
+│   │               ├── stdafx.h
+│   │               └── targetver.h
+│   ├── util_cv.cc
+│   ├── util_cv.h
+│   ├── util_pcl.cc
+│   ├── util_pcl.h
+│   ├── uvc_camera.cc
+│   ├── write_device_info.cc
+│   ├── write_img_params.cc
+│   └── write_imu_params.cc
+├── scripts
+│   ├── common
+│   └── win
+│       ├── cmake
+│       │   ├── mynteye-targets.cmake
+│       │   └── mynteye-targets-release.cmake
+│       └── nsis
+│           └── Include
+├── src
+│   ├── main.cc
+│   └── mynteye
+│       ├── api
+│       │   ├── api.cc
+│       │   ├── camera_models
+│       │   │   ├── camera.cc
+│       │   │   ├── camera.h
+│       │   │   ├── equidistant_camera.cc
+│       │   │   ├── equidistant_camera.h
+│       │   │   ├── gpl.cc
+│       │   │   └── gpl.h
+│       │   ├── correspondence.cc
+│       │   ├── correspondence.h
+│       │   ├── data_tools.cc
+│       │   ├── data_tools.h
+│       │   ├── dl.cc
+│       │   ├── dl.h
+│       │   ├── processor
+│       │   │   ├── depth_processor.cc
+│       │   │   ├── depth_processor.h
+│       │   │   ├── depth_processor_ocv.cc
+│       │   │   ├── depth_processor_ocv.h
+│       │   │   ├── disparity_normalized_processor.cc
+│       │   │   ├── disparity_normalized_processor.h
+│       │   │   ├── disparity_processor.cc
+│       │   │   ├── disparity_processor.h
+│       │   │   ├── points_processor.cc
+│       │   │   ├── points_processor.h
+│       │   │   ├── points_processor_ocv.cc
+│       │   │   ├── points_processor_ocv.h
+│       │   │   ├── rectify_processor.cc
+│       │   │   ├── rectify_processor.h
+│       │   │   ├── rectify_processor_ocv.cc
+│       │   │   ├── rectify_processor_ocv.h
+│       │   │   ├── root_camera_processor.cc
+│       │   │   └── root_camera_processor.h
+│       │   ├── processor.cc
+│       │   ├── processor.h
+│       │   ├── synthetic.cc
+│       │   ├── synthetic.h
+│       │   ├── version_checker.cc
+│       │   └── version_checker.h
+│       ├── device
+│       │   ├── async_callback.h
+│       │   ├── async_callback_impl.h
+│       │   ├── channel
+│       │   │   ├── bytes.cc
+│       │   │   ├── bytes.h
+│       │   │   ├── channels.cc
+│       │   │   ├── channels.h
+│       │   │   ├── def.h
+│       │   │   ├── file_channel.cc
+│       │   │   └── file_channel.h
+│       │   ├── config.cc
+│       │   ├── config.h
+│       │   ├── context.cc
+│       │   ├── device.cc
+│       │   ├── motions.cc
+│       │   ├── motions.h
+│       │   ├── standard
+│       │   │   ├── channels_adapter_s.cc
+│       │   │   ├── channels_adapter_s.h
+│       │   │   ├── device_s.cc
+│       │   │   ├── device_s.h
+│       │   │   ├── streams_adapter_s.cc
+│       │   │   └── streams_adapter_s.h
+│       │   ├── standard2
+│       │   │   ├── channels_adapter_s2.cc
+│       │   │   ├── channels_adapter_s2.h
+│       │   │   ├── device_s2.cc
+│       │   │   ├── device_s2.h
+│       │   │   ├── streams_adapter_s2.cc
+│       │   │   └── streams_adapter_s2.h
+│       │   ├── streams.cc
+│       │   ├── streams.h
+│       │   ├── types.cc
+│       │   └── utils.cc
+│       ├── miniglog.cc
+│       ├── types.cc
+│       ├── util
+│       │   ├── files.cc
+│       │   └── strings.cc
+│       └── uvc
+│           ├── linux
+│           │   └── uvc-v4l2.cc
+│           ├── macosx
+│           │   ├── AVfoundationCamera.h
+│           │   ├── CameraEngine.h
+│           │   ├── USBBusProber
+│           │   │   ├── BusProbeClass.h
+│           │   │   ├── BusProbeDevice.h
+│           │   │   ├── BusProber.h
+│           │   │   ├── BusProberSharedFunctions.h
+│           │   │   ├── DecodeAudioInterfaceDescriptor.h
+│           │   │   ├── DecodeBOSDescriptor.h
+│           │   │   ├── DecodeCommClassDescriptor.h
+│           │   │   ├── DecodeConfigurationDescriptor.h
+│           │   │   ├── DecodeDeviceDescriptor.h
+│           │   │   ├── DecodeDeviceQualifierDescriptor.h
+│           │   │   ├── DecodeEndpointDescriptor.h
+│           │   │   ├── DecodeHIDDescriptor.h
+│           │   │   ├── DecodeHubDescriptor.h
+│           │   │   ├── DecodeInterfaceDescriptor.h
+│           │   │   ├── DecodeVideoInterfaceDescriptor.h
+│           │   │   ├── DescriptorDecoder.h
+│           │   │   ├── en.lproj
+│           │   │   ├── ExtensionSelector.h
+│           │   │   ├── OutlineViewAdditions.h
+│           │   │   ├── OutlineViewNode.h
+│           │   │   ├── TableViewWithCopying.h
+│           │   │   └── USBBusProber.h
+│           │   ├── USBBusProber.framework
+│           │   │   └── Versions
+│           │   │       └── A
+│           │   │           ├── Headers
+│           │   │           │   ├── BusProbeClass.h
+│           │   │           │   ├── BusProbeDevice.h
+│           │   │           │   ├── BusProber.h
+│           │   │           │   ├── BusProberSharedFunctions.h
+│           │   │           │   ├── DecodeAudioInterfaceDescriptor.h
+│           │   │           │   ├── DecodeBOSDescriptor.h
+│           │   │           │   ├── DecodeCommClassDescriptor.h
+│           │   │           │   ├── DecodeConfigurationDescriptor.h
+│           │   │           │   ├── DecodeDeviceDescriptor.h
+│           │   │           │   ├── DecodeDeviceQualifierDescriptor.h
+│           │   │           │   ├── DecodeEndpointDescriptor.h
+│           │   │           │   ├── DecodeHIDDescriptor.h
+│           │   │           │   ├── DecodeHubDescriptor.h
+│           │   │           │   ├── DecodeInterfaceDescriptor.h
+│           │   │           │   ├── DecodeVideoInterfaceDescriptor.h
+│           │   │           │   ├── DescriptorDecoder.h
+│           │   │           │   ├── ExtensionSelector.h
+│           │   │           │   ├── OutlineViewAdditions.h
+│           │   │           │   ├── OutlineViewNode.h
+│           │   │           │   ├── TableViewWithCopying.h
+│           │   │           │   └── USBBusProber.h
+│           │   │           └── Resources
+│           │   │               └── en.lproj
+│           │   ├── UVC Test App
+│           │   │   ├── AppDelegate.h
+│           │   │   ├── AVCaptureVideoSource.h
+│           │   │   ├── CVGLView.h
+│           │   │   └── en.lproj
+│           │   ├── uvc-vvuvckit.cc
+│           │   ├── UVCXcodeProject.xcodeproj
+│           │   │   ├── project.xcworkspace
+│           │   │   │   └── xcuserdata
+│           │   │   │       └── tiny.xcuserdatad
+│           │   │   ├── xcshareddata
+│           │   │   │   └── xcschemes
+│           │   │   └── xcuserdata
+│           │   │       └── tiny.xcuserdatad
+│           │   │           └── xcschemes
+│           │   ├── VVUVCKit
+│           │   │   ├── en.lproj
+│           │   │   ├── VVUVCController.h
+│           │   │   ├── VVUVCKit.h
+│           │   │   ├── VVUVCKitStringAdditions.h
+│           │   │   ├── VVUVCUIController.h
+│           │   │   └── VVUVCUIElement.h
+│           │   └── VVUVCKit.framework
+│           │       └── Versions
+│           │           └── A
+│           │               ├── Headers
+│           │               │   ├── VVUVCController.h
+│           │               │   ├── VVUVCKit.h
+│           │               │   ├── VVUVCKitStringAdditions.h
+│           │               │   ├── VVUVCUIController.h
+│           │               │   └── VVUVCUIElement.h
+│           │               └── Resources
+│           │                   └── en.lproj
+│           ├── uvc.h
+│           └── win
+│               └── uvc-wmf.cc
+├── tools
+│   ├── _build
+│   │   ├── CMakeCache.txt
+│   │   ├── CMakeFiles
+│   │   │   ├── 3.5.1
+│   │   │   │   ├── CMakeCCompiler.cmake
+│   │   │   │   ├── CMakeCXXCompiler.cmake
+│   │   │   │   ├── CMakeDetermineCompilerABI_C.bin
+│   │   │   │   ├── CMakeDetermineCompilerABI_CXX.bin
+│   │   │   │   ├── CMakeSystem.cmake
+│   │   │   │   ├── CompilerIdC
+│   │   │   │   │   └── CMakeCCompilerId.c
+│   │   │   │   └── CompilerIdCXX
+│   │   │   │       └── CMakeCXXCompilerId.cpp
+│   │   │   ├── CMakeDirectoryInformation.cmake
+│   │   │   ├── CMakeOutput.log
+│   │   │   ├── CMakeTmp
+│   │   │   ├── Makefile2
+│   │   │   └── Makefile.cmake
+│   │   ├── cmake_install.cmake
+│   │   ├── dataset
+│   │   │   ├── CMakeFiles
+│   │   │   │   ├── CMakeDirectoryInformation.cmake
+│   │   │   │   └── record2.dir
+│   │   │   │       ├── cmake_clean.cmake
+│   │   │   │       └── DependInfo.cmake
+│   │   │   ├── cmake_install.cmake
+│   │   │   └── Makefile
+│   │   ├── Makefile
+│   │   └── writer
+│   │       ├── CMakeFiles
+│   │       │   ├── CMakeDirectoryInformation.cmake
+│   │       │   ├── device_info_writer.dir
+│   │       │   │   ├── cmake_clean.cmake
+│   │       │   │   └── DependInfo.cmake
+│   │       │   ├── device_writer.dir
+│   │       │   │   ├── cmake_clean.cmake
+│   │       │   │   ├── cmake_clean_target.cmake
+│   │       │   │   └── DependInfo.cmake
+│   │       │   ├── img_params_writer.dir
+│   │       │   │   ├── cmake_clean.cmake
+│   │       │   │   └── DependInfo.cmake
+│   │       │   ├── imu_params_writer.dir
+│   │       │   │   ├── cmake_clean.cmake
+│   │       │   │   └── DependInfo.cmake
+│   │       │   └── save_all_infos.dir
+│   │       │       ├── cmake_clean.cmake
+│   │       │       └── DependInfo.cmake
+│   │       ├── cmake_install.cmake
+│   │       └── Makefile
+│   ├── linter
+│   └── _output
+│       ├── bin
+│       │   ├── dataset
+│       │   └── writer
+│       └── lib
+│           └── writer
+└── wrappers
+    ├── android
+    │   └── mynteye
+    │       ├── app
+    │       │   └── src
+    │       │       ├── androidTest
+    │       │       │   └── java
+    │       │       │       └── com
+    │       │       │           └── slightech
+    │       │       │               └── mynteye
+    │       │       │                   └── demo
+    │       │       ├── main
+    │       │       │   ├── java
+    │       │       │   │   └── com
+    │       │       │   │       └── slightech
+    │       │       │   │           └── mynteye
+    │       │       │   │               └── demo
+    │       │       │   │                   ├── camera
+    │       │       │   │                   ├── ui
+    │       │       │   │                   └── util
+    │       │       │   └── res
+    │       │       │       ├── layout
+    │       │       │       ├── menu
+    │       │       │       └── values
+    │       │       └── test
+    │       │           └── java
+    │       │               └── com
+    │       │                   └── slightech
+    │       │                       └── mynteye
+    │       │                           └── demo
+    │       ├── gradle
+    │       │   └── wrapper
+    │       ├── libmynteye
+    │       │   ├── CMakeLists.txt
+    │       │   └── src
+    │       │       ├── androidTest
+    │       │       │   └── java
+    │       │       │       └── com
+    │       │       │           └── slightech
+    │       │       │               └── mynteye
+    │       │       ├── main
+    │       │       │   ├── cpp
+    │       │       │   │   └── mynteye
+    │       │       │   │       ├── cpp
+    │       │       │   │       │   ├── addon.hpp
+    │       │       │   │       │   ├── calibration_model.hpp
+    │       │       │   │       │   ├── capability.hpp
+    │       │       │   │       │   ├── device.hpp
+    │       │       │   │       │   ├── device_usb_info.hpp
+    │       │       │   │       │   ├── extrinsics.hpp
+    │       │       │   │       │   ├── format.hpp
+    │       │       │   │       │   ├── frame.hpp
+    │       │       │   │       │   ├── img_data.hpp
+    │       │       │   │       │   ├── imu_data.hpp
+    │       │       │   │       │   ├── imu_intrinsics.hpp
+    │       │       │   │       │   ├── info.hpp
+    │       │       │   │       │   ├── intrinsics.hpp
+    │       │       │   │       │   ├── model.hpp
+    │       │       │   │       │   ├── motion_data.hpp
+    │       │       │   │       │   ├── motion_intrinsics.hpp
+    │       │       │   │       │   ├── option.hpp
+    │       │       │   │       │   ├── option_info.hpp
+    │       │       │   │       │   ├── source.hpp
+    │       │       │   │       │   ├── stream_data.hpp
+    │       │       │   │       │   ├── stream.hpp
+    │       │       │   │       │   └── stream_request.hpp
+    │       │       │   │       ├── impl
+    │       │       │   │       │   ├── device_impl.hpp
+    │       │       │   │       │   ├── frame_impl.hpp
+    │       │       │   │       │   ├── internal
+    │       │       │   │       │   │   ├── usb_info.h
+    │       │       │   │       │   │   └── uvc_device.h
+    │       │       │   │       │   ├── motion_data_impl.hpp
+    │       │       │   │       │   ├── stream_data_impl.hpp
+    │       │       │   │       │   ├── type_conversion.hpp
+    │       │       │   │       │   └── util
+    │       │       │   │       └── jni
+    │       │       │   │           ├── NativeAddon.hpp
+    │       │       │   │           ├── NativeCalibrationModel.hpp
+    │       │       │   │           ├── NativeCapability.hpp
+    │       │       │   │           ├── NativeDevice.hpp
+    │       │       │   │           ├── NativeDeviceUsbInfo.hpp
+    │       │       │   │           ├── NativeExtrinsics.hpp
+    │       │       │   │           ├── NativeFormat.hpp
+    │       │       │   │           ├── NativeFrame.hpp
+    │       │       │   │           ├── NativeImgData.hpp
+    │       │       │   │           ├── NativeImuData.hpp
+    │       │       │   │           ├── NativeImuIntrinsics.hpp
+    │       │       │   │           ├── NativeInfo.hpp
+    │       │       │   │           ├── NativeIntrinsics.hpp
+    │       │       │   │           ├── NativeModel.hpp
+    │       │       │   │           ├── NativeMotionData.hpp
+    │       │       │   │           ├── NativeMotionIntrinsics.hpp
+    │       │       │   │           ├── NativeOption.hpp
+    │       │       │   │           ├── NativeOptionInfo.hpp
+    │       │       │   │           ├── NativeSource.hpp
+    │       │       │   │           ├── NativeStreamData.hpp
+    │       │       │   │           ├── NativeStream.hpp
+    │       │       │   │           └── NativeStreamRequest.hpp
+    │       │       │   ├── java
+    │       │       │   │   └── com
+    │       │       │   │       └── slightech
+    │       │       │   │           └── mynteye
+    │       │       │   │               ├── usb
+    │       │       │   │               └── util
+    │       │       │   ├── jniLibs
+    │       │       │   │   ├── arm64-v8a
+    │       │       │   │   └── armeabi-v7a
+    │       │       │   └── res
+    │       │       │       ├── layout
+    │       │       │       ├── values
+    │       │       │       └── xml
+    │       │       └── test
+    │       │           └── java
+    │       │               └── com
+    │       │                   └── slightech
+    │       │                       └── mynteye
+    │       ├── libshell
+    │       │   └── src
+    │       │       └── main
+    │       │           └── java
+    │       │               └── com
+    │       │                   └── stericson
+    │       │                       └── RootShell
+    │       │                           ├── containers
+    │       │                           ├── exceptions
+    │       │                           └── execution
+    │       ├── scripts
+    │       └── third_party
+    │           └── djinni
+    │               └── support-lib
+    │                   ├── djinni_common.hpp
+    │                   ├── jni
+    │                   │   ├── djinni_support.hpp
+    │                   │   └── Marshal.hpp
+    │                   ├── proxy_cache_impl.hpp
+    │                   └── proxy_cache_interface.hpp
+    ├── python
+    │   ├── CMakeLists.txt
+    │   ├── samples
+    │   │   ├── mynteye.py
+    │   │   └── util
+    │   │       ├── cv_painter.py
+    │   │       └── __init__.py
+    │   ├── src
+    │   │   └── mynteye_py.cc
+    │   └── third_party
+    │       └── array
+    │           ├── array_indexing_suite.hpp
+    │           └── array_ref.hpp
+    └── ros
+        └── src
+            └── mynt_eye_ros_wrapper
+                ├── CMakeLists.txt
+                ├── config
+                │   ├── device
+                │   ├── laserscan
+                │   ├── process
+                │   ├── slam
+                │   └── sub
+                │       ├── device_1
+                │       ├── device_2
+                │       ├── process_1
+                │       └── process_2
+                ├── launch
+                │   ├── laserscan
+                │   ├── slam
+                │   └── sub
+                ├── mesh
+                ├── rviz
+                ├── scripts
+                │   └── get_device_info.py
+                ├── src
+                │   ├── configuru.hpp
+                │   ├── wrapper_node.cc
+                │   └── wrapper_nodelet.cc
+                └── srv
+
+
