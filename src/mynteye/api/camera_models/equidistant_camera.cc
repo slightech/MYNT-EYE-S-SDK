@@ -28,7 +28,7 @@ MYNTEYE_BEGIN_NAMESPACE
 
 namespace models {
 
-#define PI M_PI
+#define PI 3.14159265358979323846
 #define PI_2 1.5707963
 float ApproxAtan2(float y, float x)
 {
