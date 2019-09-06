@@ -18,7 +18,6 @@
 #include <cstdio>
 #include <limits>
 
-#include "eigen3/Eigen/Dense"
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/eigen.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
