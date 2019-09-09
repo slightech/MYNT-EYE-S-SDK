@@ -4,6 +4,13 @@ Change Log
 .. toctree::
    :maxdepth: 2
 
+2019-09-09
+-------------------
+
+S21X0 Main Chip Firmware: MYNTEYE-S21X0-1.4.0.img
+
+1. Support 2110 device.
+
 2019-08-09
 -------------------
 
