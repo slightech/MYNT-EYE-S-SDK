@@ -66,7 +66,7 @@ _mv_subs() {
 ################################################################################
 # build release
 
-make samples tools
+make samples
 
 ################################################################################
 # build debug
@@ -95,8 +95,8 @@ _rm "$ROOT_DIR/samples/_build"
 _rm "$ROOT_DIR/samples/_output"
 mv "$ROOT_DIR/samples" "$ROOT_DIR/_install/samples"
 
-# platforms/win
-mv "$ROOT_DIR/samples/simple_demo/README.txt" "$ROOT_DIR/_install"
+# readme
+mv "$BASE_DIR/nsis/README.txt" "$ROOT_DIR/_install"
 
 ################################################################################
 # copy to _install
@@ -142,18 +142,16 @@ mv "$ROOT_DIR/_install/3rdparty/opencv" "$ROOT_DIR/3rdparty/opencv"
 # cmake
 mv "$ROOT_DIR/_install/cmake" "$ROOT_DIR/cmake"
 
-# platforms/win
-mkdir "$ROOT_DIR/platforms"
-mv "$ROOT_DIR/_install/README.txt" "$ROOT_DIR/platforms/win"
-
 # samples
 mv "$ROOT_DIR/_install/samples" "$ROOT_DIR/samples"
+
+# readme
+mv "$ROOT_DIR/_install/README.txt" "$BASE_DIR/nsis"
 
 ################################################################################
 # clean build
 
 _rm "$ROOT_DIR/_build"
 _rm "$ROOT_DIR/_output"
-
 
 _echo_d "Win pack success"
