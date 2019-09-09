@@ -182,137 +182,47 @@ mynt-eye-s-sdk
 │       │   ├── version_checker.cc                         
 │       │   └── version_checker.h
 │       ├── device
-│       │   ├── async_callback.h
-│       │   ├── async_callback_impl.h
+│       │   ├── async_callback.h                           asynchronous data translate
+│       │   ├── async_callback_impl.h                      derived
 │       │   ├── channel
 │       │   │   ├── bytes.cc
-│       │   │   ├── bytes.h
+│       │   │   ├── bytes.h                                <--uint8_t data-->
 │       │   │   ├── channels.cc
-│       │   │   ├── channels.h
-│       │   │   ├── def.h
+│       │   │   ├── channels.h                             channels control api
+│       │   │   ├── def.h                                  data packet
 │       │   │   ├── file_channel.cc
-│       │   │   └── file_channel.h
+│       │   │   └── file_channel.h                         data parser
 │       │   ├── config.cc
-│       │   ├── config.h
-│       │   ├── context.cc
-│       │   ├── device.cc
-│       │   ├── motions.cc
-│       │   ├── motions.h
-│       │   ├── standard
+│       │   ├── config.h                                   config lists
+│       │   ├── context.cc                                 create context
+│       │   ├── device.cc                                  device class
+│       │   ├── motions.cc                                 
+│       │   ├── motions.h                                  imu motions
+│       │   ├── standard                                   standard device s
 │       │   │   ├── channels_adapter_s.cc
 │       │   │   ├── channels_adapter_s.h
 │       │   │   ├── device_s.cc
 │       │   │   ├── device_s.h
 │       │   │   ├── streams_adapter_s.cc
 │       │   │   └── streams_adapter_s.h
-│       │   ├── standard2
+│       │   ├── standard2                                  standard device s2
 │       │   │   ├── channels_adapter_s2.cc
 │       │   │   ├── channels_adapter_s2.h
 │       │   │   ├── device_s2.cc
 │       │   │   ├── device_s2.h
 │       │   │   ├── streams_adapter_s2.cc
 │       │   │   └── streams_adapter_s2.h
-│       │   ├── streams.cc
-│       │   ├── streams.h
-│       │   ├── types.cc
-│       │   └── utils.cc
-│       ├── miniglog.cc
-│       ├── types.cc
+│       │   ├── streams.cc                                 
+│       │   ├── streams.h                                  camera streams
+│       │   ├── types.cc                                   to string
+│       │   └── utils.cc                                   user helper
+│       ├── miniglog.cc                          
+│       ├── types.cc                                       device,streams,option...types str
 │       ├── util
 │       │   ├── files.cc
 │       │   └── strings.cc
 │       └── uvc
-│           ├── linux
-│           │   └── uvc-v4l2.cc
-│           ├── macosx
-│           │   ├── AVfoundationCamera.h
-│           │   ├── CameraEngine.h
-│           │   ├── USBBusProber
-│           │   │   ├── BusProbeClass.h
-│           │   │   ├── BusProbeDevice.h
-│           │   │   ├── BusProber.h
-│           │   │   ├── BusProberSharedFunctions.h
-│           │   │   ├── DecodeAudioInterfaceDescriptor.h
-│           │   │   ├── DecodeBOSDescriptor.h
-│           │   │   ├── DecodeCommClassDescriptor.h
-│           │   │   ├── DecodeConfigurationDescriptor.h
-│           │   │   ├── DecodeDeviceDescriptor.h
-│           │   │   ├── DecodeDeviceQualifierDescriptor.h
-│           │   │   ├── DecodeEndpointDescriptor.h
-│           │   │   ├── DecodeHIDDescriptor.h
-│           │   │   ├── DecodeHubDescriptor.h
-│           │   │   ├── DecodeInterfaceDescriptor.h
-│           │   │   ├── DecodeVideoInterfaceDescriptor.h
-│           │   │   ├── DescriptorDecoder.h
-│           │   │   ├── en.lproj
-│           │   │   ├── ExtensionSelector.h
-│           │   │   ├── OutlineViewAdditions.h
-│           │   │   ├── OutlineViewNode.h
-│           │   │   ├── TableViewWithCopying.h
-│           │   │   └── USBBusProber.h
-│           │   ├── USBBusProber.framework
-│           │   │   └── Versions
-│           │   │       └── A
-│           │   │           ├── Headers
-│           │   │           │   ├── BusProbeClass.h
-│           │   │           │   ├── BusProbeDevice.h
-│           │   │           │   ├── BusProber.h
-│           │   │           │   ├── BusProberSharedFunctions.h
-│           │   │           │   ├── DecodeAudioInterfaceDescriptor.h
-│           │   │           │   ├── DecodeBOSDescriptor.h
-│           │   │           │   ├── DecodeCommClassDescriptor.h
-│           │   │           │   ├── DecodeConfigurationDescriptor.h
-│           │   │           │   ├── DecodeDeviceDescriptor.h
-│           │   │           │   ├── DecodeDeviceQualifierDescriptor.h
-│           │   │           │   ├── DecodeEndpointDescriptor.h
-│           │   │           │   ├── DecodeHIDDescriptor.h
-│           │   │           │   ├── DecodeHubDescriptor.h
-│           │   │           │   ├── DecodeInterfaceDescriptor.h
-│           │   │           │   ├── DecodeVideoInterfaceDescriptor.h
-│           │   │           │   ├── DescriptorDecoder.h
-│           │   │           │   ├── ExtensionSelector.h
-│           │   │           │   ├── OutlineViewAdditions.h
-│           │   │           │   ├── OutlineViewNode.h
-│           │   │           │   ├── TableViewWithCopying.h
-│           │   │           │   └── USBBusProber.h
-│           │   │           └── Resources
-│           │   │               └── en.lproj
-│           │   ├── UVC Test App
-│           │   │   ├── AppDelegate.h
-│           │   │   ├── AVCaptureVideoSource.h
-│           │   │   ├── CVGLView.h
-│           │   │   └── en.lproj
-│           │   ├── uvc-vvuvckit.cc
-│           │   ├── UVCXcodeProject.xcodeproj
-│           │   │   ├── project.xcworkspace
-│           │   │   │   └── xcuserdata
-│           │   │   │       └── tiny.xcuserdatad
-│           │   │   ├── xcshareddata
-│           │   │   │   └── xcschemes
-│           │   │   └── xcuserdata
-│           │   │       └── tiny.xcuserdatad
-│           │   │           └── xcschemes
-│           │   ├── VVUVCKit
-│           │   │   ├── en.lproj
-│           │   │   ├── VVUVCController.h
-│           │   │   ├── VVUVCKit.h
-│           │   │   ├── VVUVCKitStringAdditions.h
-│           │   │   ├── VVUVCUIController.h
-│           │   │   └── VVUVCUIElement.h
-│           │   └── VVUVCKit.framework
-│           │       └── Versions
-│           │           └── A
-│           │               ├── Headers
-│           │               │   ├── VVUVCController.h
-│           │               │   ├── VVUVCKit.h
-│           │               │   ├── VVUVCKitStringAdditions.h
-│           │               │   ├── VVUVCUIController.h
-│           │               │   └── VVUVCUIElement.h
-│           │               └── Resources
-│           │                   └── en.lproj
-│           ├── uvc.h
-│           └── win
-│               └── uvc-wmf.cc
+│ 
 ├── tools
 │   ├── _build
 │   │   ├── CMakeCache.txt
@@ -372,141 +282,7 @@ mynt-eye-s-sdk
 │           └── writer
 └── wrappers
     ├── android
-    │   └── mynteye
-    │       ├── app
-    │       │   └── src
-    │       │       ├── androidTest
-    │       │       │   └── java
-    │       │       │       └── com
-    │       │       │           └── slightech
-    │       │       │               └── mynteye
-    │       │       │                   └── demo
-    │       │       ├── main
-    │       │       │   ├── java
-    │       │       │   │   └── com
-    │       │       │   │       └── slightech
-    │       │       │   │           └── mynteye
-    │       │       │   │               └── demo
-    │       │       │   │                   ├── camera
-    │       │       │   │                   ├── ui
-    │       │       │   │                   └── util
-    │       │       │   └── res
-    │       │       │       ├── layout
-    │       │       │       ├── menu
-    │       │       │       └── values
-    │       │       └── test
-    │       │           └── java
-    │       │               └── com
-    │       │                   └── slightech
-    │       │                       └── mynteye
-    │       │                           └── demo
-    │       ├── gradle
-    │       │   └── wrapper
-    │       ├── libmynteye
-    │       │   ├── CMakeLists.txt
-    │       │   └── src
-    │       │       ├── androidTest
-    │       │       │   └── java
-    │       │       │       └── com
-    │       │       │           └── slightech
-    │       │       │               └── mynteye
-    │       │       ├── main
-    │       │       │   ├── cpp
-    │       │       │   │   └── mynteye
-    │       │       │   │       ├── cpp
-    │       │       │   │       │   ├── addon.hpp
-    │       │       │   │       │   ├── calibration_model.hpp
-    │       │       │   │       │   ├── capability.hpp
-    │       │       │   │       │   ├── device.hpp
-    │       │       │   │       │   ├── device_usb_info.hpp
-    │       │       │   │       │   ├── extrinsics.hpp
-    │       │       │   │       │   ├── format.hpp
-    │       │       │   │       │   ├── frame.hpp
-    │       │       │   │       │   ├── img_data.hpp
-    │       │       │   │       │   ├── imu_data.hpp
-    │       │       │   │       │   ├── imu_intrinsics.hpp
-    │       │       │   │       │   ├── info.hpp
-    │       │       │   │       │   ├── intrinsics.hpp
-    │       │       │   │       │   ├── model.hpp
-    │       │       │   │       │   ├── motion_data.hpp
-    │       │       │   │       │   ├── motion_intrinsics.hpp
-    │       │       │   │       │   ├── option.hpp
-    │       │       │   │       │   ├── option_info.hpp
-    │       │       │   │       │   ├── source.hpp
-    │       │       │   │       │   ├── stream_data.hpp
-    │       │       │   │       │   ├── stream.hpp
-    │       │       │   │       │   └── stream_request.hpp
-    │       │       │   │       ├── impl
-    │       │       │   │       │   ├── device_impl.hpp
-    │       │       │   │       │   ├── frame_impl.hpp
-    │       │       │   │       │   ├── internal
-    │       │       │   │       │   │   ├── usb_info.h
-    │       │       │   │       │   │   └── uvc_device.h
-    │       │       │   │       │   ├── motion_data_impl.hpp
-    │       │       │   │       │   ├── stream_data_impl.hpp
-    │       │       │   │       │   ├── type_conversion.hpp
-    │       │       │   │       │   └── util
-    │       │       │   │       └── jni
-    │       │       │   │           ├── NativeAddon.hpp
-    │       │       │   │           ├── NativeCalibrationModel.hpp
-    │       │       │   │           ├── NativeCapability.hpp
-    │       │       │   │           ├── NativeDevice.hpp
-    │       │       │   │           ├── NativeDeviceUsbInfo.hpp
-    │       │       │   │           ├── NativeExtrinsics.hpp
-    │       │       │   │           ├── NativeFormat.hpp
-    │       │       │   │           ├── NativeFrame.hpp
-    │       │       │   │           ├── NativeImgData.hpp
-    │       │       │   │           ├── NativeImuData.hpp
-    │       │       │   │           ├── NativeImuIntrinsics.hpp
-    │       │       │   │           ├── NativeInfo.hpp
-    │       │       │   │           ├── NativeIntrinsics.hpp
-    │       │       │   │           ├── NativeModel.hpp
-    │       │       │   │           ├── NativeMotionData.hpp
-    │       │       │   │           ├── NativeMotionIntrinsics.hpp
-    │       │       │   │           ├── NativeOption.hpp
-    │       │       │   │           ├── NativeOptionInfo.hpp
-    │       │       │   │           ├── NativeSource.hpp
-    │       │       │   │           ├── NativeStreamData.hpp
-    │       │       │   │           ├── NativeStream.hpp
-    │       │       │   │           └── NativeStreamRequest.hpp
-    │       │       │   ├── java
-    │       │       │   │   └── com
-    │       │       │   │       └── slightech
-    │       │       │   │           └── mynteye
-    │       │       │   │               ├── usb
-    │       │       │   │               └── util
-    │       │       │   ├── jniLibs
-    │       │       │   │   ├── arm64-v8a
-    │       │       │   │   └── armeabi-v7a
-    │       │       │   └── res
-    │       │       │       ├── layout
-    │       │       │       ├── values
-    │       │       │       └── xml
-    │       │       └── test
-    │       │           └── java
-    │       │               └── com
-    │       │                   └── slightech
-    │       │                       └── mynteye
-    │       ├── libshell
-    │       │   └── src
-    │       │       └── main
-    │       │           └── java
-    │       │               └── com
-    │       │                   └── stericson
-    │       │                       └── RootShell
-    │       │                           ├── containers
-    │       │                           ├── exceptions
-    │       │                           └── execution
-    │       ├── scripts
-    │       └── third_party
-    │           └── djinni
-    │               └── support-lib
-    │                   ├── djinni_common.hpp
-    │                   ├── jni
-    │                   │   ├── djinni_support.hpp
-    │                   │   └── Marshal.hpp
-    │                   ├── proxy_cache_impl.hpp
-    │                   └── proxy_cache_interface.hpp
+    │   
     ├── python
     │   ├── CMakeLists.txt
     │   ├── samples
