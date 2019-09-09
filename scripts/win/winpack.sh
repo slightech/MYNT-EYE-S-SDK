@@ -142,9 +142,6 @@ mv "$ROOT_DIR/_install/3rdparty/opencv" "$ROOT_DIR/3rdparty/opencv"
 # cmake
 mv "$ROOT_DIR/_install/cmake" "$ROOT_DIR/cmake"
 
-# platforms/win
-mv "$ROOT_DIR/_install/README.txt" "$ROOT_DIR/samples/simple_demo"
-
 # samples
 mv "$ROOT_DIR/_install/samples" "$ROOT_DIR/samples"
 
