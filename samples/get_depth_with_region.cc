@@ -213,7 +213,7 @@ int main(int argc, char *argv[]) {
           double X, double Y, double Z) {
     MYNTEYE_UNUSED(depth)
     std::ostringstream os;
-    os << "depth pos: [" << point.y << ", " << point.x << "]"
+    os << "depth pos(" << n << "): [" << point.y << ", " << point.x << "]"
        << " camera pos: [" << X << ", " << Y
        << ", " << Z << "]" << ", unit: mm";
 
