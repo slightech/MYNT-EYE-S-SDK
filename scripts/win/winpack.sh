@@ -95,6 +95,9 @@ _rm "$ROOT_DIR/samples/_build"
 _rm "$ROOT_DIR/samples/_output"
 mv "$ROOT_DIR/samples" "$ROOT_DIR/_install/samples"
 
+# platforms/win
+mv "$ROOT_DIR/samples/simple_demo/README.txt" "$ROOT_DIR/_install"
+
 ################################################################################
 # copy to _install
 
@@ -138,6 +141,9 @@ mv "$ROOT_DIR/_install/3rdparty/opencv" "$ROOT_DIR/3rdparty/opencv"
 
 # cmake
 mv "$ROOT_DIR/_install/cmake" "$ROOT_DIR/cmake"
+
+# platforms/win
+mv "$ROOT_DIR/_install/README.txt" "$ROOT_DIR/samples/simple_demo"
 
 # samples
 mv "$ROOT_DIR/_install/samples" "$ROOT_DIR/samples"
