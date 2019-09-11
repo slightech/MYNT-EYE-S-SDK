@@ -307,6 +307,21 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           {Option::GYROSCOPE_RANGE, "standard/gyro_range"}};
     }
 
+    // device options of standard200b
+    if (model_ == Model::STANDARD200B) {
+    option_names_ = {
+        {Option::BRIGHTNESS, "standard200b/brightness"},
+        {Option::EXPOSURE_MODE, "standard200b/exposure_mode"},
+        {Option::MAX_GAIN, "standard200b/max_gain"},
+        {Option::MAX_EXPOSURE_TIME, "standard200b/max_exposure_time"},
+        {Option::DESIRED_BRIGHTNESS, "standard200b/desired_brightness"},
+        {Option::MIN_EXPOSURE_TIME, "standard200b/min_exposure_time"},
+        {Option::ACCELEROMETER_RANGE, "standard200b/accel_range"},
+        {Option::GYROSCOPE_RANGE, "standard200b/gyro_range"},
+        {Option::ACCELEROMETER_LOW_PASS_FILTER, "standard200b/accel_low_filter"},
+        {Option::GYROSCOPE_LOW_PASS_FILTER, "standard200b/gyro_low_filter"}};
+    }
+
     for (auto &&it = option_names_.begin(); it != option_names_.end(); ++it) {
       if (!api_->Supports(it->first))
         continue;
@@ -333,8 +348,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
       NODELET_INFO_STREAM("Advertized on topic " << topic);
     }
 
-    // Only STANDARD2/STANDARD210A need publish mono_topics
-    if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
+    // Only STANDARD2/STANDARD210A/STANDARD200B need publish mono_topics
+    if (model_ == Model::STANDARD2 ||
+        model_ == Model::STANDARD210A || model_ == Model::STANDARD200B) {
       for (auto &&it = mono_topics.begin(); it != mono_topics.end(); ++it) {
         auto &&topic = mono_topics[it->first];
         if (it->first == Stream::LEFT ||
@@ -349,7 +365,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     int depth_type = 0;
     private_nh_.getParamCached("depth_type", depth_type);
-    if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
+    if (model_ == Model::STANDARD2 ||
+        model_ == Model::STANDARD210A || model_ == Model::STANDARD200B) {
       camera_encodings_ = {{Stream::LEFT, enc::BGR8},
                           {Stream::RIGHT, enc::BGR8},
                           {Stream::LEFT_RECTIFIED, enc::BGR8},
@@ -1100,7 +1117,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     int request_index = 0;
 
     model_ = api_->GetModel();
-    if (model_ == Model::STANDARD2 || model_ == Model::STANDARD210A) {
+    if (model_ == Model::STANDARD2 ||
+        model_ == Model::STANDARD210A || model_ == Model::STANDARD200B) {
       private_nh_.getParamCached("standard2/request_index", request_index);
       switch (request_index) {
         case 0:
@@ -1127,7 +1145,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     std::int32_t process_mode = 0;
     if (model_ == Model::STANDARD2 ||
-        model_ == Model::STANDARD210A) {
+        model_ == Model::STANDARD210A || model_ == Model::STANDARD200B) {
       private_nh_.getParamCached("standard2/imu_process_mode", process_mode);
       api_->EnableProcessMode(process_mode);
     }
