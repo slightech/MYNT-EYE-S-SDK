@@ -2,7 +2,7 @@
 
 Change Log
 ==========
-2019-08-27(v2.4.2)
+2019-09-4(v2.4.2)
 -------------------
 
 1. Part of the sample examples were sorted out, and useless tools and engineering code were removed.
