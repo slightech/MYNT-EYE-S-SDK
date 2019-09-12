@@ -24,10 +24,8 @@
 #include "mynteye/api/processor.h"
 #include "mynteye/device/device.h"
 
-#include "equidistant_camera.h"
+#include "mynteye/api/camera_models/equidistant_camera.h"
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/core/eigen.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
@@ -91,7 +89,10 @@ class RectifyProcessor : public Processor {
       int flags = cv::CALIB_ZERO_DISPARITY, double alpha = -1,
       CvSize newImgSize = cv::Size());
 
-  Eigen::Matrix4d loadT(const mynteye::Extrinsics& in);
+// Eigen::Matrix4d loadT(const mynteye::Extrinsics& in);
+// subEigen
+  models::Matrix4d loadT(const mynteye::Extrinsics &in);
+
   void loadCameraMatrix(cv::Mat& K, cv::Mat& D,  // NOLINT
       cv::Size& image_size,  // NOLINT
       struct CameraROSMsgInfo& calib_data); // NOLINT

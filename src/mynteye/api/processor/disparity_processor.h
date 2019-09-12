@@ -14,7 +14,7 @@
 #ifndef MYNTEYE_API_PROCESSOR_DISPARITY_PROCESSOR_H_
 #define MYNTEYE_API_PROCESSOR_DISPARITY_PROCESSOR_H_
 #pragma once
-
+#include <memory>
 #include <string>
 #include <memory>
 #include "mynteye/api/processor.h"

@@ -11,13 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#pragma once
 #ifndef MYNTEYE_CAMERA_MODELS_EQUIDISTANT_CAMERA_H_
 #define MYNTEYE_CAMERA_MODELS_EQUIDISTANT_CAMERA_H_
 
 #include <string>
 #include <opencv2/core/core.hpp>
 
-#include "camera.h"
+#include "api/camera_models/camera.h"
 
 MYNTEYE_BEGIN_NAMESPACE
 
@@ -116,28 +117,30 @@ class EquidistantCamera : public Camera {
       const std::vector<std::vector<cv::Point2f> > &imagePoints);
 
   // Lift points from the image plane to the projective space
-  void liftProjective(const Eigen::Vector2d &p, Eigen::Vector3d &P) const;  // NOLINT
+  void liftProjective(const models::Vector2d &p, models::Vector3d &P) const;  // NOLINT
   // %output P
 
   // Projects 3D points to the image plane (Pi function)
-  void spaceToPlane(const Eigen::Vector3d &P, Eigen::Vector2d &p) const;  // NOLINT
+  void spaceToPlane(const models::Vector3d &P, models::Vector2d &p) const;  // NOLINT
   // %output p
+
 
   // Projects 3D points to the image plane (Pi function)
   // and calculates jacobian
   void spaceToPlane(
-      const Eigen::Vector3d &P, Eigen::Vector2d &p,  // NOLINT
-      Eigen::Matrix<double, 2, 3> &J) const;  // NOLINT
+      const models::Vector3d &P,models::Vector2d &p,  // NOLINT
+      models::Matrix23d &J) const;  // NOLINT
   // %output p
   // %output J
 
   template <typename T>
   static void spaceToPlane(
       const T *const params, const T *const q, const T *const t,
-      const Eigen::Matrix<T, 3, 1> &P, Eigen::Matrix<T, 2, 1> &p);  // NOLINT
+      const models::Matrix<T> &P, models::Matrix<T> &p);  // NOLINT
 
   void initUndistortMap(
       cv::Mat &map1, cv::Mat &map2, double fScale = 1.0) const;  // NOLINT
+
   cv::Mat initUndistortRectifyMap(
       cv::Mat &map1, cv::Mat &map2, float fx = -1.0f, float fy = -1.0f,  // NOLINT
       cv::Size imageSize = cv::Size(0, 0), float cx = -1.0f, float cy = -1.0f,
@@ -162,7 +165,7 @@ class EquidistantCamera : public Camera {
       std::vector<double> &coeffs) const;  // NOLINT
 
   void backprojectSymmetric(
-      const Eigen::Vector2d &p_u, double &theta, double &phi) const;  // NOLINT
+      const models::Vector2d &p_u, double &theta, double &phi) const;  // NOLINT
 
   Parameters mParameters;
 
@@ -170,7 +173,7 @@ class EquidistantCamera : public Camera {
 };
 
 typedef std::shared_ptr<EquidistantCamera> EquidistantCameraPtr;
-typedef std::shared_ptr<const EquidistantCamera> EquidistantCameraConstPtr;
+typedef std::shared_ptr<const EquidistantCamera> EquidistantCameraConstPtr;  // NOLINT
 
 template <typename T>
 T EquidistantCamera::r(T k2, T k3, T k4, T k5, T theta) {
@@ -189,9 +192,9 @@ T EquidistantCamera::r(T k2, T k3, T k4, T k5, T theta) {
 }
 
 template <typename T>
-void EquidistantCamera::spaceToPlane(
+void spaceToPlane(
     const T *const params, const T *const q, const T *const t,
-    const Eigen::Matrix<T, 3, 1> &P, Eigen::Matrix<T, 2, 1> &p) {
+    const models::Matrix<T> &P, models::Matrix<T> &p) {  // NOLINT
   T P_w[3];
   P_w[0] = T(P(0));
   P_w[1] = T(P(1));
@@ -222,13 +225,19 @@ void EquidistantCamera::spaceToPlane(
   T theta = acos(P_c[2] / len);
   T phi = atan2(P_c[1], P_c[0]);
 
-  Eigen::Matrix<T, 2, 1> p_u =
-      r(k2, k3, k4, k5, theta) * Eigen::Matrix<T, 2, 1>(cos(phi), sin(phi));
+  models::Matrix<T> p_u(2, 1), tmp(2, 1);
+  tmp(0) = cos(phi);
+  tmp(1) = sin(phi);
+  p_u = r(k2, k3, k4, k5, theta) * tmp;
 
   p(0) = mu * p_u(0) + u0;
   p(1) = mv * p_u(1) + v0;
 }
+
 }
+
+
+
 
 MYNTEYE_END_NAMESPACE
 

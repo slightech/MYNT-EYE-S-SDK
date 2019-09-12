@@ -109,30 +109,36 @@ void RectifyProcessor::stereoRectify(models::CameraPtr leftOdo,
   // these contain the relevant rectified image internal params (fx, fy=fx, cx, cy)
   double fc_new = DBL_MAX;
   CvPoint2D64f cc_new[2] = {{0, 0}, {0, 0}};
-  newImgSize = newImgSize.width * newImgSize.height != 0 ? newImgSize : imageSize;
-  const double ratio_x = (double)newImgSize.width / imageSize.width / 2;
-  const double ratio_y = (double)newImgSize.height / imageSize.height / 2;
+  newImgSize = newImgSize.width * newImgSize.height != 0 ?
+      newImgSize : imageSize;
+  const double ratio_x = static_cast<double>(newImgSize.width) /
+      imageSize.width / 2;
+  const double ratio_y = static_cast<double>(newImgSize.height) /
+      imageSize.height / 2;
   const double ratio = idx == 1 ? ratio_x : ratio_y;
-  fc_new = (cvmGet(K1, idx ^ 1, idx ^ 1) + cvmGet(K2, idx ^ 1, idx ^ 1)) * ratio;
+  fc_new = (cvmGet(K1, idx ^ 1, idx ^ 1) +
+      cvmGet(K2, idx ^ 1, idx ^ 1)) * ratio;
 
   for (k = 0; k < 2; k++) {
     CvPoint2D32f _pts[4];
     CvPoint3D32f _pts_3[4];
     CvMat pts = cvMat(1, 4, CV_32FC2, _pts);
     CvMat pts_3 = cvMat(1, 4, CV_32FC3, _pts_3);
-    Eigen::Vector2d a;
-    Eigen::Vector3d b;
+    // Eigen::Vector2d a;
+    // Eigen::Vector3d b;
+    models::Vector2d a(2, 1);
+    models::Vector3d b(3, 1);
     for (i = 0; i < 4; i++) {
       int j = (i < 2) ? 0 : 1;
-      a.x() = (float)((i % 2)*(nx));
-      a.y() = (float)(j*(ny));
+      a(0) = static_cast<float>((i % 2)*(nx));
+      a(1) = static_cast<float>(j*(ny));
       if (0 == k) {
         leftOdo->liftProjective(a, b);
       } else {
         rightOdo->liftProjective(a, b);
       }
-      _pts[i].x = b.x()/b.z();
-      _pts[i].y = b.y()/b.z();
+      _pts[i].x = b(0)/b(2);
+      _pts[i].y = b(1)/b(2);
     }
     cvConvertPointsHomogeneous(&pts, &pts_3);
 
@@ -175,7 +181,8 @@ void RectifyProcessor::stereoRectify(models::CameraPtr leftOdo,
 
   _alpha = MIN(alpha, 1.);
   {
-    newImgSize = newImgSize.width*newImgSize.height != 0 ? newImgSize : imageSize;
+    newImgSize = newImgSize.width*newImgSize.height != 0 ?
+        newImgSize : imageSize;
     double cx1_0 = cc_new[0].x;
     double cy1_0 = cc_new[0].y;
     double cx2_0 = cc_new[1].x;
@@ -224,22 +231,27 @@ void RectifyProcessor::stereoRectify(models::CameraPtr leftOdo,
   }
 }
 
-Eigen::Matrix4d RectifyProcessor::loadT(const mynteye::Extrinsics& in) {
-  Eigen::Matrix3d R;
+// Eigen::Matrix4d RectifyProcessor::loadT(const mynteye::Extrinsics& in) {
+  // subEigen
+models::Matrix4d RectifyProcessor::loadT(const mynteye::Extrinsics &in) {
+  models::Matrix3d R(3);
   R<<
-  in.rotation[0][0], in.rotation[0][1], in.rotation[0][2],
-  in.rotation[1][0], in.rotation[1][1], in.rotation[1][2],
-  in.rotation[2][0], in.rotation[2][1], in.rotation[2][2];
+  in.rotation[0][0] << in.rotation[0][1] << in.rotation[0][2] <<
+  in.rotation[1][0] << in.rotation[1][1] << in.rotation[1][2] <<
+  in.rotation[2][0] << in.rotation[2][1] << in.rotation[2][2];
 
   double t_x = in.translation[0];
   double t_y = in.translation[1];
   double t_z = in.translation[2];
 
-  Eigen::Quaterniond q(R);
+  models::Quaterniond q(R);
   q.normalize();
-  Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
+  models::Matrix4d T(4);
+  T(3, 3) = 1;
   T.topLeftCorner<3, 3>() = q.toRotationMatrix();
-  T.topRightCorner<3, 1>() << t_x, t_y, t_z;
+  models::Vector3d t(3, 1);
+  t << t_x << t_y << t_z;
+  T.topRightCorner<3, 1>() = t;
 
   return T;
 }
@@ -278,12 +290,26 @@ std::shared_ptr<struct CameraROSMsgInfoPair> RectifyProcessor::stereoRectify(
     mynteye::IntrinsicsEquidistant in_left,
     mynteye::IntrinsicsEquidistant in_right,
     mynteye::Extrinsics ex_right_to_left) {
-  Eigen::Matrix4d T = loadT(ex_right_to_left);
-  Eigen::Matrix3d R = T.topLeftCorner<3, 3>();
-  Eigen::Vector3d t = T.topRightCorner<3, 1>();
-  cv::Mat cv_R, cv_t;
-  cv::eigen2cv(R, cv_R);
-  cv::eigen2cv(t, cv_t);
+  // Eigen::Matrix4d T = loadT(ex_right_to_left);
+  // Eigen::Matrix3d R = T.topLeftCorner<3, 3>();
+  // Eigen::Vector3d t = T.topRightCorner<3, 1>();
+  models::Matrix4d T = loadT(ex_right_to_left);
+  models::Matrix3d R;
+  R = T.topLeftCorner<3, 3>();
+  models::Vector3d t = T.topRightCorner<3, 1>();
+  // cv::Mat cv_R, cv_t;
+  // cv::eigen2cv(R, cv_R);
+  cv::Mat cv_R(3, 3, CV_64FC1);
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 3; ++j) {
+      cv_R.at<double>(i, j) = R(i, j);
+    }
+  }
+  // cv::eigen2cv(t, cv_t);
+  cv::Mat cv_t(3, 1, CV_64FC1);
+  for (int i = 0; i < 3; ++i) {
+      cv_t.at<double>(i, 0) = t(i, 0);
+  }
   cv::Mat K1, D1, K2, D2;
   cv::Size image_size1, image_size2;
 
@@ -307,17 +333,18 @@ std::shared_ptr<struct CameraROSMsgInfoPair> RectifyProcessor::stereoRectify(
       image_size1, &c_R, &c_t, &c_R1, &c_R2, &c_P1, &c_P2, &T_mul_f,
       &cx1_min_cx2);
 
-  VLOG(2) << "K1: " << K1 << std::endl;
-  VLOG(2) << "D1: " << D1 << std::endl;
-  VLOG(2) << "K2: " << K2 << std::endl;
-  VLOG(2) << "D2: " << D2 << std::endl;
-  VLOG(2) << "R: " << cv_R << std::endl;
-  VLOG(2) << "t: " << cv_t << std::endl;
-  VLOG(2) << "R1: " << R1 << std::endl;
-  VLOG(2) << "R2: " << R2 << std::endl;
-  VLOG(2) << "P1: " << P1 << std::endl;
-  VLOG(2) << "P2: " << P2 << std::endl;
-
+#ifdef _DOUTPUT
+  std::cout << "K1: " << K1 << std::endl;
+  std::cout << "D1: " << D1 << std::endl;
+  std::cout << "K2: " << K2 << std::endl;
+  std::cout << "D2: " << D2 << std::endl;
+  std::cout << "R: " << cv_R << std::endl;
+  std::cout << "t: " << cv_t << std::endl;
+  std::cout << "R1: " << R1 << std::endl;
+  std::cout << "R2: " << R2 << std::endl;
+  std::cout << "P1: " << P1 << std::endl;
+  std::cout << "P2: " << P2 << std::endl;
+#endif
   R1 = rectifyrad(R1);
   R2 = rectifyrad(R2);
 
@@ -384,15 +411,18 @@ void RectifyProcessor::InitParams(
   in_left_cur = in_left;
   in_right_cur = in_right;
   ex_right_to_left_cur = ex_right_to_left;
+
   models::CameraPtr camera_odo_ptr_left =
       generateCameraFromIntrinsicsEquidistant(in_left);
   models::CameraPtr camera_odo_ptr_right =
       generateCameraFromIntrinsicsEquidistant(in_right);
+
   auto calib_info_tmp = stereoRectify(camera_odo_ptr_left,
         camera_odo_ptr_right,
         in_left,
         in_right,
         ex_right_to_left);
+
   *calib_infos = *calib_info_tmp;
   cv::Mat rect_R_l =
       cv::Mat::eye(3, 3, CV_32F), rect_R_r = cv::Mat::eye(3, 3, CV_32F);
@@ -402,6 +432,7 @@ void RectifyProcessor::InitParams(
       rect_R_r.at<float>(i, j) = calib_infos->right.R[i*3+j];
     }
   }
+
   double left_f[] =
       {calib_infos->left.P[0], calib_infos->left.P[5]};
   double left_center[] =
@@ -410,6 +441,7 @@ void RectifyProcessor::InitParams(
       {calib_infos->right.P[0], calib_infos->right.P[5]};
   double right_center[] =
       {calib_infos->right.P[2], calib_infos->right.P[6]};
+
   camera_odo_ptr_left->initUndistortRectifyMap(
       map11, map12, left_f[0], left_f[1],
       cv::Size(0, 0), left_center[0],
@@ -430,6 +462,7 @@ RectifyProcessor::RectifyProcessor(
     : Processor(std::move(proc_period)),
       calib_model(CalibrationModel::UNKNOW),
       _alpha(-1) {
+
   calib_infos = std::make_shared<struct CameraROSMsgInfoPair>();
   InitParams(
     *std::dynamic_pointer_cast<IntrinsicsEquidistant>(intr_left),

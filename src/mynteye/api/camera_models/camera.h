@@ -11,12 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#pragma once
 #ifndef MYNTEYE_CAMERA_MODELS_CAMERA_H_
 #define MYNTEYE_CAMERA_MODELS_CAMERA_H_
 
 #include <vector>
 #include <memory>
-#include "eigen3/Eigen/Dense"
+#include "util/base.h"
 #include <opencv2/core/core.hpp>
 
 #include "mynteye/mynteye.h"
@@ -27,12 +28,10 @@ namespace models {
 
 class Camera {
  public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   enum ModelType { KANNALA_BRANDT, MEI, PINHOLE, SCARAMUZZA };
 
   class Parameters {
    public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     explicit Parameters(ModelType modelType);
 
     Parameters(
@@ -70,19 +69,20 @@ class Camera {
       const cv::Size &boardSize,
       const std::vector<std::vector<cv::Point3f> > &objectPoints,
       const std::vector<std::vector<cv::Point2f> > &imagePoints) = 0;
+
   virtual void estimateExtrinsics(
       const std::vector<cv::Point3f> &objectPoints,
       const std::vector<cv::Point2f> &imagePoints,
-      cv::Mat &rvec, cv::Mat &tvec) const;  // NOLINT
+      cv::Mat &rvec, cv::Mat &tvec) const;  // NOLINT      
 
   // Lift points from the image plane to the projective space
   virtual void liftProjective(
-      const Eigen::Vector2d &p, Eigen::Vector3d &P) const = 0;  // NOLINT
+      const models::Vector2d &p, models::Vector3d &P) const = 0;  // NOLINT
   // %output P
 
   // Projects 3D points to the image plane (Pi function)
   virtual void spaceToPlane(
-      const Eigen::Vector3d &P, Eigen::Vector2d &p) const = 0;  // NOLINT
+      const models::Vector3d &P, models::Vector2d &p) const = 0;  // NOLINT
   // %output p
 
   // Projects 3D points to the image plane (Pi function)
@@ -114,7 +114,7 @@ class Camera {
    * \return euclidean distance in the plane
    */
   double reprojectionDist(
-      const Eigen::Vector3d &P1, const Eigen::Vector3d &P2) const;
+      const models::Vector3d &P1, const models::Vector3d &P2) const;
 
   double reprojectionError(
       const std::vector<std::vector<cv::Point3f> > &objectPoints,
@@ -123,8 +123,9 @@ class Camera {
       cv::OutputArray perViewErrors = cv::noArray()) const;
 
   double reprojectionError(
-      const Eigen::Vector3d &P, const Eigen::Quaterniond &camera_q,
-      const Eigen::Vector3d &camera_t, const Eigen::Vector2d &observed_p) const;
+      const models::Vector3d &P, const models::Quaterniond &camera_q,
+      const models::Vector3d &camera_t,
+          const models::Vector2d &observed_p) const;
 
   void projectPoints(
       const std::vector<cv::Point3f> &objectPoints, const cv::Mat &rvec,
@@ -136,7 +137,7 @@ class Camera {
 
 typedef std::shared_ptr<Camera> CameraPtr;
 typedef std::shared_ptr<const Camera> CameraConstPtr;
-}
+}  // namespace models
 
 MYNTEYE_END_NAMESPACE
 

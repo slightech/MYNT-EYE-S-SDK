@@ -14,7 +14,7 @@
 #ifndef MYNTEYE_API_PROCESSOR_DEPTH_PROCESSOR_OCV_H_
 #define MYNTEYE_API_PROCESSOR_DEPTH_PROCESSOR_OCV_H_
 #pragma once
-
+#include <memory>
 #include <string>
 
 #include "mynteye/api/processor.h"
