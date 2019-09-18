@@ -65,7 +65,6 @@
       <param name="disparity_norm_topic" value="$(arg disparity_norm_topic)" />
       <param name="points_topic" value="$(arg points_topic)" />
       <param name="depth_topic" value="$(arg depth_topic)" />
-      <param name="mesh_file" value="$(arg mesh_file)" />
 
       <param name="left_mono_topic" value="$(arg left_mono_topic)" />
       <param name="right_mono_topic" value="$(arg right_mono_topic)" />
@@ -88,6 +87,7 @@
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/sub/device_1/standard.yaml" command="load" />
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/sub/device_1/standard2.yaml" command="load" />
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/sub/process_1/process_config.yaml" command="load" />
+      <rosparam file="$(find mynt_eye_ros_wrapper)/config/sub/mesh_1/mesh.yaml" command="load" />
 
       <param name="gravity" value="$(arg gravity)" />
     </node>

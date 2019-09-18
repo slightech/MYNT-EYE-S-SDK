@@ -1,0 +1,10 @@
+# this file is used to config mesh file in rviz display
+
+
+s1030_mesh_file: "S1030-0315.obj"
+
+model_rotation_x: 1.5708
+
+model_rotation_y: 0
+
+model_rotation_z: 1.5708

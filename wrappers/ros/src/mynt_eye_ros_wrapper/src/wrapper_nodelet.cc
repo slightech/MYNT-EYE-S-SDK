@@ -43,6 +43,8 @@
 #include "configuru.hpp"
 using namespace configuru;  // NOLINT
 
+#define PIE 3.1416
+
 #define FULL_PRECISION \
   std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10)
 
@@ -62,6 +64,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     skip_tmp_left_tag = 0;
     skip_tmp_right_tag = 0;
     unit_hard_time *= 10;
+    mesh_rotation_x = PIE/2;
+    mesh_rotation_y = 0.0;
+    mesh_rotation_z = PIE/2;
   }
 
   ~ROSWrapperNodelet() {
@@ -195,6 +200,13 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     NODELET_FATAL_COND(api_ == nullptr, "No MYNT EYE device selected :(");
 
     pthread_mutex_init(&mutex_data_, nullptr);
+
+    private_nh_.getParamCached("model_rotation_x",
+        mesh_rotation_x);
+    private_nh_.getParamCached("model_rotation_y",
+        mesh_rotation_y);
+    private_nh_.getParamCached("model_rotation_z",
+        mesh_rotation_z);
 
     // node params
 
@@ -404,7 +416,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     pub_mesh_ = nh_.advertise<visualization_msgs::Marker>("camera_mesh", 0 );
     // where to get the mesh from
     std::string mesh_file;
-    if (private_nh_.getParamCached("mesh_file", mesh_file)) {
+    if (private_nh_.getParamCached("s1030_mesh_file", mesh_file)) {
       mesh_msg_.mesh_resource = "package://mynt_eye_ros_wrapper/mesh/"+mesh_file;
     } else {
       LOG(INFO) << "no mesh found for visualisation, set ros param mesh_file, if desired";
@@ -1271,8 +1283,11 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     mesh_msg_.header.stamp = ros::Time::now();
     mesh_msg_.type = visualization_msgs::Marker::MESH_RESOURCE;
     geometry_msgs::Quaternion q;
-    double Pie = 3.1416;
-    q = tf::createQuaternionMsgFromRollPitchYaw(Pie/2, 0.0, Pie/2);
+
+    q = tf::createQuaternionMsgFromRollPitchYaw(
+        mesh_rotation_x,
+        mesh_rotation_y,
+        mesh_rotation_z);
 
     // fill orientation
     mesh_msg_.pose.orientation.x = q.x;
@@ -1650,6 +1665,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   int skip_tag;
   int skip_tmp_left_tag;
   int skip_tmp_right_tag;
+  double mesh_rotation_x;
+  double mesh_rotation_y;
+  double mesh_rotation_z;
 
   std::uint64_t unit_hard_time = std::numeric_limits<std::uint32_t>::max();
 };
