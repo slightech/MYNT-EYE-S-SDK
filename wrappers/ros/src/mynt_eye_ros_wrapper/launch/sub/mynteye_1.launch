@@ -7,7 +7,7 @@
 
   <!-- serial_number -->
   <!-- if is_mutiple is true, must set serial_number -->
-  <arg name="serial_number" default="07C42B1B0009071F" />
+  <arg name="serial_number" default="[wait to input target device1 SN here]" />
 
   <!-- depth_type  0: MONO16, 1: TYPE_16UC1 -->
   <arg name="depth_type" default="0" />
