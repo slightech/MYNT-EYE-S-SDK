@@ -41,7 +41,6 @@ help:
 	@echo "  make init            init project"
 	@echo "  make build           build project"
 	@echo "  make install         install project"
-	@echo "  make test            build test and run"
 	@echo "  make samples         build samples"
 	@echo "  make pkg             package sdk"
 	@echo "  make ros             build ros wrapper"
@@ -98,26 +97,6 @@ else
 endif
 
 .PHONY: build
-
-# test
-
-test: submodules install
-	@$(call echo,Make $@)
-	@$(call echo,Make gtest,33)
-ifeq ($(HOST_OS),Win)
-	@$(call cmake_build,./test/gtest/_build,..,-Dgtest_force_shared_crt=ON)
-else
-	@$(call cmake_build,./test/gtest/_build)
-endif
-	@$(call echo,Make test,33)
-	@$(call cmake_build,./test/_build)
-ifeq ($(HOST_OS),Win)
-	@.\\\test\\\_output\\\bin\\\mynteye_test.bat
-else
-	@./test/_output/bin/mynteye_test
-endif
-
-.PHONY: test
 
 # install
 
@@ -247,8 +226,6 @@ clean:
 	@$(call rm,./_install/)
 	@$(call rm,./samples/_build/)
 	@$(call rm,./samples/_output/)
-	@$(call rm,./test/_build/)
-	@$(call rm,./test/_output/)
 	@$(MAKE) cleanlog
 ifeq ($(HOST_OS),Linux)
 	@$(MAKE) cleanros
@@ -262,7 +239,6 @@ cleanlog:
 	@$(call rm_f,*FATAL*)
 
 cleanall: clean cleandoc
-	@$(call rm,./test/gtest/_build/)
 	@$(FIND) . -type f -name ".DS_Store" -print0 | xargs -0 rm -f
 	@$(call rm,./$(PBCVT_DIR)/)
 	@$(call rm,./$(NPCV_DIR)/)
