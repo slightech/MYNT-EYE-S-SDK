@@ -42,7 +42,7 @@ help:
 	@echo "  make build           build project"
 	@echo "  make install         install project"
 	@echo "  make samples         build samples"
-	@echo "  make pkg             package sdk"
+	@echo "  make pkg             package sdk(windows)"
 	@echo "  make ros             build ros wrapper"
 	@echo "  make py              build python wrapper"
 	@echo "  make clean|cleanall  clean generated or useless things"
@@ -70,13 +70,6 @@ cleandoc:
 	@$(call rm,./docs/_doxygen/)
 
 .PHONY: doc apidoc opendoc cleandoc
-
-# deps
-
-submodules:
-	@git submodule update --init
-
-.PHONY: submodules
 
 # init
 
@@ -267,9 +260,3 @@ host:
 	@echo CMAKE_BUILD_EXTRA_OPTIONS: $(CMAKE_BUILD_EXTRA_OPTIONS)
 
 .PHONY: host
-
-cpplint: submodules
-	@$(call echo,Make $@)
-	@$(SH) ./scripts/$@.sh
-
-.PHONY: cpplint
