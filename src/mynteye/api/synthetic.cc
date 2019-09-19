@@ -339,12 +339,6 @@ void Synthetic::InitProcessors() {
         disparity_processor_imp->GetMaxDisparity(),
         DEPTH_PROC_PERIOD);
     disparity_processor = disparity_processor_imp;
-
-    root_processor->AddChild(rectify_processor);
-    rectify_processor->AddChild(disparity_processor);
-    disparity_processor->AddChild(disparitynormalized_processor);
-    disparity_processor->AddChild(depth_processor);
-    depth_processor->AddChild(points_processor);
 #ifdef WITH_CAM_MODELS
   } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
     // KANNALA_BRANDT
@@ -365,12 +359,6 @@ void Synthetic::InitProcessors() {
         disparity_processor_imp->GetMaxDisparity(),
         DEPTH_PROC_PERIOD);
     disparity_processor = disparity_processor_imp;
-
-    root_processor->AddChild(rectify_processor);
-    rectify_processor->AddChild(disparity_processor);
-    disparity_processor->AddChild(disparitynormalized_processor);
-    disparity_processor->AddChild(depth_processor);
-    depth_processor->AddChild(points_processor);
 #endif
   } else {
     // UNKNOW
@@ -378,6 +366,12 @@ void Synthetic::InitProcessors() {
                << calib_model_;
     return;
   }
+
+  root_processor->AddChild(rectify_processor);
+  rectify_processor->AddChild(disparity_processor);
+  disparity_processor->AddChild(disparitynormalized_processor);
+  disparity_processor->AddChild(depth_processor);
+  depth_processor->AddChild(points_processor);
 
   root_processor->addTargetStreams(
       {Stream::LEFT, Mode::MODE_OFF, nullptr});
