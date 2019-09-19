@@ -201,13 +201,6 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
 
     pthread_mutex_init(&mutex_data_, nullptr);
 
-    private_nh_.getParamCached("model_rotation_x",
-        mesh_rotation_x);
-    private_nh_.getParamCached("model_rotation_y",
-        mesh_rotation_y);
-    private_nh_.getParamCached("model_rotation_z",
-        mesh_rotation_z);
-
     // node params
 
     std::map<Stream, std::string> stream_names{
@@ -1283,6 +1276,12 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     mesh_msg_.header.stamp = ros::Time::now();
     mesh_msg_.type = visualization_msgs::Marker::MESH_RESOURCE;
     geometry_msgs::Quaternion q;
+    private_nh_.getParamCached("model_rotation_x",
+        mesh_rotation_x);
+    private_nh_.getParamCached("model_rotation_y",
+        mesh_rotation_y);
+    private_nh_.getParamCached("model_rotation_z",
+        mesh_rotation_z);
 
     q = tf::createQuaternionMsgFromRollPitchYaw(
         mesh_rotation_x,
