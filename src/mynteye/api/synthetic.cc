@@ -27,8 +27,6 @@
 #include "mynteye/api/processor/disparity_processor.h"
 #include "mynteye/api/processor/root_camera_processor.h"
 #include "mynteye/api/processor/rectify_processor_ocv.h"
-#include "mynteye/api/processor/depth_processor_ocv.h"
-#include "mynteye/api/processor/points_processor_ocv.h"
 #ifdef WITH_CAM_MODELS
 #include "mynteye/api/processor/depth_processor.h"
 #include "mynteye/api/processor/points_processor.h"
@@ -328,19 +326,25 @@ void Synthetic::InitProcessors() {
         std::make_shared<RectifyProcessorOCV>(intr_left_, intr_right_, extr_,
                                               RECTIFY_PROC_PERIOD);
     rectify_processor = rectify_processor_ocv;
-    points_processor = std::make_shared<PointsProcessorOCV>(
-        rectify_processor_ocv->Q, POINTS_PROC_PERIOD);
-    disparity_processor =
+    points_processor = std::make_shared<PointsProcessor>(
+        rectify_processor_ocv -> getCameraROSMsgInfoPair(),
+        POINTS_PROC_PERIOD);
+    auto disparity_processor_imp =
       std::make_shared<DisparityProcessor>(DisparityComputingMethod::BM,
                                            nullptr,
                                            DISPARITY_PROC_PERIOD);
-    depth_processor = std::make_shared<DepthProcessorOCV>(DEPTH_PROC_PERIOD);
+    depth_processor = std::make_shared<DepthProcessor>(
+        rectify_processor_ocv -> getCameraROSMsgInfoPair(),
+        disparity_processor_imp->GetMinDisparity(),
+        disparity_processor_imp->GetMaxDisparity(),
+        DEPTH_PROC_PERIOD);
+    disparity_processor = disparity_processor_imp;
 
     root_processor->AddChild(rectify_processor);
     rectify_processor->AddChild(disparity_processor);
     disparity_processor->AddChild(disparitynormalized_processor);
-    disparity_processor->AddChild(points_processor);
-    points_processor->AddChild(depth_processor);
+    disparity_processor->AddChild(depth_processor);
+    depth_processor->AddChild(points_processor);
 #ifdef WITH_CAM_MODELS
   } else if (calib_model_ == CalibrationModel::KANNALA_BRANDT) {
     // KANNALA_BRANDT

@@ -45,6 +45,7 @@ class DepthProcessor : public Processor {
   bool OnProcess(
       Object *const in, Object *const out,
       std::shared_ptr<Processor> const parent) override;
+
  private:
   std::shared_ptr<struct CameraROSMsgInfoPair> calib_infos_;
   std::shared_ptr<int> min_disp_;

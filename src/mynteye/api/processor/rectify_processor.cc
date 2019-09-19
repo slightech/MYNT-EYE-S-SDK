@@ -228,6 +228,8 @@ void RectifyProcessor::stereoRectify(models::CameraPtr leftOdo,
     cvmSet(_P2, idx, 3, s*cvmGet(_P2, idx, 3));
 
     *cx1_min_cx2 = -(cx1 - cx2);
+    // std::cout << "info_pair.T_mul_f :" << *T_mul_f << std::endl;
+    // std::cout << "info_pair.cx1_minus_cx2 :" << *cx1_min_cx2 << std::endl;
   }
 }
 

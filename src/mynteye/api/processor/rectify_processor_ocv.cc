@@ -164,6 +164,10 @@ void RectifyProcessorOCV::InitParams(
     info_pair.P[i] = info_pair.left.P[i];
   }
 
+  info_pair.T_mul_f = -1.f * in_left.fx * ex_right_to_left.translation[0];
+  info_pair.cx1_minus_cx2 = 0.-(in_left.cx - in_right.cx);
+  // std::cout << "info_pair.T_mul_f :" << info_pair.T_mul_f << std::endl;
+  // std::cout << "info_pair.cx1_minus_cx2 :" << info_pair.cx1_minus_cx2 << std::endl;
   *calib_infos = info_pair;
 
   cv::initUndistortRectifyMap(M1, D1, R1, P1, size, CV_16SC2, map11, map12);
