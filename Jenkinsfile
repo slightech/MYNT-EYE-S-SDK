@@ -49,12 +49,14 @@ pipeline {
         sh '. /opt/ros/kinetic/setup.sh; make samples SUDO='
       }
     }
+	   /*
     stage('Tools') {
       steps {
         echo 'make tools ..'
         sh '. /opt/ros/kinetic/setup.sh; make tools SUDO='
       }
     }
+	    */
     stage('ROS') {
       steps {
         echo 'make ros ..'
