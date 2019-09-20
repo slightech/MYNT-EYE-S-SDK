@@ -44,6 +44,7 @@
 using namespace configuru;  // NOLINT
 
 #define PIE 3.1416
+#define MATCH_CHECK_THRESHOLD 3
 
 #define FULL_PRECISION \
   std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10)
@@ -710,6 +711,12 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                   skip_tmp_left_tag--;
                   return;
                 }
+                if (left_timestamps.size() < MATCH_CHECK_THRESHOLD) {
+                  left_timestamps.insert(left_timestamps.begin(), data.img->timestamp);
+                } else {
+                  left_timestamps.insert(left_timestamps.begin(), data.img->timestamp);
+                  left_timestamps.pop_back();
+                }
               }
               publishCamera(Stream::LEFT, data, left_count_, stamp);
               publishMono(Stream::LEFT, data, left_count_, stamp);
@@ -741,6 +748,29 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
                 } else {
                   skip_tmp_right_tag--;
                   return;
+                }
+                if (right_timestamps.size() < MATCH_CHECK_THRESHOLD) {
+                  right_timestamps.insert(right_timestamps.begin(), data.img->timestamp);
+                } else {
+                  right_timestamps.insert(right_timestamps.begin(), data.img->timestamp);
+                  right_timestamps.pop_back();
+                  bool is_match = false;
+                  for (size_t i = 0; i < right_timestamps.size(); i++) {
+                    for (size_t j = 0; j < left_timestamps.size(); j++) {
+                      if (right_timestamps[i] == left_timestamps[j]) {
+                        is_match = true;
+                        break;
+                      }
+                    }
+                    if (is_match) {
+                      break;
+                    }
+                  }
+
+                  if (!is_match) {
+                    std::cout << "find the output stamp can't matched try to fix with one skip step." << std::endl;
+                    skip_tmp_right_tag++;
+                  }
                 }
               }
               publishCamera(Stream::RIGHT, data, right_count_, stamp);
@@ -1667,6 +1697,8 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   double mesh_rotation_x;
   double mesh_rotation_y;
   double mesh_rotation_z;
+  std::vector<int64_t> left_timestamps;
+  std::vector<int64_t> right_timestamps;
 
   std::uint64_t unit_hard_time = std::numeric_limits<std::uint32_t>::max();
 };
