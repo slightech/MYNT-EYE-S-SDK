@@ -51,12 +51,15 @@ int main(int argc, char *argv[]) {
   if (info && !info->isEmpty()) {
     LOG(INFO) << "ROSMsgInfoPair:";
     LOG(INFO) << *info;
+    LOG(INFO) << "If you cant't have a clear understanding of the info,"
+                 "you can read the ROS-doc (http://docs.ros.org/melodic/api/sensor_msgs/html/msg/CameraInfo.html)"  // NOLINT
+                 " to learn more.";
   }
 
   if (api->IsDefaultIntrinsics()) {
     LOG(WARNING) << "Default intrinsics are currently being used.";
     LOG(WARNING) << "Image params not found, but we need it to process the "
-                  "images. Please `make tools` and use `img_params_writer` "
+                  "images. Please use `img_params_writer` "
                   "to write the image params. If you update the SDK from "
                   "1.x, the `SN*.conf` is the file contains them. Besides, "
                   "you could also calibrate them by yourself. Read the guide "
