@@ -113,7 +113,8 @@ Channels::Channels(const std::shared_ptr<uvc::device> &device,
     is_imu_tracking_(false),
     imu_track_stop_(false),
     imu_sn_(0),
-    imu_callback_(nullptr) {
+    imu_callback_(nullptr),
+    dev_info_(nullptr) {
   VLOG(2) << __func__;
   UpdateControlInfos();
 }
@@ -377,6 +378,14 @@ void Channels::SetImuCallback(imu_callback_t callback) {
 }
 
 void Channels::DoImuTrack() {
+  if (dev_info_->firmware_version >= Version(2, 0)) {
+    return DoImuTrack2();
+  } else {
+    return DoImuTrack1();
+  }
+}
+
+void Channels::DoImuTrack1() {
   static ImuReqPacket req_packet{0};
   static ImuResPacket res_packet;
 
@@ -421,6 +430,53 @@ void Channels::DoImuTrack() {
   res_packet.packets.clear();
 }
 
+void Channels::DoImuTrack2() {
+  // static ImuReqPacket req_packet{0};
+  // static ImuResPacket res_packet;
+
+  // req_packet.serial_number = imu_sn_;
+  // if (!XuImuWrite(req_packet)) {
+  //   return;
+  // }
+
+  // if (!XuImuRead(&res_packet)) {
+  //   return;
+  // }
+
+  // if (res_packet.packets.size() == 0) {
+  //   return;
+  // }
+
+  // if (res_packet.packets.back().count == 0) {
+  //   return;
+  // }
+
+  // VLOG(2) << "Imu req sn: " << imu_sn_ << ", res count: " << []() {
+  //   std::size_t n = 0;
+  //   for (auto &&packet : res_packet.packets) {
+  //     n += packet.count;
+  //   }
+  //   return n;
+  // }();
+
+  // auto &&sn = res_packet.packets.back().serial_number;
+  // if (imu_sn_ == sn) {
+  //   VLOG(2) << "New imu not ready, dropped";
+  //   return;
+  // }
+  // imu_sn_ = sn;
+
+  // if (imu_callback_) {
+  //   for (auto &&packet : res_packet.packets) {
+  //     imu_callback_(packet);
+  //   }
+  // }
+
+  // res_packet.packets.clear();
+  LOG(INFO) << "wait to adapter!";
+}
+
+
 void Channels::StartImuTracking(imu_callback_t callback) {
   if (is_imu_tracking_) {
     LOG(WARNING) << "Start imu tracking failed, is tracking already";
@@ -442,10 +498,18 @@ void Channels::StartImuTracking(imu_callback_t callback) {
                 << ", sleep " << (IMU_TRACK_PERIOD - time_elapsed_ms) << " ms";
       }
     };
-    while (!imu_track_stop_) {
-      auto &&time_beg = times::now();
-      DoImuTrack();
-      sleep(time_beg);
+    if (dev_info_->firmware_version >= Version(2, 0)) {
+      while (!imu_track_stop_) {
+        auto &&time_beg = times::now();
+        DoImuTrack2();
+        sleep(time_beg);
+      }
+    } else {
+      while (!imu_track_stop_) {
+        auto &&time_beg = times::now();
+        DoImuTrack1();
+        sleep(time_beg);
+      }
     }
   });
 }
@@ -521,6 +585,7 @@ bool Channels::GetFiles(
           CHECK_EQ(n, file_size)
               << "The firmware not support getting device info, you could "
                  "upgrade to latest";
+          dev_info_ = std::make_shared<DeviceInfo>(*info);
         } break;
         case FID_IMG_PARAMS: {
           if (file_size > 0) {
@@ -744,6 +809,7 @@ bool Channels::XuHalfDuplexSet(Option option, std::uint64_t value) const {
 
 bool Channels::XuImuWrite(const ImuReqPacket &req) const {
   auto &&data = req.to_data();
+  // LOG(INFO) << data.size() << "||" << (int)data[0] << " " <<  (int)data[1] << " " << (int)data[2] << " " << (int)data[3] << " " << (int)data[4];
   if (XuControlQuery(
           CHANNEL_IMU_WRITE, uvc::XU_QUERY_SET, data.size(), data.data())) {
     VLOG(2) << "XuImuWrite request success";

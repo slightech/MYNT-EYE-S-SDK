@@ -79,6 +79,8 @@ class MYNTEYE_API Channels {
 
   void SetImuCallback(imu_callback_t callback);
   void DoImuTrack();
+  void DoImuTrack1();
+  void DoImuTrack2();
 
   void StartImuTracking(imu_callback_t callback = nullptr);
   void StopImuTracking();
@@ -135,6 +137,7 @@ class MYNTEYE_API Channels {
 
   std::uint32_t imu_sn_;
   imu_callback_t imu_callback_;
+  std::shared_ptr<device_info_t> dev_info_;
 };
 
 class ChannelsAdapter {
