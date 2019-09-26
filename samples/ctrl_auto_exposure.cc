@@ -49,8 +49,6 @@ int main(int argc, char *argv[]) {
     LOG(INFO) << "Enable auto-exposure";
     LOG(INFO) << "Set EXPOSURE_MODE to "
               << api->GetOptionValue(Option::EXPOSURE_MODE);
-    LOG(INFO) << "Set EXPOSURE_MODE to "
-              << api->GetOptionValue(Option::EXPOSURE_MODE);
     LOG(INFO) << "Set MAX_GAIN to " << api->GetOptionValue(Option::MAX_GAIN);
     LOG(INFO) << "Set MAX_EXPOSURE_TIME to "
               << api->GetOptionValue(Option::MAX_EXPOSURE_TIME);
