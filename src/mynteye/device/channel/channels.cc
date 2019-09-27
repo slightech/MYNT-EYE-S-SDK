@@ -378,7 +378,8 @@ void Channels::SetImuCallback(imu_callback_t callback) {
 }
 
 void Channels::DoImuTrack() {
-  if (dev_info_->firmware_version >= Version(2, 0)) {
+  if (dev_info_->firmware_version >= Version(2, 0) &&
+      strstr(dev_info_->name.c_str(), "S2") != nullptr ) {
     return DoImuTrack2();
   } else {
     return DoImuTrack1();
@@ -498,7 +499,8 @@ void Channels::StartImuTracking(imu_callback_t callback) {
                 << ", sleep " << (IMU_TRACK_PERIOD - time_elapsed_ms) << " ms";
       }
     };
-    if (dev_info_->firmware_version >= Version(2, 0)) {
+    if (dev_info_->firmware_version >= Version(2, 0) &&
+        strstr(dev_info_->name.c_str(), "S2") != nullptr ) {
       while (!imu_track_stop_) {
         auto &&time_beg = times::now();
         DoImuTrack2();
