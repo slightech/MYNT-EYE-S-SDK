@@ -87,10 +87,14 @@ struct ImuData2 {
     //               (*(data + 10) << 8) | *(data + 11);
     timestamp = BYTE_8(data, 4);
     flag = *(data + 12);
-    temperature = BYTE_4(data, 13);
-    // accel_or_gyro[0] = BYTE_4(data, 17);
-    // accel_or_gyro[1] = BYTE_4(data, 21);
-    // accel_or_gyro[2] = BYTE_4(data, 25);
+    temperature = *((float*)(data+ 13));
+    LOG(INFO) << "temperature:" << temperature;
+    accel_or_gyro[0] = *((float*)(data + 17));
+    LOG(INFO) << "accel_or_gyro[0]:" << accel_or_gyro[0];
+    accel_or_gyro[1] = *((float*)(data + 21));
+    LOG(INFO) << "accel_or_gyro[1]:" << accel_or_gyro[1];
+    accel_or_gyro[2] = *((float*)(data + 25));
+    LOG(INFO) << "accel_or_gyro[2]:" << accel_or_gyro[2];
   }
 };
 
