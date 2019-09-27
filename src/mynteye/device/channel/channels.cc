@@ -111,6 +111,7 @@ Channels::Channels(const std::shared_ptr<uvc::device> &device,
   : device_(device),
     adapter_(adapter),
     is_imu_tracking_(false),
+    is_imu_proto2_(false),
     imu_track_stop_(false),
     imu_sn_(0),
     imu_callback_(nullptr),
@@ -378,8 +379,7 @@ void Channels::SetImuCallback(imu_callback_t callback) {
 }
 
 void Channels::DoImuTrack() {
-  if (dev_info_->firmware_version >= Version(2, 0) &&
-      strstr(dev_info_->name.c_str(), "S2") != nullptr ) {
+  if (IsImuProc2()) {
     return DoImuTrack2();
   } else {
     return DoImuTrack1();
@@ -499,8 +499,7 @@ void Channels::StartImuTracking(imu_callback_t callback) {
                 << ", sleep " << (IMU_TRACK_PERIOD - time_elapsed_ms) << " ms";
       }
     };
-    if (dev_info_->firmware_version >= Version(2, 0) &&
-        strstr(dev_info_->name.c_str(), "S2") != nullptr ) {
+    if (IsImuProc2()) {
       while (!imu_track_stop_) {
         auto &&time_beg = times::now();
         DoImuTrack2();
@@ -588,6 +587,9 @@ bool Channels::GetFiles(
               << "The firmware not support getting device info, you could "
                  "upgrade to latest";
           dev_info_ = std::make_shared<DeviceInfo>(*info);
+          is_imu_proto2_ = dev_info_ &&
+              dev_info_->firmware_version >= Version(2, 0) &&
+              strstr(dev_info_->name.c_str(), "S2") != nullptr;
         } break;
         case FID_IMG_PARAMS: {
           if (file_size > 0) {

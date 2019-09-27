@@ -89,6 +89,7 @@ class MYNTEYE_API Channels {
       device_info_t *info, img_params_t *img_params, imu_params_t *imu_params);
   bool SetFiles(
       device_info_t *info, img_params_t *img_params, imu_params_t *imu_params);
+  inline bool IsImuProc2() const { return is_imu_proto2_; }
 
  private:
   bool PuControlRange(
@@ -132,6 +133,7 @@ class MYNTEYE_API Channels {
   std::map<Option, control_info_t> control_infos_;
 
   bool is_imu_tracking_;
+  bool is_imu_proto2_;
   std::thread imu_track_thread_;
   volatile bool imu_track_stop_;
 
