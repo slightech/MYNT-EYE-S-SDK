@@ -35,6 +35,7 @@ class StandardChannelsAdapter : public ChannelsAdapter {
   std::vector<std::int32_t> GetGyroRangeValues() override;
 
   void GetImuResPacket(const std::uint8_t *data, ImuResPacket *res) override;
+  void GetImuResPacket2(const std::uint8_t *data, ImuResPacket2 *res) override;
 };
 
 MYNTEYE_END_NAMESPACE

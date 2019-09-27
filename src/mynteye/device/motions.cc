@@ -70,7 +70,7 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
     if (gyro_range == -1)
       gyro_range = channels_->GetGyroRangeDefault();
 
-    channels_->SetImuCallback([this](const ImuPacket &packet) {
+    channels_->SetImuCallback([this](const ImuPacket2 &packet) {
       if (!motion_callback_ && !motion_datas_enabled_) {
         return;
       }

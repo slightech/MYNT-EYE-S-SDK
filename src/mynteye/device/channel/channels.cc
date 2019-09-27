@@ -30,6 +30,30 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
+mynteye::ImuPacket2 to_pak2(const mynteye::ImuPacket& pak1) {
+  mynteye::ImuPacket2 res;
+  res.version = pak1.version;
+  res.count = pak1.count;
+  res.serial_number = pak1.serial_number;
+  for (size_t i = 0; i < pak1.segments.size(); i++) {
+    mynteye::ImuSegment2 tpr;
+    tpr.accel[0] = pak1.segments[i].accel[0];
+    tpr.accel[1] = pak1.segments[i].accel[1];
+    tpr.accel[2] = pak1.segments[i].accel[2];
+    tpr.gyro[0] = pak1.segments[i].gyro[0];
+    tpr.gyro[1] = pak1.segments[i].gyro[1];
+    tpr.gyro[2] = pak1.segments[i].gyro[2];
+    tpr.flag = pak1.segments[i].flag;
+    tpr.frame_id = pak1.segments[i].frame_id;
+    tpr.is_ets = pak1.segments[i].is_ets;
+    tpr.temperature = pak1.segments[i].temperature;
+    tpr.timestamp = pak1.segments[i].timestamp;
+    res.segments.push_back(tpr);
+  }
+  return res;
+}
+
+
 namespace {
 
 const uvc::xu mynteye_xu = {3, 2,
@@ -328,7 +352,7 @@ bool Channels::SetControlValue(const Option &option, std::uint64_t value) {
     case Option::MIN_EXPOSURE_TIME:
     case Option::IIC_ADDRESS_SETTING:
     case Option::ZERO_DRIFT_CALIBRATION:
-      LOG(WARNING) << option << " refer to function SetControlValue(const Option &option, std::int32_t value)";
+      LOG(WARNING) << option << " refer to function SetControlValue(const Option &option, std::int32_t value)";  // NOLINT
       break;
     case Option::ERASE_CHIP:
       LOG(WARNING) << option << " set value useless";
@@ -379,7 +403,7 @@ void Channels::SetImuCallback(imu_callback_t callback) {
 }
 
 void Channels::DoImuTrack() {
-  if (IsImuProc2()) {
+  if (IsImuProtocol2()) {
     return DoImuTrack2();
   } else {
     return DoImuTrack1();
@@ -424,7 +448,7 @@ void Channels::DoImuTrack1() {
 
   if (imu_callback_) {
     for (auto &&packet : res_packet.packets) {
-      imu_callback_(packet);
+      imu_callback_(to_pak2(packet));
     }
   }
 
@@ -432,49 +456,48 @@ void Channels::DoImuTrack1() {
 }
 
 void Channels::DoImuTrack2() {
-  // static ImuReqPacket req_packet{0};
-  // static ImuResPacket res_packet;
+  // LOG(INFO) << "wait to adapter!";
+  static ImuReqPacket2 req_packet{0x5A, imu_sn_, enable_imu_correspondence};
+  static ImuResPacket2 res_packet;
+  LOG(INFO) << 1;
+  if (!XuImuWrite(req_packet)) {
+    return;
+  }
+LOG(INFO) << 2;
+  if (!XuImuRead(&res_packet)) {
+    return;
+  }
+LOG(INFO) << 3;
+  if (res_packet.packets.size() == 0) {
+    return;
+  }
+LOG(INFO) << 4;
+  if (res_packet.packets.back().count == 0) {
+    return;
+  }
+LOG(INFO) << 5;
+  VLOG(2) << "Imu req sn: " << imu_sn_ << ", res count: " << []() {
+    std::size_t n = 0;
+    for (auto &&packet : res_packet.packets) {
+      n += packet.count;
+    }
+    return n;
+  }();
+LOG(INFO) << 6;
+  auto &&sn = res_packet.packets.back().serial_number;
+  if (imu_sn_ == sn) {
+    VLOG(2) << "New imu not ready, dropped";
+    return;
+  }
+  imu_sn_ = sn;
+LOG(INFO) << 7;
+  if (imu_callback_) {
+    for (auto &&packet : res_packet.packets) {
+      imu_callback_(packet);
+    }
+  }
 
-  // req_packet.serial_number = imu_sn_;
-  // if (!XuImuWrite(req_packet)) {
-  //   return;
-  // }
-
-  // if (!XuImuRead(&res_packet)) {
-  //   return;
-  // }
-
-  // if (res_packet.packets.size() == 0) {
-  //   return;
-  // }
-
-  // if (res_packet.packets.back().count == 0) {
-  //   return;
-  // }
-
-  // VLOG(2) << "Imu req sn: " << imu_sn_ << ", res count: " << []() {
-  //   std::size_t n = 0;
-  //   for (auto &&packet : res_packet.packets) {
-  //     n += packet.count;
-  //   }
-  //   return n;
-  // }();
-
-  // auto &&sn = res_packet.packets.back().serial_number;
-  // if (imu_sn_ == sn) {
-  //   VLOG(2) << "New imu not ready, dropped";
-  //   return;
-  // }
-  // imu_sn_ = sn;
-
-  // if (imu_callback_) {
-  //   for (auto &&packet : res_packet.packets) {
-  //     imu_callback_(packet);
-  //   }
-  // }
-
-  // res_packet.packets.clear();
-  LOG(INFO) << "wait to adapter!";
+  res_packet.packets.clear();
 }
 
 
@@ -499,7 +522,7 @@ void Channels::StartImuTracking(imu_callback_t callback) {
                 << ", sleep " << (IMU_TRACK_PERIOD - time_elapsed_ms) << " ms";
       }
     };
-    if (IsImuProc2()) {
+    if (IsImuProtocol2()) {
       while (!imu_track_stop_) {
         auto &&time_beg = times::now();
         DoImuTrack2();
@@ -801,7 +824,7 @@ bool Channels::XuHalfDuplexSet(Option option, std::uint64_t value) const {
                            static_cast<std::uint8_t>((value >> 56) & 0xFF)};
 
   if (XuControlQuery(CHANNEL_HALF_DUPLEX, uvc::XU_QUERY_SET, 20, data)) {
-    VLOG(2) << "XuHalfDuplexSet value (0x" << std::hex << std::uppercase << value
+    VLOG(2) << "XuHalfDuplexSet value (0x" << std::hex << std::uppercase << value  // NOLINT
             << ") of " << option << " success";
     return true;
   } else {
@@ -813,13 +836,55 @@ bool Channels::XuHalfDuplexSet(Option option, std::uint64_t value) const {
 
 bool Channels::XuImuWrite(const ImuReqPacket &req) const {
   auto &&data = req.to_data();
-  // LOG(INFO) << data.size() << "||" << (int)data[0] << " " <<  (int)data[1] << " " << (int)data[2] << " " << (int)data[3] << " " << (int)data[4];
+  // LOG(INFO) << data.size() << "||" << (int)data[0] << " " <<  (int)data[1] << " " << (int)data[2] << " " << (int)data[3] << " " << (int)data[4];  // NOLINT
   if (XuControlQuery(
           CHANNEL_IMU_WRITE, uvc::XU_QUERY_SET, data.size(), data.data())) {
     VLOG(2) << "XuImuWrite request success";
     return true;
   } else {
     LOG(WARNING) << "XuImuWrite request failed";
+    return false;
+  }
+}
+
+bool Channels::XuImuWrite(const ImuReqPacket2 &req) const {
+  auto &&data = req.to_data();
+  // LOG(INFO) << data.size() << "||" << (int)data[0] << " " <<  (int)data[1] << " " << (int)data[2] << " " << (int)data[3] << " " << (int)data[4];  // NOLINT
+  if (XuControlQuery(
+          CHANNEL_IMU_WRITE, uvc::XU_QUERY_SET, data.size(), data.data())) {
+    VLOG(2) << "XuImuWrite request success";
+    return true;
+  } else {
+    LOG(WARNING) << "XuImuWrite request failed";
+    return false;
+  }
+}
+
+bool Channels::XuImuRead(ImuResPacket2 *res) const {
+  static std::uint8_t data[2000]{};
+  if (XuControlQuery(CHANNEL_IMU_READ, uvc::XU_QUERY_GET, 2000, data)) {
+    adapter_->GetImuResPacket2(data, res);
+    if (res->header != 0x5B) {
+      LOG(WARNING) << "Imu response packet header must be 0x5B, but 0x"
+                  << std::hex << std::uppercase << std::setw(2)
+                  << std::setfill('0') << static_cast<int>(res->header)
+                  << " now";
+      return false;
+    }
+    if (res->state != 0) {
+      LOG(WARNING) << "Imu response packet state must be 0, but " << res->state  // NOLINT
+                  << " now";
+      return false;
+    }
+    // LOG(INFO) << res->size;
+    if (enable_imu_correspondence) {
+      LOG(INFO) << "enable_imu_correspondence";
+    } else {
+    }
+    VLOG(2) << "XuImuRead response success";
+    return true;
+  } else {
+    LOG(WARNING) << "XuImuRead response failed";
     return false;
   }
 }

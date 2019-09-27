@@ -65,6 +65,34 @@ struct ImuReqPacket {
 
 /**
  * @ingroup datatypes
+ * Imu request packet 2.0.
+ */
+#pragma pack(push, 1)
+struct ImuReqPacket2 {
+  std::uint8_t header;
+  std::uint32_t serial_number;
+  std::uint8_t correspondence_switch;
+
+  ImuReqPacket2() = default;
+  explicit ImuReqPacket2(std::uint32_t serial_number)
+      : ImuReqPacket2(0x5A, serial_number) {}
+  ImuReqPacket2(std::uint8_t header, std::uint32_t serial_number)
+      : ImuReqPacket2(header, serial_number, false) {}
+  ImuReqPacket2(std::uint8_t header,
+      std::uint32_t serial_number,
+      bool correspondence_switch_in)
+      : header(header),
+        serial_number(serial_number),
+        correspondence_switch(correspondence_switch_in ? 1:0) {}
+
+  std::array<std::uint8_t, 5> to_data() const {
+    return {header, correspondence_switch, 0, 0, 0};
+  }
+};
+#pragma pack(pop)
+
+/**
+ * @ingroup datatypes
  * Imu segment.
  */
 #pragma pack(push, 1)
@@ -82,6 +110,23 @@ struct ImuSegment {
 
 /**
  * @ingroup datatypes
+ * Imu segment.
+ */
+#pragma pack(push, 1)
+struct ImuSegment2 {
+  std::uint32_t frame_id;
+  std::uint64_t timestamp;
+  std::uint8_t flag;
+  // Is external time source
+  bool is_ets;
+  std::int32_t temperature;
+  std::int32_t accel[3];
+  std::int32_t gyro[3];
+};
+#pragma pack(pop)
+
+/**
+ * @ingroup datatypes
  * Imu packet.
  */
 #pragma pack(push, 1)
@@ -90,6 +135,18 @@ struct ImuPacket {
   std::uint8_t count;
   std::uint32_t serial_number;
   std::vector<ImuSegment> segments;
+};
+#pragma pack(pop)
+/**
+ * @ingroup datatypes
+ * Imu packet.
+ */
+#pragma pack(push, 1)
+struct ImuPacket2 {
+  std::uint8_t version;
+  std::uint8_t count;
+  std::uint32_t serial_number;
+  std::vector<ImuSegment2> segments;
 };
 #pragma pack(pop)
 
@@ -104,6 +161,21 @@ struct ImuResPacket {
   std::uint8_t state;
   std::uint16_t size;
   std::vector<ImuPacket> packets;
+  std::uint8_t checksum;
+};
+#pragma pack(pop)
+
+/**
+ * @ingroup datatypes
+ * Imu response packet.
+ */
+#pragma pack(push, 1)
+struct ImuResPacket2 {
+  std::uint8_t version;
+  std::uint8_t header;
+  std::uint8_t state;
+  std::uint16_t size;
+  std::vector<ImuPacket2> packets;
   std::uint8_t checksum;
 };
 #pragma pack(pop)
