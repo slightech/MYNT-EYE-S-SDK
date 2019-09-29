@@ -138,6 +138,7 @@ Channels::Channels(const std::shared_ptr<uvc::device> &device,
     adapter_(adapter),
     is_imu_tracking_(false),
     is_imu_proto2_(false),
+    enable_imu_correspondence(false),
     imu_track_stop_(false),
     imu_sn_(0),
     imu_callback_(nullptr),
@@ -495,15 +496,6 @@ void Channels::DoImuTrack2() {
   imu_sn_ = sn;
   if (imu_callback_) {
     for (auto &&packet : res_packet.packets) {
-      // LOG(INFO) << "packet count:" << (int)packet.count;
-      // for (size_t i = 0; i < (int)packet.count; i++) {  // NOLINT
-      //   LOG(INFO) << "accel:" << packet.segments[i].accel[0];
-      //   LOG(INFO) << packet.segments[i].accel[1];
-      //   LOG(INFO) << packet.segments[i].accel[2];
-      //   LOG(INFO) << "gyro:" << packet.segments[i].gyro[0];
-      //   LOG(INFO) << packet.segments[i].gyro[1];
-      //   LOG(INFO) << packet.segments[i].gyro[2];
-      // }
       imu_callback_(packet);
     }
   }
@@ -874,7 +866,7 @@ bool Channels::XuImuWrite(const ImuReqPacket2 &req) const {
 bool Channels::XuImuRead(ImuResPacket2 *res) const {
   static std::uint8_t data[2000]{};
   if (XuControlQuery(CHANNEL_IMU_READ, uvc::XU_QUERY_GET, 2000, data)) {
-    adapter_->GetImuResPacket2(data, res);
+    adapter_->GetImuResPacket2(data, res, enable_imu_correspondence);
     if (res->header != 0x5B) {
       LOG(WARNING) << "Imu response packet header must be 0x5B, but 0x"
                   << std::hex << std::uppercase << std::setw(2)

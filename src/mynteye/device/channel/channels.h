@@ -166,7 +166,7 @@ class ChannelsAdapter {
 
   virtual void GetImuResPacket(const std::uint8_t *data, ImuResPacket *res) = 0;
   virtual void GetImuResPacket2(const std::uint8_t *data,
-      ImuResPacket2 *res) = 0;
+      ImuResPacket2 *res, bool is_correspondence_on) = 0;
 
  protected:
   Model model_;

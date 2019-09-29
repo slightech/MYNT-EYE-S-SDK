@@ -31,6 +31,8 @@ int main(int argc, char *argv[]) {
 
   // Enable this will cache the motion datas until you get them.
   api->EnableMotionDatas();
+  // Enable imu timestamp correspondence int device;
+  api->EnableImuTimestampCorrespondence(true);
 
   api->Start(Source::ALL);
 

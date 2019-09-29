@@ -123,7 +123,7 @@ void StandardChannelsAdapter::GetImuResPacket(
 }
 
 void StandardChannelsAdapter::GetImuResPacket2(
-    const std::uint8_t *data, ImuResPacket2 *res) {
+    const std::uint8_t *data, ImuResPacket2 *res, bool is_correspondence_on) {
   LOG(WARNING) << "s1 device can't use ImuResPacket2.0 check the firmware.";
 }
 
