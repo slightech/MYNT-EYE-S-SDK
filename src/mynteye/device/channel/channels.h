@@ -142,6 +142,8 @@ class MYNTEYE_API Channels {
   bool enable_imu_correspondence;
   std::thread imu_track_thread_;
   volatile bool imu_track_stop_;
+  int accel_range;
+  int gyro_range;
 
   std::uint32_t imu_sn_;
   imu_callback_t imu_callback_;

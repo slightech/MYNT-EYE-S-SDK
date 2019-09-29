@@ -119,9 +119,9 @@ struct ImuSegment2 {
   std::uint8_t flag;
   // Is external time source
   bool is_ets;
-  std::int32_t temperature;
-  std::int32_t accel[3];
-  std::int32_t gyro[3];
+  float temperature;
+  float accel[3];
+  float gyro[3];
 };
 #pragma pack(pop)
 

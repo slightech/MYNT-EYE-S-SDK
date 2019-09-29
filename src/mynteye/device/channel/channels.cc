@@ -30,23 +30,25 @@
 
 MYNTEYE_BEGIN_NAMESPACE
 
-mynteye::ImuPacket2 to_pak2(const mynteye::ImuPacket& pak1) {
+mynteye::ImuPacket2 to_pak2(const mynteye::ImuPacket& pak1,
+    const int &accel_range,
+    const int &gyro_range) {
   mynteye::ImuPacket2 res;
   res.version = pak1.version;
   res.count = pak1.count;
   res.serial_number = pak1.serial_number;
   for (size_t i = 0; i < pak1.segments.size(); i++) {
     mynteye::ImuSegment2 tpr;
-    tpr.accel[0] = pak1.segments[i].accel[0];
-    tpr.accel[1] = pak1.segments[i].accel[1];
-    tpr.accel[2] = pak1.segments[i].accel[2];
-    tpr.gyro[0] = pak1.segments[i].gyro[0];
-    tpr.gyro[1] = pak1.segments[i].gyro[1];
-    tpr.gyro[2] = pak1.segments[i].gyro[2];
+    tpr.accel[0] = pak1.segments[i].accel[0] * 1.f * accel_range / 0x10000;
+    tpr.accel[1] = pak1.segments[i].accel[1] * 1.f * accel_range / 0x10000;
+    tpr.accel[2] = pak1.segments[i].accel[2] * 1.f * accel_range / 0x10000;
+    tpr.gyro[0] = pak1.segments[i].gyro[0] * gyro_range / 0x10000;
+    tpr.gyro[1] = pak1.segments[i].gyro[1] * gyro_range / 0x10000;
+    tpr.gyro[2] = pak1.segments[i].gyro[2] * gyro_range / 0x10000;
     tpr.flag = pak1.segments[i].flag;
     tpr.frame_id = pak1.segments[i].frame_id;
     tpr.is_ets = pak1.segments[i].is_ets;
-    tpr.temperature = pak1.segments[i].temperature;
+    tpr.temperature = pak1.segments[i].temperature / 326.8f + 25;
     tpr.timestamp = pak1.segments[i].timestamp;
     res.segments.push_back(tpr);
   }
@@ -142,6 +144,13 @@ Channels::Channels(const std::shared_ptr<uvc::device> &device,
     dev_info_(nullptr) {
   VLOG(2) << __func__;
   UpdateControlInfos();
+  accel_range = GetControlValue(Option::ACCELEROMETER_RANGE);
+  if (accel_range == -1)
+    accel_range = GetAccelRangeDefault();
+
+  gyro_range = GetControlValue(Option::GYROSCOPE_RANGE);
+  if (gyro_range == -1)
+    gyro_range = GetGyroRangeDefault();
 }
 
 Channels::~Channels() {
@@ -448,7 +457,7 @@ void Channels::DoImuTrack1() {
 
   if (imu_callback_) {
     for (auto &&packet : res_packet.packets) {
-      imu_callback_(to_pak2(packet));
+      imu_callback_(to_pak2(packet, accel_range, gyro_range));
     }
   }
 
@@ -459,23 +468,18 @@ void Channels::DoImuTrack2() {
   // LOG(INFO) << "wait to adapter!";
   static ImuReqPacket2 req_packet{0x5A, imu_sn_, enable_imu_correspondence};
   static ImuResPacket2 res_packet;
-  LOG(INFO) << 1;
   if (!XuImuWrite(req_packet)) {
     return;
   }
-LOG(INFO) << 2;
   if (!XuImuRead(&res_packet)) {
     return;
   }
-LOG(INFO) << 3;
   if (res_packet.packets.size() == 0) {
     return;
   }
-LOG(INFO) << 4;
   if (res_packet.packets.back().count == 0) {
     return;
   }
-LOG(INFO) << 5;
   VLOG(2) << "Imu req sn: " << imu_sn_ << ", res count: " << []() {
     std::size_t n = 0;
     for (auto &&packet : res_packet.packets) {
@@ -483,16 +487,23 @@ LOG(INFO) << 5;
     }
     return n;
   }();
-LOG(INFO) << 6;
   auto &&sn = res_packet.packets.back().serial_number;
   if (imu_sn_ == sn) {
     VLOG(2) << "New imu not ready, dropped";
     return;
   }
   imu_sn_ = sn;
-LOG(INFO) << 7;
   if (imu_callback_) {
     for (auto &&packet : res_packet.packets) {
+      // LOG(INFO) << "packet count:" << (int)packet.count;
+      // for (size_t i = 0; i < (int)packet.count; i++) {  // NOLINT
+      //   LOG(INFO) << "accel:" << packet.segments[i].accel[0];
+      //   LOG(INFO) << packet.segments[i].accel[1];
+      //   LOG(INFO) << packet.segments[i].accel[2];
+      //   LOG(INFO) << "gyro:" << packet.segments[i].gyro[0];
+      //   LOG(INFO) << packet.segments[i].gyro[1];
+      //   LOG(INFO) << packet.segments[i].gyro[2];
+      // }
       imu_callback_(packet);
     }
   }
@@ -888,13 +899,11 @@ bool Channels::XuImuRead(ImuResPacket2 *res) const {
     return false;
   }
 }
-
 bool Channels::XuImuRead(ImuResPacket *res) const {
   static std::uint8_t data[2000]{};
   // std::fill(data, data + 2000, 0);  // reset
   if (XuControlQuery(CHANNEL_IMU_READ, uvc::XU_QUERY_GET, 2000, data)) {
     adapter_->GetImuResPacket(data, res);
-
     if (res->header != 0x5B) {
       LOG(WARNING) << "Imu response packet header must be 0x5B, but 0x"
                    << std::hex << std::uppercase << std::setw(2)

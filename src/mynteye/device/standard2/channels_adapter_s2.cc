@@ -76,25 +76,17 @@ struct ImuData2 {
   }
 
   void from_data(const std::uint8_t *data) {
-    std::uint32_t timestamp_l;
-    std::uint32_t timestamp_h;
-
-    frame_id = (*(data) << 24) | (*(data + 1) << 16) | (*(data + 2) << 8) |
-                    *(data + 3);
-    // timestamp_h = (*(data + 4) << 24) | (*(data + 5) << 16) |
-    //               (*(data + 6) << 8) | *(data + 7);
-    // timestamp_l = (*(data + 8) << 24) | (*(data + 9) << 16) |
-    //               (*(data + 10) << 8) | *(data + 11);
-    timestamp = BYTE_8(data, 4);
+    frame_id = BYTE_4(data, 0);
+    timestamp = BYTE_8((u_char*)data, 4);  // NOLINT
     flag = *(data + 12);
-    temperature = *((float*)(data+ 13));
-    LOG(INFO) << "temperature:" << temperature;
-    accel_or_gyro[0] = *((float*)(data + 17));
-    LOG(INFO) << "accel_or_gyro[0]:" << accel_or_gyro[0];
-    accel_or_gyro[1] = *((float*)(data + 21));
-    LOG(INFO) << "accel_or_gyro[1]:" << accel_or_gyro[1];
-    accel_or_gyro[2] = *((float*)(data + 25));
-    LOG(INFO) << "accel_or_gyro[2]:" << accel_or_gyro[2];
+    temperature = *((float*)(data+ 13));  // NOLINT
+    // LOG(INFO) << "temperature:" << temperature;
+    accel_or_gyro[0] = *((float*)(data + 17));  // NOLINT
+    // LOG(INFO) << "accel_or_gyro[0]:" << accel_or_gyro[0];
+    accel_or_gyro[1] = *((float*)(data + 21));  // NOLINT
+    // LOG(INFO) << "accel_or_gyro[1]:" << accel_or_gyro[1];
+    accel_or_gyro[2] = *((float*)(data + 25));  // NOLINT
+    // LOG(INFO) << "accel_or_gyro[2]:" << accel_or_gyro[2];
   }
 };
 
@@ -115,18 +107,36 @@ void unpack_imu_segment(const ImuData &imu, ImuSegment *seg) {
 }
 
 void unpack_imu_segment2(const ImuData2 &imu, ImuSegment2 *seg) {
-  LOG(INFO) << "unpack_imu_segment2" << imu.timestamp;
   seg->frame_id = imu.frame_id;
   seg->timestamp = imu.timestamp;
   seg->flag = imu.flag & 0b0011;
   seg->is_ets = ((imu.flag & 0b0100) == 0b0100);
   seg->temperature = imu.temperature;
-  seg->accel[0] = (seg->flag == 1) ? imu.accel_or_gyro[0] : 0;
-  seg->accel[1] = (seg->flag == 1) ? imu.accel_or_gyro[1] : 0;
-  seg->accel[2] = (seg->flag == 1) ? imu.accel_or_gyro[2] : 0;
-  seg->gyro[0] = (seg->flag == 2) ? imu.accel_or_gyro[0] : 0;
-  seg->gyro[1] = (seg->flag == 2) ? imu.accel_or_gyro[1] : 0;
-  seg->gyro[2] = (seg->flag == 2) ? imu.accel_or_gyro[2] : 0;
+  if (seg->flag == 1) {
+    // LOG(INFO) << "flag1";
+    seg->accel[0] = imu.accel_or_gyro[0];
+    seg->accel[1] = imu.accel_or_gyro[1];
+    seg->accel[2] = imu.accel_or_gyro[2];
+    seg->gyro[0] = 0.;
+    seg->gyro[1] = 0.;
+    seg->gyro[2] = 0.;
+  } else if (seg->flag == 2) {
+    // LOG(INFO) << "flag2";
+    seg->gyro[0] = imu.accel_or_gyro[0];
+    seg->gyro[1] = imu.accel_or_gyro[1];
+    seg->gyro[2] = imu.accel_or_gyro[2];
+    seg->accel[0] = 0.;
+    seg->accel[1] = 0.;
+    seg->accel[2] = 0.;
+  } else if (seg->flag == 3) {
+    LOG(INFO) << "flag3";
+    // seg->gyro[0] = imu.accel_or_gyro[0];
+    // seg->gyro[1] = imu.accel_or_gyro[1];
+    // seg->gyro[2] = imu.accel_or_gyro[2];
+    // seg->accel[0] = 0.;
+    // seg->accel[1] = 0.;
+    // seg->accel[2] = 0.;
+  }
 }
 
 void unpack_imu_packet(const std::uint8_t *data, ImuPacket *pkg) {
@@ -181,7 +191,6 @@ void unpack_imu_res_packet2(const std::uint8_t *data, ImuResPacket2 *res) {
   // LOG(INFO) << "size:" << data_n;
   ImuPacket2 packet;
   packet.count = res->size / data_n;
-  LOG(INFO) << "count:" << (int)(packet.count);
   unpack_imu_packet2(data + 4, &packet);
   res->packets.push_back(packet);
   res->checksum = *(data + 4 + res->size);
