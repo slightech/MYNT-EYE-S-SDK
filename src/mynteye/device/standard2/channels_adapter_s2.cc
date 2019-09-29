@@ -134,7 +134,6 @@ void unpack_imu_segment2(const ImuData2 &imu, ImuSegment2 *seg) {
     seg->accel[1] = 0.;
     seg->accel[2] = 0.;
   } else if (seg->flag == 3) {
-    LOG(INFO) << "flag3";
     seg->gyro[0] = imu.accel_or_gyro[0];
     seg->gyro[1] = imu.accel_or_gyro[1];
     seg->gyro[2] = imu.accel_or_gyro[2];

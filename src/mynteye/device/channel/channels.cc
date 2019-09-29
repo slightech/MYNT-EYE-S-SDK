@@ -879,11 +879,7 @@ bool Channels::XuImuRead(ImuResPacket2 *res) const {
                   << " now";
       return false;
     }
-    // LOG(INFO) << res->size;
-    if (enable_imu_correspondence) {
-      LOG(INFO) << "enable_imu_correspondence";
-    } else {
-    }
+
     VLOG(2) << "XuImuRead response success";
     return true;
   } else {
