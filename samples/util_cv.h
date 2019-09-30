@@ -30,6 +30,12 @@ class CVPainter {
     BOTTOM_RIGHT
   } gravity_t;
 
+  typedef struct Angle {
+    double angle_x;
+    double angle_y;
+    double angle_z;
+  } angle_t;
+
   explicit CVPainter(std::int32_t frame_rate = 0);
   ~CVPainter();
 
@@ -38,9 +44,11 @@ class CVPainter {
       const cv::Mat &img, const mynteye::ImgData &data,
       const gravity_t &gravity = TOP_LEFT);
   cv::Rect DrawImuData(
-      const cv::Mat &img, const mynteye::ImuData &data,
-      const gravity_t &gravity = TOP_RIGHT);
-
+    const cv::Mat &img, const mynteye::ImuData &data,
+    const angle_t &offset, const gravity_t &gravity = TOP_RIGHT);
+  cv::Rect DrawImuData(
+      const cv::Mat &img,
+      const mynteye::ImuData &data, const gravity_t &gravity = TOP_RIGHT);
   cv::Rect DrawText(
       const cv::Mat &img, const std::string &text,
       const gravity_t &gravity = TOP_LEFT, const int &margin = 5,

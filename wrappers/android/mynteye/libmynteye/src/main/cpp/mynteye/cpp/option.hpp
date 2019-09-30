@@ -24,12 +24,12 @@ enum class Option : int {
      */
     CONTRAST,
     /**
-     * Image frame rate, must set IMU_FREQUENCY together
+     * Image frame rate, must set FRAME_RATE together
      *  values: {10,15,20,25,30,35,40,45,50,55,60}, default: 25
      */
     FRAME_RATE,
     /**
-     * IMU frequency, must set FRAME_RATE together
+     * IMU frequency, must set IMU_FREQUENCY together
      *  values: {100,200,250,333,500}, default: 200
      */
     IMU_FREQUENCY,

@@ -13,6 +13,8 @@
 // limitations under the License.
 #include "util_cv.h"
 
+#include <math.h>
+
 #include <iomanip>
 #include <iostream>
 #include <memory>
@@ -27,6 +29,8 @@
 #define FONT_SCALE 1
 #define FONT_COLOR cv::Scalar(255, 255, 255)
 #define THICKNESS 1
+
+#define PI 3.1415926
 
 namespace {
 
@@ -108,7 +112,7 @@ cv::Rect CVPainter::DrawImgData(
 
 cv::Rect CVPainter::DrawImuData(
     const cv::Mat &img, const mynteye::ImuData &data,
-    const gravity_t &gravity) {
+    const angle_t &offset, const gravity_t &gravity) {
   static std::ostringstream ss;
   static auto fmt_imu = NewFormat(8, 4);
   static auto fmt_temp = NewFormat(6, 4);
@@ -124,22 +128,44 @@ cv::Rect CVPainter::DrawImuData(
   static double accel1_s = 0.0;
   static double accel2_s = 0.0;
   static double accel3_s = 0.0;
-
+  static double vector_sum = 0.0;
+  static double pitch = 0.0;
+  static double roll = 0.0;
   if (data.accel[0] > 0.000001 ||
       data.accel[1] > 0.000001 ||
       data.accel[2] > 0.000001 ||
       data.accel[0] < -0.000001 ||
       data.accel[1] < -0.000001 ||
       data.accel[2] < -0.000001) {
+    double accel1_s_square, accel2_s_square, accel3_s_square;
+
     accel1_s = data.accel[0];
     accel2_s = data.accel[1];
     accel3_s = data.accel[2];
+    accel1_s_square = accel1_s * accel1_s;
+    accel2_s_square = accel2_s * accel2_s;
+    accel3_s_square = accel3_s * accel3_s;
+    vector_sum = sqrt(accel1_s_square + accel2_s_square + accel3_s_square);
+    pitch = atan(accel1_s / sqrt(accel2_s_square + accel3_s_square))
+              * 180.0 / PI;
+    roll = atan(accel2_s / sqrt(accel1_s_square + accel3_s_square))
+              * 180.0 / PI;
   }
 
-  Clear(ss) << "accel(x,y,z): " << fmt_imu << accel1_s << "," << fmt_imu
-            << accel2_s << "," << fmt_imu << accel3_s;
+  Clear(ss) << "accel(x,y,z,sum): "
+            << fmt_imu << accel1_s << ","
+            << fmt_imu << accel2_s << ","
+            << fmt_imu << accel3_s << ","
+            << fmt_imu << vector_sum;
   cv::Rect rect_a =
       DrawText(img, ss.str(), gravity, 5, 0, sign * (5 + rect_i.height));
+
+  Clear(ss) << "posture(pitch,roll): "
+            << fmt_imu << pitch << ","
+            << fmt_imu << roll;
+  cv::Rect rect_p = DrawText(
+      img, ss.str(), gravity, 5, 0,
+      sign * (10 + rect_i.height + rect_a.height));
 
   static double gyro1_s = 0.0;
   static double gyro2_s = 0.0;
@@ -160,16 +186,41 @@ cv::Rect CVPainter::DrawImuData(
             << gyro2_s << "," << fmt_imu << gyro3_s;
   cv::Rect rect_g = DrawText(
       img, ss.str(), gravity, 5, 0,
-      sign * (10 + rect_i.height + rect_a.height));
+      sign * (15 + rect_i.height + rect_a.height + rect_p.height));
+  if (offset.angle_x != 0 ||
+      offset.angle_y != 0 ||
+      offset.angle_z != 0) {
+    Clear(ss) << "angle offset(x,y,z): "
+              << fmt_imu << offset.angle_x << ","
+              << fmt_imu << offset.angle_y << ","
+              << fmt_imu << offset.angle_z;
+  } else {
+    Clear(ss) << "angle offset(x,y,z): "
+          << fmt_imu << "x,"
+          << fmt_imu << "x,"
+          << fmt_imu << "x";
+  }
+
+  cv::Rect rect_o = DrawText(
+      img, ss.str(), gravity, 5, 0,
+      sign * (20 + rect_i.height + rect_a.height +
+              rect_p.height + rect_g.height));
 
   // rect_i.width is the max one
   if (sign > 0) {
     return cv::Rect(
         rect_i.tl(),
-        cv::Point(rect_i.x + rect_i.width, rect_g.y + rect_g.height));
+        cv::Point(rect_i.x + rect_i.width, rect_o.y + rect_o.height));
   } else {
     return cv::Rect(rect_g.tl(), rect_i.br());
   }
+}
+
+cv::Rect CVPainter::DrawImuData(
+    const cv::Mat &img, const mynteye::ImuData &data,
+    const gravity_t &gravity) {
+  angle_t offset = {0, 0, 0};
+  return DrawImuData(img, data, offset, gravity);
 }
 
 cv::Rect CVPainter::DrawText(

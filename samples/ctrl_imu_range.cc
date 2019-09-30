@@ -12,12 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include <atomic>
+#include <memory>
+#include <mutex>
+#include <sstream>
 
 #include <opencv2/highgui/highgui.hpp>
 
 #include "mynteye/logger.h"
 #include "mynteye/api/api.h"
 #include "mynteye/util/times.h"
+
+#include "util_cv.h"
 
 MYNTEYE_USE_NAMESPACE
 
@@ -31,18 +36,19 @@ int main(int argc, char *argv[]) {
   api->ConfigStreamRequest(request);
 
   Model model = api->GetModel();
-
+  int imu_frequency = 200;
   // Set imu range for S1030
   if (model == Model::STANDARD) {
     // ACCELEROMETER_RANGE values: 4, 8, 16, 32
     api->SetOptionValue(Option::ACCELEROMETER_RANGE, 8);
     // GYROSCOPE_RANGE values: 500, 1000, 2000, 4000
     api->SetOptionValue(Option::GYROSCOPE_RANGE, 1000);
+    imu_frequency = api->GetOptionValue(Option::IMU_FREQUENCY);
   }
 
   // Set imu range for S2000/S2100/S210A/S200B
-  if (model == Model::STANDARD2 ||
-   model == Model::STANDARD210A || model == Model::STANDARD200B) {
+  if (model == Model::STANDARD2 || model == Model::STANDARD210A ||
+    model == Model::STANDARD200B) {
     // ACCELEROMETER_RANGE values: 6, 12, 24, 48
     api->SetOptionValue(Option::ACCELEROMETER_RANGE, 6);
     // GYROSCOPE_RANGE values: 250, 500, 1000, 2000, 4000
@@ -64,12 +70,25 @@ int main(int argc, char *argv[]) {
 
   // Count imu
   std::atomic_uint imu_count(0);
-  api->SetMotionCallback([&imu_count](const api::MotionData &data) {
+  std::shared_ptr<mynteye::ImuData> imu;
+  std::mutex imu_mtx;
+  CVPainter::angle_t gyro_offset;
+  api->SetMotionCallback([&imu_count, &imu, &imu_mtx,
+        &gyro_offset, &imu_frequency](const api::MotionData &data) {
     CHECK_NOTNULL(data.imu);
     ++imu_count;
+    {
+      std::lock_guard<std::mutex> _(imu_mtx);
+      imu = data.imu;
+      gyro_offset.angle_x += data.imu->gyro[0] / (1.0 * imu_frequency);
+      gyro_offset.angle_y += data.imu->gyro[1] / (1.0 * imu_frequency);
+      gyro_offset.angle_z += data.imu->gyro[2] / (1.0 * imu_frequency);
+    }
   });
 
   api->Start(Source::ALL);
+
+  CVPainter painter;
 
   cv::namedWindow("frame");
 
@@ -82,6 +101,18 @@ int main(int argc, char *argv[]) {
 
     cv::Mat img;
     cv::hconcat(left_data.frame, right_data.frame, img);
+
+    // Draw imu data
+    if (imu) {
+      std::lock_guard<std::mutex> _(imu_mtx);
+      painter.DrawImuData(img, *imu, gyro_offset);
+    }
+
+    // Draw counts
+    std::ostringstream ss;
+    ss << "imu: " << imu_count;
+    painter.DrawText(img, ss.str(), CVPainter::BOTTOM_RIGHT);
+
     cv::imshow("frame", img);
 
     char key = static_cast<char>(cv::waitKey(1));

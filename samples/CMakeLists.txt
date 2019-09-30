@@ -127,7 +127,7 @@ include_directories(
 # tutorials
 
 if(WITH_API)
-    
+
   # make_executable2(NAME
   #                 [SRCS src1 src2 ...]
   #                 [WITH_OPENCV]
@@ -219,7 +219,7 @@ if(WITH_API)
 
   make_executable2(ctrl_framerate SRCS ctrl_framerate.cc WITH_OPENCV)
   make_executable2(ctrl_imu_low_pass_filter SRCS ctrl_imu_low_pass_filter.cc WITH_OPENCV)
-  make_executable2(ctrl_imu_range SRCS ctrl_imu_range.cc WITH_OPENCV)
+  make_executable2(ctrl_imu_range SRCS ctrl_imu_range.cc util_cv.cc WITH_OPENCV)
   make_executable2(ctrl_infrared SRCS ctrl_infrared.cc WITH_OPENCV)
   make_executable2(ctrl_iic_address SRCS ctrl_iic_address.cc WITH_OPENCV)
   make_executable2(ctrl_sync_timestamp SRCS ctrl_sync_timestamp.cc WITH_OPENCV)

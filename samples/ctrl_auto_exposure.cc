@@ -57,8 +57,8 @@ int main(int argc, char *argv[]) {
   }
 
   // Set auto exposure options fo S2000/S2100/S210A/S200B
-  if (model == Model::STANDARD2 ||
-   model == Model::STANDARD210A || model == Model::STANDARD200B) {
+  if (model == Model::STANDARD2 || model == Model::STANDARD210A ||
+    model == Model::STANDARD200B) {
     // auto-exposure: 0
     api->SetOptionValue(Option::EXPOSURE_MODE, 0);
 
