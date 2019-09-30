@@ -152,7 +152,7 @@ cv::Rect CVPainter::DrawImuData(
               * 180.0 / PI;
   }
 
-  Clear(ss) << "accel(x,y,z,sum): "
+  Clear(ss) << "accel(x,y,z,norm): "
             << fmt_imu << accel1_s << ","
             << fmt_imu << accel2_s << ","
             << fmt_imu << accel3_s << ","
