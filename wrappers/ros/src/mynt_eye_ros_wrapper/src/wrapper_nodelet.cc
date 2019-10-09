@@ -1596,9 +1596,24 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     l2i_msg.header.stamp = tf_stamp;
     l2i_msg.header.frame_id = frame_ids_[Stream::LEFT];
     l2i_msg.child_frame_id = imu_frame_id_;
-    l2i_msg.transform.translation.x = l2i_ex.translation[0];
-    l2i_msg.transform.translation.y = l2i_ex.translation[1];
-    l2i_msg.transform.translation.z = l2i_ex.translation[2];
+    bool is_data_use_mm_instead_of_m = abs(l2i_ex.translation[0]) > 1.0 ||
+                                       abs(l2i_ex.translation[1]) > 1.0 ||
+                                       abs(l2i_ex.translation[2]) > 1.0;
+    if (is_data_use_mm_instead_of_m) {
+      l2i_msg.transform.translation.x = l2i_ex.translation[0] * 0.001;
+      l2i_msg.transform.translation.y = l2i_ex.translation[1] * 0.001;
+      l2i_msg.transform.translation.z = l2i_ex.translation[2] * 0.001;
+    } else {
+      l2i_msg.transform.translation.x = l2i_ex.translation[0];
+      l2i_msg.transform.translation.y = l2i_ex.translation[1];
+      l2i_msg.transform.translation.z = l2i_ex.translation[2];
+    }
+    // LOG(INFO) << std::endl << "l2i_msg.transform.translation.x: "
+    //           << l2i_msg.transform.translation.x << std::endl
+    //           << "l2i_msg.transform.translation.y: "
+    //           << l2i_msg.transform.translation.y << std::endl
+    //           << "l2i_msg.transform.translation.z: "
+    //           << l2i_msg.transform.translation.z << std::endl;
     if (l2i_ex.rotation[0][0] == 0 && l2i_ex.rotation[2][2] == 0) {
       l2i_msg.transform.rotation.x = 0;
       l2i_msg.transform.rotation.y = 0;
