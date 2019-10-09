@@ -602,6 +602,10 @@ void Device::StopMotionTracking() {
 
 void Device::OnStereoStreamUpdate() {}
 
+void Device::EnableImuCorrespondence(bool is_enable) {
+  channels_->EnableImuCorrespondence(is_enable);
+}
+
 void Device::ReadAllInfos() {
   device_info_ = std::make_shared<DeviceInfo>();
 

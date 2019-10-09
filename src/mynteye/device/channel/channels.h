@@ -54,7 +54,7 @@ class MYNTEYE_API Channels {
     XU_CMD_LAST
   } xu_cmd_t;
 
-  using imu_callback_t = std::function<void(const ImuPacket &packet)>;
+  using imu_callback_t = std::function<void(const ImuPacket2 &packet)>;
 
   using device_info_t = FileChannel::device_info_t;
   using img_params_t = FileChannel::img_params_t;
@@ -89,7 +89,10 @@ class MYNTEYE_API Channels {
       device_info_t *info, img_params_t *img_params, imu_params_t *imu_params);
   bool SetFiles(
       device_info_t *info, img_params_t *img_params, imu_params_t *imu_params);
-  inline bool IsImuProc2() const { return is_imu_proto2_; }
+  inline bool IsImuProtocol2() const { return is_imu_proto2_; }
+  inline void EnableImuCorrespondence(bool is_enable) {
+    enable_imu_correspondence = is_enable;
+  }
 
  private:
   bool PuControlRange(
@@ -118,7 +121,9 @@ class MYNTEYE_API Channels {
   bool XuHalfDuplexSet(Option option, std::uint64_t value) const;
 
   bool XuImuWrite(const ImuReqPacket &req) const;
+  bool XuImuWrite(const ImuReqPacket2 &req) const;
   bool XuImuRead(ImuResPacket *res) const;
+  bool XuImuRead(ImuResPacket2 *res) const;
 
   bool XuFileQuery(uvc::xu_query query, uint16_t size, uint8_t *data) const;
 
@@ -134,8 +139,11 @@ class MYNTEYE_API Channels {
 
   bool is_imu_tracking_;
   bool is_imu_proto2_;
+  bool enable_imu_correspondence;
   std::thread imu_track_thread_;
   volatile bool imu_track_stop_;
+  int accel_range;
+  int gyro_range;
 
   std::uint32_t imu_sn_;
   imu_callback_t imu_callback_;
@@ -157,6 +165,8 @@ class ChannelsAdapter {
   virtual std::vector<std::int32_t> GetGyroRangeValues() = 0;
 
   virtual void GetImuResPacket(const std::uint8_t *data, ImuResPacket *res) = 0;
+  virtual void GetImuResPacket2(const std::uint8_t *data,
+      ImuResPacket2 *res, bool is_correspondence_on) = 0;
 
  protected:
   Model model_;

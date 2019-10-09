@@ -122,4 +122,9 @@ void StandardChannelsAdapter::GetImuResPacket(
   unpack_imu_res_packet(data, res);
 }
 
+void StandardChannelsAdapter::GetImuResPacket2(
+    const std::uint8_t *data, ImuResPacket2 *res, bool is_correspondence_on) {
+  LOG(WARNING) << "s1 device can't use ImuResPacket2.0 check the firmware.";
+}
+
 MYNTEYE_END_NAMESPACE

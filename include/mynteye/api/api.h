@@ -347,7 +347,12 @@ class MYNTEYE_API API {
   std::vector<api::MotionData> GetMotionDatas();
 
   /**
-   * Enable motion datas with timestamp correspondence of some stream.
+   * enable motion datas timestamp correspondence in device.
+   */
+  void EnableImuTimestampCorrespondence(bool is_enable);
+
+  /**
+   * Enable motion datas with timestamp correspondence of some stream in api.
    */
   void EnableTimestampCorrespondence(const Stream &stream,
         bool keep_accel_then_gyro = true);
@@ -384,6 +389,9 @@ class MYNTEYE_API API {
   std::unique_ptr<Correspondence> correspondence_;
 
   motion_callback_t callback_;
+
+  bool api_correspondence_enable_;
+  bool dev_correspondence_enable_;
 
   void CheckImageParams();
 };

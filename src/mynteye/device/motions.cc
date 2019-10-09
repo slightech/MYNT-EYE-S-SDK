@@ -70,7 +70,7 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
     if (gyro_range == -1)
       gyro_range = channels_->GetGyroRangeDefault();
 
-    channels_->SetImuCallback([this](const ImuPacket &packet) {
+    channels_->SetImuCallback([this](const ImuPacket2 &packet) {
       if (!motion_callback_ && !motion_datas_enabled_) {
         return;
       }
@@ -85,13 +85,34 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
         imu->timestamp = seg.timestamp;
         imu->flag = seg.flag;
         imu->is_ets = seg.is_ets;
-        imu->temperature = seg.temperature / 326.8f + 25;
-        imu->accel[0] = seg.accel[0] * 1.f * accel_range / 0x10000;
-        imu->accel[1] = seg.accel[1] * 1.f * accel_range / 0x10000;
-        imu->accel[2] = seg.accel[2] * 1.f * accel_range / 0x10000;
-        imu->gyro[0] = seg.gyro[0] * 1.f * gyro_range / 0x10000;
-        imu->gyro[1] = seg.gyro[1] * 1.f * gyro_range / 0x10000;
-        imu->gyro[2] = seg.gyro[2] * 1.f * gyro_range / 0x10000;
+        // imu->temperature = seg.temperature / 326.8f + 25;
+        imu->temperature = seg.temperature;
+        // LOG(INFO) << "beforea" << seg.accel[0];
+        // LOG(INFO) << "before" << seg.accel[1];
+        // LOG(INFO) << "before" << seg.accel[2];
+        // LOG(INFO) << "beforeg" << seg.gyro[0];
+        // LOG(INFO) << "before" << seg.gyro[1];
+        // LOG(INFO) << "before" << seg.gyro[2];
+        // imu->accel[0] = seg.accel[0] * 1.f * accel_range / 0x10000;
+        // imu->accel[1] = seg.accel[1] * 1.f * accel_range / 0x10000;
+        // imu->accel[2] = seg.accel[2] * 1.f * accel_range / 0x10000;
+        // imu->gyro[0] = seg.gyro[0] * 1.f * gyro_range / 0x10000;
+        // imu->gyro[1] = seg.gyro[1] * 1.f * gyro_range / 0x10000;
+        // imu->gyro[2] = seg.gyro[2] * 1.f * gyro_range / 0x10000;
+
+        imu->accel[0] = seg.accel[0];
+        imu->accel[1] = seg.accel[1];
+        imu->accel[2] = seg.accel[2];
+        imu->gyro[0] = seg.gyro[0];
+        imu->gyro[1] = seg.gyro[1];
+        imu->gyro[2] = seg.gyro[2];
+
+        // LOG(INFO)<< "aftera" << imu->accel[0];
+        // LOG(INFO)<< "after" << imu->accel[1];
+        // LOG(INFO)<< "after" << imu->accel[2];
+        // LOG(INFO)<< "afterg" << imu->gyro[0];
+        // LOG(INFO)<< "afterg" << imu->gyro[1];
+        // LOG(INFO)<< "afterg" << imu->gyro[2];
 
         bool proc_assembly = ((proc_mode_ & ProcessMode::PROC_IMU_ASSEMBLY) > 0);
         bool proc_temp_drift = ((proc_mode_ & ProcessMode::PROC_IMU_TEMP_DRIFT) > 0);

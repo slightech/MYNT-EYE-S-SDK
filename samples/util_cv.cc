@@ -167,23 +167,8 @@ cv::Rect CVPainter::DrawImuData(
       img, ss.str(), gravity, 5, 0,
       sign * (10 + rect_i.height + rect_a.height));
 
-  static double gyro1_s = 0.0;
-  static double gyro2_s = 0.0;
-  static double gyro3_s = 0.0;
-
-  if (data.gyro[0] > 0.01 ||
-      data.gyro[1] > 0.01 ||
-      data.gyro[2] > 0.01 ||
-      data.gyro[0] < -0.01 ||
-      data.gyro[1] < -0.01 ||
-      data.gyro[2] < -0.01 ) {
-    gyro1_s = data.gyro[0];
-    gyro2_s = data.gyro[1];
-    gyro3_s = data.gyro[2];
-  }
-
-  Clear(ss) << "gyro(x,y,z): " << fmt_imu << gyro1_s << "," << fmt_imu
-            << gyro2_s << "," << fmt_imu << gyro3_s;
+  Clear(ss) << "gyro(x,y,z): " << fmt_imu << data.gyro[0] << "," << fmt_imu
+            << data.gyro[1] << "," << fmt_imu << data.gyro[2];
   cv::Rect rect_g = DrawText(
       img, ss.str(), gravity, 5, 0,
       sign * (15 + rect_i.height + rect_a.height + rect_p.height));

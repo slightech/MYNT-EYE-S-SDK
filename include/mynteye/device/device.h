@@ -291,6 +291,10 @@ class MYNTEYE_API Device {
    */
   void EnableMotionDatas();
   /**
+   * Enable motion datas timestamp correspondence.
+   */
+  void EnableImuCorrespondence(bool is_enable);
+  /**
    * Enable cache motion datas.
    */
   void EnableMotionDatas(std::size_t max_size);

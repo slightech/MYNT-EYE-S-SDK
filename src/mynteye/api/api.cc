@@ -213,7 +213,9 @@ std::vector<std::string> get_plugin_paths() {
 }  // namespace
 
 API::API(std::shared_ptr<Device> device, CalibrationModel calib_model)
-    : device_(device), correspondence_(nullptr) {
+    : device_(device), correspondence_(nullptr),
+      api_correspondence_enable_(false),
+      dev_correspondence_enable_(false) {
   VLOG(2) << __func__;
   // std::dynamic_pointer_cast<StandardDevice>(device_);
   synthetic_.reset(new Synthetic(this, calib_model));
@@ -505,6 +507,15 @@ std::vector<api::MotionData> API::GetMotionDatas() {
 
 void API::EnableTimestampCorrespondence(const Stream &stream,
     bool keep_accel_then_gyro) {
+  if (!dev_correspondence_enable_) {
+    api_correspondence_enable_ = keep_accel_then_gyro;
+  } else {
+    LOG(WARNING) << "dev_correspondence_enable_ "
+                    "has been set to true, "
+                    "you should close it first when you want to use "
+                    "api_correspondence_enable_.";
+    return;
+  }
   if (correspondence_ == nullptr) {
     correspondence_.reset(new Correspondence(device_, stream));
     correspondence_->KeepAccelThenGyro(keep_accel_then_gyro);
@@ -524,6 +535,19 @@ void API::EnableTimestampCorrespondence(const Stream &stream,
         std::bind(&Correspondence::OnStreamDataCallback,
             correspondence_.get(), _1, _2));
   }
+}
+
+void API::EnableImuTimestampCorrespondence(bool is_enable) {
+  if (!api_correspondence_enable_) {
+     dev_correspondence_enable_= is_enable;
+  } else {
+    LOG(WARNING) << "api_correspondence_enable_ "
+                    "has been set to true, "
+                    "you should close it first when you want to use "
+                    "dev_correspondence_enable_.";
+    return;
+  }
+  device_->EnableImuCorrespondence(is_enable);
 }
 
 void API::EnablePlugin(const std::string &path) {
