@@ -90,6 +90,7 @@
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/process/process_config.yaml" command="load" />
 
       <rosparam file="$(find mynt_eye_ros_wrapper)/config/laserscan/s1030_laserscan.yaml" command="load" />
+      <rosparam file="$(find mynt_eye_ros_wrapper)/config/mesh/mesh.yaml" command="load" />
 
       <param name="gravity" value="$(arg gravity)" />
     </node>
