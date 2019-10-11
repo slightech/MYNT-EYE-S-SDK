@@ -85,36 +85,29 @@ std::size_t DeviceInfoParser::GetFromData(
   // name, 16
   info->name = bytes::_from_data(data + i, 16);
   i += 16;
-  // serial_number, 16
-  info->serial_number = bytes::_from_data(data + i, 16);
-  i += 16;
-  // firmware_version, 2
-  info->firmware_version.set_major(data[i]);
-  info->firmware_version.set_minor(data[i + 1]);
-  i += 2;
-  // hardware_version, 3
-  info->hardware_version.set_major(data[i]);
-  info->hardware_version.set_minor(data[i + 1]);
-  info->hardware_version.set_flag(std::bitset<8>(data[i + 2]));
-  i += 3;
+  // skip 21 bits
   // spec_version, 2
-  info->spec_version.set_major(data[i]);
-  info->spec_version.set_minor(data[i + 1]);
-  i += 2;
-  // lens_type, 4
-  info->lens_type.set_vendor(bytes::_from_data<std::uint16_t>(data + i));
-  info->lens_type.set_product(bytes::_from_data<std::uint16_t>(data + i + 2));
-  i += 4;
-  // imu_type, 4
-  info->imu_type.set_vendor(bytes::_from_data<std::uint16_t>(data + i));
-  info->imu_type.set_product(bytes::_from_data<std::uint16_t>(data + i + 2));
-  i += 4;
-  // nominal_baseline, 2
-  info->nominal_baseline = bytes::_from_data<std::uint16_t>(data + i);
-  i += 2;
+  info->spec_version.set_major(data[i + 21]);
+  info->spec_version.set_minor(data[i + 22]);
 
-  if (info->spec_version >= Version(1, 2)) {
-    // auxiliary_chip_version, 2
+  if (info->spec_version >= Version(1, 3)) {
+    // serial_number, 20
+    info->serial_number = bytes::_from_data(data + i, 20);
+    i += 20;
+    // reserve, 1 + spec_version, 2
+    i += 3;
+    // lens_type, 4
+    info->lens_type.set_vendor(bytes::_from_data<std::uint16_t>(data + i));
+    info->lens_type.set_product(bytes::_from_data<std::uint16_t>(data + i + 2));
+    i += 4;
+    // imu_type, 4
+    info->imu_type.set_vendor(bytes::_from_data<std::uint16_t>(data + i));
+    info->imu_type.set_product(bytes::_from_data<std::uint16_t>(data + i + 2));
+    i += 4;
+    // nominal_baseline, 2
+    info->nominal_baseline = bytes::_from_data<std::uint16_t>(data + i);
+    i += 2;
+      // auxiliary_chip_version, 2
     info->auxiliary_chip_version.set_major(data[i]);
     info->auxiliary_chip_version.set_minor(data[i + 1]);
     i += 2;
@@ -122,15 +115,59 @@ std::size_t DeviceInfoParser::GetFromData(
     info->isp_version.set_major(data[i]);
     info->isp_version.set_minor(data[i + 1]);
     i += 2;
+    // firmware_version, 2
+    info->firmware_version.set_major(data[i]);
+    info->firmware_version.set_minor(data[i + 1]);
+    i += 2;
+    // hardware_version, 3
+    info->hardware_version.set_major(data[i]);
+    info->hardware_version.set_minor(data[i + 1]);
+    info->hardware_version.set_flag(std::bitset<8>(data[i + 2]));
+    i += 3;
+    // get other infos according to spec_version
   } else {
-    info->auxiliary_chip_version.set_major(0);
-    info->auxiliary_chip_version.set_minor(0);
-    info->isp_version.set_major(0);
-    info->isp_version.set_minor(0);
+    // serial_number, 16
+    info->serial_number = bytes::_from_data(data + i, 16);
+    i += 16;
+    // firmware_version, 2
+    info->firmware_version.set_major(data[i]);
+    info->firmware_version.set_minor(data[i + 1]);
+    i += 2;
+    // hardware_version, 3
+    info->hardware_version.set_major(data[i]);
+    info->hardware_version.set_minor(data[i + 1]);
+    info->hardware_version.set_flag(std::bitset<8>(data[i + 2]));
+    i += 3;
+    // skip spec_version, 2
+    i += 2;
+    // lens_type, 4
+    info->lens_type.set_vendor(bytes::_from_data<std::uint16_t>(data + i));
+    info->lens_type.set_product(bytes::_from_data<std::uint16_t>(data + i + 2));
+    i += 4;
+    // imu_type, 4
+    info->imu_type.set_vendor(bytes::_from_data<std::uint16_t>(data + i));
+    info->imu_type.set_product(bytes::_from_data<std::uint16_t>(data + i + 2));
+    i += 4;
+    // nominal_baseline, 2
+    info->nominal_baseline = bytes::_from_data<std::uint16_t>(data + i);
+    i += 2;
+
+    if (info->spec_version >= Version(1, 2)) {
+      // auxiliary_chip_version, 2
+      info->auxiliary_chip_version.set_major(data[i]);
+      info->auxiliary_chip_version.set_minor(data[i + 1]);
+      i += 2;
+      // isp_version, 2
+      info->isp_version.set_major(data[i]);
+      info->isp_version.set_minor(data[i + 1]);
+      i += 2;
+    } else {
+      info->auxiliary_chip_version.set_major(0);
+      info->auxiliary_chip_version.set_minor(0);
+      info->isp_version.set_major(0);
+      info->isp_version.set_minor(0);
+    }
   }
-
-  // get other infos according to spec_version
-
   MYNTEYE_UNUSED(data_size)
   return i;
 }
@@ -142,36 +179,25 @@ std::size_t DeviceInfoParser::SetToData(
   // name, 16
   bytes::_to_data(info->name, data + i, 16);
   i += 16;
-  // serial_number, 16
-  bytes::_to_data(info->serial_number, data + i, 16);
-  i += 16;
-  // firmware_version, 2
-  data[i] = info->firmware_version.major();
-  data[i + 1] = info->firmware_version.minor();
-  i += 2;
-  // hardware_version, 3
-  data[i] = info->hardware_version.major();
-  data[i + 1] = info->hardware_version.minor();
-  data[i + 2] =
-      static_cast<std::uint8_t>(info->hardware_version.flag().to_ulong());
-  i += 3;
-  // spec_version, 2
-  data[i] = info->spec_version.major();
-  data[i + 1] = info->spec_version.minor();
-  i += 2;
-  // lens_type, 4
-  bytes::_to_data(info->lens_type.vendor(), data + i);
-  bytes::_to_data(info->lens_type.product(), data + i + 2);
-  i += 4;
-  // imu_type, 4
-  bytes::_to_data(info->imu_type.vendor(), data + i);
-  bytes::_to_data(info->imu_type.product(), data + i + 2);
-  i += 4;
-  // nominal_baseline, 2
-  bytes::_to_data(info->nominal_baseline, data + i);
-  i += 2;
-
-  if (info->spec_version >= Version(1, 2)) {
+  if(info->spec_version >= Version(1, 3)) {
+    // serial_number, 20
+    bytes::_to_data(info->serial_number, data + i, 20);
+    i += 20;
+    // spec_version, 2
+    data[i] = info->spec_version.major();
+    data[i + 1] = info->spec_version.minor();
+    i += 2;
+    // lens_type, 4
+    bytes::_to_data(info->lens_type.vendor(), data + i);
+    bytes::_to_data(info->lens_type.product(), data + i + 2);
+    i += 4;
+    // imu_type, 4
+    bytes::_to_data(info->imu_type.vendor(), data + i);
+    bytes::_to_data(info->imu_type.product(), data + i + 2);
+    i += 4;
+    // nominal_baseline, 2
+    bytes::_to_data(info->nominal_baseline, data + i);
+    i += 2;
     // auxiliary_chip_version, 2
     data[i] = info->auxiliary_chip_version.major();
     data[i + 1] = info->auxiliary_chip_version.minor();
@@ -180,9 +206,58 @@ std::size_t DeviceInfoParser::SetToData(
     data[i] = info->isp_version.major();
     data[i + 1] = info->isp_version.minor();
     i += 2;
-  }
+    // firmware_version, 2
+    data[i] = info->firmware_version.major();
+    data[i + 1] = info->firmware_version.minor();
+    i += 2;
+    // hardware_version, 3
+    data[i] = info->hardware_version.major();
+    data[i + 1] = info->hardware_version.minor();
+    data[i + 2] =
+        static_cast<std::uint8_t>(info->hardware_version.flag().to_ulong());
+    i += 3;
+   // set other infos according to spec_version
+  } else {
+    // serial_number, 16
+    bytes::_to_data(info->serial_number, data + i, 16);
+    i += 16;
+    // firmware_version, 2
+    data[i] = info->firmware_version.major();
+    data[i + 1] = info->firmware_version.minor();
+    i += 2;
+    // hardware_version, 3
+    data[i] = info->hardware_version.major();
+    data[i + 1] = info->hardware_version.minor();
+    data[i + 2] =
+        static_cast<std::uint8_t>(info->hardware_version.flag().to_ulong());
+    i += 3;
+    // spec_version, 2
+    data[i] = info->spec_version.major();
+    data[i + 1] = info->spec_version.minor();
+    i += 2;
+    // lens_type, 4
+    bytes::_to_data(info->lens_type.vendor(), data + i);
+    bytes::_to_data(info->lens_type.product(), data + i + 2);
+    i += 4;
+    // imu_type, 4
+    bytes::_to_data(info->imu_type.vendor(), data + i);
+    bytes::_to_data(info->imu_type.product(), data + i + 2);
+    i += 4;
+    // nominal_baseline, 2
+    bytes::_to_data(info->nominal_baseline, data + i);
+    i += 2;
 
-  // set other infos according to spec_version
+    if (info->spec_version >= Version(1, 2)) {
+      // auxiliary_chip_version, 2
+      data[i] = info->auxiliary_chip_version.major();
+      data[i + 1] = info->auxiliary_chip_version.minor();
+      i += 2;
+      // isp_version, 2
+      data[i] = info->isp_version.major();
+      data[i + 1] = info->isp_version.minor();
+      i += 2;
+    }
+  }
 
   // others
   std::size_t size = i - 3;
