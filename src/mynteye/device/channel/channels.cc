@@ -614,7 +614,7 @@ bool Channels::GetFiles(
                  "upgrade to latest";
           dev_info_ = std::make_shared<DeviceInfo>(*info);
           is_imu_proto2_ = dev_info_ &&
-              dev_info_->firmware_version >= Version(2, 0) &&
+              dev_info_->spec_version >= Version(1, 3) &&
               strstr(dev_info_->name.c_str(), "S2") != nullptr;
         } break;
         case FID_IMG_PARAMS: {
