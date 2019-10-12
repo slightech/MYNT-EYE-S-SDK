@@ -103,13 +103,27 @@ class MYNTEYE_API Version {
     return (from <= *this) && (*this <= until);
   }
 
-  std::string to_string() const;
+  virtual std::string to_string() const;
 
   static std::vector<std::string> split(const std::string &s);
   static value_t parse_part(const std::string &name, size_t part);
 
   MYNTEYE_PROPERTY(value_t, major)
   MYNTEYE_PROPERTY(value_t, minor)
+};
+
+/**
+ * ISPVersion version.
+ */
+class MYNTEYE_API ISPVersion : public Version {
+ public:
+  ISPVersion() = default;
+  ISPVersion(value_t major, value_t minor)
+      : Version(major, minor) {}
+  explicit ISPVersion(const std::string &name, value_t flag = 0)
+      : Version(parse_part(name, 0), parse_part(name, 1)) {}
+
+  std::string to_string() const override;
 };
 
 /**
@@ -163,7 +177,7 @@ struct MYNTEYE_API DeviceInfo {
   Type imu_type;
   std::uint16_t nominal_baseline;
   Version auxiliary_chip_version;
-  Version isp_version;
+  ISPVersion isp_version;
 };
 
 #undef MYNTEYE_PROPERTY

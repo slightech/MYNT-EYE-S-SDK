@@ -116,7 +116,7 @@ std::size_t DeviceInfoParser::GetFromData(
     info->isp_version.set_minor(data[i + 1]);
     i += 2;
     // firmware_version, 2
-    info->firmware_version.set_major(data[i]);
+    info->firmware_version.set_major(data[i + 1] ? data[i] : 0);
     info->firmware_version.set_minor(data[i + 1]);
     i += 2;
     // hardware_version, 3
@@ -158,8 +158,8 @@ std::size_t DeviceInfoParser::GetFromData(
       info->auxiliary_chip_version.set_minor(data[i + 1]);
       i += 2;
       // isp_version, 2
-      info->isp_version.set_major(data[i]);
-      info->isp_version.set_minor(data[i + 1]);
+      info->isp_version.set_major(0);
+      info->isp_version.set_minor(data[i]);
       i += 2;
     } else {
       info->auxiliary_chip_version.set_major(0);

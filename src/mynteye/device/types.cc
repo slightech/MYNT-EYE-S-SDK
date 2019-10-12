@@ -59,4 +59,21 @@ Type::value_t Type::parse_part(
   return std::stoi(name.substr(pos, count), 0, 16);
 }
 
+std::string ISPVersion::to_string() const {
+  std::stringstream s;
+  if (major() == 0x01) {
+    s << "S2000-";
+  } else if (major() == 0x02) {
+    s << "S2110-";
+  } else if (major() == 0x03) {
+    s << "S210A-";
+  } else if (major() == 0x04) {
+    s << "S2X0C-";
+  } else if (major() == 0x05) {
+    s << "S200B-";
+  }
+  s << static_cast<int>(minor());
+  return s.str();
+}
+
 MYNTEYE_END_NAMESPACE
