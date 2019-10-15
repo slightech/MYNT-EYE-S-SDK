@@ -60,14 +60,17 @@ inline double compute_time(const double end, const double start) {
 
 class ROSWrapperNodelet : public nodelet::Nodelet {
  public:
-  ROSWrapperNodelet() {
-    skip_tag = -1;
-    skip_tmp_left_tag = 0;
-    skip_tmp_right_tag = 0;
+  ROSWrapperNodelet() :
+  mesh_position_x(0.),
+  mesh_position_y(-0.176),
+  mesh_position_z(0.),
+  mesh_rotation_x(PIE/2),
+  mesh_rotation_y(0.0),
+  mesh_rotation_z(PIE/2),
+  skip_tag(-1),
+  skip_tmp_left_tag(0),
+  skip_tmp_right_tag(0) {
     unit_hard_time *= 10;
-    mesh_rotation_x = PIE/2;
-    mesh_rotation_y = 0.0;
-    mesh_rotation_z = PIE/2;
   }
 
   ~ROSWrapperNodelet() {
@@ -1312,6 +1315,12 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
         mesh_rotation_y);
     private_nh_.getParamCached("model_rotation_z",
         mesh_rotation_z);
+    private_nh_.getParamCached("model_position_x",
+        mesh_position_x);
+    private_nh_.getParamCached("model_position_y",
+        mesh_position_y);
+    private_nh_.getParamCached("model_position_z",
+        mesh_position_z);
 
     q = tf::createQuaternionMsgFromRollPitchYaw(
         mesh_rotation_x,
@@ -1325,9 +1334,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
     mesh_msg_.pose.orientation.w = q.w;
 
     // fill position
-    mesh_msg_.pose.position.x = 0;
-    mesh_msg_.pose.position.y = 0;
-    mesh_msg_.pose.position.z = 0;
+    mesh_msg_.pose.position.x = mesh_position_x;
+    mesh_msg_.pose.position.y = mesh_position_y;
+    mesh_msg_.pose.position.z = mesh_position_z;
 
     // scale -- needed
     mesh_msg_.scale.x = 0.003;
@@ -1712,6 +1721,9 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
   double mesh_rotation_x;
   double mesh_rotation_y;
   double mesh_rotation_z;
+  double mesh_position_x;
+  double mesh_position_y;
+  double mesh_position_z;
   std::vector<int64_t> left_timestamps;
   std::vector<int64_t> right_timestamps;
 
