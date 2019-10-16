@@ -28,6 +28,9 @@
 
 #define IMU_TRACK_PERIOD 25  // ms
 
+// for time limmit debug
+#define DEBUG_TIME_LIMIT true
+
 MYNTEYE_BEGIN_NAMESPACE
 
 mynteye::ImuPacket2 to_pak2(const mynteye::ImuPacket& pak1,
@@ -462,14 +465,14 @@ void Channels::DoImuTrack1() {
   if (imu_callback_) {
     for (auto &packet : res_packet.packets) {
       auto pak2_tmp = to_pak2(packet, accel_range, gyro_range);
-      checkTimeStampLimmit(pak2_tmp);
+      CheckTimeStampLimmit(pak2_tmp);
       imu_callback_(pak2_tmp);
     }
   }
   res_packet.packets.clear();
 }
 
-void Channels::checkTimeStampLimmit(mynteye::ImuPacket2 &packet) {
+void Channels::CheckTimeStampLimmit(mynteye::ImuPacket2 &packet) {
   for (auto &segment2 : packet.segments) {
     segment2.timestamp += (timestamp_compensate_ * 42949672960);
     // the timestamp nearly 8 imu frame before limmit
@@ -481,13 +484,7 @@ void Channels::checkTimeStampLimmit(mynteye::ImuPacket2 &packet) {
     }
     if (is_nearly_before_timestamp_limmit_ > 0) {
       is_nearly_before_timestamp_limmit_--;
-#if DEBUG_TIME_LIMIT
-      LOG(WARNING) << "is_nearly_before_timestamp_limmit_--;";
-#endif
       if (abs(current_datum_ - segment2.timestamp) > (u_int64_t)(42949672960/2)) {  // NOLINT
-#if DEBUG_TIME_LIMIT
-        LOG(WARNING) << "abs(current_datum_ - segment2.timestamp) > 42949672960/2";  // NOLINT
-#endif
         segment2.timestamp -= 42949672960;
       }
     }
@@ -525,7 +522,7 @@ void Channels::DoImuTrack2() {
   imu_sn_ = sn;
   if (imu_callback_) {
     for (auto &packet : res_packet.packets) {
-      checkTimeStampLimmit(packet);
+      CheckTimeStampLimmit(packet);
       imu_callback_(packet);
     }
   }

@@ -27,6 +27,7 @@
 #include "mynteye/device/callbacks.h"
 
 MYNTEYE_BEGIN_NAMESPACE
+#define LIMMIT_IMG_CHECK_DORMANCY_THRESHOLD 10;
 
 class StreamsAdapter;
 
@@ -58,6 +59,7 @@ class Streams {
   stream_data_t GetLatestStreamData(const Stream &stream);
 
   const stream_datas_t &stream_datas(const Stream &stream);
+  void CheckTimeStampLimmit(std::shared_ptr<ImgData> img);
 
  private:
   bool IsStreamCapability(const Capabilities &capability) const;
@@ -90,6 +92,9 @@ class Streams {
 
   std::mutex mtx_;
   std::condition_variable cv_;
+  uint32_t timestamp_compensate_;
+  uint16_t is_nearly_before_timestamp_limmit_;
+  uint64_t current_datum_;
 };
 
 class StreamsAdapter {

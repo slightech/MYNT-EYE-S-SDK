@@ -15,6 +15,9 @@
 
 #include "mynteye/logger.h"
 
+// for time limmit debug
+#define DEBUG_TIME_LIMIT false
+
 MYNTEYE_BEGIN_NAMESPACE
 
 namespace {

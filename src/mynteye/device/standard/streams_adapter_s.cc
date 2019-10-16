@@ -19,6 +19,7 @@
 #include "mynteye/device/types.h"
 
 MYNTEYE_BEGIN_NAMESPACE
+#define DEBUG_TIME_LIMIT false
 
 namespace {
 
@@ -29,7 +30,7 @@ struct ImagePacket {
   std::uint8_t header;
   std::uint8_t size;
   std::uint16_t frame_id;
-  std::uint32_t timestamp;
+  std::uint64_t timestamp;
   std::uint16_t exposure_time;
   std::uint8_t checksum;
 
@@ -42,8 +43,15 @@ struct ImagePacket {
     header = *data;
     size = *(data + 1);
     frame_id = (*(data + 2) << 8) | *(data + 3);
+#if DEBUG_TIME_LIMIT
+    uint32_t timestamp_test = (*(data + 4) << 24) | (*(data + 5) << 16) | (*(data + 6) << 8) | // NOLINT
+                *(data + 7);
+    timestamp_test += (std::uint32_t)4290000000;
+    timestamp = timestamp_test;
+#else
     timestamp = (*(data + 4) << 24) | (*(data + 5) << 16) | (*(data + 6) << 8) |
                 *(data + 7);
+#endif
     exposure_time = (*(data + 8) << 8) | *(data + 9);
     checksum = *(data + 10);
   }
@@ -59,7 +67,7 @@ bool unpack_stereo_img_data(
       request.width * request.height * bytes_per_pixel(request.format);
   auto data_end = data_new + data_n;
 
-  std::size_t packet_n = sizeof(ImagePacket);
+  std::size_t packet_n = sizeof(ImagePacket) - 4;
   std::vector<std::uint8_t> packet(packet_n);
   std::reverse_copy(data_end - packet_n, data_end, packet.begin());
 

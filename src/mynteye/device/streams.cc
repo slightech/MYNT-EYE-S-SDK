@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <chrono>
 #include <stdexcept>
+#include <utility>
 
 #include "mynteye/logger.h"
 #include "mynteye/device/types.h"
@@ -26,7 +27,10 @@ Streams::Streams(const std::shared_ptr<StreamsAdapter> &adapter)
     : key_streams_(std::move(adapter->GetKeyStreams())),
       stream_capabilities_(std::move(adapter->GetStreamCapabilities())),
       unpack_img_data_map_(std::move(adapter->GetUnpackImgDataMap())),
-      unpack_img_pixels_map_(std::move(adapter->GetUnpackImgPixelsMap())) {
+      unpack_img_pixels_map_(std::move(adapter->GetUnpackImgPixelsMap())),
+      timestamp_compensate_(0),
+      is_nearly_before_timestamp_limmit_(0),
+      current_datum_(0) {
   VLOG(2) << __func__;
 }
 
@@ -42,6 +46,23 @@ void Streams::ConfigStream(
   }
   VLOG(2) << "Config stream request of " << capability << ", " << request;
   stream_config_requests_[capability] = request;
+}
+
+void Streams::CheckTimeStampLimmit(std::shared_ptr<ImgData> img) {
+    img->timestamp += (timestamp_compensate_ * 42949672960);
+  // the timestamp nearly 8 imu frame before limmit
+  if ((img->timestamp % 42949672960) > 42949606770 &&
+      is_nearly_before_timestamp_limmit_ == 0) {
+    current_datum_ = img->timestamp;
+    timestamp_compensate_++;
+    is_nearly_before_timestamp_limmit_ = LIMMIT_IMG_CHECK_DORMANCY_THRESHOLD;
+  }
+  if (is_nearly_before_timestamp_limmit_ > 0) {
+    is_nearly_before_timestamp_limmit_--;
+    if (abs(current_datum_ - img->timestamp) > (u_int64_t)(42949672960/2)) {  // NOLINT
+      img->timestamp -= 42949672960;
+    }
+  }
 }
 
 bool Streams::PushStream(const Capabilities &capability, const void *data) {
@@ -61,6 +82,7 @@ bool Streams::PushStream(const Capabilities &capability, const void *data) {
       if (unpack_img_data_map_[Stream::LEFT](
               data, request, left_data.img.get())) {
         left_data.frame_id = left_data.img->frame_id;
+        CheckTimeStampLimmit(left_data.img);
         // alloc right
         AllocStreamData(capability, Stream::RIGHT, request);
         auto &&right_data = stream_datas_map_[Stream::RIGHT].back();

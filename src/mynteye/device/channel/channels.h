@@ -131,7 +131,7 @@ class MYNTEYE_API Channels {
   bool XuImuRead(ImuResPacket2 *res) const;
 
   bool XuFileQuery(uvc::xu_query query, uint16_t size, uint8_t *data) const;
-  void checkTimeStampLimmit(mynteye::ImuPacket2 &packet);
+  void CheckTimeStampLimmit(mynteye::ImuPacket2 &packet);  // NOLINT
 
   control_info_t PuControlInfo(Option option) const;
   control_info_t XuControlInfo(Option option) const;

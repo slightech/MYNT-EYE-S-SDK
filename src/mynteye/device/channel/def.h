@@ -21,9 +21,6 @@
 
 #include "mynteye/mynteye.h"
 
-// for time limmit debug
-#define DEBUG_TIME_LIMIT true
-
 MYNTEYE_BEGIN_NAMESPACE
 
 typedef enum Channel {
