@@ -49,7 +49,18 @@ struct ImuData {
 void unpack_imu_segment(const ImuData &imu, const std::uint32_t &timestamp,
     ImuSegment *seg) {
   seg->frame_id = static_cast<uint32_t>(imu.frame_id);
+#if DEBUG_TIME_LIMIT
+  std::uint32_t timestamp_test =
+      timestamp + imu.offset + (std::uint32_t)4290000000;
+  seg->timestamp = static_cast<uint64_t>(timestamp_test) * 10;
+  LOG(WARNING) << "timestamp_out: "
+               << seg->timestamp
+               << "  timestamp: "
+               << timestamp << "   timestamp_test: "
+               << timestamp_test;
+#else
   seg->timestamp = static_cast<uint64_t>(timestamp + imu.offset) * 10;
+#endif
   seg->flag = 0;
   seg->temperature = imu.temperature;
   seg->accel[0] = imu.accel[0];

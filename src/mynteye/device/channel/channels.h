@@ -28,6 +28,8 @@
 #include "mynteye/device/types.h"
 #include "mynteye/uvc/uvc.h"
 
+#define LIMMIT_CHECK_DORMANCY_THRESHOLD 100
+
 MYNTEYE_BEGIN_NAMESPACE
 
 namespace uvc {
@@ -93,6 +95,9 @@ class MYNTEYE_API Channels {
   inline void EnableImuCorrespondence(bool is_enable) {
     enable_imu_correspondence = is_enable;
   }
+  inline uint64_t timestamp_compensate(uint32_t timestamp32) {
+    return 0;
+  }
 
  private:
   bool PuControlRange(
@@ -126,6 +131,7 @@ class MYNTEYE_API Channels {
   bool XuImuRead(ImuResPacket2 *res) const;
 
   bool XuFileQuery(uvc::xu_query query, uint16_t size, uint8_t *data) const;
+  void checkTimeStampLimmit(mynteye::ImuPacket2 &packet);
 
   control_info_t PuControlInfo(Option option) const;
   control_info_t XuControlInfo(Option option) const;
@@ -144,10 +150,12 @@ class MYNTEYE_API Channels {
   volatile bool imu_track_stop_;
   int accel_range;
   int gyro_range;
-
   std::uint32_t imu_sn_;
   imu_callback_t imu_callback_;
   std::shared_ptr<device_info_t> dev_info_;
+  uint32_t timestamp_compensate_;
+  uint16_t is_nearly_before_timestamp_limmit_;
+  uint64_t current_datum_;
 };
 
 class ChannelsAdapter {

@@ -142,7 +142,10 @@ Channels::Channels(const std::shared_ptr<uvc::device> &device,
     imu_track_stop_(false),
     imu_sn_(0),
     imu_callback_(nullptr),
-    dev_info_(nullptr) {
+    dev_info_(nullptr),
+    timestamp_compensate_(0),
+    is_nearly_before_timestamp_limmit_(0),
+    current_datum_(0) {
   VLOG(2) << __func__;
   UpdateControlInfos();
   accel_range = GetControlValue(Option::ACCELEROMETER_RANGE);
@@ -457,12 +460,38 @@ void Channels::DoImuTrack1() {
   imu_sn_ = sn;
 
   if (imu_callback_) {
-    for (auto &&packet : res_packet.packets) {
-      imu_callback_(to_pak2(packet, accel_range, gyro_range));
+    for (auto &packet : res_packet.packets) {
+      auto pak2_tmp = to_pak2(packet, accel_range, gyro_range);
+      checkTimeStampLimmit(pak2_tmp);
+      imu_callback_(pak2_tmp);
     }
   }
-
   res_packet.packets.clear();
+}
+
+void Channels::checkTimeStampLimmit(mynteye::ImuPacket2 &packet) {
+  for (auto &segment2 : packet.segments) {
+    segment2.timestamp += (timestamp_compensate_ * 42949672960);
+    // the timestamp nearly 8 imu frame before limmit
+    if ((segment2.timestamp % 42949672960) > 42949606770 &&
+        is_nearly_before_timestamp_limmit_ == 0) {
+      current_datum_ = segment2.timestamp;
+      timestamp_compensate_++;
+      is_nearly_before_timestamp_limmit_ = LIMMIT_CHECK_DORMANCY_THRESHOLD;
+    }
+    if (is_nearly_before_timestamp_limmit_ > 0) {
+      is_nearly_before_timestamp_limmit_--;
+#if DEBUG_TIME_LIMIT
+      LOG(WARNING) << "is_nearly_before_timestamp_limmit_--;";
+#endif
+      if (abs(current_datum_ - segment2.timestamp) > (u_int64_t)(42949672960/2)) {  // NOLINT
+#if DEBUG_TIME_LIMIT
+        LOG(WARNING) << "abs(current_datum_ - segment2.timestamp) > 42949672960/2";  // NOLINT
+#endif
+        segment2.timestamp -= 42949672960;
+      }
+    }
+  }
 }
 
 void Channels::DoImuTrack2() {
@@ -495,7 +524,8 @@ void Channels::DoImuTrack2() {
   }
   imu_sn_ = sn;
   if (imu_callback_) {
-    for (auto &&packet : res_packet.packets) {
+    for (auto &packet : res_packet.packets) {
+      checkTimeStampLimmit(packet);
       imu_callback_(packet);
     }
   }
