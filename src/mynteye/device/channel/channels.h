@@ -82,6 +82,7 @@ class MYNTEYE_API Channels {
   void SetImuCallback(imu_callback_t callback);
   void DoImuTrack();
   void DoImuTrack1();
+  void DoImuTrack1WithTimeLimmitFix();
   void DoImuTrack2();
 
   void StartImuTracking(imu_callback_t callback = nullptr);
@@ -92,6 +93,7 @@ class MYNTEYE_API Channels {
   bool SetFiles(
       device_info_t *info, img_params_t *img_params, imu_params_t *imu_params);
   inline bool IsImuProtocol2() const { return is_imu_proto2_; }
+  inline bool IsS2() const { return is_s2_; }
   inline void EnableImuCorrespondence(bool is_enable) {
     enable_imu_correspondence = is_enable;
   }
@@ -145,6 +147,7 @@ class MYNTEYE_API Channels {
 
   bool is_imu_tracking_;
   bool is_imu_proto2_;
+  bool is_s2_;
   bool enable_imu_correspondence;
   std::thread imu_track_thread_;
   volatile bool imu_track_stop_;

@@ -18,6 +18,8 @@
 #include "mynteye/logger.h"
 #include "mynteye/device/types.h"
 
+#define DEBUG_TIME_LIMIT true
+
 MYNTEYE_BEGIN_NAMESPACE
 
 namespace {
@@ -51,6 +53,9 @@ struct ImagePacket {
     timestamp_l = (*(data + 8) << 24) | (*(data + 9) << 16) |
                   (*(data + 10) << 8) | *(data + 11);
     timestamp = (static_cast<std::uint64_t>(timestamp_h) << 32) | timestamp_l;
+#if DEBUG_TIME_LIMIT
+    timestamp += 4200000000;
+#endif
     exposure_time = (*(data + 12) << 8) | *(data + 13);
     checksum = *(data + 14);
   }

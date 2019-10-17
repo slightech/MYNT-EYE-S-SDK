@@ -141,6 +141,7 @@ Channels::Channels(const std::shared_ptr<uvc::device> &device,
     adapter_(adapter),
     is_imu_tracking_(false),
     is_imu_proto2_(false),
+    is_s2_(false),
     enable_imu_correspondence(false),
     imu_track_stop_(false),
     imu_sn_(0),
@@ -422,11 +423,59 @@ void Channels::DoImuTrack() {
   if (IsImuProtocol2()) {
     return DoImuTrack2();
   } else {
-    return DoImuTrack1();
+    if (IsS2()) {
+      return DoImuTrack1();
+    } else {
+      return DoImuTrack1WithTimeLimmitFix();
+    }
   }
 }
 
 void Channels::DoImuTrack1() {
+  static ImuReqPacket req_packet{0};
+  static ImuResPacket res_packet;
+
+  req_packet.serial_number = imu_sn_;
+  if (!XuImuWrite(req_packet)) {
+    return;
+  }
+
+  if (!XuImuRead(&res_packet)) {
+    return;
+  }
+
+  if (res_packet.packets.size() == 0) {
+    return;
+  }
+
+  if (res_packet.packets.back().count == 0) {
+    return;
+  }
+
+  VLOG(2) << "Imu req sn: " << imu_sn_ << ", res count: " << []() {
+    std::size_t n = 0;
+    for (auto &&packet : res_packet.packets) {
+      n += packet.count;
+    }
+    return n;
+  }();
+
+  auto &&sn = res_packet.packets.back().serial_number;
+  if (imu_sn_ == sn) {
+    VLOG(2) << "New imu not ready, dropped";
+    return;
+  }
+  imu_sn_ = sn;
+
+  if (imu_callback_) {
+    for (auto &packet : res_packet.packets) {
+      imu_callback_(to_pak2(packet, accel_range, gyro_range));
+    }
+  }
+  res_packet.packets.clear();
+}
+
+void Channels::DoImuTrack1WithTimeLimmitFix() {
   static ImuReqPacket req_packet{0};
   static ImuResPacket res_packet;
 
@@ -522,7 +571,6 @@ void Channels::DoImuTrack2() {
   imu_sn_ = sn;
   if (imu_callback_) {
     for (auto &packet : res_packet.packets) {
-      CheckTimeStampLimmit(packet);
       imu_callback_(packet);
     }
   }
@@ -559,10 +607,18 @@ void Channels::StartImuTracking(imu_callback_t callback) {
         sleep(time_beg);
       }
     } else {
-      while (!imu_track_stop_) {
-        auto &&time_beg = times::now();
-        DoImuTrack1();
-        sleep(time_beg);
+      if (IsS2()) {
+        while (!imu_track_stop_) {
+          auto &&time_beg = times::now();
+          DoImuTrack1();
+          sleep(time_beg);
+        }
+      } else {
+        while (!imu_track_stop_) {
+          auto &&time_beg = times::now();
+          DoImuTrack1WithTimeLimmitFix();
+          sleep(time_beg);
+        }
       }
     }
   });
@@ -643,6 +699,7 @@ bool Channels::GetFiles(
           is_imu_proto2_ = dev_info_ &&
               dev_info_->spec_version >= Version(1, 3) &&
               strstr(dev_info_->name.c_str(), "S2") != nullptr;
+          is_s2_ = strstr(dev_info_->name.c_str(), "S2") != nullptr;
         } break;
         case FID_IMG_PARAMS: {
           if (file_size > 0) {

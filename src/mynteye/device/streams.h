@@ -49,6 +49,7 @@ class Streams {
       const Capabilities &capability, const StreamRequest &request);
 
   bool PushStream(const Capabilities &capability, const void *data);
+  bool PushStreamS1(const Capabilities &capability, const void *data);
 
   void WaitForStreams();
 

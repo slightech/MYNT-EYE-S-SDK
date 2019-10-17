@@ -534,32 +534,61 @@ void Device::StartVideoStreaming() {
     auto &&stream_request = GetStreamRequest(stream_cap);
     streams_->ConfigStream(stream_cap, stream_request);
 
-    uvc::set_device_mode(
-        *device_, stream_request.width, stream_request.height,
-        static_cast<int>(stream_request.format), stream_request.fps,
-        [this, stream_cap](
-            const void *data, std::function<void()> continuation) {
-          // drop the first stereo stream data
-          static std::uint8_t drop_count = 1;
-          if (drop_count > 0) {
-            --drop_count;
-            continuation();
-            return;
-          }
-          // auto &&time_beg = times::now();
-          {
-            std::lock_guard<std::mutex> _(mtx_streams_);
-            if (streams_->PushStream(stream_cap, data)) {
-              CallbackPushedStreamData(Stream::LEFT);
-              CallbackPushedStreamData(Stream::RIGHT);
+    if (strstr(this->device_info_->name.c_str(), "S2") == nullptr) {
+      uvc::set_device_mode(
+          *device_, stream_request.width, stream_request.height,
+          static_cast<int>(stream_request.format), stream_request.fps,
+          [this, stream_cap](
+              const void *data, std::function<void()> continuation) {
+            // drop the first stereo stream data
+            static std::uint8_t drop_count = 1;
+            if (drop_count > 0) {
+              --drop_count;
+              continuation();
+              return;
             }
-          }
-          continuation();
-          OnStereoStreamUpdate();
-          // VLOG(2) << "Stereo video callback cost "
-          //     << times::count<times::milliseconds>(times::now() - time_beg)
-          //     << " ms";
-        });
+            // auto &&time_beg = times::now();
+            {
+              std::lock_guard<std::mutex> _(mtx_streams_);
+              if (streams_->PushStreamS1(stream_cap, data)) {
+                CallbackPushedStreamData(Stream::LEFT);
+                CallbackPushedStreamData(Stream::RIGHT);
+              }
+            }
+            continuation();
+            OnStereoStreamUpdate();
+            // VLOG(2) << "Stereo video callback cost "
+            //     << times::count<times::milliseconds>(times::now() - time_beg)
+            //     << " ms";
+          });
+    } else {
+      uvc::set_device_mode(
+          *device_, stream_request.width, stream_request.height,
+          static_cast<int>(stream_request.format), stream_request.fps,
+          [this, stream_cap](
+              const void *data, std::function<void()> continuation) {
+            // drop the first stereo stream data
+            static std::uint8_t drop_count = 1;
+            if (drop_count > 0) {
+              --drop_count;
+              continuation();
+              return;
+            }
+            // auto &&time_beg = times::now();
+            {
+              std::lock_guard<std::mutex> _(mtx_streams_);
+              if (streams_->PushStream(stream_cap, data)) {
+                CallbackPushedStreamData(Stream::LEFT);
+                CallbackPushedStreamData(Stream::RIGHT);
+              }
+            }
+            continuation();
+            OnStereoStreamUpdate();
+            // VLOG(2) << "Stereo video callback cost "
+            //     << times::count<times::milliseconds>(times::now() - time_beg)
+            //     << " ms";
+          });
+    }
   } else {
     LOG(FATAL) << "Not any stream capabilities are supported by this device";
   }

@@ -82,6 +82,49 @@ bool Streams::PushStream(const Capabilities &capability, const void *data) {
       if (unpack_img_data_map_[Stream::LEFT](
               data, request, left_data.img.get())) {
         left_data.frame_id = left_data.img->frame_id;
+        // alloc right
+        AllocStreamData(capability, Stream::RIGHT, request);
+        auto &&right_data = stream_datas_map_[Stream::RIGHT].back();
+        *right_data.img = *left_data.img;
+        right_data.frame_id = left_data.img->frame_id;
+        // unpack frame
+        unpack_img_pixels_map_[Stream::LEFT](
+            data, request, left_data.frame.get());
+        unpack_img_pixels_map_[Stream::RIGHT](
+            data, request, right_data.frame.get());
+        pushed = true;
+      } else {
+        // discard left
+        DiscardStreamData(Stream::LEFT);
+        VLOG(2) << "Image packet is unaccepted, frame dropped";
+        pushed = false;
+      }
+    } break;
+    default:
+      LOG(FATAL) << "Not supported " << capability << " now";
+  }
+  if (HasKeyStreamDatas())
+    cv_.notify_one();
+  return pushed;
+}
+
+bool Streams::PushStreamS1(const Capabilities &capability, const void *data) {
+  if (!HasStreamConfigRequest(capability)) {
+    LOG(FATAL) << "Cannot push stream without stream config request";
+  }
+  std::unique_lock<std::mutex> lock(mtx_);
+  auto &&request = GetStreamConfigRequest(capability);
+  bool pushed = false;
+  switch (capability) {
+    case Capabilities::STEREO:
+    case Capabilities::STEREO_COLOR: {
+      // alloc left
+      AllocStreamData(capability, Stream::LEFT, request);
+      auto &&left_data = stream_datas_map_[Stream::LEFT].back();
+      // unpack img data
+      if (unpack_img_data_map_[Stream::LEFT](
+              data, request, left_data.img.get())) {
+        left_data.frame_id = left_data.img->frame_id;
         CheckTimeStampLimmit(left_data.img);
         // alloc right
         AllocStreamData(capability, Stream::RIGHT, request);
