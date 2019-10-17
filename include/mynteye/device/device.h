@@ -15,6 +15,11 @@
 #define MYNTEYE_DEVICE_DEVICE_H_
 #pragma once
 
+#include <sys/types.h>
+// undef major & minor for 18.04 gcc
+#undef major
+#undef minor
+
 #include <map>
 #include <memory>
 #include <mutex>
