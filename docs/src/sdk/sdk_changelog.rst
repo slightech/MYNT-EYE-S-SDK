@@ -2,6 +2,14 @@
 
 Change Log
 ==========
+2019-10-21(v2.5.0)
+-------------------
+
+1. Change project directory structure.
+2. Lifting dependency and improving code quality.
+3. Aupport xy demo code in sample get_depth_with_region.
+4. Fix some bugs.
+
 2019-09-4(v2.4.2)
 -------------------
 
