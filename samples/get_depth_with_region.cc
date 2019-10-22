@@ -200,8 +200,8 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-  std::cout << std::endl << "Left Camera Intrinsics:" << std::endl
-      << cv_in_left << std::endl;
+  // std::cout << std::endl << "Left Camera Intrinsics:" << std::endl
+  //     << cv_in_left << std::endl;
   cv_in_left_inv = cv_in_left.inv();
   cv::namedWindow("frame");
   cv::namedWindow("depth");
