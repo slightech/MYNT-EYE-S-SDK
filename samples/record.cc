@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
     auto &&motion_datas = api->GetMotionDatas();
     imu_count += motion_datas.size();
     cv::Mat img;
-    if (left_datas.size() > 0) {
+    if (left_datas.size() > 0 && right_datas.size() > 0) {
       auto &&left_frame = left_datas.back().frame_raw;
       auto &&right_frame = right_datas.back().frame_raw;
       if (left_frame->format() == Format::GREY) {
