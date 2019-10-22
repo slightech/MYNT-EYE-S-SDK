@@ -111,18 +111,22 @@ int main(int argc, char *argv[]) {
     }
     cv::imshow("frame", img);
     if (img_count > 10 && imu_count > 50) {  // save
+      // save Stream::LEFT
       for (auto &&left : left_datas) {
         dataset.SaveStreamData(Stream::LEFT, left);
       }
-      for (auto &&right : right_datas) {
-        dataset.SaveStreamData(Stream::RIGHT, right);
-      }
+      // save Stream::RIGHT
+      // for (auto &&right : right_datas) {
+      //   dataset.SaveStreamData(Stream::RIGHT, right);
+      // }
+      // save Stream::DEPTH
       for (auto &&depth : depth_datas) {
         dataset.SaveStreamData(Stream::DEPTH, depth);
       }
-      for (auto &&disparity : disparity_datas) {
-        dataset.SaveStreamData(Stream::DISPARITY, disparity);
-      }
+      // save Stream::DISPARITY
+      // for (auto &&disparity : disparity_datas) {
+      //   dataset.SaveStreamData(Stream::DISPARITY, disparity);
+      // }
 
       for (auto &&motion : motion_datas) {
         dataset.SaveMotionData(motion);
