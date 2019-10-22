@@ -122,7 +122,12 @@ void Dataset::SaveStreamData(
     std::stringstream ss;
     ss << writer->outdir << MYNTEYE_OS_SEP << std::dec
        << std::setw(IMAGE_FILENAME_WIDTH) << std::setfill('0') << seq << ".png";
-    cv::imwrite(ss.str(), data.frame);
+       try {
+         cv::imwrite(ss.str(), data.frame);
+       }
+       catch(int e) {
+         LOG(WARNING) << "Save failed.";
+       }
   }
   ++stream_counts_[stream];
 }
