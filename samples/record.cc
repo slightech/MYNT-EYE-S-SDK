@@ -26,19 +26,29 @@ MYNTEYE_USE_NAMESPACE
 int main(int argc, char *argv[]) {
   glog_init _(argc, argv);
 
-  auto &&device = device::select();
-  if (!device) return 1;
+  auto &&api = API::Create(argc, argv);
+  if (!api) return 1;
 
-  bool ok;
-  auto &&request = device::select_request(device, &ok);
-  if (!ok) return 1;
-  device->ConfigStreamRequest(request);
+  auto request = api->GetStreamRequest();
 
-  device->LogOptionInfos();
+//   struct StreamRequest {
+//   /** Stream width in pixels */
+//   std::uint16_t width;
+//   /** Stream height in pixels */
+//   std::uint16_t height;
+//   /** Stream pixel format */
+//   Format format;
+//   /** Stream frames per second */
+//   std::uint16_t fps;
+//   }
 
-  // Enable this will cache the motion datas until you get them.
-  device->EnableMotionDatas();
-  device->Start(Source::ALL);
+  request.fps = 10;
+  api->ConfigStreamRequest(request);
+  api->EnableMotionDatas();
+
+  api->EnableStreamData(Stream::DEPTH);
+
+  api->Start(Source::ALL);
 
   const char *outdir;
   if (argc >= 2) {
@@ -54,17 +64,19 @@ int main(int argc, char *argv[]) {
   std::size_t imu_count = 0;
   auto &&time_beg = times::now();
   while (true) {
-    device->WaitForStreams();
+    api->WaitForStreams();
 
-    auto &&left_datas = device->GetStreamDatas(Stream::LEFT);
-    auto &&right_datas = device->GetStreamDatas(Stream::RIGHT);
+    auto &&left_datas = api->GetStreamDatas(Stream::LEFT);
+    auto &&right_datas = api->GetStreamDatas(Stream::RIGHT);
+    auto &&depth_datas = api->GetStreamDatas(Stream::DEPTH);
+    auto &&disparity_datas = api->GetStreamDatas(Stream::DISPARITY);
     img_count += left_datas.size();
 
-    auto &&motion_datas = device->GetMotionDatas();
+    auto &&motion_datas = api->GetMotionDatas();
     imu_count += motion_datas.size();
 
-    auto &&left_frame = left_datas.back().frame;
-    auto &&right_frame = right_datas.back().frame;
+    auto &&left_frame = left_datas.back().frame_raw;
+    auto &&right_frame = right_datas.back().frame_raw;
 
     cv::Mat img;
 
@@ -105,6 +117,12 @@ int main(int argc, char *argv[]) {
       for (auto &&right : right_datas) {
         dataset.SaveStreamData(Stream::RIGHT, right);
       }
+      for (auto &&depth : depth_datas) {
+        dataset.SaveStreamData(Stream::DEPTH, depth);
+      }
+      for (auto &&disparity : disparity_datas) {
+        dataset.SaveStreamData(Stream::DISPARITY, disparity);
+      }
 
       for (auto &&motion : motion_datas) {
         dataset.SaveMotionData(motion);
@@ -122,7 +140,7 @@ int main(int argc, char *argv[]) {
   std::cout << " to " << outdir << std::endl;
   auto &&time_end = times::now();
 
-  device->Stop(Source::ALL);
+  api->Stop(Source::ALL);
 
   float elapsed_ms =
       times::count<times::microseconds>(time_end - time_beg) * 0.001f;

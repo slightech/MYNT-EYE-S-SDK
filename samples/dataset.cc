@@ -161,6 +161,12 @@ Dataset::writer_t Dataset::GetStreamWriter(const Stream &stream) {
       case Stream::RIGHT: {
         writer->outdir = outdir_ + MYNTEYE_OS_SEP "right";
       } break;
+      case Stream::DEPTH: {
+        writer->outdir = outdir_ + MYNTEYE_OS_SEP "depth";
+      } break;
+      case Stream::DISPARITY: {
+        writer->outdir = outdir_ + MYNTEYE_OS_SEP "disparity";
+      } break;
       default:
         LOG(FATAL) << "Unsupported stream: " << stream;
     }

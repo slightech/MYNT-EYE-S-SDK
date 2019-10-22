@@ -209,7 +209,6 @@ if(WITH_API)
   )
   make_executable2(get_imu SRCS get_imu.cc util_cv.cc WITH_OPENCV)
   make_executable2(save_single_image SRCS save_single_image.cc WITH_OPENCV)
-  make_executable2(save_depth_and_disparity SRCS save_depth_and_disparity.cc WITH_OPENCV)
   make_executable2(get_from_callbacks
   SRCS get_from_callbacks.cc util_cv.cc
   WITH_OPENCV
