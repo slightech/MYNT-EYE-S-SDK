@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 //   std::uint16_t fps;
 //   }
 
-  request.fps = 10;
+  // request.fps = 10;
   api->ConfigStreamRequest(request);
   api->EnableMotionDatas();
 
@@ -74,42 +74,42 @@ int main(int argc, char *argv[]) {
 
     auto &&motion_datas = api->GetMotionDatas();
     imu_count += motion_datas.size();
-
-    auto &&left_frame = left_datas.back().frame_raw;
-    auto &&right_frame = right_datas.back().frame_raw;
-
     cv::Mat img;
-
-    if (left_frame->format() == Format::GREY) {
-      cv::Mat left_img(
-          left_frame->height(), left_frame->width(), CV_8UC1,
-          left_frame->data());
-      cv::Mat right_img(
-          right_frame->height(), right_frame->width(), CV_8UC1,
-          right_frame->data());
-      cv::hconcat(left_img, right_img, img);
-    } else if (left_frame->format() == Format::YUYV) {
-      cv::Mat left_img(
-          left_frame->height(), left_frame->width(), CV_8UC2,
-          left_frame->data());
-      cv::Mat right_img(
-          right_frame->height(), right_frame->width(), CV_8UC2,
-          right_frame->data());
-      cv::cvtColor(left_img, left_img, cv::COLOR_YUV2BGR_YUY2);
-      cv::cvtColor(right_img, right_img, cv::COLOR_YUV2BGR_YUY2);
-      cv::hconcat(left_img, right_img, img);
-    } else if (left_frame->format() == Format::BGR888) {
-      cv::Mat left_img(
-          left_frame->height(), left_frame->width(), CV_8UC3,
-          left_frame->data());
-      cv::Mat right_img(
-          right_frame->height(), right_frame->width(), CV_8UC3,
-          right_frame->data());
-      cv::hconcat(left_img, right_img, img);
-    } else {
-      return -1;
+    if (left_datas.size() > 0) {
+      auto &&left_frame = left_datas.back().frame_raw;
+      auto &&right_frame = right_datas.back().frame_raw;
+      if (left_frame->format() == Format::GREY) {
+        cv::Mat left_img(
+            left_frame->height(), left_frame->width(), CV_8UC1,
+            left_frame->data());
+        cv::Mat right_img(
+            right_frame->height(), right_frame->width(), CV_8UC1,
+            right_frame->data());
+        cv::hconcat(left_img, right_img, img);
+      } else if (left_frame->format() == Format::YUYV) {
+        cv::Mat left_img(
+            left_frame->height(), left_frame->width(), CV_8UC2,
+            left_frame->data());
+        cv::Mat right_img(
+            right_frame->height(), right_frame->width(), CV_8UC2,
+            right_frame->data());
+        cv::cvtColor(left_img, left_img, cv::COLOR_YUV2BGR_YUY2);
+        cv::cvtColor(right_img, right_img, cv::COLOR_YUV2BGR_YUY2);
+        cv::hconcat(left_img, right_img, img);
+      } else if (left_frame->format() == Format::BGR888) {
+        cv::Mat left_img(
+            left_frame->height(), left_frame->width(), CV_8UC3,
+            left_frame->data());
+        cv::Mat right_img(
+            right_frame->height(), right_frame->width(), CV_8UC3,
+            right_frame->data());
+        cv::hconcat(left_img, right_img, img);
+      } else {
+        return -1;
+      }
+      cv::imshow("frame", img);
     }
-    cv::imshow("frame", img);
+
     if (img_count > 10 && imu_count > 50) {  // save
       // save Stream::LEFT
       for (auto &&left : left_datas) {
