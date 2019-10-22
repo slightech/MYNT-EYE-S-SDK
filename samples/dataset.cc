@@ -137,8 +137,17 @@ void Dataset::SaveMotionData(const api::MotionData &data) {
                 << data.imu->gyro[0] << ", " << data.imu->gyro[1] << ", "
                 << data.imu->gyro[2] << ", " << data.imu->temperature
                 << std::endl;
-  ++motion_count_;
 
+                
+  if (data.imu->flag == 1 || data.imu->flag == 2) {
+    writer->ofs << seq << ", " << static_cast<int>(data.imu->flag) << ", "
+                << data.imu->timestamp << ", " << data.imu->accel[0] << ", "
+                << data.imu->accel[1] << ", " << data.imu->accel[2] << ", "
+                << data.imu->gyro[0] << ", " << data.imu->gyro[1] << ", "
+                << data.imu->gyro[2] << ", " << data.imu->temperature
+                << std::endl;
+    
+  }
   /*
   if(motion_count_ != seq) {
     LOG(INFO) << "motion_count_ != seq !" << " motion_count_: " << motion_count_
@@ -185,31 +194,7 @@ Dataset::writer_t Dataset::GetStreamWriter(const Stream &stream) {
     writer->ofs << "seq, frame_id, timestamp, exposure_time" << std::endl;
     writer->ofs << FULL_PRECISION;
 
-    stream_writers_[stream] = writer
-      return -1;
-    }
-    cv::imshow("frame", img);
-    if (img_count > 10 && imu_count > 50) {  // save
-      // save Stream::LEFT
-      for (auto &&left : left_datas) {
-        dataset.SaveStreamData(Stream::LEFT, left);
-      }
-      // save Stream::RIGHT
-      // for (auto &&right : right_datas) {
-      //   dataset.SaveStreamData(Stream::RIGHT, right);
-      // }
-      // save Stream::DEPTH
-      for (auto &&depth : depth_datas) {
-        dataset.SaveStreamData(Stream::DEPTH, depth);
-      }
-      // save Stream::DISPARITY
-      // for (auto &&disparity : disparity_datas) {
-      //   dataset.SaveStreamData(Stream::DISPARITY, disparity);
-      // }
-
-      for (auto &&motion : motion_datas) {
-        dataset.SaveMotionData(motion);
-      };
+    stream_writers_[stream] = writer;
     stream_counts_[stream] = 0;
     return writer;
   }
