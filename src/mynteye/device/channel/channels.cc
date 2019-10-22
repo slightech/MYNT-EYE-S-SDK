@@ -533,7 +533,13 @@ void Channels::CheckTimeStampLimmit(mynteye::ImuPacket2 &packet) {
     }
     if (is_nearly_before_timestamp_limmit_ > 0) {
       is_nearly_before_timestamp_limmit_--;
-      if (std::abs(current_datum_ - segment2.timestamp) > (uint64_t)(42949672960/2)) {  // NOLINT
+      uint64_t abs_tmp = 0;
+      if (current_datum_ > segment2.timestamp) {
+        abs_tmp = current_datum_ - segment2.timestamp;
+      } else {
+        abs_tmp = segment2.timestamp - current_datum_;
+      }
+      if (abs_tmp > (uint64_t)(42949672960/2)) {  // NOLINT
         segment2.timestamp -= 42949672960;
       }
     }

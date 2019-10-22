@@ -59,7 +59,13 @@ void Streams::CheckTimeStampLimmit(std::shared_ptr<ImgData> img) {
   }
   if (is_nearly_before_timestamp_limmit_ > 0) {
     is_nearly_before_timestamp_limmit_--;
-    if (std::abs(current_datum_ - img->timestamp) > (uint64_t)(42949672960/2)) {  // NOLINT
+    uint64_t abs_tmp = 0;
+    if (current_datum_ > img->timestamp) {
+      abs_tmp = current_datum_ - img->timestamp;
+    } else {
+      abs_tmp = img->timestamp - current_datum_;
+    }
+    if (abs_tmp > (uint64_t)(42949672960/2)) {  // NOLINT
       img->timestamp -= 42949672960;
     }
   }
