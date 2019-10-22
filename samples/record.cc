@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
     auto &&left_datas = api->GetStreamDatas(Stream::LEFT);
     auto &&right_datas = api->GetStreamDatas(Stream::RIGHT);
     auto &&depth_data = api->GetStreamData(Stream::DEPTH);
-    auto &&disparity_datas = api->GetStreamDatas(Stream::DISPARITY);
+    auto &&disparity_data = api->GetStreamData(Stream::DISPARITY);
     img_count += left_datas.size();
 
     auto &&motion_datas = api->GetMotionDatas();
@@ -128,9 +128,9 @@ int main(int argc, char *argv[]) {
       }
 
       // save Stream::DISPARITY
-      // for (auto &&disparity : disparity_datas) {
-      //   dataset.SaveStreamData(Stream::DISPARITY, disparity);
-      // }
+      if (!disparity_data.frame.empty()) {
+        dataset.SaveStreamData(Stream::DISPARITY, disparity_data);
+      }
 
       for (auto &&motion : motion_datas) {
         dataset.SaveMotionData(motion);
