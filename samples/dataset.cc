@@ -166,6 +166,15 @@ Dataset::writer_t Dataset::GetStreamWriter(const Stream &stream) {
       case Stream::DISPARITY: {
         writer->outdir = outdir_ + MYNTEYE_OS_SEP "disparity";
       } break;
+      case Stream::RIGHT_RECTIFIED: {
+        writer->outdir = outdir_ + MYNTEYE_OS_SEP "right_rect";
+      } break;
+      case Stream::LEFT_RECTIFIED: {
+        writer->outdir = outdir_ + MYNTEYE_OS_SEP "left_rect";
+      } break;
+      case Stream::DISPARITY_NORMALIZED: {
+         writer->outdir = outdir_ + MYNTEYE_OS_SEP "disparity_norm";
+      } break;
       default:
         LOG(FATAL) << "Unsupported stream: " << stream;
     }
@@ -176,7 +185,31 @@ Dataset::writer_t Dataset::GetStreamWriter(const Stream &stream) {
     writer->ofs << "seq, frame_id, timestamp, exposure_time" << std::endl;
     writer->ofs << FULL_PRECISION;
 
-    stream_writers_[stream] = writer;
+    stream_writers_[stream] = writer
+      return -1;
+    }
+    cv::imshow("frame", img);
+    if (img_count > 10 && imu_count > 50) {  // save
+      // save Stream::LEFT
+      for (auto &&left : left_datas) {
+        dataset.SaveStreamData(Stream::LEFT, left);
+      }
+      // save Stream::RIGHT
+      // for (auto &&right : right_datas) {
+      //   dataset.SaveStreamData(Stream::RIGHT, right);
+      // }
+      // save Stream::DEPTH
+      for (auto &&depth : depth_datas) {
+        dataset.SaveStreamData(Stream::DEPTH, depth);
+      }
+      // save Stream::DISPARITY
+      // for (auto &&disparity : disparity_datas) {
+      //   dataset.SaveStreamData(Stream::DISPARITY, disparity);
+      // }
+
+      for (auto &&motion : motion_datas) {
+        dataset.SaveMotionData(motion);
+      };
     stream_counts_[stream] = 0;
     return writer;
   }
