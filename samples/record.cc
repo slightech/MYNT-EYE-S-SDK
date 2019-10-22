@@ -122,9 +122,13 @@ int main(int argc, char *argv[]) {
       //   dataset.SaveStreamData(Stream::RIGHT, right);
       // }
       // save Stream::DEPTH
-      // for (auto &&depth : depth_datas) {
-      //   dataset.SaveStreamData(Stream::DEPTH, depth);
-      // }
+      try {
+        for (auto &depth : depth_datas) {
+          dataset.SaveStreamData(Stream::DEPTH, depth);
+        }
+      } catch(int e) {
+        LOG(WARNING) << "Save failed.";
+      }
       // save Stream::DISPARITY
       // for (auto &&disparity : disparity_datas) {
       //   dataset.SaveStreamData(Stream::DISPARITY, disparity);
