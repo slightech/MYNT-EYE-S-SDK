@@ -576,7 +576,7 @@ struct MYNTEYE_API ImuIntrinsics {
   double scale[3][3];
   /** Assembly error [3][3] */
   double assembly[3][3];
-  /* Zero-drift: X, Y, Z */
+  /** Zero-drift: X, Y, Z */
   double drift[3];
   /** Noise density variances */
   double noise[3];
