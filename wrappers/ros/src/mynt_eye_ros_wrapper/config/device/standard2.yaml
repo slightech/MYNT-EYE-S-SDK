@@ -45,7 +45,7 @@ standard2/max_exposure_time: -1
 standard2/desired_brightness: -1
 # standard2/desired_brightness: 122
 
-# standard2/min_exposure_time range: [0,1000]
+# standard2/min_exposure_time range: [0,655]
 standard2/min_exposure_time: -1
 # standard2/min_exposure_time: 0
 
@@ -87,7 +87,7 @@ standard210a/max_exposure_time: -1
 standard210a/desired_brightness: -1
 # standard210a/desired_brightness: 122
 
-# standard210a/min_exposure_time range: [0,1000]
+# standard210a/min_exposure_time range: [0,655]
 standard210a/min_exposure_time: -1
 # standard210a/min_exposure_time: 0
 
@@ -133,7 +133,7 @@ standard200b/max_exposure_time: -1
 standard200b/desired_brightness: -1
 # standard200b/desired_brightness: 122
 
-# standard200b/min_exposure_time range: [0,1000]
+# standard200b/min_exposure_time range: [0,655]
 standard200b/min_exposure_time: -1
 # standard200b/min_exposure_time: 0
 

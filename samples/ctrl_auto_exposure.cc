@@ -66,11 +66,11 @@ int main(int argc, char *argv[]) {
 
     // max_gain: range [0,255], default 8
     api->SetOptionValue(Option::MAX_GAIN, 8);
-    // max_exposure_time: range [0,1000], default 333
+    // max_exposure_time: range [0,655], default 333
     api->SetOptionValue(Option::MAX_EXPOSURE_TIME, 333);
     // desired_brightness: range [1,255], default 122
     api->SetOptionValue(Option::DESIRED_BRIGHTNESS, 122);
-    // min_exposure_time: range [0,1000], default 0
+    // min_exposure_time: range [0,655], default 0
     api->SetOptionValue(Option::MIN_EXPOSURE_TIME, 0);
 
     LOG(INFO) << "Enable auto-exposure";
