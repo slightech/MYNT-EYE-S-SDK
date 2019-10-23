@@ -85,6 +85,9 @@ struct ImuData2 {
     timestamp_l = (*(data + 8) << 24) | (*(data + 9) << 16) |
                   (*(data + 10) << 8) | *(data + 11);
     timestamp = (static_cast<std::uint64_t>(timestamp_h) << 32) | timestamp_l;
+#if DEBUG_TIME_LIMIT
+    timestamp += 4200000000;
+#endif
     flag = *(data + 12);
     temperature = *((float*)(data+ 13));  // NOLINT
     // LOG(INFO) << "temperature:" << temperature;
