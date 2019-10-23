@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 //   std::uint16_t fps;
 //   }
 
-  request.fps = 10;
+  // request.fps = 10;
   api->ConfigStreamRequest(request);
   api->EnableMotionDatas();
 
@@ -68,60 +68,68 @@ int main(int argc, char *argv[]) {
 
     auto &&left_datas = api->GetStreamDatas(Stream::LEFT);
     auto &&right_datas = api->GetStreamDatas(Stream::RIGHT);
-    auto &&depth_datas = api->GetStreamDatas(Stream::DEPTH);
-    auto &&disparity_datas = api->GetStreamDatas(Stream::DISPARITY);
+    auto &&depth_data = api->GetStreamData(Stream::DEPTH);
+    auto &&disparity_data = api->GetStreamData(Stream::DISPARITY);
     img_count += left_datas.size();
 
     auto &&motion_datas = api->GetMotionDatas();
     imu_count += motion_datas.size();
-
-    auto &&left_frame = left_datas.back().frame_raw;
-    auto &&right_frame = right_datas.back().frame_raw;
-
     cv::Mat img;
-
-    if (left_frame->format() == Format::GREY) {
-      cv::Mat left_img(
-          left_frame->height(), left_frame->width(), CV_8UC1,
-          left_frame->data());
-      cv::Mat right_img(
-          right_frame->height(), right_frame->width(), CV_8UC1,
-          right_frame->data());
-      cv::hconcat(left_img, right_img, img);
-    } else if (left_frame->format() == Format::YUYV) {
-      cv::Mat left_img(
-          left_frame->height(), left_frame->width(), CV_8UC2,
-          left_frame->data());
-      cv::Mat right_img(
-          right_frame->height(), right_frame->width(), CV_8UC2,
-          right_frame->data());
-      cv::cvtColor(left_img, left_img, cv::COLOR_YUV2BGR_YUY2);
-      cv::cvtColor(right_img, right_img, cv::COLOR_YUV2BGR_YUY2);
-      cv::hconcat(left_img, right_img, img);
-    } else if (left_frame->format() == Format::BGR888) {
-      cv::Mat left_img(
-          left_frame->height(), left_frame->width(), CV_8UC3,
-          left_frame->data());
-      cv::Mat right_img(
-          right_frame->height(), right_frame->width(), CV_8UC3,
-          right_frame->data());
-      cv::hconcat(left_img, right_img, img);
-    } else {
-      return -1;
+    if (left_datas.size() > 0 && right_datas.size() > 0) {
+      auto &&left_frame = left_datas.back().frame_raw;
+      auto &&right_frame = right_datas.back().frame_raw;
+      if (right_frame->data() && left_frame->data()) {
+        if (left_frame->format() == Format::GREY) {
+          cv::Mat left_img(
+              left_frame->height(), left_frame->width(), CV_8UC1,
+              left_frame->data());
+          cv::Mat right_img(
+              right_frame->height(), right_frame->width(), CV_8UC1,
+              right_frame->data());
+          cv::hconcat(left_img, right_img, img);
+        } else if (left_frame->format() == Format::YUYV) {
+          cv::Mat left_img(
+              left_frame->height(), left_frame->width(), CV_8UC2,
+              left_frame->data());
+          cv::Mat right_img(
+              right_frame->height(), right_frame->width(), CV_8UC2,
+              right_frame->data());
+          cv::cvtColor(left_img, left_img, cv::COLOR_YUV2BGR_YUY2);
+          cv::cvtColor(right_img, right_img, cv::COLOR_YUV2BGR_YUY2);
+          cv::hconcat(left_img, right_img, img);
+        } else if (left_frame->format() == Format::BGR888) {
+          cv::Mat left_img(
+              left_frame->height(), left_frame->width(), CV_8UC3,
+              left_frame->data());
+          cv::Mat right_img(
+              right_frame->height(), right_frame->width(), CV_8UC3,
+              right_frame->data());
+          cv::hconcat(left_img, right_img, img);
+        } else {
+          return -1;
+        }
+        cv::imshow("frame", img);
+      }
     }
-    cv::imshow("frame", img);
+
     if (img_count > 10 && imu_count > 50) {  // save
+      // save Stream::LEFT
       for (auto &&left : left_datas) {
         dataset.SaveStreamData(Stream::LEFT, left);
       }
-      for (auto &&right : right_datas) {
-        dataset.SaveStreamData(Stream::RIGHT, right);
+      // save Stream::RIGHT
+      // for (auto &&right : right_datas) {
+      //   dataset.SaveStreamData(Stream::RIGHT, right);
+      // }
+
+      // save Stream::DEPTH
+      if (!depth_data.frame.empty()) {
+        dataset.SaveStreamData(Stream::DEPTH, depth_data);
       }
-      for (auto &&depth : depth_datas) {
-        dataset.SaveStreamData(Stream::DEPTH, depth);
-      }
-      for (auto &&disparity : disparity_datas) {
-        dataset.SaveStreamData(Stream::DISPARITY, disparity);
+
+      // save Stream::DISPARITY
+      if (!disparity_data.frame.empty()) {
+        dataset.SaveStreamData(Stream::DISPARITY, disparity_data);
       }
 
       for (auto &&motion : motion_datas) {

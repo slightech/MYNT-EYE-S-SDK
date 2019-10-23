@@ -122,7 +122,7 @@ void Dataset::SaveStreamData(
     std::stringstream ss;
     ss << writer->outdir << MYNTEYE_OS_SEP << std::dec
        << std::setw(IMAGE_FILENAME_WIDTH) << std::setfill('0') << seq << ".png";
-    cv::imwrite(ss.str(), data.frame);
+       cv::imwrite(ss.str(), data.frame);
   }
   ++stream_counts_[stream];
 }
@@ -137,8 +137,8 @@ void Dataset::SaveMotionData(const api::MotionData &data) {
                 << data.imu->gyro[0] << ", " << data.imu->gyro[1] << ", "
                 << data.imu->gyro[2] << ", " << data.imu->temperature
                 << std::endl;
-  ++motion_count_;
 
+  motion_count_++;
   /*
   if(motion_count_ != seq) {
     LOG(INFO) << "motion_count_ != seq !" << " motion_count_: " << motion_count_
@@ -165,6 +165,15 @@ Dataset::writer_t Dataset::GetStreamWriter(const Stream &stream) {
       } break;
       case Stream::DISPARITY: {
         writer->outdir = outdir_ + MYNTEYE_OS_SEP "disparity";
+      } break;
+      case Stream::RIGHT_RECTIFIED: {
+        writer->outdir = outdir_ + MYNTEYE_OS_SEP "right_rect";
+      } break;
+      case Stream::LEFT_RECTIFIED: {
+        writer->outdir = outdir_ + MYNTEYE_OS_SEP "left_rect";
+      } break;
+      case Stream::DISPARITY_NORMALIZED: {
+         writer->outdir = outdir_ + MYNTEYE_OS_SEP "disparity_norm";
       } break;
       default:
         LOG(FATAL) << "Unsupported stream: " << stream;

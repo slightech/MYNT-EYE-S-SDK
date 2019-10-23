@@ -195,14 +195,14 @@ enum class Option : std::uint8_t {
    * Max exposure time, valid if auto-exposure
    * <p>
    *   range of standard 1: [0,240], default: 240<br>
-   *   range of standard 2: [0,1000], default: 333
+   *   range of standard 2: [0,655], default: 333
    * </p>
    */
   MAX_EXPOSURE_TIME,
   /**
    * min exposure time, valid if auto-exposure
    * <p>
-   *   range: [0,1000], default: 0<br>
+   *   range: [0,655], default: 0<br>
    * </p>
    */
   MIN_EXPOSURE_TIME,
@@ -576,7 +576,7 @@ struct MYNTEYE_API ImuIntrinsics {
   double scale[3][3];
   /** Assembly error [3][3] */
   double assembly[3][3];
-  /* Zero-drift: X, Y, Z */
+  /** Zero-drift: X, Y, Z */
   double drift[3];
   /** Noise density variances */
   double noise[3];

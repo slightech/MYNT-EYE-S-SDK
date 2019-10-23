@@ -32,6 +32,8 @@ int main(int argc, char *argv[]) {
 
   Model model = api->GetModel();
 
+  api->Start(Source::VIDEO_STREAMING);
+
   // Set auto exposure options fo s1030
   if (model == Model::STANDARD) {
     // auto-exposure: 0
@@ -82,8 +84,6 @@ int main(int argc, char *argv[]) {
     LOG(INFO) << "Set MIN_EXPOSURE_TIME to "
               << api->GetOptionValue(Option::MIN_EXPOSURE_TIME);
   }
-
-  api->Start(Source::VIDEO_STREAMING);
 
   CVPainter painter(frame_rate);
 
