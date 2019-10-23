@@ -32,28 +32,19 @@ int main(int argc, char *argv[]) {
 
   Model model = api->GetModel();
 
+  api->Start(Source::VIDEO_STREAMING);
+
   // Set auto exposure options fo s1030
   if (model == Model::STANDARD) {
     // auto-exposure: 0
     api->SetOptionValue(Option::EXPOSURE_MODE, 0);
 
-    // max_gain: range [0,48], default 48
-    api->SetOptionValue(Option::MAX_GAIN, 48);
     // max_exposure_time: range [0,240], default 240
     api->SetOptionValue(Option::MAX_EXPOSURE_TIME, 240);
-    // desired_brightness: range [0,255], default 192
-    api->SetOptionValue(Option::DESIRED_BRIGHTNESS, 192);
-
-    frame_rate = api->GetOptionValue(Option::FRAME_RATE);
 
     LOG(INFO) << "Enable auto-exposure";
-    LOG(INFO) << "Set EXPOSURE_MODE to "
-              << api->GetOptionValue(Option::EXPOSURE_MODE);
-    LOG(INFO) << "Set MAX_GAIN to " << api->GetOptionValue(Option::MAX_GAIN);
     LOG(INFO) << "Set MAX_EXPOSURE_TIME to "
               << api->GetOptionValue(Option::MAX_EXPOSURE_TIME);
-    LOG(INFO) << "Set DESIRED_BRIGHTNESS to "
-              << api->GetOptionValue(Option::DESIRED_BRIGHTNESS);
   }
 
   // Set auto exposure options fo S2000/S2100/S210A/S200B
@@ -61,29 +52,17 @@ int main(int argc, char *argv[]) {
     model == Model::STANDARD200B) {
     // auto-exposure: 0
     api->SetOptionValue(Option::EXPOSURE_MODE, 0);
-
-    // max_gain: range [0,255], default 8
-    api->SetOptionValue(Option::MAX_GAIN, 8);
     // max_exposure_time: range [0,1000], default 333
     api->SetOptionValue(Option::MAX_EXPOSURE_TIME, 333);
-    // desired_brightness: range [1,255], default 122
-    api->SetOptionValue(Option::DESIRED_BRIGHTNESS, 122);
     // min_exposure_time: range [0,1000], default 0
     api->SetOptionValue(Option::MIN_EXPOSURE_TIME, 0);
 
     LOG(INFO) << "Enable auto-exposure";
-    LOG(INFO) << "Set EXPOSURE_MODE to "
-              << api->GetOptionValue(Option::EXPOSURE_MODE);
-    LOG(INFO) << "Set MAX_GAIN to " << api->GetOptionValue(Option::MAX_GAIN);
     LOG(INFO) << "Set MAX_EXPOSURE_TIME to "
               << api->GetOptionValue(Option::MAX_EXPOSURE_TIME);
-    LOG(INFO) << "Set DESIRED_BRIGHTNESS to "
-              << api->GetOptionValue(Option::DESIRED_BRIGHTNESS);
     LOG(INFO) << "Set MIN_EXPOSURE_TIME to "
               << api->GetOptionValue(Option::MIN_EXPOSURE_TIME);
   }
-
-  api->Start(Source::VIDEO_STREAMING);
 
   CVPainter painter(frame_rate);
 
