@@ -38,15 +38,29 @@ int main(int argc, char *argv[]) {
   while (true) {
     api->WaitForStreams();
 
-    auto &&left_data = api->GetStreamData(Stream::LEFT);
-    auto &&right_data = api->GetStreamData(Stream::RIGHT);
+    static api::StreamData left_data;
+    static api::StreamData right_data;
+    static api::StreamData depth_data;
+
+    auto right_data_tmp = api->GetStreamData(Stream::RIGHT_RECTIFIED);
+    if (!right_data_tmp.frame.empty()) {
+      right_data = right_data_tmp;
+    }
+    auto left_data_tmp = api->GetStreamData(Stream::LEFT_RECTIFIED);
+    if (!left_data_tmp.frame.empty()) {
+      left_data = left_data_tmp;
+    }
+
     if (!left_data.frame.empty() && !right_data.frame.empty()) {
       cv::Mat img;
       cv::hconcat(left_data.frame, right_data.frame, img);
       cv::imshow("frame", img);
     }
 
-    auto &&depth_data = api->GetStreamData(Stream::DEPTH);
+    auto depth_data_tmp = api->GetStreamData(Stream::DEPTH);
+    if (!depth_data_tmp.frame.empty()) {
+      depth_data = depth_data_tmp;
+    }
     if (!depth_data.frame.empty()) {
       cv::imshow("depth_real", depth_data.frame);  // CV_16UC1
     }
