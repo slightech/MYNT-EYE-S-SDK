@@ -1423,7 +1423,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           stream == Stream::RIGHT_RECTIFIED) {
         if (info_pair->right.distortion_model == "KANNALA_BRANDT") {
           camera_info->distortion_model = "KANNALA_BRANDT";
-          for (size_t i = 0; i < 4; i++) {
+          for (size_t i = 0; i < 5; i++) {
             camera_info->D.push_back(info_pair->right.D[i]);
           }
         } else if (info_pair->right.distortion_model == "PINHOLE") {
@@ -1448,7 +1448,7 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           private_nh_.getParamCached("is_laserscan", is_laserscan);
           if (!is_laserscan) {
             camera_info->distortion_model = "KANNALA_BRANDT";
-            for (size_t i = 0; i < 4; i++) {
+            for (size_t i = 0; i < 5; i++) {
               camera_info->D.push_back(info_pair->left.D[i]);
             }
           } else {
