@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 //   std::uint16_t fps;
 //   }
 
-  request.fps = 10;
+//   request.fps = 10;
   api->ConfigStreamRequest(request);
 
   api->EnableStreamData(Stream::DEPTH);
