@@ -69,6 +69,8 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
     gyro_range = channels_->GetControlValue(Option::GYROSCOPE_RANGE);
     if (gyro_range == -1)
       gyro_range = channels_->GetGyroRangeDefault();
+    channels_->SetAcceRange(accel_range);
+    channels_->SetGyroRange(gyro_range);
 
     channels_->SetImuCallback([this](const ImuPacket2 &packet) {
       if (!motion_callback_ && !motion_datas_enabled_) {
@@ -114,8 +116,9 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
         // LOG(INFO)<< "afterg" << imu->gyro[1];
         // LOG(INFO)<< "afterg" << imu->gyro[2];
 
-        bool proc_assembly = ((proc_mode_ & ProcessMode::PROC_IMU_ASSEMBLY) > 0);
-        bool proc_temp_drift = ((proc_mode_ & ProcessMode::PROC_IMU_TEMP_DRIFT) > 0);
+        bool proc_assembly =((proc_mode_ & ProcessMode::PROC_IMU_ASSEMBLY) > 0);
+        bool proc_temp_drift =
+            ((proc_mode_ & ProcessMode::PROC_IMU_TEMP_DRIFT) > 0);
         if (proc_assembly && proc_temp_drift) {
           ProcImuTempDrift(imu);
           ProcImuAssembly(imu);

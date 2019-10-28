@@ -100,6 +100,8 @@ class MYNTEYE_API Channels {
   inline uint64_t timestamp_compensate(uint32_t timestamp32) {
     return 0;
   }
+  inline void SetAcceRange(const int & value) {accel_range = value;}
+  inline void SetGyroRange(const int & value) {gyro_range = value;}
 
  private:
   bool PuControlRange(
