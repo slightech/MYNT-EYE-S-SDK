@@ -80,9 +80,13 @@ int main(int argc, char *argv[]) {
     device->WaitForStreams();
 
     device::StreamData left_data = device->GetStreamData(Stream::LEFT);
-    device::StreamData right_data = device->GetStreamData(Stream::RIGHT);
     auto left_data_frame = *(left_data.frame);
+    device::StreamData right_data = device->GetStreamData(Stream::RIGHT);
     auto right_data_frame = *(left_data.frame);
+    if (left_data.frame->data() == nullptr ||
+       right_data.frame->data() == nullptr) {
+      continue;
+    }
 
     auto &&motion_datas = device->GetMotionDatas();
     motion_count += motion_datas.size();
@@ -97,7 +101,7 @@ int main(int argc, char *argv[]) {
                 << ", temperature: " << data.imu->temperature;
     }
 
-    cv::Mat img;
+    static cv::Mat img;
 
     // TODO(Kalman): Extract into public or internal method
     if (left_data_frame.format() == Format::GREY) {
