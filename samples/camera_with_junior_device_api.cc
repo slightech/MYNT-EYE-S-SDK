@@ -81,6 +81,8 @@ int main(int argc, char *argv[]) {
 
     device::StreamData left_data = device->GetStreamData(Stream::LEFT);
     device::StreamData right_data = device->GetStreamData(Stream::RIGHT);
+    auto left_data_frame = *(left_data.frame);
+    auto right_data_frame = *(left_data.frame);
 
     auto &&motion_datas = device->GetMotionDatas();
     motion_count += motion_datas.size();
@@ -98,31 +100,31 @@ int main(int argc, char *argv[]) {
     cv::Mat img;
 
     // TODO(Kalman): Extract into public or internal method
-    if (left_data.frame->format() == Format::GREY) {
+    if (left_data_frame.format() == Format::GREY) {
       cv::Mat left_img(
-          left_data.frame->height(), left_data.frame->width(), CV_8UC1,
-          left_data.frame->data());
+          left_data_frame.height(), left_data_frame.width(), CV_8UC1,
+          left_data_frame.data());
       cv::Mat right_img(
-          right_data.frame->height(), right_data.frame->width(), CV_8UC1,
-          right_data.frame->data());
+          right_data_frame.height(), right_data_frame.width(), CV_8UC1,
+          right_data_frame.data());
       cv::hconcat(left_img, right_img, img);
-    } else if (left_data.frame->format() == Format::YUYV) {
+    } else if (left_data_frame.format() == Format::YUYV) {
       cv::Mat left_img(
-          left_data.frame->height(), left_data.frame->width(), CV_8UC2,
-          left_data.frame->data());
+          left_data_frame.height(), left_data_frame.width(), CV_8UC2,
+          left_data_frame.data());
       cv::Mat right_img(
-          right_data.frame->height(), right_data.frame->width(), CV_8UC2,
-          right_data.frame->data());
+          right_data_frame.height(), right_data_frame.width(), CV_8UC2,
+          right_data_frame.data());
       cv::cvtColor(left_img, left_img, cv::COLOR_YUV2BGR_YUY2);
       cv::cvtColor(right_img, right_img, cv::COLOR_YUV2BGR_YUY2);
       cv::hconcat(left_img, right_img, img);
-    } else if (left_data.frame->format() == Format::BGR888) {
+    } else if (left_data_frame.format() == Format::BGR888) {
       cv::Mat left_img(
-          left_data.frame->height(), left_data.frame->width(), CV_8UC3,
-          left_data.frame->data());
+          left_data_frame.height(), left_data_frame.width(), CV_8UC3,
+          left_data_frame.data());
       cv::Mat right_img(
-          right_data.frame->height(), right_data.frame->width(), CV_8UC3,
-          right_data.frame->data());
+          right_data_frame.height(), right_data_frame.width(), CV_8UC3,
+          right_data_frame.data());
       cv::hconcat(left_img, right_img, img);
     } else {
       return -1;
