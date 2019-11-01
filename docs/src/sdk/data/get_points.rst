@@ -53,4 +53,4 @@ Complete code examples, see `get_depth_and_points.cc <https://github.com/slighte
 
 .. attention::
 
-  Sample code only compiles when `PCL <https://github.com/PointCloudLibrary/pcl>`_ is ready. If your PCL was installed in a different directory, please set ``CMAKE_PREFIX_PATH`` in `tutorials/CMakeLists.txt <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/tutorials/CMakeLists.txt>`_ to the path of ``PCLConfig.cmake`` . You can find ``CMAKE_PREFIX_PATH`` near ``find_package(PCL)`` .
+  Sample code only compiles when `PCL <https://github.com/PointCloudLibrary/pcl>`_ is ready. If your PCL was installed in a different directory, please set ``CMAKE_PREFIX_PATH`` in `CMakeLists.txt <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/CMakeLists.txt>`_ to the path of ``PCLConfig.cmake`` . You can find ``CMAKE_PREFIX_PATH`` near ``find_package(PCL)`` .

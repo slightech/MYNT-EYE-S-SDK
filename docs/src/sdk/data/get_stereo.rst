@@ -37,4 +37,4 @@ Reference commands:
 
 The above code uses OpenCV to display the image. When the display window is selected, pressing ``ESC/Q`` will end the program.
 
-Complete code examples, see `get_stereo.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/get_stereo.cc>`_ .
+Complete code examples, see `get_stereo.cc <https://github.com/slightech/MYNT-EYE-S-SDK/blob/master/samples/camera_with_junior_device_api.cc>`_ .
