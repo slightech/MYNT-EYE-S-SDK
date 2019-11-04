@@ -54,7 +54,7 @@ The ROS file is structured like follows:
   │     ├─config/
   │     │  ├─device/
   │     │     ├─standard.yaml   # S1030
-  │     │     └─standard2.yaml  # S21XX
+  │     │     └─standard2.yaml  # S21X0/S210A
   │     │  ├─laserscan/
   │     │  ├─process/
   │     │  └─...
@@ -62,11 +62,14 @@ The ROS file is structured like follows:
   │     │  ├─display.launch
   │     │  └─mynteye.launch
   │     │  └─...
-  │     ├─msg/
+  │     ├─mesh/
   │     ├─rviz/
   │     ├─src/
+  |     |  ├─configuru.hpp
   │     │  ├─wrapper_node.cc
   │     │  └─wrapper_nodelet.cc
+  │     ├─srv/
+  |     |  └─GetInfo.srv
   │     ├─CMakeLists.txt
   │     ├─nodelet_plugins.xml
   │     └─package.xml
@@ -92,7 +95,7 @@ standard.yaml/standard2.yaml:
   # standard/imu_frequency: 200
   ...
 
-  # s2100 modify brightness
+  # s21X0 modify brightness
   # standard2/brightness range: [1,255]
   standard2/brightness: -1
   # standard2/brightness: 70
