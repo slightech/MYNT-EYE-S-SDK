@@ -155,7 +155,7 @@ enum class Option : std::uint8_t {
   /**
    * Image contrast, valid if manual-exposure
    * <p>
-   *   range: [0,255], default: 127
+   *   range: [0,254], default: 116
    * </p>
    */
   CONTRAST,
