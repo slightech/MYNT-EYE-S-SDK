@@ -16,7 +16,7 @@ Update auxiliary chip (Only Support S21XX)
 
 .. image:: ../../images/firmware/stmupdate.png
 
-* In the open file selection box, select the firmware ``MYNTEYE-S2100-auxiliary-chip-1.4.2.bin`` and start upgrading.
+* In the open file selection box, select the firmware ``MYNTEYE-S21X0-auxiliary-chip-1.4.2.bin`` and start upgrading.
 
 * Once the upgrade is complete, it will display update finished.
 

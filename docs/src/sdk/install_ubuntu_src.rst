@@ -57,7 +57,7 @@ Required Packages
 
 .. tip::
 
-  To build and install Opencv, Please refer to `Installation in Linux <https://docs.opencv.org/master/d7/d9f/tutorial_linux_install.html>`_ . Alternatively, refer to the command below:
+  To build and install Opencv(Not support 4.0+), Please refer to `Installation in Linux <https://docs.opencv.org/master/d7/d9f/tutorial_linux_install.html>`_ . Alternatively, refer to the command below:
 
   .. code-block:: bash
 
