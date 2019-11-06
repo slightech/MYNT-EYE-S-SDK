@@ -37,7 +37,6 @@ DisparityProcessor::DisparityProcessor(DisparityComputingMethod type,
   }
   VLOG(2) << __func__ << ": proc_period=" << proc_period;
   int sgbmWinSize = 3;
-  int numberOfDisparities = 64;
 #ifdef WITH_OPENCV2
     // StereoSGBM
     //   http://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html?#stereosgbm
@@ -76,7 +75,7 @@ DisparityProcessor::DisparityProcessor(DisparityComputingMethod type,
     sgbm_matcher->setP1(8 * sgbmWinSize * sgbmWinSize);
     sgbm_matcher->setP2(32 * sgbmWinSize * sgbmWinSize);
     sgbm_matcher->setMinDisparity(0);
-    sgbm_matcher->setNumDisparities(numberOfDisparities);
+    sgbm_matcher->setNumDisparities(64);
     sgbm_matcher->setUniquenessRatio(10);
     sgbm_matcher->setSpeckleWindowSize(100);
     sgbm_matcher->setSpeckleRange(32);
