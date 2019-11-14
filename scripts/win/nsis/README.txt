@@ -10,7 +10,7 @@ Language: 简体中文
 
 安装完 SDK 的 exe 安装包后，桌面会生成 SDK 根目录的快捷方式。
 
-进入 "<SDK_ROOT_DIR>\bin\samples\tutorials" 目录，双击 "get_stereo.exe" 运行，即可看到双目实时画面。
+进入 "<SDK_ROOT_DIR>\bin\samples" 目录，双击 "camera_with_senior_api.exe" 运行，即可看到双目实时画面。
 
 2）生成样例工程
 
@@ -24,7 +24,7 @@ p.p.s. 运行结果，参考下方英文内容。
 
 3）如何于 Visual Studio 2017 下使用 SDK
 
-进入 "<SDK_ROOT_DIR>\projects\vs2017" ，见 "README.md" 说明。
+进入 "<SDK_ROOT_DIR>\samples\simple_demo\vs2017" ，见 "README.md" 说明。
 
 ################################################################################
 Language: English
@@ -38,7 +38,7 @@ After you install the win pack of SDK, there will be a shortcut to the SDK root 
 
 First, you should plug the MYNT® EYE camera in a USB 3.0 port.
 
-Second, goto the "<SDK_ROOT_DIR>\bin\samples\tutorials" directory and click "get_stereo.exe" to run.
+Second, goto the "<SDK_ROOT_DIR>\bin\samples" directory and click "camera_with_senior_api.exe" to run.
 
 Finally, you will see the window that display the realtime frame of the camera.
 
@@ -173,4 +173,4 @@ Press any key to continue . . .
 
 3) Start using MYNT® EYE S SDK with Visual Studio 2017
 
-Goto the "<SDK_ROOT_DIR>\projects\vs2017", see the "README.md".
+Goto the "<SDK_ROOT_DIR>\samples\simple_demo\vs2017", see the "README.md".
