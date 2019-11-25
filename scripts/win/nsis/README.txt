@@ -24,7 +24,7 @@ p.p.s. 运行结果，参考下方英文内容。
 
 3）如何于 Visual Studio 2017 下使用 SDK
 
-进入 "<SDK_ROOT_DIR>\samples\simple_demo\vs2017" ，见 "README.md" 说明。
+进入 "<SDK_ROOT_DIR>\samples\simple_demo\project_vs2017" ，见 "README.md" 说明。
 
 ################################################################################
 Language: English
