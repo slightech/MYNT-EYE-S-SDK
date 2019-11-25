@@ -44,9 +44,9 @@ Run samples
 
 .. tip::
 
-  samples path: /opt/mynt-eye-s-sdk/samples; tools path:/opt/mynt-eye-s-sdk/tools
+  samples path: /opt/mynt-eye-s-sdk/samples
 
 .. code-block:: bash
 
   $ cd /opt/mynt-eye-s-sdk/samples
-  $ ./api/camera_a
+  $ ./camera_with_junior_device_api

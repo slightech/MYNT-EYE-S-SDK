@@ -6,7 +6,7 @@ Firmware and SDK compatibility
 ============================ ========================
 S1030 Firmwares                    SDK Version
 ============================ ========================
-MYNTEYE-S1030-2.6.0.img      2.5.0 (2.5.0 ~ latest)
+MYNTEYE-S1030-2.7.0.img      2.5.0 (2.5.0 ~ latest)
 MYNTEYE-S1030-2.5.0.img      2.4.0 (2.4.0 ~ 2.5.0)
 MYNTEYE_S_2.4.0.img          2.3.4 (2.3.4 ~ 2.3.9)
 MYNTEYE_S_2.3.0.img          2.3.0 (2.2.2-rc1 ~ 2.3.3)

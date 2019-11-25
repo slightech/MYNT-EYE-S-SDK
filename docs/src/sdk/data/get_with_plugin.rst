@@ -38,7 +38,7 @@ Then, enable the plugin with the following code:
 
   auto &&api = API::Create(argc, argv);
 
-  api->EnablePlugin("plugins/linux-x86_64/libplugin_g_cuda9.1_opencv3.4.0.so");
+  api->EnablePlugin("plugins/linux-x86_64/libplugin_g_cuda10.1_opencv3.4.1.so");
 
 The path can be an absolute path or a relative path (relative to the current working directory).
 

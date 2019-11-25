@@ -4,10 +4,10 @@ Change Log
 .. toctree::
    :maxdepth: 2
 
-2019-11-04
+2019-11-25
 -------------------
 
-S1030 Main Chip Firmware: MYNTEYE-S1030-2.6.0.img
+S1030 Main Chip Firmware: MYNTEYE-S1030-2.7.0.img
 
 1. Fix some issues
 

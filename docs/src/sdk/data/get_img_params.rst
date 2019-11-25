@@ -31,7 +31,7 @@ Reference result on Linux:
 
 .. code-block:: bash
 
-  $ ./samples/_output/bin/tutorials/get_img_params
+  $ ./samples/_output/bin/get_img_params
   I/utils.cc:48 MYNT EYE devices:
   I/utils.cc:51   index: 0, name: MYNT-EYE-S1030, sn: 4B4C192400090712, firmware: 2.4
   I/utils.cc:60 Only one MYNT EYE device, select index: 0
