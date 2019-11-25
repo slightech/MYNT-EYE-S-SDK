@@ -173,4 +173,4 @@ Press any key to continue . . .
 
 3) Start using MYNT® EYE S SDK with Visual Studio 2017
 
-Goto the "<SDK_ROOT_DIR>\samples\simple_demo\vs2017", see the "README.md".
+Goto the "<SDK_ROOT_DIR>\samples\simple_demo\project_vs2017", see the "README.md".
