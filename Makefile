@@ -44,7 +44,6 @@ help:
 	@echo "  make samples         build samples"
 	@echo "  make pkg             package sdk(windows)"
 	@echo "  make ros             build ros wrapper"
-	@echo "  make py              build python wrapper"
 	@echo "  make clean|cleanall  clean generated or useless things"
 
 .PHONY: help
@@ -172,43 +171,6 @@ cleanros:
 
 .PHONY: cleanros
 
-# python
-
-PBCVT_DIR := wrappers/python/third_party/pyboostcvconverter
-
-$(PBCVT_DIR):
-	@git clone https://github.com/Algomorph/pyboostcvconverter.git $@
-
-pbcvt: $(PBCVT_DIR)
-	@$(call cmake_build,$(PBCVT_DIR)/_build,.., \
-		-DCMAKE_INSTALL_PREFIX=$(MKFILE_DIR)/wrappers/python/_install \
-		-DPYTHON_DESIRED_VERSION=2.X)
-	@cd $(PBCVT_DIR)/_build; make install
-
-.PHONY: pbcvt
-
-NPCV_DIR := wrappers/python/third_party/numpy-opencv-converter
-
-$(NPCV_DIR):
-	@git clone https://github.com/GarrickLin/numpy-opencv-converter.git $@
-
-py: python
-
-python: install $(NPCV_DIR)
-	@$(call echo,Make $@)
-	@$(call cmake_build,./wrappers/python/_build)
-	@cd ./wrappers/python/_build; make install
-
-.PHONY: py python
-
-cleanpy:
-	@$(call echo,Make $@)
-	@$(call rm,./wrappers/python/_build/)
-	@$(call rm,./wrappers/python/_output/)
-	@$(call rm,./wrappers/python/_install/)
-	@$(call rm,./$(PBCVT_DIR)/_build/)
-
-.PHONY: cleanpy
 
 # clean
 
@@ -223,7 +185,6 @@ clean:
 ifeq ($(HOST_OS),Linux)
 	@$(MAKE) cleanros
 endif
-	@$(MAKE) cleanpy
 
 cleanlog:
 	@$(call rm_f,*INFO*)
@@ -233,8 +194,6 @@ cleanlog:
 
 cleanall: clean cleandoc
 	@$(FIND) . -type f -name ".DS_Store" -print0 | xargs -0 rm -f
-	@$(call rm,./$(PBCVT_DIR)/)
-	@$(call rm,./$(NPCV_DIR)/)
 
 .PHONY: clean cleanlog cleanall
 
