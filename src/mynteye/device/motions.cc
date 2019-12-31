@@ -119,13 +119,15 @@ void Motions::SetMotionCallback(motion_callback_t callback) {
         bool proc_assembly =((proc_mode_ & ProcessMode::PROC_IMU_ASSEMBLY) > 0);
         bool proc_temp_drift =
             ((proc_mode_ & ProcessMode::PROC_IMU_TEMP_DRIFT) > 0);
-        if (proc_assembly && proc_temp_drift) {
-          ProcImuTempDrift(imu);
-          ProcImuAssembly(imu);
-        } else if (proc_assembly) {
-          ProcImuAssembly(imu);
-        } else if (proc_temp_drift) {
-          ProcImuTempDrift(imu);
+        if (channels_ && !channels_->IsImuProtocol2()) {
+          if (proc_assembly && proc_temp_drift) {
+            ProcImuTempDrift(imu);
+            ProcImuAssembly(imu);
+          } else if (proc_assembly) {
+            ProcImuAssembly(imu);
+          } else if (proc_temp_drift) {
+            ProcImuTempDrift(imu);
+          }
         }
 
         std::lock_guard<std::mutex> _(mtx_datas_);
