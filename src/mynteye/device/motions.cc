@@ -20,6 +20,9 @@ MYNTEYE_BEGIN_NAMESPACE
 
 namespace {
 
+#define RAD2DEG(rad) (rad/M_PI*180.)
+#define MPSS2G(mpss) (mpss/9.81)
+
 void matrix_3x1(const double (*src1)[3], const double (*src2)[1],
     double (*dst)[1]) {
   for (int i = 0; i < 3; i++) {
@@ -199,29 +202,74 @@ void Motions::ProcImuAssembly(std::shared_ptr<ImuData> data) const {
   if (nullptr == motion_intrinsics_ ||
       IsNullAssemblyOrTempDrift())
     return;
+  // use imu_tk to calibration the imu
+  // the param assembly is the Misalignment matrix: T
+  // the param scale is the scale matrix: K
+  // the param bias is the bias vector: B
+  // X' = T*K*(X - B)
+  static bool init = false;
+  static double TxK_accel[3][3] = {0};
+  static double TxK_gyro[3][3] = {0};
+  static double accel_bias[3] = {0};
+  static double gyro_bias[3] = {0};
+  if (!init) {
+    matrix_3x3(motion_intrinsics_->accel.assembly,
+               motion_intrinsics_->accel.scale, TxK_accel);
+    matrix_3x3(motion_intrinsics_->gyro.assembly,
+               motion_intrinsics_->gyro.scale, TxK_gyro);
+    for (int i = 0; i < 3; ++i) {
+      accel_bias[i] = MPSS2G(motion_intrinsics_->accel.bias[i]);
+      gyro_bias[i] = RAD2DEG(motion_intrinsics_->gyro.bias[i]);
+    }
 
-  double dst[3][3] = {0};
-  if (data->flag == 1) {
-    matrix_3x3(motion_intrinsics_->accel.scale,
-        motion_intrinsics_->accel.assembly, dst);
+//    LOG(INFO) << "-------------- accel T*K --------------" << std::endl;
+//    for (int i = 0; i < 3; ++i)
+//      LOG(INFO) << TxK_accel[i][0] << ", " << TxK_accel[i][1] << ", " << TxK_accel[i][2];
+//    LOG(INFO) << "-------------- gyro T*K --------------" << std::endl;
+//    for (int i = 0; i < 3; ++i)
+//      LOG(INFO) << TxK_gyro[i][0] << ", " << TxK_gyro[i][1] << ", " << TxK_gyro[i][2];
+//    LOG(INFO) << "-------------- accel bias --------------" << std::endl;
+//    LOG(INFO) << accel_bias[0] << ", " << accel_bias[1] << ", " << accel_bias[2];
+//    LOG(INFO) << "-------------- gyro bias --------------" << std::endl;
+//    LOG(INFO) << gyro_bias[0] << ", " << gyro_bias[1] << ", " << gyro_bias[2];
+
+    init = true;
+  }
+
+  if (data->flag == 0) {
     double s[3][1] = {0};
     double d[3][1] = {0};
     for (int i = 0; i < 3; i++) {
-      s[i][0] = data->accel[i];
+      s[i][0] = data->accel[i] - accel_bias[i];
     }
-    matrix_3x1(dst, s, d);
+    matrix_3x1(TxK_accel, s, d);
+    for (int i = 0; i < 3; i++) {
+      data->accel[i] = d[i][0];
+    }
+    for (int i = 0; i < 3; i++) {
+      s[i][0] = data->gyro[i] - gyro_bias[i];
+    }
+    matrix_3x1(TxK_gyro, s, d);
+    for (int i = 0; i < 3; i++) {
+      data->gyro[i] = d[i][0];
+    }
+  } else if (data->flag == 1) {
+    double s[3][1] = {0};
+    double d[3][1] = {0};
+    for (int i = 0; i < 3; i++) {
+      s[i][0] = data->accel[i] - accel_bias[i];
+    }
+    matrix_3x1(TxK_accel, s, d);
     for (int i = 0; i < 3; i++) {
       data->accel[i] = d[i][0];
     }
   } else if (data->flag == 2) {
-    matrix_3x3(motion_intrinsics_->gyro.scale,
-        motion_intrinsics_->gyro.assembly, dst);
     double s[3][1] = {0};
     double d[3][1] = {0};
     for (int i = 0; i < 3; i++) {
-      s[i][0] = data->gyro[i];
+      s[i][0] = data->gyro[i] - gyro_bias[i];
     }
-    matrix_3x1(dst, s, d);
+    matrix_3x1(TxK_gyro, s, d);
     for (int i = 0; i < 3; i++) {
       data->gyro[i] = d[i][0];
     }
