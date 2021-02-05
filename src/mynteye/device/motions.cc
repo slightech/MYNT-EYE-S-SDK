@@ -27,6 +27,7 @@ void matrix_3x1(const double (*src1)[3], const double (*src2)[1],
     double (*dst)[1]) {
   for (int i = 0; i < 3; i++) {
     for (int j = 0; j < 1; j++) {
+      dst[i][j] = 0.;
       for (int k = 0; k < 3; k++) {
         dst[i][j] += src1[i][k] * src2[k][j];
       }
@@ -38,6 +39,7 @@ void matrix_3x3(const double (*src1)[3], const double (*src2)[3],
     double (*dst)[3]) {
   for (int i = 0; i < 3; i++) {
     for (int j = 0; j < 3; j++) {
+      dst[i][j] = 0.;
       for (int k = 0; k < 3; k++) {
         dst[i][j] += src1[i][k] * src2[k][j];
       }
