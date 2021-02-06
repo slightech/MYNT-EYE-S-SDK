@@ -207,21 +207,21 @@ void Motions::ProcImuAssembly(std::shared_ptr<ImuData> data) const {
   // use imu_tk to calibration the imu
   // the param assembly is the Misalignment matrix: T
   // the param scale is the scale matrix: K
-  // the param bias is the bias vector: B
+  // the param drift is the drift vector: B
   // X' = T*K*(X - B)
   static bool init = false;
   static double TxK_accel[3][3] = {0};
   static double TxK_gyro[3][3] = {0};
-  static double accel_bias[3] = {0};
-  static double gyro_bias[3] = {0};
+  static double accel_drift[3] = {0};
+  static double gyro_drift[3] = {0};
   if (!init) {
     matrix_3x3(motion_intrinsics_->accel.assembly,
                motion_intrinsics_->accel.scale, TxK_accel);
     matrix_3x3(motion_intrinsics_->gyro.assembly,
                motion_intrinsics_->gyro.scale, TxK_gyro);
     for (int i = 0; i < 3; ++i) {
-      accel_bias[i] = MPSS2G(motion_intrinsics_->accel.bias[i]);
-      gyro_bias[i] = RAD2DEG(motion_intrinsics_->gyro.bias[i]);
+      accel_drift[i] = MPSS2G(motion_intrinsics_->accel.drift[i]);
+      gyro_drift[i] = RAD2DEG(motion_intrinsics_->gyro.drift[i]);
     }
 
 //    LOG(INFO) << "-------------- accel T*K --------------" << std::endl;
@@ -231,9 +231,9 @@ void Motions::ProcImuAssembly(std::shared_ptr<ImuData> data) const {
 //    for (int i = 0; i < 3; ++i)
 //      LOG(INFO) << TxK_gyro[i][0] << ", " << TxK_gyro[i][1] << ", " << TxK_gyro[i][2];
 //    LOG(INFO) << "-------------- accel bias --------------" << std::endl;
-//    LOG(INFO) << accel_bias[0] << ", " << accel_bias[1] << ", " << accel_bias[2];
+//    LOG(INFO) << accel_drift[0] << ", " << accel_drift[1] << ", " << accel_drift[2];
 //    LOG(INFO) << "-------------- gyro bias --------------" << std::endl;
-//    LOG(INFO) << gyro_bias[0] << ", " << gyro_bias[1] << ", " << gyro_bias[2];
+//    LOG(INFO) << gyro_drift[0] << ", " << gyro_drift[1] << ", " << gyro_drift[2];
 
     init = true;
   }
@@ -242,14 +242,14 @@ void Motions::ProcImuAssembly(std::shared_ptr<ImuData> data) const {
     double s[3][1] = {0};
     double d[3][1] = {0};
     for (int i = 0; i < 3; i++) {
-      s[i][0] = data->accel[i] - accel_bias[i];
+      s[i][0] = data->accel[i] - accel_drift[i];
     }
     matrix_3x1(TxK_accel, s, d);
     for (int i = 0; i < 3; i++) {
       data->accel[i] = d[i][0];
     }
     for (int i = 0; i < 3; i++) {
-      s[i][0] = data->gyro[i] - gyro_bias[i];
+      s[i][0] = data->gyro[i] - gyro_drift[i];
     }
     matrix_3x1(TxK_gyro, s, d);
     for (int i = 0; i < 3; i++) {
@@ -259,7 +259,7 @@ void Motions::ProcImuAssembly(std::shared_ptr<ImuData> data) const {
     double s[3][1] = {0};
     double d[3][1] = {0};
     for (int i = 0; i < 3; i++) {
-      s[i][0] = data->accel[i] - accel_bias[i];
+      s[i][0] = data->accel[i] - accel_drift[i];
     }
     matrix_3x1(TxK_accel, s, d);
     for (int i = 0; i < 3; i++) {
@@ -269,7 +269,7 @@ void Motions::ProcImuAssembly(std::shared_ptr<ImuData> data) const {
     double s[3][1] = {0};
     double d[3][1] = {0};
     for (int i = 0; i < 3; i++) {
-      s[i][0] = data->gyro[i] - gyro_bias[i];
+      s[i][0] = data->gyro[i] - gyro_drift[i];
     }
     matrix_3x1(TxK_gyro, s, d);
     for (int i = 0; i < 3; i++) {
