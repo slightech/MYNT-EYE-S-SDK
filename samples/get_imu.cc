@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
   api->EnableMotionDatas();
   // Enable imu timestamp correspondence int device;
   api->EnableImuTimestampCorrespondence(true);
+  api->EnableProcessMode(ProcessMode::PROC_IMU_ASSEMBLY);
 
   api->Start(Source::ALL);
 

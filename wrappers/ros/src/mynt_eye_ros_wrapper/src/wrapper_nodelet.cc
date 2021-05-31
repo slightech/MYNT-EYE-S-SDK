@@ -1177,12 +1177,14 @@ class ROSWrapperNodelet : public nodelet::Nodelet {
           break;
       }
     }
+
+    std::int32_t process_mode = 0;
     if (model_ == Model::STANDARD) {
       private_nh_.getParamCached("standard/request_index", request_index);
       frame_rate_ = api_->GetOptionValue(Option::FRAME_RATE);
+      private_nh_.getParamCached("standard/imu_process_mode", process_mode);
+      api_->EnableProcessMode(process_mode);
     }
-
-    std::int32_t process_mode = 0;
     if (model_ == Model::STANDARD2 ||
         model_ == Model::STANDARD210A || model_ == Model::STANDARD200B) {
       private_nh_.getParamCached("standard2/imu_process_mode", process_mode);

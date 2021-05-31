@@ -31,6 +31,8 @@ int main(int argc, char *argv[]) {
   auto &&request = device::select_request(device, &ok);
   if (!ok) return 1;
   device->ConfigStreamRequest(request);
+  device->EnableImuCorrespondence(true);
+  device->EnableProcessMode(ProcessMode::PROC_IMU_ASSEMBLY);
 
   std::size_t left_count = 0;
   device->SetStreamCallback(
