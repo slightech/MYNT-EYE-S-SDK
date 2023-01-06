@@ -89,7 +89,7 @@ class RectifyProcessor : public Processor {
       CvMat* _R1, CvMat* _R2, CvMat* _P1, CvMat* _P2, double* T_mul_f,
       double *cx1_min_cx2,
       int flags = cv::CALIB_ZERO_DISPARITY, double alpha = -1,
-      CvSize newImgSize = cv::Size());
+      CvSize newImgSize = cvSize(0,0));
 
   Eigen::Matrix4d loadT(const mynteye::Extrinsics& in);
   void loadCameraMatrix(cv::Mat& K, cv::Mat& D,  // NOLINT
