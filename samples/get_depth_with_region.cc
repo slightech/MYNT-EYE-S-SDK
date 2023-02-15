@@ -170,6 +170,7 @@ int main(int argc, char *argv[]) {
 
   api->SetOptionValue(Option::IR_CONTROL, 80);
 
+  api->SetDisparityComputingMethodType(DisparityComputingMethod::SGBM);
   api->EnableStreamData(Stream::DISPARITY_NORMALIZED);
   api->EnableStreamData(Stream::DEPTH);
 

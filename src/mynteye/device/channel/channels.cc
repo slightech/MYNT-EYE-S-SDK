@@ -45,9 +45,9 @@ mynteye::ImuPacket2 to_pak2(const mynteye::ImuPacket& pak1,
     tpr.accel[0] = pak1.segments[i].accel[0] * 1.f * accel_range / 0x10000;
     tpr.accel[1] = pak1.segments[i].accel[1] * 1.f * accel_range / 0x10000;
     tpr.accel[2] = pak1.segments[i].accel[2] * 1.f * accel_range / 0x10000;
-    tpr.gyro[0] = pak1.segments[i].gyro[0] * gyro_range / 0x10000;
-    tpr.gyro[1] = pak1.segments[i].gyro[1] * gyro_range / 0x10000;
-    tpr.gyro[2] = pak1.segments[i].gyro[2] * gyro_range / 0x10000;
+    tpr.gyro[0] = pak1.segments[i].gyro[0] * 1.f * gyro_range / 0x10000;
+    tpr.gyro[1] = pak1.segments[i].gyro[1] * 1.f * gyro_range / 0x10000;
+    tpr.gyro[2] = pak1.segments[i].gyro[2] * 1.f * gyro_range / 0x10000;
     tpr.flag = pak1.segments[i].flag;
     tpr.frame_id = pak1.segments[i].frame_id;
     tpr.is_ets = pak1.segments[i].is_ets;

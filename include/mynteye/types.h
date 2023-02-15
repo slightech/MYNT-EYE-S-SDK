@@ -625,7 +625,9 @@ struct MYNTEYE_API Extrinsics {
     return {{{rotation[0][0], rotation[1][0], rotation[2][0]},
              {rotation[0][1], rotation[1][1], rotation[2][1]},
              {rotation[0][2], rotation[1][2], rotation[2][2]}},
-            {-translation[0], -translation[1], -translation[2]}};
+            {-(rotation[0][0]*translation[0] + rotation[1][0]*translation[1] + rotation[2][0]*translation[2]),
+             -(rotation[0][1]*translation[0] + rotation[1][1]*translation[1] + rotation[2][1]*translation[2]),
+             -(rotation[0][2]*translation[0] + rotation[1][2]*translation[1] + rotation[2][2]*translation[2])}};
   }
 };
 
